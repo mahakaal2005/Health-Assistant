@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Enhanced Dashboard Card Styles -->
+    <style name="DashboardCard">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_marginStart">12dp</item>
+        <item name="android:layout_marginEnd">12dp</item>
+        <item name="android:layout_marginBottom">16dp</item>
+        <item name="cardCornerRadius">20dp</item>
+        <item name="cardElevation">8dp</item>
+        <item name="cardBackgroundColor">@color/card_background</item>
+        <item name="contentPadding">0dp</item>
+        <item name="rippleColor">@color/ripple_color</item>
+    </style>
+
+    <!-- Card Content Container Style -->
+    <style name="CardContentLayout">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:paddingStart">16dp</item>
+        <item name="android:paddingEnd">16dp</item>
+        <item name="android:paddingTop">18dp</item>
+        <item name="android:paddingBottom">18dp</item>
+    </style>
+
+    <!-- Enhanced Typography Styles -->
+    <style name="DashboardCardTitle">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:textSize">20sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textColor">@color/text_primary</item>
+        <item name="android:fontFamily">sans-serif-medium</item>
+        <item name="android:layout_marginBottom">6dp</item>
+        <item name="android:letterSpacing">0.02</item>
+    </style>
+
+    <style name="DashboardCardDescription">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:textColor">@color/text_secondary</item>
+        <item name="android:fontFamily">sans-serif</item>
+        <item name="android:lineSpacingExtra">2dp</item>
+        <item name="android:layout_marginBottom">16dp</item>
+        <item name="android:maxLines">2</item>
+        <item name="android:ellipsize">end</item>
+    </style>
+
+    <!-- Icon Styles -->
+    <style name="DashboardSectionIcon">
+        <item name="android:layout_width">48dp</item>
+        <item name="android:layout_height">48dp</item>
+        <item name="android:padding">10dp</item>
+        <item name="android:layout_marginEnd">16dp</item>
+        <item name="tint">@color/white</item>
+    </style>
+
+    <!-- Enhanced Action Chip Styles -->
+    <style name="ActionChip" parent="Widget.MaterialComponents.Chip.Action">
+        <item name="android:textSize">14sp</item>
+        <item name="chipMinHeight">36dp</item>
+        <item name="chipCornerRadius">18dp</item>
+        <item name="chipStrokeWidth">1dp</item>
+        <item name="android:textColor">@color/text_primary</item>
+        <item name="rippleColor">@color/ripple_color</item>
+        <item name="android:letterSpacing">0.01</item>
+    </style>
+
+    <style name="ActionChip.Primary">
+        <item name="chipBackgroundColor">@color/card_background_elevated</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="ActionChip.Secondary">
+        <item name="chipBackgroundColor">@color/card_background_alt</item>
+        <item name="android:alpha">0.9</item>
+    </style>
+
+    <!-- Section accent indicator styles -->
+    <style name="SectionAccentIndicator">
+        <item name="android:layout_width">8dp</item>
+        <item name="android:layout_height">0dp</item>
+    </style>
+
+    <!-- Dashboard header styles -->
+    <style name="DashboardHeader">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:paddingStart">20dp</item>
+        <item name="android:paddingEnd">20dp</item>
+        <item name="android:paddingTop">24dp</item>
+        <item name="android:paddingBottom">24dp</item>
+        <item name="android:orientation">vertical</item>
+    </style>
+
+    <style name="DashboardHeaderTitle">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:textColor">@color/white</item>
+        <item name="android:textSize">28sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:fontFamily">sans-serif-medium</item>
+    </style>
+
+    <style name="DashboardHeaderSubtitle">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_marginTop">4dp</item>
+        <item name="android:textColor">@color/white</item>
+        <item name="android:alpha">0.9</item>
+        <item name="android:textSize">16sp</item>
+    </style>
+</resources>

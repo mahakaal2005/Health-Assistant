@@ -68,8 +68,19 @@ class LoginFragment : Fragment() {
     }
 
     private fun navigateToDashboard() {
-        // Navigate to Dashboard (MainActivity)
-        findNavController().navigate(R.id.action_loginFragment_to_dashboardActivity)
+        // Method 1: Using Navigation Component with activity destination
+        // This works if we defined dashboardFragment in the nav_auth.xml (which we did earlier)
+        findNavController().navigate(R.id.action_loginFragment_to_dashboardFragment)
+
+
+        // Method 2: Alternative approach - Start MainActivity directly with Intent
+        //val intent = Intent(requireContext(), MainActivity::class.java)
+        // Clear the back stack so user can't go back to login with back button
+        //intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+        //startActivity(intent)
+        // Optional: Add a transition animation
+        requireActivity().overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out)
+
     }
 
     override fun onDestroyView() {

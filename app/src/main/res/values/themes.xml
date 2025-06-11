@@ -6,4 +6,10 @@
     </style>
 
     <style name="Theme.Health_Assistant" parent="Base.Theme.Health_Assistant" />
+
+    <!-- Theme for MainActivity with custom toolbar -->
+    <style name="Theme.Health_Assistant.NoActionBar">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+    </style>
 </resources>

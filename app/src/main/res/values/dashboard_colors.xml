@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Dashboard Base Colors - Enhanced dark theme with better contrast -->
+    <color name="dashboard_background">#181A20</color>
+    <color name="card_background">#23252B</color>
+    <color name="card_background_alt">#2A2D35</color>
+    <color name="card_background_elevated">#303340</color>
+    <color name="text_primary">#FFFFFF</color>
+    <color name="text_secondary">#B0B0B0</color>
+    <color name="divider">#3DFFFFFF</color>
+    <color name="ripple_color">#33FFFFFF</color>
+
+    <!-- Primary teal colors from splash screen - keeping for brand consistency -->
+    <color name="primary_teal">#00bfad</color>
+    <color name="primary_blue_teal">#0088cc</color>
+
+    <!-- Vibrant Feature-specific Accent Colors -->
+    <color name="health_check_accent">#FFD700</color> <!-- Gold -->
+    <color name="health_check_accent_dark">#D4AF37</color> <!-- Darker Gold -->
+    <color name="health_check_accent_light">#FFF8DC</color> <!-- Light Gold -->
+
+    <color name="prescription_upload_accent">#B8860B</color> <!-- Bronze -->
+    <color name="prescription_upload_accent_dark">#8B6914</color> <!-- Darker Bronze -->
+    <color name="prescription_upload_accent_light">#F5DEB3</color> <!-- Light Bronze -->
+
+    <color name="weekly_report_accent">#2ECC40</color> <!-- Emerald Green -->
+    <color name="weekly_report_accent_dark">#27AE60</color> <!-- Darker Green -->
+    <color name="weekly_report_accent_light">#E8F5E9</color> <!-- Light Green -->
+
+    <color name="emergency_accent">#8B008B</color> <!-- Deep Magenta -->
+    <color name="emergency_accent_dark">#6A006A</color> <!-- Darker Magenta -->
+    <color name="emergency_accent_light">#F3E5F5</color> <!-- Light Magenta -->
+
+    <color name="chatbot_accent">#1E3A5C</color> <!-- Navy Blue -->
+    <color name="chatbot_accent_dark">#152D4A</color> <!-- Darker Navy -->
+    <color name="chatbot_accent_light">#E1F5FE</color> <!-- Light Blue -->
+
+    <color name="ar_guide_accent">#17A2B8</color> <!-- Teal/Cyan -->
+    <color name="ar_guide_accent_dark">#0F7A8A</color> <!-- Darker Teal -->
+    <color name="ar_guide_accent_light">#E0F7FA</color> <!-- Light Teal -->
+
+    <color name="community_accent">#228B22</color> <!-- Forest Green -->
+    <color name="community_accent_dark">#1B691B</color> <!-- Darker Forest Green -->
+    <color name="community_accent_light">#E8F5E9</color> <!-- Light Green -->
+
+    <color name="settings_accent">#FFA500</color> <!-- Orange -->
+    <color name="settings_accent_dark">#E67E00</color> <!-- Darker Orange -->
+    <color name="settings_accent_light">#FFF3E0</color> <!-- Light Orange -->
+
+    <color name="help_feedback_accent">#7FFF00</color> <!-- Chartreuse/Lime -->
+    <color name="help_feedback_accent_dark">#66CC00</color> <!-- Darker Lime -->
+    <color name="help_feedback_accent_light">#F1F8E9</color> <!-- Light Lime -->
+</resources>

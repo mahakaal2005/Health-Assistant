@@ -5,12 +5,18 @@ import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
-import androidx.fragment.app.Fragment
+import androidx.navigation.NavController
+import androidx.navigation.fragment.NavHostFragment
+import androidx.navigation.ui.AppBarConfiguration
+import androidx.navigation.ui.navigateUp
+import androidx.navigation.ui.setupActionBarWithNavController
 import com.example.health_assistant.R
 import com.example.health_assistant.databinding.MainActivityBinding
 
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: MainActivityBinding
+    private lateinit var navController: NavController
+    private lateinit var appBarConfiguration: AppBarConfiguration
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -24,42 +30,24 @@ class MainActivity : AppCompatActivity() {
             insets
         }
 
-        // Load the initial fragment if this is the first creation
-        if (savedInstanceState == null) {
-            // You can replace this with your actual home/initial fragment when you create it
-            // loadFragment(HomeFragment())
-        }
+        // Set up the NavHostFragment and NavController for navigation
+        val navHostFragment = supportFragmentManager.findFragmentById(R.id.fragment_container) as NavHostFragment
+        navController = navHostFragment.navController
+
+        // Set up top-level destinations (no back button shown for these destinations)
+        appBarConfiguration = AppBarConfiguration(
+            setOf(
+                R.id.dashboardFragment // Dashboard is a top-level destination
+            )
+        )
+
+        // Set up the ActionBar with NavController
+        setSupportActionBar(binding.toolbar)
+        setupActionBarWithNavController(navController, appBarConfiguration)
     }
 
-    /**
-     * Replaces the current fragment with a new fragment
-     * @param fragment Fragment to display
-     * @param addToBackStack Whether to add this transaction to back stack for navigation
-     */
-    fun loadFragment(fragment: Fragment, addToBackStack: Boolean = true) {
-        val transaction = supportFragmentManager.beginTransaction()
-        transaction.replace(R.id.fragment_container, fragment)
-
-        if (addToBackStack) {
-            transaction.addToBackStack(null)
-        }
-
-        transaction.commit()
-    }
-
-    /**
-     * Adds a fragment on top of the current fragment
-     * @param fragment Fragment to add
-     * @param addToBackStack Whether to add this transaction to back stack for navigation
-     */
-    fun addFragment(fragment: Fragment, addToBackStack: Boolean = true) {
-        val transaction = supportFragmentManager.beginTransaction()
-        transaction.add(R.id.fragment_container, fragment)
-
-        if (addToBackStack) {
-            transaction.addToBackStack(null)
-        }
-
-        transaction.commit()
+    // Handle Up navigation with NavController
+    override fun onSupportNavigateUp(): Boolean {
+        return navController.navigateUp(appBarConfiguration) || super.onSupportNavigateUp()
     }
 }
