@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="200dp"
+    android:height="200dp"
+    android:viewportWidth="200"
+    android:viewportHeight="200">
+
+    <!-- Background Circle -->
+    <path
+        android:fillColor="#2196F3"
+        android:pathData="M100,100m-80,0a80,80 0,1 1,160 0a80,80 0,1 1,-160 0" />
+
+    <!-- Health Symbol (Heart) -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M100,60c-8.8,0 -16,7.2 -16,16c0,-8.8 -7.2,-16 -16,-16s-16,7.2 -16,16c0,22.4 32,40 32,40s32,-17.6 32,-40C116,67.2 108.8,60 100,60z" />
+
+    <!-- Health Cross -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M120,100l20,0l0,10l-20,0l0,20l-10,0l0,-20l-20,0l0,-10l20,0l0,-20l10,0z" />
+</vector>

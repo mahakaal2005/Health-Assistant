@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_auth"
+    app:startDestination="@id/onboardingFragment">
+
+    <fragment
+        android:id="@+id/onboardingFragment"
+        android:name="com.example.health_assistant.auth.fragments.OnboardingFragment"
+        android:label="fragment_onboarding"
+        tools:layout="@layout/auth_fragment_onboarding">
+        <action
+            android:id="@+id/action_onboardingFragment_to_accountDecisionFragment"
+            app:destination="@id/accountDecisionFragment"
+            app:popUpTo="@id/onboardingFragment"
+            app:popUpToInclusive="true" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/accountDecisionFragment"
+        android:name="com.example.health_assistant.auth.fragments.AccountDecisionFragment"
+        android:label="fragment_account_decision"
+        tools:layout="@layout/auth_fragment_account_decision">
+        <action
+            android:id="@+id/action_accountDecisionFragment_to_loginFragment"
+            app:destination="@id/loginFragment" />
+        <action
+            android:id="@+id/action_accountDecisionFragment_to_signUpFragment"
+            app:destination="@id/signUpFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/loginFragment"
+        android:name="com.example.health_assistant.auth.fragments.LoginFragment"
+        android:label="fragment_login"
+        tools:layout="@layout/auth_fragment_login">
+        <action
+            android:id="@+id/action_loginFragment_to_signUpFragment"
+            app:destination="@id/signUpFragment" />
+        <action
+            android:id="@+id/action_loginFragment_to_dashboardActivity"
+            app:destination="@id/dashboardActivity"
+            app:popUpTo="@id/nav_auth"
+            app:popUpToInclusive="true" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/signUpFragment"
+        android:name="com.example.health_assistant.auth.fragments.SignUpFragment"
+        android:label="fragment_sign_up"
+        tools:layout="@layout/auth_fragment_signup">
+        <action
+            android:id="@+id/action_signUpFragment_to_loginFragment"
+            app:destination="@id/loginFragment" />
+        <action
+            android:id="@+id/action_signUpFragment_to_dashboardActivity"
+            app:destination="@id/dashboardActivity"
+            app:popUpTo="@id/nav_auth"
+            app:popUpToInclusive="true" />
+    </fragment>
+
+    <activity
+        android:id="@+id/dashboardActivity"
+        android:name="com.example.health_assistant.main.MainActivity"
+        android:label="activity_dashboard"
+        tools:layout="@layout/main_activity" />
+
+</navigation>

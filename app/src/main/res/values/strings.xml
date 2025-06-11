@@ -1,3 +1,33 @@
 <resources>
     <string name="app_name">Health_Assistant</string>
+    <string name="app_display_name">VibeHealth</string>
+
+    <!-- Onboarding Screen -->
+    <string name="onboarding_title">Welcome to VibeHealth!</string>
+    <string name="onboarding_subtitle">Your smart health companion for students and professionals</string>
+    <string name="onboarding_description">Track your health, get AI-powered insights, and access emergency services all in one place</string>
+    <string name="onboarding_image_description">Health monitoring illustration</string>
+    <string name="feature_monitoring_title">Smart Health Monitoring</string>
+    <string name="feature_monitoring_desc">Track your vital signs and get personalized health insights</string>
+    <string name="feature_chatbot_title">AI Chatbot</string>
+    <string name="feature_chatbot_desc">Get instant answers to your health questions from our AI assistant</string>
+    <string name="feature_emergency_title">Emergency Alerts</string>
+    <string name="feature_emergency_desc">Quick access to emergency services and alert trusted contacts</string>
+    <string name="get_started">Get Started</string>
+
+    <!-- Account Decision Screen -->
+    <string name="account_question">Do you already have an account?</string>
+    <string name="log_in">Log In</string>
+    <string name="create_account">Create Account</string>
+    <string name="privacy_notice">By continuing, you agree to our Terms of Service and Privacy Policy</string>
+
+    <!-- Login and Signup Screens -->
+    <string name="login_title">Welcome Back</string>
+    <string name="signup_title">Create Account</string>
+    <string name="email">Email</string>
+    <string name="password">Password</string>
+    <string name="full_name">Full Name</string>
+    <string name="forgot_password">Forgot Password?</string>
+    <string name="no_account_prompt">Don\'t have an account? Sign Up</string>
+    <string name="already_account_prompt">Already have an account? Log In</string>
 </resources>
