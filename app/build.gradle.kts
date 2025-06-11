@@ -1,6 +1,8 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
+    // Apply Google Services Gradle plugin
+    id("com.google.gms.google-services")
 }
 
 android {
@@ -49,6 +51,13 @@ dependencies {
     implementation(libs.lottie)
     implementation(libs.androidx.navigation.fragment.ktx)
     implementation(libs.androidx.navigation.ui.ktx)
+
+    // Import the Firebase BoM
+    implementation(platform(libs.firebase.bom))
+
+    // Add Firebase Authentication dependency
+    implementation(libs.firebase.auth)
+
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

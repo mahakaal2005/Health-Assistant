@@ -4,10 +4,13 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import com.example.health_assistant.R
+import com.example.health_assistant.auth.repository.FirebaseAuthRepository
 import com.example.health_assistant.databinding.AuthFragmentLoginBinding
+import com.google.android.material.snackbar.Snackbar
 
 class LoginFragment : Fragment() {
 
@@ -15,12 +18,16 @@ class LoginFragment : Fragment() {
     // This property is only valid between onCreateView and onDestroyView
     private val binding get() = _binding!!
 
+    // Firebase Authentication Repository
+    private lateinit var authRepository: FirebaseAuthRepository
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
         _binding = AuthFragmentLoginBinding.inflate(inflater, container, false)
+        authRepository = FirebaseAuthRepository()
         return binding.root
     }
 
@@ -31,8 +38,32 @@ class LoginFragment : Fragment() {
         binding.loginButton.setOnClickListener {
             // Validate form and attempt login
             if (validateForm()) {
-                // Simulate successful login
-                navigateToDashboard()
+                // Show loading state
+                setLoadingState(true)
+
+                // Get email and password from input fields
+                val email = binding.emailInput.text.toString().trim()
+                val password = binding.passwordInput.text.toString().trim()
+
+                // Authenticate with Firebase
+                authRepository.signInUser(
+                    email,
+                    password,
+                    onSuccess = { user ->
+                        setLoadingState(false)
+                        // Navigate to dashboard on successful login
+                        navigateToDashboard()
+                    },
+                    onFailure = { exception ->
+                        setLoadingState(false)
+                        // Show error message
+                        Snackbar.make(
+                            binding.root,
+                            "Login failed: ${exception.message}",
+                            Snackbar.LENGTH_LONG
+                        ).show()
+                    }
+                )
             }
         }
 
@@ -44,9 +75,14 @@ class LoginFragment : Fragment() {
 
         // Set up the Forgot Password click listener
         binding.forgotPassword.setOnClickListener {
-            // Handle forgot password flow (not implemented)
-            // You could navigate to a password reset fragment
+            // Show dialog to enter email for password reset
+            showPasswordResetDialog()
         }
+    }
+
+    private fun setLoadingState(isLoading: Boolean) {
+        binding.loginButton.isEnabled = !isLoading
+        binding.progressBar?.visibility = if (isLoading) View.VISIBLE else View.GONE
     }
 
     private fun validateForm(): Boolean {
@@ -67,20 +103,45 @@ class LoginFragment : Fragment() {
         return true
     }
 
+    private fun showPasswordResetDialog() {
+        val email = binding.emailInput.text.toString().trim()
+
+        if (email.isEmpty()) {
+            binding.emailInput.error = "Please enter your email first"
+            return
+        }
+
+        // Show loading state
+        setLoadingState(true)
+
+        // Send password reset email
+        authRepository.resetPassword(
+            email,
+            onSuccess = {
+                setLoadingState(false)
+                Snackbar.make(
+                    binding.root,
+                    "Password reset email sent to $email",
+                    Snackbar.LENGTH_LONG
+                ).show()
+            },
+            onFailure = { exception ->
+                setLoadingState(false)
+                Snackbar.make(
+                    binding.root,
+                    "Password reset failed: ${exception.message}",
+                    Snackbar.LENGTH_LONG
+                ).show()
+            }
+        )
+    }
+
     private fun navigateToDashboard() {
         // Method 1: Using Navigation Component with activity destination
-        // This works if we defined dashboardFragment in the nav_auth.xml (which we did earlier)
         findNavController().navigate(R.id.action_loginFragment_to_dashboardFragment)
 
-
-        // Method 2: Alternative approach - Start MainActivity directly with Intent
-        //val intent = Intent(requireContext(), MainActivity::class.java)
-        // Clear the back stack so user can't go back to login with back button
-        //intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-        //startActivity(intent)
         // Optional: Add a transition animation
         requireActivity().overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out)
-
     }
 
     override fun onDestroyView() {

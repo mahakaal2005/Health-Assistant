@@ -1,6 +1,5 @@
 package com.example.health_assistant.auth.fragments
 
-import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -8,8 +7,9 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import com.example.health_assistant.R
+import com.example.health_assistant.auth.repository.FirebaseAuthRepository
 import com.example.health_assistant.databinding.AuthFragmentSignupBinding
-import java.util.Optional
+import com.google.android.material.snackbar.Snackbar
 
 class SignUpFragment : Fragment() {
 
@@ -17,12 +17,16 @@ class SignUpFragment : Fragment() {
     // This property is only valid between onCreateView and onDestroyView
     private val binding get() = _binding!!
 
+    // Firebase Authentication Repository
+    private lateinit var authRepository: FirebaseAuthRepository
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
         _binding = AuthFragmentSignupBinding.inflate(inflater, container, false)
+        authRepository = FirebaseAuthRepository()
         return binding.root
     }
 
@@ -33,8 +37,32 @@ class SignUpFragment : Fragment() {
         binding.signupButton.setOnClickListener {
             // Validate form and attempt account creation
             if (validateForm()) {
-                // Simulate successful account creation
-                navigateToDashboard()
+                // Show loading state
+                setLoadingState(true)
+
+                // Get user input data
+                val email = binding.emailInput.text.toString().trim()
+                val password = binding.passwordInput.text.toString().trim()
+
+                // Register user with Firebase
+                authRepository.registerUser(
+                    email,
+                    password,
+                    onSuccess = { user ->
+                        setLoadingState(false)
+                        // Navigate to dashboard on successful registration
+                        navigateToDashboard()
+                    },
+                    onFailure = { exception ->
+                        setLoadingState(false)
+                        // Show error message
+                        Snackbar.make(
+                            binding.root,
+                            "Registration failed: ${exception.message}",
+                            Snackbar.LENGTH_LONG
+                        ).show()
+                    }
+                )
             }
         }
 
@@ -43,6 +71,11 @@ class SignUpFragment : Fragment() {
             // Navigate to LoginFragment
             findNavController().navigate(R.id.action_signUpFragment_to_loginFragment)
         }
+    }
+
+    private fun setLoadingState(isLoading: Boolean) {
+        binding.signupButton.isEnabled = !isLoading
+        binding.progressBar?.visibility = if (isLoading) View.VISIBLE else View.GONE
     }
 
     private fun validateForm(): Boolean {
@@ -78,15 +111,8 @@ class SignUpFragment : Fragment() {
         // Method 1: Using Navigation Component with fragment destination
         findNavController().navigate(R.id.action_signUpFragment_to_dashboardFragment)
 
-
-        // Method 2: Alternative approach - Start MainActivity directly with Intent
-        //val intent = Intent(requireContext(), MainActivity::class.java)
-        //Clear the back stack so user can't go back to signup with back button
-        //intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-        //startActivity(intent)
-       // Optional: Add a transition animation
+        // Optional: Add a transition animation
         requireActivity().overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out)
-
     }
 
     override fun onDestroyView() {
