@@ -10,6 +10,7 @@ import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.navigateUp
 import androidx.navigation.ui.setupActionBarWithNavController
+import androidx.navigation.ui.setupWithNavController
 import com.example.health_assistant.R
 import com.example.health_assistant.databinding.MainActivityBinding
 
@@ -37,13 +38,19 @@ class MainActivity : AppCompatActivity() {
         // Set up top-level destinations (no back button shown for these destinations)
         appBarConfiguration = AppBarConfiguration(
             setOf(
-                R.id.dashboardFragment // Dashboard is a top-level destination
+                R.id.homeFragment,
+                R.id.browseFragment,
+                R.id.diaryFragment,
+                R.id.profileFragment
             )
         )
 
         // Set up the ActionBar with NavController
         setSupportActionBar(binding.toolbar)
         setupActionBarWithNavController(navController, appBarConfiguration)
+
+        // Set up BottomNavigationView with NavController
+        binding.bottomNav.setupWithNavController(navController)
     }
 
     // Handle Up navigation with NavController

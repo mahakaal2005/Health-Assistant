@@ -12,4 +12,21 @@
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
     </style>
+
+    <!-- Common style for all app fragments to ensure consistent appearance -->
+    <style name="AppFragment">
+        <item name="android:background">@color/dashboard_background</item>
+    </style>
+
+    <!-- Style for headers in fragments that match the splash screen's gradient -->
+    <style name="AppFragment.Header">
+        <item name="android:background">@drawable/splash_gradient_background</item>
+        <item name="android:textColor">@android:color/white</item>
+        <item name="android:padding">16dp</item>
+    </style>
+
+    <!-- Style for content sections in fragments -->
+    <style name="AppFragment.Content">
+        <item name="android:padding">16dp</item>
+    </style>
 </resources>

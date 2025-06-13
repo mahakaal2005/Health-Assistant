@@ -137,8 +137,8 @@ class LoginFragment : Fragment() {
     }
 
     private fun navigateToDashboard() {
-        // Method 1: Using Navigation Component with activity destination
-        findNavController().navigate(R.id.action_loginFragment_to_dashboardFragment)
+        // Updated to use the new action that navigates to MainActivity
+        findNavController().navigate(R.id.action_loginFragment_to_mainActivity)
 
         // Optional: Add a transition animation
         requireActivity().overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out)

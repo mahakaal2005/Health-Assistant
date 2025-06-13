@@ -13,10 +13,10 @@
         <action
             android:id="@+id/action_onboardingFragment_to_accountDecisionFragment"
             app:destination="@id/accountDecisionFragment" />
-        <!-- Direct access to dashboard for users who are already onboarded -->
+        <!-- Direct access to MainActivity for users who are already onboarded -->
         <action
-            android:id="@+id/action_onboardingFragment_to_dashboardFragment"
-            app:destination="@id/dashboardFragment"
+            android:id="@+id/action_onboardingFragment_to_mainActivity"
+            app:destination="@id/mainActivity"
             app:popUpTo="@id/nav_auth"
             app:popUpToInclusive="true" />
     </fragment>
@@ -44,10 +44,10 @@
             app:destination="@id/signUpFragment"
             app:popUpTo="@id/loginFragment"
             app:popUpToInclusive="true" />
-        <!-- Update this action to go to dashboard instead of dashboardActivity -->
+        <!-- Updated to navigate to MainActivity instead of dashboardFragment -->
         <action
-            android:id="@+id/action_loginFragment_to_dashboardFragment"
-            app:destination="@id/dashboardFragment"
+            android:id="@+id/action_loginFragment_to_mainActivity"
+            app:destination="@id/mainActivity"
             app:popUpTo="@id/nav_auth"
             app:popUpToInclusive="true" />
     </fragment>
@@ -62,19 +62,19 @@
             app:destination="@id/loginFragment"
             app:popUpTo="@id/signUpFragment"
             app:popUpToInclusive="true" />
-        <!-- Update this action to go to dashboard instead of dashboardActivity -->
+        <!-- Updated to navigate to MainActivity instead of dashboardFragment -->
         <action
-            android:id="@+id/action_signUpFragment_to_dashboardFragment"
-            app:destination="@id/dashboardFragment"
+            android:id="@+id/action_signUpFragment_to_mainActivity"
+            app:destination="@id/mainActivity"
             app:popUpTo="@id/nav_auth"
             app:popUpToInclusive="true" />
     </fragment>
 
-    <!-- Replace dashboardActivity with dashboardFragment -->
-    <fragment
-        android:id="@+id/dashboardFragment"
-        android:name="com.example.health_assistant.dashboard.DashboardFragment"
-        android:label="Dashboard"
-        tools:layout="@layout/dashboard_fragment" />
+    <!-- Activity destination for MainActivity -->
+    <activity
+        android:id="@+id/mainActivity"
+        android:name="com.example.health_assistant.main.MainActivity"
+        android:label="Main"
+        tools:layout="@layout/main_activity" />
 
 </navigation>
