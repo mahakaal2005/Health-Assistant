@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Premium UI Text Styles -->
+    <style name="TextAppearance.HealthAssistant.Greeting" parent="TextAppearance.MaterialComponents.Headline4">
+        <item name="android:textColor">@android:color/white</item>
+        <item name="android:textSize">28sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="fontFamily">sans-serif-light</item>
+    </style>
+
+    <style name="TextAppearance.HealthAssistant.Date" parent="TextAppearance.MaterialComponents.Body1">
+        <item name="android:textColor">#E6FFFFFF</item>
+        <item name="android:textSize">16sp</item>
+        <item name="android:alpha">0.9</item>
+        <item name="fontFamily">sans-serif</item>
+    </style>
+
+    <style name="TextAppearance.HealthAssistant.MetricValue" parent="TextAppearance.MaterialComponents.Headline5">
+        <item name="android:textColor">#212121</item>
+        <item name="android:textSize">30sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="fontFamily">sans-serif-light</item>
+    </style>
+
+    <style name="TextAppearance.HealthAssistant.MetricLabel" parent="TextAppearance.MaterialComponents.Caption">
+        <item name="android:textColor">#757575</item>
+        <item name="android:textSize">12sp</item>
+        <item name="android:textStyle">normal</item>
+        <item name="fontFamily">sans-serif</item>
+        <item name="android:letterSpacing">0.05</item>
+    </style>
+
+    <style name="TextAppearance.HealthAssistant.SectionTitle" parent="TextAppearance.MaterialComponents.Subtitle1">
+        <item name="android:textColor">#212121</item>
+        <item name="android:textSize">20sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="fontFamily">sans-serif-medium</item>
+    </style>
+
+    <style name="TextAppearance.HealthAssistant.CardTitle" parent="TextAppearance.MaterialComponents.Subtitle2">
+        <item name="android:textColor">#212121</item>
+        <item name="android:textSize">16sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="fontFamily">sans-serif-medium</item>
+    </style>
+
+    <style name="TextAppearance.HealthAssistant.TipText" parent="TextAppearance.MaterialComponents.Body2">
+        <item name="android:textColor">#757575</item>
+        <item name="android:textSize">14sp</item>
+        <item name="fontFamily">sans-serif</item>
+    </style>
+
+    <!-- For dark mode variants, these would be handled via night resources -->
+</resources>

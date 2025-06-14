@@ -1,5 +1,6 @@
 [versions]
 agp = "8.10.1"
+circleimageview = "3.1.0"
 kotlin = "2.0.21"
 coreKtx = "1.16.0"
 junit = "4.13.2"
@@ -12,11 +13,15 @@ activity = "1.10.1"
 constraintlayout = "2.2.1"
 navigationUiKtx = "2.9.0"
 firebase-bom = "32.8.0"
+securityCrypto = "1.1.0-beta01"
+securityCryptoKtx = "1.0.0"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 androidx-navigation-fragment-ktx = { module = "androidx.navigation:navigation-fragment-ktx", version.ref = "navigationUiKtx" }
 androidx-navigation-ui-ktx = { module = "androidx.navigation:navigation-ui-ktx", version.ref = "navigationUiKtx" }
+androidx-security-crypto = { module = "androidx.security:security-crypto", version.ref = "securityCrypto" }
+circleimageview = { module = "de.hdodenhof:circleimageview", version.ref = "circleimageview" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
 androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
@@ -27,6 +32,7 @@ androidx-activity = { group = "androidx.activity", name = "activity", version.re
 androidx-constraintlayout = { group = "androidx.constraintlayout", name = "constraintlayout", version.ref = "constraintlayout" }
 firebase-bom = { group = "com.google.firebase", name = "firebase-bom", version.ref = "firebase-bom" }
 firebase-auth = { group = "com.google.firebase", name = "firebase-auth" }
+androidx-security-crypto-ktx = { group = "androidx.security", name = "security-crypto-ktx", version.ref = "securityCryptoKtx" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

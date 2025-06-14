@@ -7,19 +7,32 @@ import android.os.Looper
 import androidx.appcompat.app.AppCompatActivity
 import com.example.health_assistant.R
 import com.example.health_assistant.auth.AuthActivity
+import com.example.health_assistant.auth.session.SessionManager
 import com.example.health_assistant.databinding.SplashActivityBinding
+import com.example.health_assistant.main.MainActivity
 
 class SplashActivity : AppCompatActivity() {
     private lateinit var binding: SplashActivityBinding
+    private lateinit var sessionManager: SessionManager
     private val handler = Handler(Looper.getMainLooper())
     private val navigationRunnable = Runnable {
         try {
             // Check if activity is finishing before starting a new one
             if (!isFinishing && !isDestroyed) {
-                val intent = Intent(this, AuthActivity::class.java)
-                // Add flags to clear activity stack and start fresh
-                intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-                startActivity(intent)
+                // Check if user is logged in
+                if (sessionManager.isLoggedIn()) {
+                    // User is logged in, navigate directly to MainActivity
+                    val intent = Intent(this, MainActivity::class.java)
+                    // Add flags to clear activity stack and start fresh
+                    intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                    startActivity(intent)
+                } else {
+                    // User is not logged in, navigate to AuthActivity
+                    val intent = Intent(this, AuthActivity::class.java)
+                    // Add flags to clear activity stack and start fresh
+                    intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                    startActivity(intent)
+                }
                 // Use a smooth animation transition
                 overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out)
                 finish() // Close SplashActivity so it's not in the back stack
@@ -34,6 +47,9 @@ class SplashActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = SplashActivityBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        // Initialize SessionManager
+        sessionManager = SessionManager(this)
 
         // Hide the action bar if it's present
         supportActionBar?.hide()

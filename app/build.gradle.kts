@@ -58,6 +58,13 @@ dependencies {
     // Add Firebase Authentication dependency
     implementation(libs.firebase.auth)
 
+    // Replace androidx.security.crypto.ktx with the non-ktx version
+    // This resolves potential compatibility issues
+    implementation(libs.androidx.security.crypto)
+
+    // Add CircleImageView library for circular profile images with border
+    implementation(libs.circleimageview)
+
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

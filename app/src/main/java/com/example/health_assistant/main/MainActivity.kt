@@ -45,15 +45,11 @@ class MainActivity : AppCompatActivity() {
             )
         )
 
-        // Set up the ActionBar with NavController
-        setSupportActionBar(binding.toolbar)
-        setupActionBarWithNavController(navController, appBarConfiguration)
-
-        // Set up BottomNavigationView with NavController
+        // Just setup BottomNavigationView with NavController
         binding.bottomNav.setupWithNavController(navController)
     }
 
-    // Handle Up navigation with NavController
+    // Handle Up navigation with NavController (keeping this in case it's needed elsewhere)
     override fun onSupportNavigateUp(): Boolean {
         return navController.navigateUp(appBarConfiguration) || super.onSupportNavigateUp()
     }

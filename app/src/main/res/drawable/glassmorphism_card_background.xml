@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Base glass background with transparency -->
+    <item>
+        <shape android:shape="rectangle">
+            <corners android:radius="24dp" />
+            <solid android:color="#CCFFFFFF" /> <!-- Semi-transparent white -->
+        </shape>
+    </item>
+
+    <!-- Light reflection on top edge -->
+    <item android:top="1dp" android:bottom="24dp" android:left="1dp" android:right="1dp">
+        <shape android:shape="rectangle">
+            <corners android:topLeftRadius="24dp" android:topRightRadius="24dp" />
+            <gradient
+                android:angle="270"
+                android:startColor="#FFFFFF"
+                android:endColor="#00FFFFFF"
+                android:type="linear" />
+        </shape>
+    </item>
+
+    <!-- Subtle shadow effect -->
+    <item android:gravity="bottom|center_horizontal"
+          android:height="6dp"
+          android:width="200dp"
+          android:top="10dp">
+        <shape android:shape="rectangle">
+            <corners android:radius="100dp" />
+            <gradient
+                android:startColor="#00000000"
+                android:centerColor="#10000000"
+                android:endColor="#00000000"
+                android:type="linear"
+                android:angle="0" />
+        </shape>
+    </item>
+</layer-list>

@@ -1,55 +1,508 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    style="@style/AppFragment"
+    android:background="@android:color/transparent"
     tools:context=".features.home.HomeFragment">
 
-    <TextView
-        android:id="@+id/header_title"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:text="Home"
-        android:textSize="24sp"
-        android:textStyle="bold"
-        style="@style/AppFragment.Header"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+    <!-- Dynamic Gradient Background with Decorative Elements -->
+    <FrameLayout
+        android:id="@+id/dynamic_background"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
 
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@drawable/premium_gradient_background" />
+
+        <!-- Decorative Shape 1 - Top Right -->
+        <View
+            android:id="@+id/decorative_shape_1"
+            android:layout_width="300dp"
+            android:layout_height="300dp"
+            android:layout_gravity="top|end"
+            android:layout_marginTop="-100dp"
+            android:layout_marginEnd="-100dp"
+            android:alpha="0.3"
+            android:background="@drawable/decorative_circle_shape" />
+
+        <!-- Decorative Shape 2 - Bottom Left -->
+        <View
+            android:id="@+id/decorative_shape_2"
+            android:layout_width="250dp"
+            android:layout_height="250dp"
+            android:layout_gravity="bottom|start"
+            android:layout_marginBottom="-100dp"
+            android:layout_marginStart="-100dp"
+            android:alpha="0.2"
+            android:background="@drawable/decorative_circle_shape" />
+    </FrameLayout>
+
+    <!-- Main Scrollable Content -->
     <androidx.core.widget.NestedScrollView
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/header_title">
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fillViewport="true"
+        android:overScrollMode="never"
+        android:clipToPadding="false"
+        android:scrollbars="none"
+        android:background="@android:color/transparent"
+        android:paddingTop="0dp">
 
-        <LinearLayout
+        <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            style="@style/AppFragment.Content">
+            android:background="@android:color/transparent"
+            android:paddingBottom="24dp">
 
-            <TextView
-                android:id="@+id/home_welcome_text"
-                android:layout_width="match_parent"
+            <!-- Top Section with Personalized Greeting and Avatar -->
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/top_section"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:text="Welcome to your Health Assistant"
-                android:textSize="18sp"
-                android:textStyle="bold"
-                android:layout_marginBottom="16dp" />
+                android:paddingStart="24dp"
+                android:paddingTop="8dp"
+                android:paddingEnd="24dp"
+                android:paddingBottom="32dp"
+                android:background="@android:color/transparent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent">
 
-            <!-- Placeholder for home screen content -->
-            <TextView
-                android:layout_width="match_parent"
+                <LinearLayout
+                    android:id="@+id/greeting_container"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="16dp"
+                    android:orientation="vertical"
+                    app:layout_constraintEnd_toStartOf="@+id/avatar_container"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent">
+
+                    <TextView
+                        android:id="@+id/greeting_text"
+                        style="@style/TextAppearance.HealthAssistant.Greeting"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Good morning, Alex"
+                        android:elevation="2dp" />
+
+                    <TextView
+                        android:id="@+id/date_text"
+                        style="@style/TextAppearance.HealthAssistant.Date"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:text="June 14, 2025"
+                        android:elevation="1dp"/>
+                </LinearLayout>
+
+                <!-- Interactive User Avatar with Ripple Effect -->
+                <FrameLayout
+                    android:id="@+id/avatar_container"
+                    android:layout_width="60dp"
+                    android:layout_height="60dp"
+                    android:background="@drawable/glassmorphism_card_background"
+                    android:foreground="?attr/selectableItemBackgroundBorderless"
+                    android:padding="2dp"
+                    android:elevation="3dp"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="parent">
+
+                    <de.hdodenhof.circleimageview.CircleImageView
+                        android:id="@+id/user_avatar"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:src="@android:drawable/ic_menu_myplaces"
+                        app:civ_border_width="2dp"
+                        app:civ_border_color="#30FFFFFF" />
+                </FrameLayout>
+
+                <!-- Weather/Wellness Tip Card -->
+                <androidx.cardview.widget.CardView
+                    android:id="@+id/contextual_card"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="24dp"
+                    app:cardBackgroundColor="@android:color/transparent"
+                    app:cardCornerRadius="16dp"
+                    app:cardElevation="0dp"
+                    android:foreground="?attr/selectableItemBackground"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/greeting_container">
+
+                    <FrameLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/glassmorphism_card_background"
+                        android:padding="16dp">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:gravity="center_vertical">
+
+                            <ImageView
+                                android:id="@+id/contextual_icon"
+                                android:layout_width="40dp"
+                                android:layout_height="40dp"
+                                android:layout_marginEnd="12dp"
+                                android:src="@android:drawable/ic_menu_info_details"
+                                android:tint="#1A73E8" />
+
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:orientation="vertical">
+
+                                <TextView
+                                    android:id="@+id/contextual_title"
+                                    style="@style/TextAppearance.HealthAssistant.CardTitle"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="Wellness Tip" />
+
+                                <TextView
+                                    android:id="@+id/contextual_content"
+                                    style="@style/TextAppearance.HealthAssistant.TipText"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginTop="4dp"
+                                    android:text="Stay hydrated! Aim for 8 glasses of water today." />
+                            </LinearLayout>
+                        </LinearLayout>
+                    </FrameLayout>
+                </androidx.cardview.widget.CardView>
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <!-- Health Summary Card with Glassmorphism Effect -->
+            <androidx.cardview.widget.CardView
+                android:id="@+id/health_summary_card"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:text="Your personalized health dashboard will appear here"
-                android:textSize="16sp" />
+                android:layout_marginStart="16dp"
+                android:layout_marginEnd="16dp"
+                android:layout_marginTop="-16dp"
+                app:cardBackgroundColor="@android:color/transparent"
+                app:cardCornerRadius="24dp"
+                app:cardElevation="0dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/top_section">
 
-        </LinearLayout>
+                <FrameLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/glassmorphism_card_background">
+
+                    <androidx.constraintlayout.widget.ConstraintLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:padding="24dp">
+
+                        <TextView
+                            android:id="@+id/health_summary_title"
+                            style="@style/TextAppearance.HealthAssistant.SectionTitle"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Health Overview"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toTopOf="parent" />
+
+                        <!-- Health Score Section with Animated Progress Indicator -->
+                        <FrameLayout
+                            android:id="@+id/health_score_container"
+                            android:layout_width="120dp"
+                            android:layout_height="120dp"
+                            android:layout_marginTop="24dp"
+                            app:layout_constraintEnd_toStartOf="@+id/metrics_container"
+                            app:layout_constraintHorizontal_bias="0.0"
+                            app:layout_constraintHorizontal_chainStyle="spread"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toBottomOf="@+id/health_summary_title">
+
+                            <ProgressBar
+                                android:id="@+id/health_score_progress"
+                                style="?android:attr/progressBarStyleHorizontal"
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:indeterminate="false"
+                                android:max="100"
+                                android:progress="85"
+                                android:progressDrawable="@drawable/premium_circular_progress" />
+
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:gravity="center"
+                                android:orientation="vertical">
+
+                                <TextView
+                                    android:id="@+id/health_score_value"
+                                    style="@style/TextAppearance.HealthAssistant.MetricValue"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="85"
+                                    android:textSize="34sp" />
+
+                                <TextView
+                                    style="@style/TextAppearance.HealthAssistant.MetricLabel"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginTop="2dp"
+                                    android:text="HEALTH SCORE" />
+                            </LinearLayout>
+                        </FrameLayout>
+
+                        <!-- Health Metrics with Micro-interactions -->
+                        <LinearLayout
+                            android:id="@+id/metrics_container"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="24dp"
+                            android:orientation="vertical"
+                            app:layout_constraintBottom_toBottomOf="@+id/health_score_container"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintStart_toEndOf="@+id/health_score_container"
+                            app:layout_constraintTop_toTopOf="@+id/health_score_container">
+
+                            <!-- Steps Metric (Animated on touch) -->
+                            <androidx.cardview.widget.CardView
+                                android:id="@+id/steps_card"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginBottom="12dp"
+                                app:cardBackgroundColor="#F5F5F5"
+                                app:cardCornerRadius="16dp"
+                                app:cardElevation="0dp"
+                                android:foreground="?attr/selectableItemBackground">
+
+                                <LinearLayout
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:gravity="center_vertical"
+                                    android:orientation="horizontal"
+                                    android:padding="12dp">
+
+                                    <ImageView
+                                        android:layout_width="32dp"
+                                        android:layout_height="32dp"
+                                        android:contentDescription="Steps icon"
+                                        android:src="@android:drawable/ic_menu_directions"
+                                        app:tint="@color/stepBlue" />
+
+                                    <LinearLayout
+                                        android:layout_width="match_parent"
+                                        android:layout_height="wrap_content"
+                                        android:layout_marginStart="12dp"
+                                        android:orientation="vertical">
+
+                                        <TextView
+                                            style="@style/TextAppearance.HealthAssistant.MetricLabel"
+                                            android:layout_width="wrap_content"
+                                            android:layout_height="wrap_content"
+                                            android:text="STEPS TODAY" />
+
+                                        <TextView
+                                            android:id="@+id/steps_value"
+                                            style="@style/TextAppearance.HealthAssistant.MetricValue"
+                                            android:layout_width="wrap_content"
+                                            android:layout_height="wrap_content"
+                                            android:text="7,548"
+                                            android:textSize="22sp" />
+                                    </LinearLayout>
+                                </LinearLayout>
+                            </androidx.cardview.widget.CardView>
+
+                            <!-- Heart Rate Metric (Animated on touch) -->
+                            <androidx.cardview.widget.CardView
+                                android:id="@+id/heart_rate_card"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                app:cardBackgroundColor="#F5F5F5"
+                                app:cardCornerRadius="16dp"
+                                app:cardElevation="0dp"
+                                android:foreground="?attr/selectableItemBackground">
+
+                                <LinearLayout
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:gravity="center_vertical"
+                                    android:orientation="horizontal"
+                                    android:padding="12dp">
+
+                                    <ImageView
+                                        android:layout_width="32dp"
+                                        android:layout_height="32dp"
+                                        android:contentDescription="Heart rate icon"
+                                        android:src="@android:drawable/ic_menu_compass"
+                                        app:tint="@color/heartRateRed" />
+
+                                    <LinearLayout
+                                        android:layout_width="match_parent"
+                                        android:layout_height="wrap_content"
+                                        android:layout_marginStart="12dp"
+                                        android:orientation="vertical">
+
+                                        <TextView
+                                            style="@style/TextAppearance.HealthAssistant.MetricLabel"
+                                            android:layout_width="wrap_content"
+                                            android:layout_height="wrap_content"
+                                            android:text="HEART RATE" />
+
+                                        <TextView
+                                            android:id="@+id/heart_rate_value"
+                                            style="@style/TextAppearance.HealthAssistant.MetricValue"
+                                            android:layout_width="wrap_content"
+                                            android:layout_height="wrap_content"
+                                            android:text="72 bpm"
+                                            android:textSize="22sp" />
+                                    </LinearLayout>
+                                </LinearLayout>
+                            </androidx.cardview.widget.CardView>
+                        </LinearLayout>
+                    </androidx.constraintlayout.widget.ConstraintLayout>
+                </FrameLayout>
+            </androidx.cardview.widget.CardView>
+
+            <!-- Quick Actions Section -->
+            <TextView
+                android:id="@+id/quick_actions_title"
+                style="@style/TextAppearance.HealthAssistant.SectionTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="24dp"
+                android:layout_marginTop="32dp"
+                android:text="Quick Actions"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/health_summary_card" />
+
+            <!-- Quick Actions as Pill-shaped Floating Action Buttons -->
+            <HorizontalScrollView
+                android:id="@+id/quick_actions_scroll"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:clipToPadding="false"
+                android:overScrollMode="never"
+                android:paddingStart="16dp"
+                android:paddingEnd="16dp"
+                android:scrollbars="none"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/quick_actions_title">
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:padding="4dp">
+
+                    <!-- Health Check Pill Button -->
+                    <Button
+                        android:id="@+id/health_check_button"
+                        android:layout_width="wrap_content"
+                        android:layout_height="56dp"
+                        android:layout_marginEnd="12dp"
+                        android:background="@drawable/pill_button_selector"
+                        android:drawableStart="@android:drawable/ic_menu_help"
+                        android:drawableTint="#00BFA5"
+                        android:drawablePadding="8dp"
+                        android:paddingStart="16dp"
+                        android:paddingEnd="24dp"
+                        android:stateListAnimator="@null"
+                        android:text="Health Check"
+                        android:textAllCaps="false"
+                        android:textColor="@color/textPrimary"
+                        android:textSize="16sp" />
+
+                    <!-- Prescriptions Pill Button -->
+                    <Button
+                        android:id="@+id/prescriptions_button"
+                        android:layout_width="wrap_content"
+                        android:layout_height="56dp"
+                        android:layout_marginEnd="12dp"
+                        android:background="@drawable/pill_button_selector"
+                        android:drawableStart="@android:drawable/ic_menu_agenda"
+                        android:drawableTint="#3F51B5"
+                        android:drawablePadding="8dp"
+                        android:paddingStart="16dp"
+                        android:paddingEnd="24dp"
+                        android:stateListAnimator="@null"
+                        android:text="Prescriptions"
+                        android:textAllCaps="false"
+                        android:textColor="@color/textPrimary"
+                        android:textSize="16sp" />
+
+                    <!-- AI Assistant Pill Button -->
+                    <Button
+                        android:id="@+id/ai_assistant_button"
+                        android:layout_width="wrap_content"
+                        android:layout_height="56dp"
+                        android:layout_marginEnd="12dp"
+                        android:background="@drawable/pill_button_selector"
+                        android:drawableStart="@android:drawable/ic_menu_edit"
+                        android:drawableTint="#1A73E8"
+                        android:drawablePadding="8dp"
+                        android:paddingStart="16dp"
+                        android:paddingEnd="24dp"
+                        android:stateListAnimator="@null"
+                        android:text="AI Assistant"
+                        android:textAllCaps="false"
+                        android:textColor="@color/textPrimary"
+                        android:textSize="16sp" />
+
+                    <!-- Emergency Pill Button -->
+                    <Button
+                        android:id="@+id/emergency_button"
+                        android:layout_width="wrap_content"
+                        android:layout_height="56dp"
+                        android:background="@drawable/pill_button_selector"
+                        android:drawableStart="@android:drawable/ic_menu_call"
+                        android:drawableTint="#E53935"
+                        android:drawablePadding="8dp"
+                        android:paddingStart="16dp"
+                        android:paddingEnd="24dp"
+                        android:stateListAnimator="@null"
+                        android:text="Emergency"
+                        android:textAllCaps="false"
+                        android:textColor="@color/textPrimary"
+                        android:textSize="16sp" />
+                </LinearLayout>
+            </HorizontalScrollView>
+
+            <!-- Wellness Tips Section -->
+            <TextView
+                android:id="@+id/insights_title"
+                style="@style/TextAppearance.HealthAssistant.SectionTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="24dp"
+                android:layout_marginTop="32dp"
+                android:text="Your Insights"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/quick_actions_scroll" />
+
+            <!-- Wellness Tips Cards with Premium Style -->
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/insights_recycler"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:clipToPadding="false"
+                android:orientation="horizontal"
+                android:paddingStart="16dp"
+                android:paddingEnd="16dp"
+                android:paddingBottom="8dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/insights_title" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.core.widget.NestedScrollView>
-
-</androidx.constraintlayout.widget.ConstraintLayout>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

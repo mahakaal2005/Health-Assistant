@@ -9,6 +9,7 @@ import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import com.example.health_assistant.R
 import com.example.health_assistant.auth.repository.FirebaseAuthRepository
+import com.example.health_assistant.auth.session.SessionManager
 import com.example.health_assistant.databinding.AuthFragmentLoginBinding
 import com.google.android.material.snackbar.Snackbar
 
@@ -21,6 +22,9 @@ class LoginFragment : Fragment() {
     // Firebase Authentication Repository
     private lateinit var authRepository: FirebaseAuthRepository
 
+    // Session Manager for persistent login
+    private lateinit var sessionManager: SessionManager
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -28,6 +32,7 @@ class LoginFragment : Fragment() {
     ): View {
         _binding = AuthFragmentLoginBinding.inflate(inflater, container, false)
         authRepository = FirebaseAuthRepository()
+        sessionManager = SessionManager(requireContext())
         return binding.root
     }
 
@@ -51,6 +56,12 @@ class LoginFragment : Fragment() {
                     password,
                     onSuccess = { user ->
                         setLoadingState(false)
+
+                        // Persist login session
+                        user?.let {
+                            sessionManager.createLoginSession(it.uid, it.email ?: "")
+                        }
+
                         // Navigate to dashboard on successful login
                         navigateToDashboard()
                     },
