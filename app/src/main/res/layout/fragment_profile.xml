@@ -98,6 +98,25 @@
                     app:layout_constraintTop_toBottomOf="@+id/profileIntroText"
                     android:layout_marginTop="8dp">
 
+                    <FrameLayout
+                        android:id="@+id/edit_avatar_button"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="bottom|end"
+                        android:background="@drawable/circle_button_background"
+                        android:clickable="true"
+                        android:elevation="6dp"
+                        android:focusable="true"
+                        android:foreground="?attr/selectableItemBackgroundBorderless">
+
+                        <ImageView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center"
+                            android:src="@android:drawable/ic_menu_camera"
+                            app:tint="#FFFFFF" />
+                    </FrameLayout>
+
                     <de.hdodenhof.circleimageview.CircleImageView
                         android:id="@+id/profile_avatar"
                         android:layout_width="match_parent"
@@ -107,24 +126,6 @@
                         app:civ_border_color="#30FFFFFF" />
 
                     <!-- Edit Icon Overlay -->
-                    <FrameLayout
-                        android:id="@+id/edit_avatar_button"
-                        android:layout_width="36dp"
-                        android:layout_height="36dp"
-                        android:layout_gravity="bottom|end"
-                        android:background="@drawable/circle_button_background"
-                        android:foreground="?attr/selectableItemBackgroundBorderless"
-                        android:clickable="true"
-                        android:focusable="true"
-                        android:elevation="6dp">
-
-                        <ImageView
-                            android:layout_width="20dp"
-                            android:layout_height="20dp"
-                            android:layout_gravity="center"
-                            android:src="@android:drawable/ic_menu_camera"
-                            android:tint="#FFFFFF" />
-                    </FrameLayout>
                 </FrameLayout>
 
                 <!-- User Name -->
@@ -203,8 +204,8 @@
                 android:layout_marginEnd="16dp"
                 android:layout_marginTop="16dp"
                 app:cardBackgroundColor="@android:color/transparent"
-                app:cardCornerRadius="18dp"
-                app:cardElevation="0dp"
+                app:cardCornerRadius="@dimen/corner_radius_large"
+                app:cardElevation="@dimen/card_elevation_small"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/profile_header_section">
@@ -351,8 +352,8 @@
                 android:layout_marginTop="16dp"
                 android:layout_marginEnd="16dp"
                 app:cardBackgroundColor="@android:color/transparent"
-                app:cardCornerRadius="18dp"
-                app:cardElevation="0dp"
+                app:cardCornerRadius="@dimen/corner_radius_large"
+                app:cardElevation="@dimen/card_elevation_small"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/progress_section_title">
@@ -450,8 +451,8 @@
                 android:layout_marginTop="16dp"
                 android:layout_marginEnd="16dp"
                 app:cardBackgroundColor="@android:color/transparent"
-                app:cardCornerRadius="18dp"
-                app:cardElevation="0dp"
+                app:cardCornerRadius="@dimen/corner_radius_large"
+                app:cardElevation="@dimen/card_elevation_small"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/achievements_section_title">
@@ -486,7 +487,7 @@
                                     android:layout_width="48dp"
                                     android:layout_height="48dp"
                                     android:src="@android:drawable/btn_star_big_on"
-                                    android:tint="#FFD700" />
+                                    app:tint="#FFD700" />
 
                                 <TextView
                                     android:layout_width="wrap_content"
@@ -515,7 +516,7 @@
                                     android:layout_width="48dp"
                                     android:layout_height="48dp"
                                     android:src="@android:drawable/btn_star_big_on"
-                                    android:tint="#C0C0C0" />
+                                    app:tint="#C0C0C0" />
 
                                 <TextView
                                     android:layout_width="wrap_content"
@@ -573,7 +574,7 @@
                                     android:layout_width="48dp"
                                     android:layout_height="48dp"
                                     android:src="@android:drawable/btn_star_big_on"
-                                    android:tint="#CD7F32" />
+                                    app:tint="#CD7F32" />
 
                                 <TextView
                                     android:layout_width="wrap_content"
@@ -602,7 +603,7 @@
                                     android:layout_width="48dp"
                                     android:layout_height="48dp"
                                     android:src="@android:drawable/btn_star_big_on"
-                                    android:tint="#CD7F32" />
+                                    app:tint="#CD7F32" />
 
                                 <TextView
                                     android:layout_width="wrap_content"

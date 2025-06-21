@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Card elevations for consistent appearance -->
+    <dimen name="card_elevation_small">1dp</dimen>
+    <dimen name="card_elevation_medium">2dp</dimen>
+    <dimen name="card_elevation_large">4dp</dimen>
+
+    <!-- Content padding values -->
+    <dimen name="content_padding_small">8dp</dimen>
+    <dimen name="content_padding_medium">16dp</dimen>
+    <dimen name="content_padding_large">24dp</dimen>
+
+    <!-- Corner radius values -->
+    <dimen name="corner_radius_small">8dp</dimen>
+    <dimen name="corner_radius_medium">16dp</dimen>
+    <dimen name="corner_radius_large">24dp</dimen>
+</resources>
