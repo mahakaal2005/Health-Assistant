@@ -662,7 +662,7 @@
                 android:paddingStart="24dp"
                 android:paddingEnd="24dp"
                 android:stateListAnimator="@null"
-                android:text="Settings &amp; Privacy"
+                android:text="Settings"
                 android:textAllCaps="false"
                 android:textColor="@color/textPrimary"
                 android:textSize="16sp"

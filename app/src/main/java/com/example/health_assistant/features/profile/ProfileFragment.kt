@@ -6,6 +6,8 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.navigation.fragment.findNavController
+import com.example.health_assistant.R
 import com.example.health_assistant.auth.AuthActivity
 import com.example.health_assistant.auth.session.SessionManager
 import com.example.health_assistant.databinding.FragmentProfileBinding
@@ -38,6 +40,12 @@ class ProfileFragment : Fragment() {
         val userEmail = sessionManager.getUserEmail()
         if (!userEmail.isNullOrEmpty()) {
             binding.profileIntroText.text = "Hello, $userEmail"
+        }
+
+        // Set up settings button click listener
+        binding.settingsButton.setOnClickListener {
+            // Navigate to Settings screen
+            findNavController().navigate(R.id.action_profileFragment_to_settingsFragment)
         }
 
         // Set up logout button click listener

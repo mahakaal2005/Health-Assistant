@@ -3,6 +3,7 @@ plugins {
     alias(libs.plugins.kotlin.android)
     id("com.google.gms.google-services")
     id("com.google.devtools.ksp")
+    id("com.google.dagger.hilt.android")
 }
 
 android {
@@ -74,4 +75,12 @@ dependencies {
     ksp(libs.androidx.room.compiler)
     implementation(libs.androidx.room.runtime)
     implementation(libs.androidx.room.ktx)
+    implementation (libs.kotlinx.coroutines.android)
+
+    // Add datastore dependency
+    implementation (libs.androidx.datastore.preferences)
+
+    // Add Hilt dependencies
+    implementation( libs.hilt.android)
+    ksp (libs.hilt.compiler)
 }
