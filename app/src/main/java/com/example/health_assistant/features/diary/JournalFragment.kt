@@ -1,14 +1,14 @@
-package com.example.health_assistant.features.browse
+package com.example.health_assistant.features.diary
 
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import com.example.health_assistant.databinding.FragmentBrowseBinding
+import com.example.health_assistant.databinding.FragmentJournalBinding
 
-class BrowseFragment : Fragment() {
-    private var _binding: FragmentBrowseBinding? = null
+class JournalFragment : Fragment() {
+    private var _binding: FragmentJournalBinding? = null
     private val binding get() = _binding!!
 
     override fun onCreateView(
@@ -16,7 +16,7 @@ class BrowseFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        _binding = FragmentBrowseBinding.inflate(inflater, container, false)
+        _binding = FragmentJournalBinding.inflate(inflater, container, false)
         return binding.root
     }
 

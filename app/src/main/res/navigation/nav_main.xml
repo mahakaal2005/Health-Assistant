@@ -13,49 +13,49 @@
 
         <!-- Navigation actions from Home to other fragments -->
         <action
-            android:id="@+id/action_homeFragment_to_browseFragment"
-            app:destination="@id/browseFragment" />
+            android:id="@+id/action_homeFragment_to_discoverFragment"
+            app:destination="@id/discoverFragment" />
         <action
-            android:id="@+id/action_homeFragment_to_diaryFragment"
-            app:destination="@id/diaryFragment" />
+            android:id="@+id/action_homeFragment_to_journalFragment"
+            app:destination="@id/journalFragment" />
         <action
             android:id="@+id/action_homeFragment_to_profileFragment"
             app:destination="@id/profileFragment" />
     </fragment>
 
     <fragment
-        android:id="@+id/browseFragment"
-        android:name="com.example.health_assistant.features.browse.BrowseFragment"
-        android:label="Browse"
-        tools:layout="@layout/fragment_browse">
+        android:id="@+id/discoverFragment"
+        android:name="com.example.health_assistant.features.browse.DiscoverFragment"
+        android:label="Discover"
+        tools:layout="@layout/fragment_discover">
 
-        <!-- Navigation actions from Browse to other fragments -->
+        <!-- Navigation actions from Discover to other fragments -->
         <action
-            android:id="@+id/action_browseFragment_to_homeFragment"
+            android:id="@+id/action_discoverFragment_to_homeFragment"
             app:destination="@id/homeFragment" />
         <action
-            android:id="@+id/action_browseFragment_to_diaryFragment"
-            app:destination="@id/diaryFragment" />
+            android:id="@+id/action_discoverFragment_to_journalFragment"
+            app:destination="@id/journalFragment" />
         <action
-            android:id="@+id/action_browseFragment_to_profileFragment"
+            android:id="@+id/action_discoverFragment_to_profileFragment"
             app:destination="@id/profileFragment" />
     </fragment>
 
     <fragment
-        android:id="@+id/diaryFragment"
-        android:name="com.example.health_assistant.features.diary.DiaryFragment"
-        android:label="Diary"
-        tools:layout="@layout/fragment_diary">
+        android:id="@+id/journalFragment"
+        android:name="com.example.health_assistant.features.diary.JournalFragment"
+        android:label="Journal"
+        tools:layout="@layout/fragment_journal">
 
-        <!-- Navigation actions from Diary to other fragments -->
+        <!-- Navigation actions from Journal to other fragments -->
         <action
-            android:id="@+id/action_diaryFragment_to_homeFragment"
+            android:id="@+id/action_journalFragment_to_homeFragment"
             app:destination="@id/homeFragment" />
         <action
-            android:id="@+id/action_diaryFragment_to_browseFragment"
-            app:destination="@id/browseFragment" />
+            android:id="@+id/action_journalFragment_to_discoverFragment"
+            app:destination="@id/discoverFragment" />
         <action
-            android:id="@+id/action_diaryFragment_to_profileFragment"
+            android:id="@+id/action_journalFragment_to_profileFragment"
             app:destination="@id/profileFragment" />
     </fragment>
 
@@ -70,11 +70,11 @@
             android:id="@+id/action_profileFragment_to_homeFragment"
             app:destination="@id/homeFragment" />
         <action
-            android:id="@+id/action_profileFragment_to_browseFragment"
-            app:destination="@id/browseFragment" />
+            android:id="@+id/action_profileFragment_to_discoverFragment"
+            app:destination="@id/discoverFragment" />
         <action
-            android:id="@+id/action_profileFragment_to_diaryFragment"
-            app:destination="@id/diaryFragment" />
+            android:id="@+id/action_profileFragment_to_journalFragment"
+            app:destination="@id/journalFragment" />
     </fragment>
 
 </navigation>

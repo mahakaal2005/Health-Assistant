@@ -5,13 +5,13 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     style="@style/AppFragment"
-    tools:context=".features.browse.BrowseFragment">
+    tools:context=".features.diary.JournalFragment">
 
     <TextView
         android:id="@+id/header_title"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="Browse"
+        android:text="Journal"
         android:textSize="24sp"
         android:textStyle="bold"
         style="@style/AppFragment.Header"
@@ -34,19 +34,19 @@
             style="@style/AppFragment.Content">
 
             <TextView
-                android:id="@+id/browse_intro_text"
+                android:id="@+id/journal_intro_text"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Explore health topics"
+                android:text="Your Health Journal"
                 android:textSize="18sp"
                 android:textStyle="bold"
                 android:layout_marginBottom="16dp" />
 
-            <!-- Placeholder for browse content -->
+            <!-- Placeholder for journal content -->
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Browse health resources and information"
+                android:text="Track your health journey and record important events"
                 android:textSize="16sp" />
 
         </LinearLayout>

@@ -1,8 +1,8 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
-    // Apply Google Services Gradle plugin
     id("com.google.gms.google-services")
+    id("com.google.devtools.ksp")
 }
 
 android {
@@ -58,14 +58,19 @@ dependencies {
     // Add Firebase Authentication dependency
     implementation(libs.firebase.auth)
 
-    // Replace androidx.security.crypto.ktx with the non-ktx version
-    // This resolves potential compatibility issues
+    // Add androidx.security.crypto for secure data storage
     implementation(libs.androidx.security.crypto)
 
     // Add CircleImageView library for circular profile images with border
     implementation(libs.circleimageview)
 
+    //
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
+
+    // Add Room dependencies
+    ksp(libs.androidx.room.compiler)
+    implementation(libs.androidx.room.runtime)
+    implementation(libs.androidx.room.ktx)
 }
