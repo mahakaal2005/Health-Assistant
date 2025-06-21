@@ -25,7 +25,7 @@
 
     <fragment
         android:id="@+id/discoverFragment"
-        android:name="com.example.health_assistant.features.browse.DiscoverFragment"
+        android:name="com.example.health_assistant.features.discover.DiscoverFragment"
         android:label="Discover"
         tools:layout="@layout/fragment_discover">
 
@@ -43,7 +43,7 @@
 
     <fragment
         android:id="@+id/journalFragment"
-        android:name="com.example.health_assistant.features.diary.JournalFragment"
+        android:name="com.example.health_assistant.features.journal.JournalFragment"
         android:label="Journal"
         tools:layout="@layout/fragment_journal">
 

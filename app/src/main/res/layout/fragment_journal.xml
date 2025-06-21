@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     style="@style/AppFragment"
-    tools:context=".features.diary.JournalFragment">
+    tools:context=".features.journal.JournalFragment">
 
     <TextView
         android:id="@+id/header_title"

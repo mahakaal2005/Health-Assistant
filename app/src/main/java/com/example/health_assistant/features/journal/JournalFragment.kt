@@ -1,4 +1,4 @@
-package com.example.health_assistant.features.diary
+package com.example.health_assistant.features.journal
 
 import android.os.Bundle
 import android.view.LayoutInflater
