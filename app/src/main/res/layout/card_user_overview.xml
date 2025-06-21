@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/user_overview_card"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="@dimen/content_padding_medium"
+    app:cardBackgroundColor="@color/glassBg"
+    app:cardCornerRadius="@dimen/corner_radius_large"
+    app:cardElevation="@dimen/card_elevation_medium"
+    app:strokeColor="@color/glassHighlight"
+    app:strokeWidth="1dp">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="@dimen/content_padding_medium">
+
+        <!-- Avatar Section -->
+        <FrameLayout
+            android:id="@+id/avatar_container"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:layout_marginStart="@dimen/content_padding_small"
+            android:layout_marginTop="@dimen/content_padding_medium"
+            android:elevation="@dimen/card_elevation_small"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <de.hdodenhof.circleimageview.CircleImageView
+                android:id="@+id/user_avatar"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:contentDescription="@string/profile_image"
+                android:src="@drawable/default_avatar"
+                app:civ_border_color="@color/colorPrimaryGradientStart"
+                app:civ_border_width="2dp" />
+
+            <!-- Edit Icon Overlay -->
+            <FrameLayout
+                android:id="@+id/edit_avatar_button"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:layout_gravity="bottom|end"
+                android:background="@drawable/circle_button_background"
+                android:clickable="true"
+                android:contentDescription="@string/edit_profile_photo"
+                android:elevation="@dimen/card_elevation_medium"
+                android:focusable="true"
+                android:foreground="?attr/selectableItemBackgroundBorderless">
+
+                <ImageView
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:layout_gravity="center"
+                    android:src="@android:drawable/ic_menu_camera"
+                    app:tint="@color/white" />
+            </FrameLayout>
+        </FrameLayout>
+
+        <!-- User Details Section -->
+        <LinearLayout
+            android:id="@+id/user_details_container"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/content_padding_medium"
+            android:orientation="vertical"
+            app:layout_constraintBottom_toBottomOf="@+id/avatar_container"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/avatar_container"
+            app:layout_constraintTop_toTopOf="@+id/avatar_container">
+
+            <TextView
+                android:id="@+id/user_name"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ellipsize="end"
+                android:maxLines="1"
+                android:textColor="@color/textPrimary"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                tools:text="Alex Johnson" />
+
+            <TextView
+                android:id="@+id/user_age_gender"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:textColor="@color/textSecondary"
+                android:textSize="14sp"
+                tools:text="28 Years • Male" />
+
+            <TextView
+                android:id="@+id/user_health_goal"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:drawablePadding="4dp"
+                android:ellipsize="end"
+                android:gravity="center_vertical"
+                android:maxLines="2"
+                android:textColor="@color/textSecondary"
+                android:textSize="14sp"
+                android:textStyle="italic"
+                app:drawableStartCompat="@android:drawable/ic_menu_myplaces"
+                app:drawableTint="@color/colorPrimaryGradientStart"
+                tools:text="Focus on cardio and weight loss" />
+        </LinearLayout>
+
+        <!-- Health Stats Summary -->
+        <TextView
+            android:id="@+id/health_status_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/content_padding_medium"
+            android:text="@string/overall_health"
+            android:textColor="@color/textPrimary"
+            android:textSize="15sp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/avatar_container" />
+
+        <TextView
+            android:id="@+id/health_status_value"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/content_padding_small"
+            android:text="@string/health_excellent"
+            android:textColor="@color/healthExcellent"
+            android:textSize="15sp"
+            android:textStyle="bold"
+            app:layout_constraintBottom_toBottomOf="@+id/health_status_label"
+            app:layout_constraintStart_toEndOf="@+id/health_status_label"
+            app:layout_constraintTop_toTopOf="@+id/health_status_label" />
+
+        <!-- Edit Button -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/edit_profile_button"
+            style="@style/Widget.MaterialComponents.Button.TextButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/content_padding_small"
+            android:text="@string/edit_profile"
+            android:textColor="@color/colorPrimaryGradientEnd"
+            app:icon="@android:drawable/ic_menu_edit"
+            app:iconGravity="start"
+            app:iconTint="@color/colorPrimaryGradientEnd"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/health_status_label" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</com.google.android.material.card.MaterialCardView>

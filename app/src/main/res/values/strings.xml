@@ -30,4 +30,21 @@
     <string name="forgot_password">Forgot Password?</string>
     <string name="no_account_prompt">Don\'t have an account? Sign Up</string>
     <string name="already_account_prompt">Already have an account? Log In</string>
+
+    <!-- Profile and Settings -->
+    <string name="profile_image">Profile Image</string>
+    <string name="edit_profile_photo">Edit Profile Photo</string>
+    <string name="overall_health">Overall Health:</string>
+    <string name="health_excellent">Excellent</string>
+    <string name="health_good">Good</string>
+    <string name="health_fair">Fair</string>
+    <string name="health_poor">Poor</string>
+    <string name="edit_profile">Edit Profile</string>
+    <string name="settings">Settings</string>
+    <string name="health_preferences">Health Preferences</string>
+    <string name="personalization">Personalization</string>
+    <string name="notifications">Notifications</string>
+    <string name="app_settings">App Settings</string>
+    <string name="help_support">Help &amp; Support</string>
+    <string name="account_actions">Account Actions</string>
 </resources>
