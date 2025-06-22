@@ -6,13 +6,14 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.navigation.NavController
+import androidx.navigation.NavDestination
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.navigateUp
-import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
 import com.example.health_assistant.R
 import com.example.health_assistant.databinding.MainActivityBinding
+import com.google.android.material.navigation.NavigationBarView
 
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: MainActivityBinding
@@ -45,11 +46,32 @@ class MainActivity : AppCompatActivity() {
             )
         )
 
-        // Just setup BottomNavigationView with NavController
+        // Set up basic navigation first
         binding.bottomNav.setupWithNavController(navController)
+
+        // Add custom listener to handle all tab navigation properly
+        binding.bottomNav.setOnItemSelectedListener { item ->
+            val currentDestId = navController.currentDestination?.id
+
+            // Skip navigation if we're already on this tab (except for special cases)
+            if (currentDestId == item.itemId) {
+                return@setOnItemSelectedListener true
+            }
+
+            // For all navigation using bottom nav, clear backstack and navigate directly
+            try {
+                // Always pop to root first when switching tabs for consistent behavior
+                navController.popBackStack(navController.graph.startDestinationId, false)
+                navController.navigate(item.itemId)
+                return@setOnItemSelectedListener true
+            } catch (e: Exception) {
+                e.printStackTrace()
+                return@setOnItemSelectedListener false
+            }
+        }
     }
 
-    // Handle Up navigation with NavController (keeping this in case it's needed elsewhere)
+    // Handle Up navigation with NavController
     override fun onSupportNavigateUp(): Boolean {
         return navController.navigateUp(appBarConfiguration) || super.onSupportNavigateUp()
     }

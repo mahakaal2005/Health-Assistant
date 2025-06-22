@@ -2,6 +2,7 @@ package com.example.health_assistant.features.home
 
 import android.animation.ObjectAnimator
 import android.animation.ValueAnimator
+import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -34,6 +35,10 @@ class HomeFragment : Fragment() {
     private lateinit var sessionManager: SessionManager
     private lateinit var wellnessTipsAdapter: WellnessTipsAdapter
 
+    // Key for checking if this is the first time app is launched
+    private val PREF_NAME = "HealthAssistantPrefs"
+    private val KEY_FIRST_LAUNCH = "isFirstLaunch"
+
     // Animation properties
     private val animDuration = 1000L
     private val animDelay = 100L
@@ -59,8 +64,34 @@ class HomeFragment : Fragment() {
         setupQuickActions()
         setupWellnessInsights()
 
-        // Run entrance animations
-        runEntranceAnimations()
+        // Check SharedPreferences to determine if animations should run
+        val sharedPreferences = requireContext().getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
+        val isFirstLaunch = sharedPreferences.getBoolean(KEY_FIRST_LAUNCH, true)
+
+        if (isFirstLaunch) {
+            // Run entrance animations for first launch only
+            runEntranceAnimations()
+
+            // Update SharedPreferences to indicate that the app has been launched at least once
+            sharedPreferences.edit().putBoolean(KEY_FIRST_LAUNCH, false).apply()
+        } else {
+            // Skip entrance animations on subsequent launches
+            binding.greetingText.alpha = 1f
+            binding.dateText.alpha = 1f
+            binding.avatarContainer.alpha = 1f
+            binding.contextualCard.alpha = 1f
+            binding.healthSummaryCard.alpha = 1f
+            binding.quickActionsTitle.alpha = 1f
+            binding.quickActionsScroll.alpha = 1f
+            binding.insightsTitle.alpha = 1f
+            binding.insightsRecycler.alpha = 1f
+
+            // Still animate the health score progress bar for visual appeal
+            // We do this separately from entrance animations for subsequent visits
+            view.post {
+                animateHealthScore(85) // Using 85 as the value, replace with actual data source
+            }
+        }
     }
 
     /**
