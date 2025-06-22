@@ -35,6 +35,8 @@
         <item name="android:textSize">20sp</item>
         <item name="android:textStyle">bold</item>
         <item name="fontFamily">sans-serif-medium</item>
+        <item name="android:letterSpacing">0.02</item>
+        <item name="android:textFontWeight">500</item>
     </style>
 
     <style name="TextAppearance.HealthAssistant.CardTitle" parent="TextAppearance.MaterialComponents.Subtitle2">
@@ -42,20 +44,13 @@
         <item name="android:textSize">16sp</item>
         <item name="android:textStyle">bold</item>
         <item name="fontFamily">sans-serif-medium</item>
+        <item name="android:letterSpacing">0.01</item>
     </style>
 
     <style name="TextAppearance.HealthAssistant.TipText" parent="TextAppearance.MaterialComponents.Body2">
-        <item name="android:textColor">#757575</item>
+        <item name="android:textColor">#455A64</item>
         <item name="android:textSize">14sp</item>
         <item name="fontFamily">sans-serif</item>
-    </style>
-
-    <style name="TextAppearance.HealthAssistant.ButtonText" parent="TextAppearance.MaterialComponents.Button">
-        <item name="android:textColor">@android:color/white</item>
-        <item name="android:textSize">16sp</item>
-        <item name="android:textStyle">bold</item>
-        <item name="android:textAllCaps">false</item>
-        <item name="fontFamily">sans-serif-medium</item>
-        <item name="android:letterSpacing">0.025</item>
+        <item name="android:lineSpacingMultiplier">1.2</item>
     </style>
 </resources>

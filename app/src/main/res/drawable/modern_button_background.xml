@@ -5,7 +5,10 @@
     <item android:id="@android:id/background">
         <shape android:shape="rectangle">
             <corners android:radius="28dp" /> <!-- Matching the pill button radius -->
-            <solid android:color="#03A9F4" /> <!-- Sky blue background -->
+            <gradient
+                android:startColor="#03A9F4"
+                android:endColor="#4DD0E1"
+                android:angle="45" /> <!-- Gradient from sky blue to teal -->
             <stroke android:color="#4DFFFFFF" android:width="1.5dp" /> <!-- Softer glow border (30% white) -->
         </shape>
     </item>
