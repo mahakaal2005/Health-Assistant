@@ -2,4 +2,19 @@
 <resources>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+
+    <!-- Progress chart colors -->
+    <color name="progress_orange">#FF9800</color>
+    <color name="progress_green">#4CAF50</color>
+    <color name="progress_blue">#2196F3</color>
+
+    <!-- Text colors for better readability -->
+    <color name="text_primary_light">#DE000000</color> <!-- 87% black -->
+    <color name="text_secondary_light">#99000000</color> <!-- 60% black -->
+    <color name="text_primary_dark">#DEFFFFFF</color> <!-- 87% white -->
+    <color name="text_secondary_dark">#99FFFFFF</color> <!-- 60% white -->
+
+    <!-- Card colors -->
+    <color name="card_background_light">#FFFFFF</color>
+    <color name="card_background_dark">#2D2D2D</color>
 </resources>

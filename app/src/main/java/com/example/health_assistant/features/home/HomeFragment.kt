@@ -12,10 +12,14 @@ import android.view.animation.OvershootInterpolator
 import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
+import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.health_assistant.R
 import com.example.health_assistant.auth.session.SessionManager
 import com.example.health_assistant.databinding.FragmentHomeBinding
+import com.example.health_assistant.features.health.model.HealthMetrics
+import com.example.health_assistant.features.health.viewmodel.HealthMetricsViewModel
 import com.example.health_assistant.features.home.adapters.WellnessTipsAdapter
 import com.example.health_assistant.features.home.models.WellnessTip
 import java.text.SimpleDateFormat
@@ -34,6 +38,9 @@ class HomeFragment : Fragment() {
     private val binding get() = _binding!!
     private lateinit var sessionManager: SessionManager
     private lateinit var wellnessTipsAdapter: WellnessTipsAdapter
+
+    // View model for health metrics
+    private val healthMetricsViewModel: HealthMetricsViewModel by viewModels()
 
     // Key for checking if this is the first time app is launched
     private val PREF_NAME = "HealthAssistantPrefs"
@@ -63,6 +70,12 @@ class HomeFragment : Fragment() {
         setupHealthSummary()
         setupQuickActions()
         setupWellnessInsights()
+
+        // Observe health metrics data
+        healthMetricsViewModel.healthMetrics.observe(viewLifecycleOwner, Observer { metrics ->
+            // Update UI with health metrics
+            updateHealthMetrics(metrics)
+        })
 
         // Check SharedPreferences to determine if animations should run
         val sharedPreferences = requireContext().getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
@@ -165,40 +178,46 @@ class HomeFragment : Fragment() {
     }
 
     /**
-     * Sets up health summary section with animated progress indicator
+     * Sets up health summary section with triple-ring progress view
      */
     private fun setupHealthSummary() {
-        // In a real app, these values would come from health data repositories
-        val healthScore = 85
-        val steps = 7548
-        val heartRate = 72
+        // Initialize the triple-ring progress view with initial/empty values
+        binding.tripleRingProgress.setStepsProgress(0, 9000)
+        binding.tripleRingProgress.setCaloriesProgress(0, 300)
+        binding.tripleRingProgress.setWorkoutProgress(0, 30)
 
-        // Set initial values
-        binding.healthScoreValue.text = healthScore.toString()
-        binding.stepsValue.text = steps.toString().chunked(1).joinToString(",")
-        binding.heartRateValue.text = "$heartRate bpm"
-
-        // Set up click handlers with haptic feedback and animations
-        binding.stepsCard.setOnClickListener {
-            animatePressEffect(binding.stepsCard)
-            Toast.makeText(context, "View step details", Toast.LENGTH_SHORT).show()
-        }
-
-        binding.heartRateCard.setOnClickListener {
-            animatePressEffect(binding.heartRateCard)
-            Toast.makeText(context, "View heart rate history", Toast.LENGTH_SHORT).show()
-        }
+        // Initialize text values in the legend
+        binding.stepsValue.text = "0 / 9000 steps"
+        binding.caloriesValue.text = "0 / 300 kcal"
+        binding.workoutValue.text = "0 / 30 min"
     }
 
     /**
-     * Animates the health score progress with a smooth circular animation
+     * Updates the health metrics UI based on the ViewModel data
      */
-    private fun animateHealthScore(targetValue: Int) {
-        val animator = ObjectAnimator.ofInt(binding.healthScoreProgress, "progress", 0, targetValue)
-        animator.duration = 1500
-        animator.interpolator = AccelerateDecelerateInterpolator()
-        animator.start()
+    private fun updateHealthMetrics(metrics: HealthMetrics) {
+        // Update triple-ring progress view
+        binding.tripleRingProgress.setStepsProgress(
+            metrics.steps.current,
+            metrics.steps.target
+        )
+
+        binding.tripleRingProgress.setCaloriesProgress(
+            metrics.calories.current,
+            metrics.calories.target
+        )
+
+        binding.tripleRingProgress.setWorkoutProgress(
+            metrics.workout.current,
+            metrics.workout.target
+        )
+
+        // Update text values in the legend
+        binding.stepsValue.text = "${metrics.steps.current} / ${metrics.steps.target} steps"
+        binding.caloriesValue.text = "${metrics.calories.current} / ${metrics.calories.target} kcal"
+        binding.workoutValue.text = "${metrics.workout.current} / ${metrics.workout.target} min"
     }
+
 
     /**
      * Sets up pill-shaped quick action buttons with animations
@@ -392,6 +411,27 @@ class HomeFragment : Fragment() {
             .setDuration(duration)
             .setStartDelay(delay)
             .start()
+    }
+
+    /**
+     * Animates all three health metrics rings to show progress
+     */
+    private fun animateHealthScore(overallHealthScore: Int) {
+        // Convert overall health score to individual metrics
+        // This is a simple example - in a real app this would use real health data
+        val stepsProgress = overallHealthScore * 90 / 100  // 90% of health score converted to steps
+        val caloriesProgress = overallHealthScore * 8 / 100 // 8% of health score converted to calories
+        val workoutProgress = overallHealthScore * 10 / 100 // 10% of health score converted to workout minutes
+
+        // Update progress in the triple ring view
+        binding.tripleRingProgress.setStepsProgress(stepsProgress, 9000)
+        binding.tripleRingProgress.setCaloriesProgress(caloriesProgress, 300)
+        binding.tripleRingProgress.setWorkoutProgress(workoutProgress, 30)
+
+        // Update the text displays
+        binding.stepsValue.text = "$stepsProgress / 9000 steps"
+        binding.caloriesValue.text = "$caloriesProgress / 300 kcal"
+        binding.workoutValue.text = "$workoutProgress / 30 min"
     }
 
     override fun onDestroyView() {

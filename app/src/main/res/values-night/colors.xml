@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Progress chart colors with Material Design 3 gradients - Dark Theme -->
+    <color name="progress_orange_start">#FFB74D</color>
+    <color name="progress_orange_end">#FFA726</color>
+    <color name="progress_green_start">#81C784</color>
+    <color name="progress_green_end">#66BB6A</color>
+    <color name="progress_blue_start">#64B5F6</color>
+    <color name="progress_blue_end">#42A5F5</color>
+
+    <!-- Card colors -->
+    <color name="card_background_light">#1F1F1F</color>
+    <color name="card_background_dark">#2D2D2D</color>
+</resources>

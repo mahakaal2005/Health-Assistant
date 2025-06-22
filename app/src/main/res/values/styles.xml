@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Primary Button Style -->
+    <style name="Widget.HealthAssistant.Button.Primary" parent="Widget.MaterialComponents.Button.UnelevatedButton">
+        <item name="android:background">@drawable/modern_button_background</item>
+        <item name="backgroundTint">@null</item>
+        <item name="android:textAppearance">@style/TextAppearance.HealthAssistant.ButtonText</item>
+        <item name="android:paddingTop">10dp</item>
+        <item name="android:paddingBottom">10dp</item>
+        <item name="android:paddingLeft">20dp</item>
+        <item name="android:paddingRight">20dp</item>
+        <item name="android:elevation">4dp</item>
+        <item name="android:stateListAnimator">@null</item> <!-- Prevents elevation change animation -->
+        <item name="android:clickable">true</item>
+        <item name="android:focusable">true</item>
+        <item name="android:minHeight">56dp</item>
+        <item name="android:drawablePadding">8dp</item>
+        <item name="android:textSize">15sp</item>
+        <item name="android:fontFamily">sans-serif-medium</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textColor">#FFFFFF</item>
+        <item name="android:textAllCaps">false</item>
+        <item name="materialThemeOverlay">@null</item>
+    </style>
+</resources>
