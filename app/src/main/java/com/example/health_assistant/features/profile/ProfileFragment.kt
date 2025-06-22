@@ -79,11 +79,17 @@ class ProfileFragment : Fragment() {
         // Clear user session
         sessionManager.logout()
 
-        // Navigate to AuthActivity
+        // Navigate to AuthActivity with proper flags to ensure complete activity stack reset
         val intent = Intent(requireContext(), AuthActivity::class.java)
-        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+        // These flags ensure we completely clear the back stack and start fresh
+        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or
+                       Intent.FLAG_ACTIVITY_CLEAR_TASK or
+                       Intent.FLAG_ACTIVITY_CLEAR_TOP or
+                       Intent.FLAG_ACTIVITY_SINGLE_TOP
         startActivity(intent)
-        requireActivity().finish()
+
+        // Make sure current activity is finished
+        requireActivity().finishAffinity()
     }
 
     override fun onDestroyView() {

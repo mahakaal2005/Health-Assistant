@@ -50,7 +50,7 @@ class AuthActivity : AppCompatActivity() {
                 // Only setup ActionBar navigation if we're using the action bar
                 if (supportActionBar?.isShowing == true) {
                     val appBarConfiguration = AppBarConfiguration(
-                        setOf(R.id.onboardingFragment, R.id.accountDecisionFragment)
+                        setOf(R.id.startingFragment, R.id.accountDecisionFragment)
                     )
                     NavigationUI.setupActionBarWithNavController(this, navController!!, appBarConfiguration)
                 }

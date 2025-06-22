@@ -3,19 +3,19 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/nav_auth"
-    app:startDestination="@id/onboardingFragment">
+    app:startDestination="@id/startingFragment">
 
     <fragment
-        android:id="@+id/onboardingFragment"
-        android:name="com.example.health_assistant.auth.fragments.OnboardingFragment"
-        android:label="fragment_onboarding"
-        tools:layout="@layout/auth_fragment_onboarding">
+        android:id="@+id/startingFragment"
+        android:name="com.example.health_assistant.auth.fragments.StartingFragment"
+        android:label="fragment_starting"
+        tools:layout="@layout/auth_fragment_starting">
         <action
-            android:id="@+id/action_onboardingFragment_to_accountDecisionFragment"
+            android:id="@+id/action_startingFragment_to_accountDecisionFragment"
             app:destination="@id/accountDecisionFragment" />
         <!-- Direct access to MainActivity for users who are already onboarded -->
         <action
-            android:id="@+id/action_onboardingFragment_to_mainActivity"
+            android:id="@+id/action_startingFragment_to_mainActivity"
             app:destination="@id/mainActivity"
             app:popUpTo="@id/nav_auth"
             app:popUpToInclusive="true" />

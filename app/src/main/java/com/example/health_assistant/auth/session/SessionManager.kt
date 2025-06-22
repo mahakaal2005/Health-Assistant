@@ -83,21 +83,31 @@ class SessionManager(private val context: Context) {
      * Check if user is logged in
      */
     fun isLoggedIn(): Boolean {
-        // First check Firebase's current user
-        val firebaseUser = authRepository.getCurrentUser()
+        // First check our local session state - if we've explicitly logged out, stay logged out
+        val localLoggedIn = encryptedPrefs.getBoolean(KEY_IS_LOGGED_IN, false)
 
-        // If Firebase has a current user, ensure our local session is also updated
-        if (firebaseUser != null) {
-            if (!encryptedPrefs.getBoolean(KEY_IS_LOGGED_IN, false)) {
-                // Update local session data if Firebase shows logged in but local storage doesn't
-                createLoginSession(firebaseUser.uid, firebaseUser.email ?: "")
+        // If local session says we're logged out, don't try to auto-login even if Firebase has a session
+        if (!localLoggedIn) {
+            // Make sure Firebase is also signed out to sync state
+            if (authRepository.getCurrentUser() != null) {
+                authRepository.signOut()
             }
-            return true
+            return false
         }
 
-        // If Firebase doesn't have a current user, check our local session
-        return encryptedPrefs.getBoolean(KEY_IS_LOGGED_IN, false)
+        // If local session says we're logged in, verify with Firebase
+        val firebaseUser = authRepository.getCurrentUser()
+
+        // If Firebase has no user but local says logged in, clear local state
+        if (firebaseUser == null) {
+            logout() // Clear everything to sync state
+            return false
+        }
+
+        // Both local and Firebase agree we're logged in
+        return true
     }
+
 
     /**
      * Get the current user ID
@@ -120,11 +130,19 @@ class SessionManager(private val context: Context) {
         // Clear Firebase Auth
         authRepository.signOut()
 
-        // Clear session data
+        // Clear session data - explicitly set logged in to false rather than just clearing
         encryptedPrefs.edit().apply {
-            clear()
+            putBoolean(KEY_IS_LOGGED_IN, false)
+            remove(KEY_USER_ID)
+            remove(KEY_USER_EMAIL)
             apply()
         }
-        Log.d(TAG, "User logged out, session cleared")
+
+        // Verify that data was cleared
+        val isStillLoggedIn = encryptedPrefs.getBoolean(KEY_IS_LOGGED_IN, false)
+        Log.d(TAG, "User logged out, session cleared. Login status: $isStillLoggedIn")
+
+        // Re-initialize preferences to ensure clean state
+        initEncryptedPrefs()
     }
 }
