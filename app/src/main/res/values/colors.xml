@@ -3,6 +3,9 @@
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
 
+    <!-- Primary app colors -->
+    <color name="colorPrimary">#4DB6AC</color> <!-- Added for onboarding screens -->
+
     <!-- Progress chart colors -->
     <color name="progress_orange">#FF9800</color>
     <color name="progress_green">#4CAF50</color>
@@ -17,4 +20,8 @@
     <!-- Card colors -->
     <color name="card_background_light">#FFFFFF</color>
     <color name="card_background_dark">#2D2D2D</color>
+
+    <!-- Onboarding colors -->
+    <color name="colorPrimaryLight">#80D1C4</color>
+    <color name="colorBackground">#FAFAFA</color>
 </resources>

@@ -5,6 +5,19 @@
     android:id="@+id/nav_auth"
     app:startDestination="@id/startingFragment">
 
+    <!-- Onboarding Fragment -->
+    <fragment
+        android:id="@+id/onboardingFragment"
+        android:name="com.example.health_assistant.features.onboarding.OnboardingFragment"
+        android:label="fragment_onboarding"
+        tools:layout="@layout/fragment_onboarding">
+        <action
+            android:id="@+id/action_onboardingFragment_to_authFragment"
+            app:destination="@id/accountDecisionFragment"
+            app:popUpTo="@id/onboardingFragment"
+            app:popUpToInclusive="true" />
+    </fragment>
+
     <fragment
         android:id="@+id/startingFragment"
         android:name="com.example.health_assistant.auth.fragments.StartingFragment"
@@ -18,6 +31,12 @@
             android:id="@+id/action_startingFragment_to_mainActivity"
             app:destination="@id/mainActivity"
             app:popUpTo="@id/nav_auth"
+            app:popUpToInclusive="true" />
+        <!-- New action for onboarding -->
+        <action
+            android:id="@+id/action_startingFragment_to_onboardingFragment"
+            app:destination="@id/onboardingFragment"
+            app:popUpTo="@id/startingFragment"
             app:popUpToInclusive="true" />
     </fragment>
 

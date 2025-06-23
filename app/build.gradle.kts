@@ -202,4 +202,11 @@ dependencies {
 
     implementation(libs.kotlinx.coroutines.play.services)
 
+
+
+    // ViewPager2 for onboarding screens
+    implementation(libs.androidx.viewpager2)
+
+    // Dots indicator library for ViewPager2 navigation
+    implementation(libs.dotsindicator)
 }

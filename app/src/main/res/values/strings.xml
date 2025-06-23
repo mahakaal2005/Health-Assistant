@@ -15,6 +15,16 @@
     <string name="feature_emergency_desc">Quick access to emergency services and alert trusted contacts</string>
     <string name="get_started">Get Started</string>
 
+    <!-- Additional onboarding strings -->
+    <string name="onboarding_page1_title">Track Your Health Journey</string>
+    <string name="onboarding_page1_description">Monitor your vital signs and daily activities with our easy to use tracking tools</string>
+    <string name="onboarding_page2_title">Personalized AI Insights</string>
+    <string name="onboarding_page2_description">Get smart recommendations tailored to your health profile and goals</string>
+    <string name="onboarding_page3_title">Connect With Professionals</string>
+    <string name="onboarding_page3_description">Access telehealth services and emergency assistance whenever you need it</string>
+    <string name="skip">Skip</string>
+    <string name="next">Next</string>
+
     <!-- Account Decision Screen -->
     <string name="account_question">Do you already have an account?</string>
     <string name="log_in">Log In</string>
