@@ -4,6 +4,9 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:clickable="true"
+    android:focusable="true"
+    android:focusableInTouchMode="true"
     tools:context=".auth.fragments.SignUpFragment">
 
     <TextView
@@ -41,69 +44,82 @@
 
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/name_layout"
-                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                style="@style/Widget.HealthAssistant.TextInputLayout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="@string/full_name"
-                app:boxBackgroundColor="#33FFFFFF"
-                app:boxStrokeColor="@android:color/white"
-                app:hintTextColor="@android:color/white"
+                app:startIconDrawable="@drawable/ic_person"
+                app:startIconTint="#B3FFFFFF"
+                app:endIconMode="clear_text"
+                app:endIconTint="#B3FFFFFF"
+                android:contentDescription="Full name input field"
+                android:animateLayoutChanges="true"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/name_input"
+                    style="@style/Widget.HealthAssistant.TextInputEditText"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:inputType="textPersonName"
-                    android:textColor="@android:color/white" />
+                    android:imeOptions="actionNext"/>
             </com.google.android.material.textfield.TextInputLayout>
 
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/email_layout"
-                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                style="@style/Widget.HealthAssistant.TextInputLayout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
                 android:hint="@string/email"
-                app:boxBackgroundColor="#33FFFFFF"
-                app:boxStrokeColor="@android:color/white"
-                app:hintTextColor="@android:color/white"
+                app:startIconDrawable="@drawable/ic_email"
+                app:startIconTint="#B3FFFFFF"
+                app:endIconMode="clear_text"
+                app:endIconTint="#B3FFFFFF"
+                android:contentDescription="Email address input field"
+                android:animateLayoutChanges="true"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/name_layout">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/email_input"
+                    style="@style/Widget.HealthAssistant.TextInputEditText"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:inputType="textEmailAddress"
-                    android:textColor="@android:color/white" />
+                    android:imeOptions="actionNext"/>
             </com.google.android.material.textfield.TextInputLayout>
 
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/password_layout"
-                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                style="@style/Widget.HealthAssistant.TextInputLayout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
                 android:hint="@string/password"
-                app:boxBackgroundColor="#33FFFFFF"
-                app:boxStrokeColor="@android:color/white"
-                app:hintTextColor="@android:color/white"
+                app:startIconDrawable="@drawable/ic_lock"
+                app:startIconTint="#B3FFFFFF"
+                app:endIconMode="password_toggle"
+                app:endIconTint="#B3FFFFFF"
+                app:helperText="At least 8 characters with letters and numbers"
+                app:helperTextEnabled="false"
+                app:helperTextTextColor="#FFEB3B"
+                android:paddingBottom="8dp"
+                android:contentDescription="Password input field"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/email_layout"
-                app:passwordToggleEnabled="true"
-                app:passwordToggleTint="@android:color/white">
+                app:layout_constraintTop_toBottomOf="@+id/email_layout">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/password_input"
+                    style="@style/Widget.HealthAssistant.TextInputEditText"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:inputType="textPassword"
-                    android:textColor="@android:color/white" />
+                    android:imeOptions="actionDone"/>
             </com.google.android.material.textfield.TextInputLayout>
 
             <Button

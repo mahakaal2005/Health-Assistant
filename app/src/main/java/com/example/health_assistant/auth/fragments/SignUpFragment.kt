@@ -10,6 +10,7 @@ import com.example.health_assistant.R
 import com.example.health_assistant.auth.repository.FirebaseAuthRepository
 import com.example.health_assistant.auth.session.SessionManager
 import com.example.health_assistant.databinding.AuthFragmentSignupBinding
+import com.example.health_assistant.utils.KeyboardUtils
 import com.google.android.material.snackbar.Snackbar
 
 class SignUpFragment : Fragment() {
@@ -37,6 +38,25 @@ class SignUpFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        // Set up keyboard dismissal when clicking outside edit text fields
+        activity?.let { KeyboardUtils.setupUI(it, view) }
+
+        // Initially hide the helper text by setting it to empty
+        binding.passwordLayout.helperText = ""
+
+        // Set up focus listeners to show/hide helper text
+        binding.passwordInput.setOnFocusChangeListener { _, hasFocus ->
+            // When focused, show helper text with password requirements
+            binding.passwordLayout.helperText = if (hasFocus) {
+                "At least 8 characters with letters and numbers"
+            } else {
+                "" // Empty when not focused
+            }
+
+            // Force the layout to redraw
+            binding.passwordLayout.refreshDrawableState()
+        }
 
         // Set up the Sign Up button click listener
         binding.signupButton.setOnClickListener {

@@ -11,6 +11,7 @@ import com.example.health_assistant.R
 import com.example.health_assistant.auth.repository.FirebaseAuthRepository
 import com.example.health_assistant.auth.session.SessionManager
 import com.example.health_assistant.databinding.AuthFragmentLoginBinding
+import com.example.health_assistant.utils.KeyboardUtils
 import com.google.android.material.snackbar.Snackbar
 
 class LoginFragment : Fragment() {
@@ -38,6 +39,9 @@ class LoginFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        // Set up keyboard dismissal when clicking outside edit text fields
+        activity?.let { KeyboardUtils.setupUI(it, view) }
 
         // Set up the Login button click listener
         binding.loginButton.setOnClickListener {
