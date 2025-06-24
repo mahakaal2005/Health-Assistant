@@ -24,6 +24,7 @@
     <string name="onboarding_page3_description">Access telehealth services and emergency assistance whenever you need it</string>
     <string name="skip">Skip</string>
     <string name="next">Next</string>
+    <string name="lets_dive_deeper">Let\'s dive deeper</string>
 
     <!-- Account Decision Screen -->
     <string name="account_question">Do you already have an account?</string>

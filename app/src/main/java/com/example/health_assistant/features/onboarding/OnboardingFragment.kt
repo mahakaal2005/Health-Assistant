@@ -88,23 +88,38 @@ class OnboardingFragment : Fragment() {
             }
         }
 
-        // Skip button click handler
+        // Back button click handler
+        binding.backButton.setOnClickListener {
+            val currentPosition = binding.onboardingViewPager.currentItem
+            if (currentPosition > 0) {
+                // Navigate to previous page
+                binding.onboardingViewPager.currentItem = currentPosition - 1
+            }
+        }
+
+        // Skip button click handler (now at top-right)
         binding.skipButton.setOnClickListener {
+            // Add debug logging to verify the click handler is being called
+            android.util.Log.d("OnboardingFragment", "Skip button clicked")
             completeOnboarding()
         }
     }
 
     private fun updateButtonsForPosition(position: Int) {
         val isLastPage = viewModel.isLastPage(position, pagerAdapter.itemCount)
+        val isFirstPage = position == 0
 
         // Change the text of the next button to "Get Started" on the last page
         binding.nextButton.text = if (isLastPage) {
             getString(R.string.get_started)
         } else {
-            getString(android.R.string.ok)
+            getString(R.string.next)
         }
 
-        // Optionally hide the skip button on the last page
+        // Hide "Back" button on the first page, show on others
+        binding.backButton.visibility = if (isFirstPage) View.INVISIBLE else View.VISIBLE
+
+        // Hide "Skip" button on the last page
         binding.skipButton.visibility = if (isLastPage) View.GONE else View.VISIBLE
     }
 

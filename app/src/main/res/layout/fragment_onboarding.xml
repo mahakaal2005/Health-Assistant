@@ -3,7 +3,65 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/colorBackground">
+    android:background="@android:color/transparent">
+
+    <!-- Dynamic Gradient Background with Decorative Elements -->
+    <FrameLayout
+        android:id="@+id/dynamic_background"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@drawable/premium_gradient_background" />
+
+        <!-- Decorative Shape 1 - Top Right -->
+        <View
+            android:id="@+id/decorative_shape_1"
+            android:layout_width="300dp"
+            android:layout_height="300dp"
+            android:layout_gravity="top|end"
+            android:layout_marginTop="-100dp"
+            android:layout_marginEnd="-100dp"
+            android:alpha="0.3"
+            android:background="@drawable/decorative_circle_shape" />
+
+        <!-- Decorative Shape 2 - Bottom Left -->
+        <View
+            android:id="@+id/decorative_shape_2"
+            android:layout_width="250dp"
+            android:layout_height="250dp"
+            android:layout_gravity="bottom|start"
+            android:layout_marginBottom="-100dp"
+            android:layout_marginStart="-100dp"
+            android:alpha="0.2"
+            android:background="@drawable/decorative_circle_shape" />
+    </FrameLayout>
+
+    <!-- Skip button at top-right corner (de-emphasized) -->
+    <Button
+        android:id="@+id/skipButton"
+        style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="16dp"
+        android:text="Skip"
+        android:textAllCaps="false"
+        android:textColor="#B3FFFFFF"
+        android:alpha="0.8"
+        android:textSize="14sp"
+        android:minHeight="48dp"
+        android:minWidth="64dp"
+        android:elevation="10dp"
+        android:clickable="true"
+        android:focusable="true"
+        android:paddingHorizontal="16dp"
+        android:paddingVertical="8dp"
+        app:strokeColor="#80FFFFFF"
+        app:strokeWidth="1dp"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
 
     <androidx.viewpager2.widget.ViewPager2
         android:id="@+id/onboardingViewPager"
@@ -19,13 +77,14 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="16dp"
-        app:dotsColor="@color/colorPrimaryLight"
+        app:dotsColor="#80FFFFFF"
         app:dotsCornerRadius="8dp"
         app:dotsSize="8dp"
         app:dotsSpacing="4dp"
         app:dotsWidthFactor="2.5"
         app:progressMode="false"
-        app:selectedDotColor="@color/colorPrimary"
+        app:selectedDotColor="#FFFFFF"
+        android:elevation="2dp"
         app:layout_constraintBottom_toTopOf="@+id/buttonsContainer"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
@@ -41,22 +100,21 @@
         app:layout_constraintStart_toStartOf="parent">
 
         <Button
-            android:id="@+id/skipButton"
-            style="@style/Widget.MaterialComponents.Button.TextButton"
+            android:id="@+id/backButton"
+            style="@style/Widget.HealthAssistant.Button.Primary"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Skip"
-            android:textAllCaps="false"
+            android:text="Back"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
         <Button
             android:id="@+id/nextButton"
+            style="@style/Widget.HealthAssistant.Button.Primary"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Next"
-            android:textAllCaps="false"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
