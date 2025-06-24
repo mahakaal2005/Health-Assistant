@@ -1,6 +1,7 @@
 package com.example.health_assistant.auth.fragments
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -152,11 +153,22 @@ class LoginFragment : Fragment() {
     }
 
     private fun navigateToDashboard() {
-        // Updated to use the new action that navigates to MainActivity
-        findNavController().navigate(R.id.action_loginFragment_to_mainActivity)
+        try {
+            Log.d("LoginFragment", "Starting navigation to dashboard")
 
-        // Optional: Add a transition animation
-        requireActivity().overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out)
+            // First, finish the entire auth activity to prevent any chance of seeing intermediate fragments
+            requireActivity().finish()
+
+            // Then create an intent to start MainActivity
+            val intent = android.content.Intent(requireContext(), com.example.health_assistant.main.MainActivity::class.java)
+            intent.flags = android.content.Intent.FLAG_ACTIVITY_NEW_TASK or android.content.Intent.FLAG_ACTIVITY_CLEAR_TASK
+            startActivity(intent)
+
+            Log.d("LoginFragment", "Navigation to dashboard completed")
+        } catch (e: Exception) {
+            Log.e("LoginFragment", "Navigation error: ${e.message}", e)
+            Toast.makeText(requireContext(), "Navigation error: ${e.message}", Toast.LENGTH_SHORT).show()
+        }
     }
 
     override fun onDestroyView() {
