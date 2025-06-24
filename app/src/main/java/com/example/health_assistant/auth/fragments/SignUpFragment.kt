@@ -6,25 +6,25 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import com.example.health_assistant.R
-import com.example.health_assistant.auth.repository.FirebaseAuthRepository
-import com.example.health_assistant.auth.session.SessionManager
+import com.example.health_assistant.auth.viewmodel.AuthState
+import com.example.health_assistant.auth.viewmodel.AuthViewModel
 import com.example.health_assistant.databinding.AuthFragmentSignupBinding
 import com.example.health_assistant.utils.KeyboardUtils
 import com.google.android.material.snackbar.Snackbar
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class SignUpFragment : Fragment() {
 
     private var _binding: AuthFragmentSignupBinding? = null
     // This property is only valid between onCreateView and onDestroyView
     private val binding get() = _binding!!
 
-    // Firebase Authentication Repository
-    private lateinit var authRepository: FirebaseAuthRepository
-
-    // Session Manager for persistent login
-    private lateinit var sessionManager: SessionManager
+    // Inject ViewModel using Hilt
+    private val viewModel: AuthViewModel by viewModels()
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -32,8 +32,6 @@ class SignUpFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         _binding = AuthFragmentSignupBinding.inflate(inflater, container, false)
-        authRepository = FirebaseAuthRepository()
-        sessionManager = SessionManager(requireContext())
         return binding.root
     }
 
@@ -42,6 +40,9 @@ class SignUpFragment : Fragment() {
 
         // Set up keyboard dismissal when clicking outside edit text fields
         activity?.let { KeyboardUtils.setupUI(it, view) }
+
+        // Observe authentication state changes
+        observeAuthState()
 
         // Initially hide the helper text by setting it to empty
         binding.passwordLayout.helperText = ""
@@ -63,38 +64,12 @@ class SignUpFragment : Fragment() {
         binding.signupButton.setOnClickListener {
             // Validate form and attempt account creation
             if (validateForm()) {
-                // Show loading state
-                setLoadingState(true)
-
                 // Get user input data
                 val email = binding.emailInput.text.toString().trim()
                 val password = binding.passwordInput.text.toString().trim()
 
-                // Register user with Firebase
-                authRepository.registerUser(
-                    email,
-                    password,
-                    onSuccess = { user ->
-                        setLoadingState(false)
-
-                        // Persist login session after successful registration
-                        user?.let {
-                            sessionManager.createLoginSession(it.uid, it.email ?: "")
-                        }
-
-                        // Navigate to dashboard on successful registration
-                        navigateToDashboard()
-                    },
-                    onFailure = { exception ->
-                        setLoadingState(false)
-                        // Show error message
-                        Snackbar.make(
-                            binding.root,
-                            "Registration failed: ${exception.message}",
-                            Snackbar.LENGTH_LONG
-                        ).show()
-                    }
-                )
+                // Register user using ViewModel
+                viewModel.registerUser(email, password)
             }
         }
 
@@ -102,6 +77,30 @@ class SignUpFragment : Fragment() {
         binding.loginPrompt.setOnClickListener {
             // Navigate to LoginFragment
             findNavController().navigate(R.id.action_signUpFragment_to_loginFragment)
+        }
+    }
+
+    private fun observeAuthState() {
+        viewModel.authState.observe(viewLifecycleOwner) { state ->
+            when (state) {
+                is AuthState.Loading -> {
+                    setLoadingState(true)
+                }
+                is AuthState.Success -> {
+                    setLoadingState(false)
+                    // Navigate to dashboard on successful registration
+                    navigateToDashboard()
+                }
+                is AuthState.Error -> {
+                    setLoadingState(false)
+                    // Show error message
+                    Snackbar.make(
+                        binding.root,
+                        "Registration failed: ${state.message}",
+                        Snackbar.LENGTH_LONG
+                    ).show()
+                }
+            }
         }
     }
 
@@ -143,20 +142,17 @@ class SignUpFragment : Fragment() {
         try {
             Log.d("SignUpFragment", "Starting navigation to dashboard")
 
-            // First, finish the entire auth activity to prevent any chance of seeing intermediate fragments
+            // Use our custom method in MainActivity to launch with home fragment
+            // This ensures consistent behavior between login and signup flows
+            com.example.health_assistant.main.MainActivity.startWithHomeFragment(requireContext())
+
+            // Finish the current activity to prevent going back to auth screens
             requireActivity().finish()
-
-            // Then create an intent to start MainActivity
-            val intent = android.content.Intent(requireContext(), com.example.health_assistant.main.MainActivity::class.java)
-            intent.flags = android.content.Intent.FLAG_ACTIVITY_NEW_TASK or android.content.Intent.FLAG_ACTIVITY_CLEAR_TASK
-            startActivity(intent)
-
-            Log.d("SignUpFragment", "Navigation to dashboard completed")
         } catch (e: Exception) {
-            Log.e("SignUpFragment", "Navigation error: ${e.message}", e)
+            Log.e("SignUpFragment", "Error navigating to dashboard", e)
             Snackbar.make(
                 binding.root,
-                "Navigation error: ${e.message}",
+                "Error navigating to dashboard: ${e.message}",
                 Snackbar.LENGTH_LONG
             ).show()
         }
@@ -164,6 +160,6 @@ class SignUpFragment : Fragment() {
 
     override fun onDestroyView() {
         super.onDestroyView()
-        _binding = null // Avoid memory leaks
+        _binding = null
     }
 }

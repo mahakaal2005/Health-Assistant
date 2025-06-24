@@ -1,103 +1,77 @@
 package com.example.health_assistant.features.health.viewmodel
 
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.example.health_assistant.features.health.model.HealthMetric
+import androidx.lifecycle.asLiveData
+import androidx.lifecycle.viewModelScope
+import com.example.health_assistant.data.repository.interfaces.HealthRepository
 import com.example.health_assistant.features.health.model.HealthMetrics
+import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 /**
  * ViewModel for managing health metrics data for the Home screen
  */
-class HealthMetricsViewModel : ViewModel() {
+@HiltViewModel
+class HealthMetricsViewModel @Inject constructor(
+    private val healthRepository: HealthRepository
+) : ViewModel() {
 
     // LiveData for health metrics
-    private val _healthMetrics = MutableLiveData<HealthMetrics>()
-    val healthMetrics: LiveData<HealthMetrics> = _healthMetrics
-
-    init {
-        // Initialize with default values
-        _healthMetrics.value = HealthMetrics(
-            steps = HealthMetric(0, 9000),
-            calories = HealthMetric(0, 300),
-            workout = HealthMetric(0, 30)
-        )
-
-        // In a real app, we would load data from a repository here
-        loadHealthMetrics()
-    }
-
-    /**
-     * Load health metrics data from repository
-     * In a real app, this would fetch data from a database or API
-     */
-    private fun loadHealthMetrics() {
-        // Simulate fetching data
-        // In a real app, this would be an asynchronous call to a repository
-        _healthMetrics.value = HealthMetrics(
-            steps = HealthMetric(171, 9000),
-            calories = HealthMetric(8, 300),
-            workout = HealthMetric(0, 30)
-        )
-    }
+    val healthMetrics: LiveData<HealthMetrics> = healthRepository.getHealthMetrics().asLiveData()
 
     /**
      * Update steps count
      */
     fun updateSteps(steps: Int) {
-        val currentMetrics = _healthMetrics.value ?: return
-        _healthMetrics.value = currentMetrics.copy(
-            steps = currentMetrics.steps.copy(current = steps)
-        )
+        viewModelScope.launch {
+            healthRepository.updateSteps(steps)
+        }
     }
 
     /**
      * Update calories burned
      */
     fun updateCalories(calories: Int) {
-        val currentMetrics = _healthMetrics.value ?: return
-        _healthMetrics.value = currentMetrics.copy(
-            calories = currentMetrics.calories.copy(current = calories)
-        )
+        viewModelScope.launch {
+            healthRepository.updateCalories(calories)
+        }
     }
 
     /**
      * Update workout duration
      */
     fun updateWorkout(minutes: Int) {
-        val currentMetrics = _healthMetrics.value ?: return
-        _healthMetrics.value = currentMetrics.copy(
-            workout = currentMetrics.workout.copy(current = minutes)
-        )
+        viewModelScope.launch {
+            healthRepository.updateWorkout(minutes)
+        }
     }
 
     /**
      * Update target steps
      */
     fun updateStepsTarget(target: Int) {
-        val currentMetrics = _healthMetrics.value ?: return
-        _healthMetrics.value = currentMetrics.copy(
-            steps = currentMetrics.steps.copy(target = target)
-        )
+        viewModelScope.launch {
+            healthRepository.updateStepsTarget(target)
+        }
     }
 
     /**
      * Update target calories
      */
     fun updateCaloriesTarget(target: Int) {
-        val currentMetrics = _healthMetrics.value ?: return
-        _healthMetrics.value = currentMetrics.copy(
-            calories = currentMetrics.calories.copy(target = target)
-        )
+        viewModelScope.launch {
+            healthRepository.updateCaloriesTarget(target)
+        }
     }
 
     /**
      * Update target workout duration
      */
     fun updateWorkoutTarget(target: Int) {
-        val currentMetrics = _healthMetrics.value ?: return
-        _healthMetrics.value = currentMetrics.copy(
-            workout = currentMetrics.workout.copy(target = target)
-        )
+        viewModelScope.launch {
+            healthRepository.updateWorkoutTarget(target)
+        }
     }
 }

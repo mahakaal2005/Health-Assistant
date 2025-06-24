@@ -1,31 +1,29 @@
 package com.example.health_assistant.auth.fragments
 
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import com.example.health_assistant.R
-import com.example.health_assistant.auth.repository.FirebaseAuthRepository
-import com.example.health_assistant.auth.session.SessionManager
+import com.example.health_assistant.auth.viewmodel.AuthState
+import com.example.health_assistant.auth.viewmodel.AuthViewModel
 import com.example.health_assistant.databinding.AuthFragmentLoginBinding
 import com.example.health_assistant.utils.KeyboardUtils
 import com.google.android.material.snackbar.Snackbar
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class LoginFragment : Fragment() {
 
     private var _binding: AuthFragmentLoginBinding? = null
     // This property is only valid between onCreateView and onDestroyView
     private val binding get() = _binding!!
 
-    // Firebase Authentication Repository
-    private lateinit var authRepository: FirebaseAuthRepository
-
-    // Session Manager for persistent login
-    private lateinit var sessionManager: SessionManager
+    // Inject ViewModel using Hilt
+    private val viewModel: AuthViewModel by viewModels()
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -33,8 +31,6 @@ class LoginFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         _binding = AuthFragmentLoginBinding.inflate(inflater, container, false)
-        authRepository = FirebaseAuthRepository()
-        sessionManager = SessionManager(requireContext())
         return binding.root
     }
 
@@ -44,42 +40,19 @@ class LoginFragment : Fragment() {
         // Set up keyboard dismissal when clicking outside edit text fields
         activity?.let { KeyboardUtils.setupUI(it, view) }
 
+        // Observe authentication state changes
+        observeAuthState()
+
         // Set up the Login button click listener
         binding.loginButton.setOnClickListener {
             // Validate form and attempt login
             if (validateForm()) {
-                // Show loading state
-                setLoadingState(true)
-
                 // Get email and password from input fields
                 val email = binding.emailInput.text.toString().trim()
                 val password = binding.passwordInput.text.toString().trim()
 
-                // Authenticate with Firebase
-                authRepository.signInUser(
-                    email,
-                    password,
-                    onSuccess = { user ->
-                        setLoadingState(false)
-
-                        // Persist login session
-                        user?.let {
-                            sessionManager.createLoginSession(it.uid, it.email ?: "")
-                        }
-
-                        // Navigate to dashboard on successful login
-                        navigateToDashboard()
-                    },
-                    onFailure = { exception ->
-                        setLoadingState(false)
-                        // Show error message
-                        Snackbar.make(
-                            binding.root,
-                            "Login failed: ${exception.message}",
-                            Snackbar.LENGTH_LONG
-                        ).show()
-                    }
-                )
+                // Authenticate using ViewModel
+                viewModel.signInUser(email, password)
             }
         }
 
@@ -92,7 +65,31 @@ class LoginFragment : Fragment() {
         // Set up the Forgot Password click listener
         binding.forgotPassword.setOnClickListener {
             // Show dialog to enter email for password reset
-            showPasswordResetDialog()
+            handlePasswordReset()
+        }
+    }
+
+    private fun observeAuthState() {
+        viewModel.authState.observe(viewLifecycleOwner) { state ->
+            when (state) {
+                is AuthState.Loading -> {
+                    setLoadingState(true)
+                }
+                is AuthState.Success -> {
+                    setLoadingState(false)
+                    // Navigate to dashboard on successful login
+                    navigateToDashboard()
+                }
+                is AuthState.Error -> {
+                    setLoadingState(false)
+                    // Show error message
+                    Snackbar.make(
+                        binding.root,
+                        "Login failed: ${state.message}",
+                        Snackbar.LENGTH_LONG
+                    ).show()
+                }
+            }
         }
     }
 
@@ -119,7 +116,7 @@ class LoginFragment : Fragment() {
         return true
     }
 
-    private fun showPasswordResetDialog() {
+    private fun handlePasswordReset() {
         val email = binding.emailInput.text.toString().trim()
 
         if (email.isEmpty()) {
@@ -127,52 +124,30 @@ class LoginFragment : Fragment() {
             return
         }
 
-        // Show loading state
-        setLoadingState(true)
-
-        // Send password reset email
-        authRepository.resetPassword(
-            email,
-            onSuccess = {
-                setLoadingState(false)
-                Snackbar.make(
-                    binding.root,
-                    "Password reset email sent to $email",
-                    Snackbar.LENGTH_LONG
-                ).show()
-            },
-            onFailure = { exception ->
-                setLoadingState(false)
-                Snackbar.make(
-                    binding.root,
-                    "Password reset failed: ${exception.message}",
-                    Snackbar.LENGTH_LONG
-                ).show()
-            }
-        )
+        // Send password reset email using ViewModel
+        viewModel.resetPassword(email)
     }
 
     private fun navigateToDashboard() {
         try {
-            Log.d("LoginFragment", "Starting navigation to dashboard")
+            // Use our custom method in MainActivity to launch with home fragment
+            // This will clear the entire task and prevent account decision fragment from showing
+            com.example.health_assistant.main.MainActivity.startWithHomeFragment(requireContext())
 
-            // First, finish the entire auth activity to prevent any chance of seeing intermediate fragments
+            // Finish the current activity to prevent going back to auth screens
             requireActivity().finish()
-
-            // Then create an intent to start MainActivity
-            val intent = android.content.Intent(requireContext(), com.example.health_assistant.main.MainActivity::class.java)
-            intent.flags = android.content.Intent.FLAG_ACTIVITY_NEW_TASK or android.content.Intent.FLAG_ACTIVITY_CLEAR_TASK
-            startActivity(intent)
-
-            Log.d("LoginFragment", "Navigation to dashboard completed")
         } catch (e: Exception) {
-            Log.e("LoginFragment", "Navigation error: ${e.message}", e)
-            Toast.makeText(requireContext(), "Navigation error: ${e.message}", Toast.LENGTH_SHORT).show()
+            android.util.Log.e("LoginFragment", "Navigation error: ${e.message}", e)
+            Snackbar.make(
+                binding.root,
+                "Error navigating to dashboard: ${e.message}",
+                Snackbar.LENGTH_LONG
+            ).show()
         }
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
-        _binding = null // Avoid memory leaks
+        _binding = null
     }
 }

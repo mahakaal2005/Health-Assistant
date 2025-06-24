@@ -7,16 +7,28 @@ import android.security.keystore.KeyProperties
 import android.util.Log
 import androidx.security.crypto.EncryptedSharedPreferences
 import androidx.security.crypto.MasterKey
-import com.example.health_assistant.auth.repository.FirebaseAuthRepository
+import com.example.health_assistant.data.repository.interfaces.AuthRepository
+import com.example.health_assistant.data.repository.interfaces.UserProfileRepository
+import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import javax.inject.Inject
+import javax.inject.Singleton
 
 /**
  * Manages user session and authentication state using secure storage
  */
-class SessionManager(private val context: Context) {
+@Singleton
+class SessionManager @Inject constructor(
+    @ApplicationContext private val context: Context,
+    private val authRepository: AuthRepository,
+    private val userProfileRepository: UserProfileRepository
+) {
 
     private val TAG = "SessionManager"
-    private val authRepository = FirebaseAuthRepository()
     private lateinit var encryptedPrefs: SharedPreferences
+    private val coroutineScope = CoroutineScope(Dispatchers.IO)
 
     // Keys for stored preferences
     companion object {
@@ -76,6 +88,12 @@ class SessionManager(private val context: Context) {
             putString(KEY_USER_EMAIL, email)
             apply()
         }
+
+        // Also save to UserProfileRepository
+        coroutineScope.launch {
+            userProfileRepository.saveUserProfile(userId, email)
+        }
+
         Log.d(TAG, "Login session created for user: $userId")
     }
 
@@ -88,49 +106,32 @@ class SessionManager(private val context: Context) {
 
         // If local session says we're logged out, don't try to auto-login even if Firebase has a session
         if (!localLoggedIn) {
-            // Make sure Firebase is also signed out to sync state
-            if (authRepository.getCurrentUser() != null) {
-                authRepository.signOut()
-            }
             return false
         }
 
-        // If local session says we're logged in, verify with Firebase
-        val firebaseUser = authRepository.getCurrentUser()
-
-        // If Firebase has no user but local says logged in, clear local state
-        if (firebaseUser == null) {
-            logout() // Clear everything to sync state
-            return false
-        }
-
-        // Both local and Firebase agree we're logged in
-        return true
-    }
-
-
-    /**
-     * Get the current user ID
-     */
-    fun getUserId(): String? {
-        return encryptedPrefs.getString(KEY_USER_ID, null)
+        // If local session says we're logged in, verify with Firebase auth repository
+        return authRepository.isUserLoggedIn()
     }
 
     /**
-     * Get the current user email
+     * Get the current user's email
      */
     fun getUserEmail(): String? {
         return encryptedPrefs.getString(KEY_USER_EMAIL, null)
     }
 
     /**
-     * Clear user session and log out
+     * Get the current user's ID
+     */
+    fun getUserId(): String? {
+        return encryptedPrefs.getString(KEY_USER_ID, null)
+    }
+
+    /**
+     * Logout the user
      */
     fun logout() {
-        // Clear Firebase Auth
-        authRepository.signOut()
-
-        // Clear session data - explicitly set logged in to false rather than just clearing
+        // Clear session data from preferences
         encryptedPrefs.edit().apply {
             putBoolean(KEY_IS_LOGGED_IN, false)
             remove(KEY_USER_ID)
@@ -138,11 +139,12 @@ class SessionManager(private val context: Context) {
             apply()
         }
 
-        // Verify that data was cleared
-        val isStillLoggedIn = encryptedPrefs.getBoolean(KEY_IS_LOGGED_IN, false)
-        Log.d(TAG, "User logged out, session cleared. Login status: $isStillLoggedIn")
+        // Sign out from Firebase and clear user profile
+        coroutineScope.launch {
+            authRepository.signOut()
+            userProfileRepository.clearUserProfile()
+        }
 
-        // Re-initialize preferences to ensure clean state
-        initEncryptedPrefs()
+        Log.d(TAG, "User logged out and session cleared")
     }
 }

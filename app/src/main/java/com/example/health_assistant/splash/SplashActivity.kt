@@ -10,10 +10,16 @@ import com.example.health_assistant.auth.AuthActivity
 import com.example.health_assistant.auth.session.SessionManager
 import com.example.health_assistant.databinding.SplashActivityBinding
 import com.example.health_assistant.main.MainActivity
+import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 
+@AndroidEntryPoint
 class SplashActivity : AppCompatActivity() {
     private lateinit var binding: SplashActivityBinding
-    private lateinit var sessionManager: SessionManager
+
+    @Inject
+    lateinit var sessionManager: SessionManager
+
     private val handler = Handler(Looper.getMainLooper())
     private val navigationRunnable = Runnable {
         try {
@@ -48,8 +54,6 @@ class SplashActivity : AppCompatActivity() {
         binding = SplashActivityBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        // Initialize SessionManager
-        sessionManager = SessionManager(this)
 
         // Hide the action bar if it's present
         supportActionBar?.hide()

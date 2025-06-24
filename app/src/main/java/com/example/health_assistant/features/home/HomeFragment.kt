@@ -22,21 +22,27 @@ import com.example.health_assistant.features.health.model.HealthMetrics
 import com.example.health_assistant.features.health.viewmodel.HealthMetricsViewModel
 import com.example.health_assistant.features.home.adapters.WellnessTipsAdapter
 import com.example.health_assistant.features.home.models.WellnessTip
+import dagger.hilt.android.AndroidEntryPoint
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
 import java.util.Locale
 import java.util.Random
+import javax.inject.Inject
 
 /**
  * Premium Home Fragment featuring a modern interface with personalized greeting,
  * health summary, quick actions, and wellness insights.
  * Follows premium UI/UX design principles from top health apps.
  */
+@AndroidEntryPoint
 class HomeFragment : Fragment() {
     private var _binding: FragmentHomeBinding? = null
     private val binding get() = _binding!!
-    private lateinit var sessionManager: SessionManager
+
+    @Inject
+    lateinit var sessionManager: SessionManager
+
     private lateinit var wellnessTipsAdapter: WellnessTipsAdapter
 
     // View model for health metrics
@@ -56,7 +62,6 @@ class HomeFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         _binding = FragmentHomeBinding.inflate(inflater, container, false)
-        sessionManager = SessionManager(requireContext())
         return binding.root
     }
 

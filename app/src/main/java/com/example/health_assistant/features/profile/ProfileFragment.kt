@@ -1,22 +1,26 @@
 package com.example.health_assistant.features.profile
 
-import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import com.example.health_assistant.R
 import com.example.health_assistant.auth.AuthActivity
-import com.example.health_assistant.auth.session.SessionManager
 import com.example.health_assistant.databinding.FragmentProfileBinding
+import com.example.health_assistant.features.profile.viewmodel.ProfileViewModel
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class ProfileFragment : Fragment() {
     private var _binding: FragmentProfileBinding? = null
     private val binding get() = _binding!!
-    private lateinit var sessionManager: SessionManager
+
+    // Inject ProfileViewModel using Hilt
+    private val viewModel: ProfileViewModel by viewModels()
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -24,7 +28,6 @@ class ProfileFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         _binding = FragmentProfileBinding.inflate(inflater, container, false)
-        sessionManager = SessionManager(requireContext())
         return binding.root
     }
 
@@ -33,15 +36,18 @@ class ProfileFragment : Fragment() {
         
         // Initialize UI elements and set up any event listeners
         setupUI()
+        observeViewModel()
+    }
+
+    private fun observeViewModel() {
+        viewModel.userEmail.observe(viewLifecycleOwner) { email ->
+            if (!email.isNullOrEmpty()) {
+                binding.profileIntroText.text = "Hello, $email"
+            }
+        }
     }
 
     private fun setupUI() {
-        // Display user email if available
-        val userEmail = sessionManager.getUserEmail()
-        if (!userEmail.isNullOrEmpty()) {
-            binding.profileIntroText.text = "Hello, $userEmail"
-        }
-
         // Set up settings button click listener
         binding.settingsButton.setOnClickListener {
             // Navigate to Settings screen
@@ -76,20 +82,11 @@ class ProfileFragment : Fragment() {
      * 2. Redirects to the AuthActivity
      */
     private fun performLogout() {
-        // Clear user session
-        sessionManager.logout()
+        // Sign out using the ViewModel
+        viewModel.signOut()
 
-        // Navigate to AuthActivity with proper flags to ensure complete activity stack reset
-        val intent = Intent(requireContext(), AuthActivity::class.java)
-        // These flags ensure we completely clear the back stack and start fresh
-        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or
-                       Intent.FLAG_ACTIVITY_CLEAR_TASK or
-                       Intent.FLAG_ACTIVITY_CLEAR_TOP or
-                       Intent.FLAG_ACTIVITY_SINGLE_TOP
-        startActivity(intent)
-
-        // Make sure current activity is finished
-        requireActivity().finishAffinity()
+        // Navigate to AuthActivity using Navigation Component
+        findNavController().navigate(R.id.action_global_to_authActivity)
     }
 
     override fun onDestroyView() {
