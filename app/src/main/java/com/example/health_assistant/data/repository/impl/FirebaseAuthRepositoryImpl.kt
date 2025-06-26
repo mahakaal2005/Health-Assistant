@@ -1,5 +1,6 @@
 package com.example.health_assistant.data.repository.impl
 
+import android.util.Log
 import com.example.health_assistant.data.repository.interfaces.AuthRepository
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
@@ -17,6 +18,8 @@ import javax.inject.Singleton
 class FirebaseAuthRepositoryImpl @Inject constructor(
     private val firebaseAuth: FirebaseAuth
 ) : AuthRepository {
+
+    private val TAG = "FirebaseAuthRepository"
 
     override fun getCurrentUser(): Flow<FirebaseUser?> = callbackFlow {
         // Initially emit the current user
@@ -39,8 +42,11 @@ class FirebaseAuthRepositoryImpl @Inject constructor(
     override suspend fun registerUser(email: String, password: String): Result<FirebaseUser?> {
         return try {
             val authResult = firebaseAuth.createUserWithEmailAndPassword(email, password).await()
-            Result.success(authResult.user)
+            val user = authResult.user
+            Log.d(TAG, "Registration successful for user: ${user?.uid}")
+            Result.success(user)
         } catch (e: Exception) {
+            Log.e(TAG, "Registration failed: ${e.message}")
             Result.failure(e)
         }
     }
@@ -48,13 +54,17 @@ class FirebaseAuthRepositoryImpl @Inject constructor(
     override suspend fun signInUser(email: String, password: String): Result<FirebaseUser?> {
         return try {
             val authResult = firebaseAuth.signInWithEmailAndPassword(email, password).await()
-            Result.success(authResult.user)
+            val user = authResult.user
+            Log.d(TAG, "Sign-in successful for user: ${user?.uid}")
+            Result.success(user)
         } catch (e: Exception) {
+            Log.e(TAG, "Sign-in failed: ${e.message}")
             Result.failure(e)
         }
     }
 
     override suspend fun signOut() {
+        Log.d(TAG, "Signing out user")
         firebaseAuth.signOut()
     }
 

@@ -13,6 +13,7 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -40,6 +41,7 @@ class SessionManager @Inject constructor(
 
     init {
         initEncryptedPrefs()
+        observeAuthStateChanges()
     }
 
     /**
@@ -79,6 +81,27 @@ class SessionManager @Inject constructor(
     }
 
     /**
+     * Observe Firebase auth state changes and sync with local session
+     */
+    private fun observeAuthStateChanges() {
+        coroutineScope.launch {
+            authRepository.getCurrentUser().collect { firebaseUser ->
+                if (firebaseUser != null) {
+                    // User is logged in to Firebase, create local session
+                    val userId = firebaseUser.uid
+                    val email = firebaseUser.email ?: ""
+                    createLoginSession(userId, email)
+                    Log.d(TAG, "Firebase auth state: User logged in, local session created")
+                } else {
+                    // User is logged out from Firebase, clear local session
+                    clearSessionOnly()
+                    Log.d(TAG, "Firebase auth state: User logged out, local session cleared")
+                }
+            }
+        }
+    }
+
+    /**
      * Save the user session after successful login
      */
     fun createLoginSession(userId: String, email: String) {
@@ -98,6 +121,22 @@ class SessionManager @Inject constructor(
     }
 
     /**
+     * Clear session data only (internal use for auth state sync)
+     */
+    private fun clearSessionOnly() {
+        encryptedPrefs.edit().apply {
+            putBoolean(KEY_IS_LOGGED_IN, false)
+            remove(KEY_USER_ID)
+            remove(KEY_USER_EMAIL)
+            apply()
+        }
+
+        coroutineScope.launch {
+            userProfileRepository.clearUserProfile()
+        }
+    }
+
+    /**
      * Check if user is logged in
      */
     fun isLoggedIn(): Boolean {
@@ -111,6 +150,51 @@ class SessionManager @Inject constructor(
 
         // If local session says we're logged in, verify with Firebase auth repository
         return authRepository.isUserLoggedIn()
+    }
+
+    /**
+     * Asynchronously check if user is logged in
+     * This method is safe to call from UI thread as it uses coroutines
+     */
+    suspend fun isLoggedInAsync(): Boolean = withContext(Dispatchers.IO) {
+        try {
+            // First check our local session state
+            val localLoggedIn = encryptedPrefs.getBoolean(KEY_IS_LOGGED_IN, false)
+
+            if (!localLoggedIn) {
+                Log.d(TAG, "Local session indicates user is logged out")
+                return@withContext false
+            }
+
+            // If local session says we're logged in, verify with Firebase auth repository
+            val firebaseLoggedIn = authRepository.isUserLoggedIn()
+
+            if (!firebaseLoggedIn) {
+                // Firebase session expired, clear local session
+                Log.d(TAG, "Firebase session expired, clearing local session")
+                clearSession()
+                return@withContext false
+            }
+
+            Log.d(TAG, "User session is valid")
+            return@withContext true
+
+        } catch (e: Exception) {
+            Log.e(TAG, "Error checking login state: ${e.message}")
+            return@withContext false
+        }
+    }
+
+    /**
+     * Clear session data without signing out from Firebase (internal use)
+     */
+    private fun clearSession() {
+        encryptedPrefs.edit().apply {
+            putBoolean(KEY_IS_LOGGED_IN, false)
+            remove(KEY_USER_ID)
+            remove(KEY_USER_EMAIL)
+            apply()
+        }
     }
 
     /**
