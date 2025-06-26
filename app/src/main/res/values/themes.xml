@@ -38,12 +38,6 @@
         <item name="windowNoTitle">true</item>
     </style>
 
-    <!-- Window Animation Style for Full Screen -->
-    <style name="WindowAnimation.FullScreen" parent="@android:style/Animation.Activity">
-        <item name="android:windowEnterAnimation">@android:anim/fade_in</item>
-        <item name="android:windowExitAnimation">@android:anim/fade_out</item>
-    </style>
-
     <!-- Common style for all app fragments to ensure consistent appearance -->
     <style name="AppFragment">
         <item name="android:background">@color/dashboard_background</item>
@@ -53,11 +47,11 @@
     <style name="AppFragment.Header">
         <item name="android:background">@drawable/splash_gradient_background</item>
         <item name="android:textColor">@android:color/white</item>
-        <item name="android:padding">16dp</item>
+        <item name="android:padding">@dimen/content_padding_medium</item>
     </style>
 
     <!-- Style for content sections in fragments -->
     <style name="AppFragment.Content">
-        <item name="android:padding">16dp</item>
+        <item name="android:padding">@dimen/content_padding_medium</item>
     </style>
 </resources>

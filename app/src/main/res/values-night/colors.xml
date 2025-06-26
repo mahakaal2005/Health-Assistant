@@ -1,14 +1,56 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Progress chart colors with Material Design 3 gradients - Dark Theme -->
-    <color name="progress_orange_start">#FFB74D</color>
-    <color name="progress_orange_end">#FFA726</color>
-    <color name="progress_green_start">#81C784</color>
-    <color name="progress_green_end">#66BB6A</color>
-    <color name="progress_blue_start">#64B5F6</color>
-    <color name="progress_blue_end">#42A5F5</color>
+    <!-- Night Mode Colors -->
 
-    <!-- Card colors -->
-    <color name="card_background_light">#1F1F1F</color>
-    <color name="card_background_dark">#2D2D2D</color>
+    <!-- App Theme Colors (Dark) -->
+    <color name="colorPrimary">#4FC3F7</color>
+    <color name="colorPrimaryVariant">#0288D1</color>
+    <color name="colorSecondary">#80CBC4</color>
+    <color name="colorSecondaryVariant">#4DB6AC</color>
+    <color name="colorOnPrimary">#000000</color>
+    <color name="colorOnSecondary">#000000</color>
+    <color name="colorSurface">#1E1E1E</color>
+    <color name="colorOnSurface">#FFFFFF</color>
+    <color name="colorBackground">#121212</color>
+    <color name="colorOnBackground">#FFFFFF</color>
+    <color name="colorError">#CF6679</color>
+    <color name="colorOnError">#000000</color>
+
+    <!-- Text Colors (Dark) -->
+    <color name="textPrimary">#FFFFFF</color>
+    <color name="textSecondary">#B3FFFFFF</color>
+    <color name="textTertiary">#80FFFFFF</color>
+    <color name="textDisabled">#61FFFFFF</color>
+    <color name="text_primary">#FFFFFF</color>
+    <color name="text_secondary">#B3FFFFFF</color>
+
+    <!-- Surface Colors (Dark) -->
+    <color name="surfaceLight">#1E1E1E</color>
+    <color name="surfaceDark">#000000</color>
+    <color name="cardBackground">#1F1F1F</color>
+    <color name="card_background">#1F1F1F</color>
+    <color name="card_background_elevated">#2A2A2A</color>
+    <color name="card_background_alt">#252525</color>
+    <color name="divider">#2A2A2A</color>
+
+    <!-- Navigation Colors (Dark) -->
+    <color name="bottom_nav_item_color">@color/colorPrimary</color>
+    <color name="bottom_nav_item_color_inactive">#80FFFFFF</color>
+
+    <!-- Input Field Colors (Dark) -->
+    <color name="text_input_background">#1F1F1F</color>
+    <color name="text_input_box_stroke">#3A3A3A</color>
+    <color name="text_input_box_stroke_default">#555555</color>
+
+    <!-- Glass/Material Effects (Dark) -->
+    <color name="glassShadow">#40000000</color>
+    <color name="glassOverlay">#20000000</color>
+
+    <!-- Ripple Colors (Dark) -->
+    <color name="rippleColorLight">#40FFFFFF</color>
+    <color name="ripple_color">#40FFFFFF</color>
+
+    <!-- Shadow & Elevation Colors (Dark) -->
+    <color name="shadow_light">#40000000</color>
+    <color name="elevation_overlay">#20000000</color>
 </resources>

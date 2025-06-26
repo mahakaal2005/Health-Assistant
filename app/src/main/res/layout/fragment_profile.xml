@@ -76,7 +76,7 @@
                     android:layout_height="wrap_content"
                     android:text="Hello, User"
                     android:textSize="18sp"
-                    android:textColor="@color/textPrimary"
+                    android:textColor="@color/text_primary"
                     android:textStyle="italic"
                     android:alpha="0.9"
                     android:layout_marginBottom="16dp"
@@ -137,7 +137,7 @@
                     android:text="Alex Johnson"
                     android:textSize="24sp"
                     android:textStyle="bold"
-                    android:textColor="@color/textPrimary"
+                    android:textColor="@color/text_primary"
                     android:elevation="2dp"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
@@ -151,7 +151,7 @@
                     android:layout_marginTop="4dp"
                     android:text="\@alex_health"
                     android:textSize="16sp"
-                    android:textColor="@color/textSecondary"
+                    android:textColor="@color/text_secondary"
                     android:alpha="0.8"
                     android:elevation="1dp"
                     app:layout_constraintEnd_toEndOf="parent"
@@ -169,7 +169,7 @@
                     android:gravity="center"
                     android:text="Fitness enthusiast | Health advocate | Working towards a better me every day"
                     android:textSize="14sp"
-                    android:textColor="@color/textPrimary"
+                    android:textColor="@color/text_primary"
                     android:alpha="0.9"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
@@ -187,7 +187,7 @@
                     android:stateListAnimator="@null"
                     android:text="Edit Profile"
                     android:textAllCaps="false"
-                    android:textColor="@color/textPrimary"
+                    android:textColor="@color/text_primary"
                     android:textSize="14sp"
                     android:elevation="2dp"
                     app:layout_constraintEnd_toEndOf="parent"
@@ -240,14 +240,14 @@
                                 android:text="68kg"
                                 android:textSize="18sp"
                                 android:textStyle="bold"
-                                android:textColor="@color/textPrimary" />
+                                android:textColor="@color/text_primary" />
 
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="Weight"
                                 android:textSize="14sp"
-                                android:textColor="@color/textSecondary" />
+                                android:textColor="@color/text_secondary" />
                         </LinearLayout>
 
                         <!-- Exercise Stat -->
@@ -266,14 +266,14 @@
                                 android:text="24"
                                 android:textSize="18sp"
                                 android:textStyle="bold"
-                                android:textColor="@color/textPrimary" />
+                                android:textColor="@color/text_primary" />
 
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="Workouts"
                                 android:textSize="14sp"
-                                android:textColor="@color/textSecondary" />
+                                android:textColor="@color/text_secondary" />
                         </LinearLayout>
 
                         <!-- Streak Stat -->
@@ -292,14 +292,14 @@
                                 android:text="12"
                                 android:textSize="18sp"
                                 android:textStyle="bold"
-                                android:textColor="@color/textPrimary" />
+                                android:textColor="@color/text_primary" />
 
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="Day Streak"
                                 android:textSize="14sp"
-                                android:textColor="@color/textSecondary" />
+                                android:textColor="@color/text_secondary" />
                         </LinearLayout>
 
                         <!-- Health Score Stat -->
@@ -318,14 +318,14 @@
                                 android:text="85"
                                 android:textSize="18sp"
                                 android:textStyle="bold"
-                                android:textColor="@color/textPrimary" />
+                                android:textColor="@color/text_primary" />
 
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="Score"
                                 android:textSize="14sp"
-                                android:textColor="@color/textSecondary" />
+                                android:textColor="@color/text_secondary" />
                         </LinearLayout>
                     </LinearLayout>
                 </FrameLayout>
@@ -375,7 +375,7 @@
                             android:text="Steps This Week"
                             android:textSize="16sp"
                             android:textStyle="bold"
-                            android:textColor="@color/textPrimary"
+                            android:textColor="@color/text_primary"
                             app:layout_constraintStart_toStartOf="parent"
                             app:layout_constraintTop_toTopOf="parent" />
 
@@ -394,7 +394,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="Bar Chart Placeholder"
-                            android:textColor="@color/textSecondary"
+                            android:textColor="@color/text_secondary"
                             app:layout_constraintBottom_toBottomOf="@+id/chart_placeholder"
                             app:layout_constraintEnd_toEndOf="@+id/chart_placeholder"
                             app:layout_constraintStart_toStartOf="@+id/chart_placeholder"
@@ -495,7 +495,7 @@
                                     android:layout_marginTop="4dp"
                                     android:text="5K Steps"
                                     android:textSize="12sp"
-                                    android:textColor="@color/textPrimary" />
+                                    android:textColor="@color/text_primary" />
                             </LinearLayout>
                         </FrameLayout>
 
@@ -524,7 +524,7 @@
                                     android:layout_marginTop="4dp"
                                     android:text="10K Steps"
                                     android:textSize="12sp"
-                                    android:textColor="@color/textPrimary" />
+                                    android:textColor="@color/text_primary" />
                             </LinearLayout>
                         </FrameLayout>
 
@@ -553,7 +553,7 @@
                                     android:layout_marginTop="4dp"
                                     android:text="20K Steps"
                                     android:textSize="12sp"
-                                    android:textColor="@color/textSecondary" />
+                                    android:textColor="@color/text_secondary" />
                             </LinearLayout>
                         </FrameLayout>
 
@@ -582,7 +582,7 @@
                                     android:layout_marginTop="4dp"
                                     android:text="3 Day Streak"
                                     android:textSize="12sp"
-                                    android:textColor="@color/textPrimary" />
+                                    android:textColor="@color/text_primary" />
                             </LinearLayout>
                         </FrameLayout>
 
@@ -611,7 +611,7 @@
                                     android:layout_marginTop="4dp"
                                     android:text="7 Day Streak"
                                     android:textSize="12sp"
-                                    android:textColor="@color/textPrimary" />
+                                    android:textColor="@color/text_primary" />
                             </LinearLayout>
                         </FrameLayout>
 
@@ -640,7 +640,7 @@
                                     android:layout_marginTop="4dp"
                                     android:text="30 Day Streak"
                                     android:textSize="12sp"
-                                    android:textColor="@color/textSecondary" />
+                                    android:textColor="@color/text_secondary" />
                             </LinearLayout>
                         </FrameLayout>
                     </GridLayout>
@@ -664,7 +664,7 @@
                 android:stateListAnimator="@null"
                 android:text="Settings"
                 android:textAllCaps="false"
-                android:textColor="@color/textPrimary"
+                android:textColor="@color/text_primary"
                 android:textSize="16sp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
@@ -688,7 +688,7 @@
                 android:stateListAnimator="@null"
                 android:text="Logout"
                 android:textAllCaps="false"
-                android:textColor="@color/textPrimary"
+                android:textColor="@color/text_primary"
                 android:textSize="16sp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
