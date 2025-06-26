@@ -10,9 +10,15 @@ plugins {
 
     id("com.google.dagger.hilt.android")
 
+    id("jacoco")
+
+    id("io.gitlab.arturbosch.detekt")
+
+
 
 
 }
+
 
 
 
@@ -78,6 +84,7 @@ android {
 
 
 
+
     buildFeatures {
 
         viewBinding = true
@@ -86,6 +93,10 @@ android {
 
     }
 
+}
+
+tasks.withType<Test> {
+    useJUnitPlatform()
 }
 
 
@@ -156,4 +167,11 @@ dependencies {
 
     // Dots indicator library for ViewPager2 navigation
     implementation(libs.dotsindicator)
+    testImplementation(kotlin("test"))
+
+    testImplementation(libs.kotlin.test)
+    testImplementation(libs.mockk)
+    testImplementation(libs.kotlinx.coroutines.test)
+    testImplementation(libs.junit.jupiter.api)
+    testRuntimeOnly(libs.junit.jupiter.engine)
 }
