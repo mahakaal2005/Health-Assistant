@@ -2,9 +2,13 @@ package com.example.health_assistant.main
 
 import android.content.Context
 import android.content.Intent
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.View
+import android.view.WindowInsets
+import android.view.WindowInsetsController
+import android.view.WindowManager
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
@@ -40,13 +44,26 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
         enableEdgeToEdge()
         binding = MainActivityBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        // Enable full screen experience after view is set
+        setupFullScreen()
+
+        // Update window insets handling to work with hidden status bar and display cutout
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
+            val displayCutout = insets.getInsets(WindowInsetsCompat.Type.displayCutout())
+
+            // Apply proper padding: display cutout top + left/right system bars + bottom navigation
+            v.setPadding(
+                systemBars.left,
+                displayCutout.top, // Use display cutout top padding to avoid camera notch
+                systemBars.right,
+                systemBars.bottom
+            )
             insets
         }
 
@@ -99,5 +116,29 @@ class MainActivity : AppCompatActivity() {
     // Handle Up navigation with NavController
     override fun onSupportNavigateUp(): Boolean {
         return navController.navigateUp(appBarConfiguration) || super.onSupportNavigateUp()
+    }
+
+    // Setup full screen mode by hiding the status bar
+    private fun setupFullScreen() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            // For Android 11 and above - modern WindowInsetsController approach
+            val controller: WindowInsetsController = window.insetsController ?: return
+            controller.hide(WindowInsets.Type.statusBars())
+            controller.systemBarsBehavior = WindowInsetsController.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+        } else {
+            // For Android 10 and below - use system UI visibility flags
+            @Suppress("DEPRECATION")
+            window.decorView.systemUiVisibility = (
+                View.SYSTEM_UI_FLAG_FULLSCREEN or
+                View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+            )
+        }
+
+        // Additional window optimizations for enhanced full screen experience
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            // Enable drawing behind display cutouts for Android 9+
+            window.attributes.layoutInDisplayCutoutMode =
+                WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES
+        }
     }
 }

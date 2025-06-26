@@ -7,10 +7,41 @@
 
     <style name="Theme.Health_Assistant" parent="Base.Theme.Health_Assistant" />
 
-    <!-- Theme for MainActivity with custom toolbar -->
+    <!-- Enhanced Full Screen Theme for MainActivity -->
+    <style name="Theme.Health_Assistant.FullScreen" parent="Base.Theme.Health_Assistant">
+        <!-- Remove action bar and title -->
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+
+        <!-- Full screen optimizations -->
+        <item name="android:windowFullscreen">false</item>
+        <item name="android:windowTranslucentStatus">false</item>
+        <item name="android:windowTranslucentNavigation">false</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
+
+        <!-- Edge-to-edge optimizations -->
+        <item name="android:windowLayoutInDisplayCutoutMode" tools:targetApi="p">shortEdges</item>
+        <item name="android:enforceStatusBarContrast" tools:targetApi="q">false</item>
+        <item name="android:enforceNavigationBarContrast" tools:targetApi="q">false</item>
+
+        <!-- Smooth animations and transitions -->
+        <item name="android:windowAnimationStyle">@style/WindowAnimation.FullScreen</item>
+        <item name="android:windowContentTransitions">true</item>
+        <item name="android:windowAllowEnterTransitionOverlap">true</item>
+        <item name="android:windowAllowReturnTransitionOverlap">true</item>
+    </style>
+
+    <!-- Legacy Theme for MainActivity with custom toolbar (keeping for compatibility) -->
     <style name="Theme.Health_Assistant.NoActionBar">
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
+    </style>
+
+    <!-- Window Animation Style for Full Screen -->
+    <style name="WindowAnimation.FullScreen" parent="@android:style/Animation.Activity">
+        <item name="android:windowEnterAnimation">@android:anim/fade_in</item>
+        <item name="android:windowExitAnimation">@android:anim/fade_out</item>
     </style>
 
     <!-- Common style for all app fragments to ensure consistent appearance -->
