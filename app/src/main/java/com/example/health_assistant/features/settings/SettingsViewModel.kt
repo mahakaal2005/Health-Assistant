@@ -4,6 +4,7 @@ import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
+import com.example.health_assistant.core.util.Result
 import com.example.health_assistant.features.settings.data.SettingsRepository
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
@@ -12,149 +13,168 @@ import java.util.*
 
 /**
  * ViewModel for Settings screen that manages all user preferences and settings.
- * Exposes StateFlow properties for reactive UI updates.
+ * Now handles Result states for proper error handling and loading indicators.
  */
 class SettingsViewModel(private val repository: SettingsRepository) : ViewModel() {
 
-    // User Profile Section
+    // User Profile Section - Now handling Result states
     val userName = repository.userName.stateIn(
-        viewModelScope, SharingStarted.WhileSubscribed(5000), "Alex Johnson"
+        viewModelScope, SharingStarted.WhileSubscribed(5000), Result.Loading
     )
 
     val userAge = repository.userAge.stateIn(
-        viewModelScope, SharingStarted.WhileSubscribed(5000), 28
+        viewModelScope, SharingStarted.WhileSubscribed(5000), Result.Loading
     )
 
     val userGender = repository.userGender.stateIn(
-        viewModelScope, SharingStarted.WhileSubscribed(5000), "Male"
+        viewModelScope, SharingStarted.WhileSubscribed(5000), Result.Loading
     )
 
     val userHealthGoal = repository.userHealthGoal.stateIn(
-        viewModelScope, SharingStarted.WhileSubscribed(5000), "Focus on cardio and weight loss"
+        viewModelScope, SharingStarted.WhileSubscribed(5000), Result.Loading
     )
 
     val userHealthStatus = repository.userHealthStatus.stateIn(
-        viewModelScope, SharingStarted.WhileSubscribed(5000), "Excellent"
+        viewModelScope, SharingStarted.WhileSubscribed(5000), Result.Loading
     )
 
     val avatarUri = repository.avatarUri.stateIn(
-        viewModelScope, SharingStarted.WhileSubscribed(5000), null
+        viewModelScope, SharingStarted.WhileSubscribed(5000), Result.Loading
     )
 
-    // Format the user display string for age and gender
-    val userAgeGenderText = combine(userAge, userGender) { age, gender ->
-        "$age Years • $gender"
-    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), "28 Years • Male")
+    // Combine age and gender with proper Result handling
+    val userAgeGenderText = combine(userAge, userGender) { ageResult, genderResult ->
+        when {
+            ageResult is Result.Loading || genderResult is Result.Loading -> Result.Loading
+            ageResult is Result.Error -> ageResult
+            genderResult is Result.Error -> genderResult
+            ageResult is Result.Success && genderResult is Result.Success -> {
+                Result.Success("${ageResult.data} Years • ${genderResult.data}")
+            }
+            else -> Result.Error(message = "Unknown error combining age and gender")
+        }
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), Result.Loading)
 
     // Health Preferences Section
     val stepGoal = repository.stepGoal.stateIn(
-        viewModelScope, SharingStarted.WhileSubscribed(5000), 10000
+        viewModelScope, SharingStarted.WhileSubscribed(5000), Result.Loading
     )
 
     val waterGoal = repository.waterGoal.stateIn(
-        viewModelScope, SharingStarted.WhileSubscribed(5000), 2.5f
+        viewModelScope, SharingStarted.WhileSubscribed(5000), Result.Loading
     )
 
     val sleepGoal = repository.sleepGoal.stateIn(
-        viewModelScope, SharingStarted.WhileSubscribed(5000), 8.0f
+        viewModelScope, SharingStarted.WhileSubscribed(5000), Result.Loading
     )
 
-    // Formatted text for UI display
-    val stepGoalText = stepGoal.map { steps ->
-        NumberFormat.getNumberInstance(Locale.getDefault()).format(steps) + " steps"
-    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), "10,000 steps")
-
-    val waterGoalText = waterGoal.map { liters ->
-        String.format("%.1f liters", liters)
-    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), "2.5 liters")
-
-    val sleepGoalText = sleepGoal.map { hours ->
-        String.format("%.1f hours", hours)
-    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), "8.0 hours")
-
-    // Personalization
+    // Personalization Settings
     val aiPersonalizationEnabled = repository.aiPersonalizationEnabled.stateIn(
-        viewModelScope, SharingStarted.WhileSubscribed(5000), true
+        viewModelScope, SharingStarted.WhileSubscribed(5000), Result.Loading
     )
 
     val appLanguage = repository.appLanguage.stateIn(
-        viewModelScope, SharingStarted.WhileSubscribed(5000), "English (US)"
+        viewModelScope, SharingStarted.WhileSubscribed(5000), Result.Loading
     )
 
     val appTheme = repository.appTheme.stateIn(
-        viewModelScope, SharingStarted.WhileSubscribed(5000), "Light"
+        viewModelScope, SharingStarted.WhileSubscribed(5000), Result.Loading
     )
 
     // Notification Settings
     val medicationRemindersEnabled = repository.medicationRemindersEnabled.stateIn(
-        viewModelScope, SharingStarted.WhileSubscribed(5000), true
+        viewModelScope, SharingStarted.WhileSubscribed(5000), Result.Loading
     )
 
     val wellnessCheckinsEnabled = repository.wellnessCheckinsEnabled.stateIn(
-        viewModelScope, SharingStarted.WhileSubscribed(5000), true
+        viewModelScope, SharingStarted.WhileSubscribed(5000), Result.Loading
     )
 
     val activityGoalsEnabled = repository.activityGoalsEnabled.stateIn(
-        viewModelScope, SharingStarted.WhileSubscribed(5000), true
+        viewModelScope, SharingStarted.WhileSubscribed(5000), Result.Loading
     )
 
     val waterRemindersEnabled = repository.waterRemindersEnabled.stateIn(
-        viewModelScope, SharingStarted.WhileSubscribed(5000), true
+        viewModelScope, SharingStarted.WhileSubscribed(5000), Result.Loading
     )
 
     val healthReportsEnabled = repository.healthReportsEnabled.stateIn(
-        viewModelScope, SharingStarted.WhileSubscribed(5000), true
+        viewModelScope, SharingStarted.WhileSubscribed(5000), Result.Loading
     )
 
     // App Settings
     val appRegion = repository.appRegion.stateIn(
-        viewModelScope, SharingStarted.WhileSubscribed(5000), "United States"
+        viewModelScope, SharingStarted.WhileSubscribed(5000), Result.Loading
     )
 
     val dataSyncEnabled = repository.dataSyncEnabled.stateIn(
-        viewModelScope, SharingStarted.WhileSubscribed(5000), true
+        viewModelScope, SharingStarted.WhileSubscribed(5000), Result.Loading
     )
 
     val appLockEnabled = repository.appLockEnabled.stateIn(
-        viewModelScope, SharingStarted.WhileSubscribed(5000), false
+        viewModelScope, SharingStarted.WhileSubscribed(5000), Result.Loading
     )
 
     val biometricAuthEnabled = repository.biometricAuthEnabled.stateIn(
-        viewModelScope, SharingStarted.WhileSubscribed(5000), true
+        viewModelScope, SharingStarted.WhileSubscribed(5000), Result.Loading
     )
 
-    // Beta Program
     val betaProgramEnabled = repository.betaProgramEnabled.stateIn(
-        viewModelScope, SharingStarted.WhileSubscribed(5000), false
+        viewModelScope, SharingStarted.WhileSubscribed(5000), Result.Loading
     )
 
-    // Cache Size
-    private val _cacheSize = MutableStateFlow("0 MB")
-    val cacheSize: StateFlow<String> = _cacheSize
+    // Error state for update operations
+    private val _updateError = MutableStateFlow<String?>(null)
+    val updateError: StateFlow<String?> = _updateError.asStateFlow()
 
-    // App Lock Status Text
-    val appLockStatusText = appLockEnabled.map { enabled ->
-        if (enabled) "PIN protection enabled" else "Set up PIN protection"
-    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), "Set up PIN protection")
+    // Loading state for update operations
+    private val _isUpdating = MutableStateFlow(false)
+    val isUpdating: StateFlow<Boolean> = _isUpdating.asStateFlow()
 
-    init {
-        updateCacheSize()
-    }
+    // Cache management
+    private val _cacheSize = MutableStateFlow("Calculating...")
+    val cacheSize: StateFlow<String> = _cacheSize.asStateFlow()
 
-    // User Profile Actions
+    // Update methods with proper error handling
     fun updateUserName(name: String) {
-        if (name.isNotBlank()) {
-            viewModelScope.launch {
-                repository.updateUserName(name)
+        viewModelScope.launch {
+            _isUpdating.value = true
+            _updateError.value = null
+
+            when (val result = repository.updateUserName(name)) {
+                is Result.Error -> {
+                    _updateError.value = result.message
+                }
+                is Result.Success -> {
+                    // Success - StateFlow will automatically update
+                }
+                is Result.Loading -> {
+                    // Handle loading state if needed
+                }
             }
+
+            _isUpdating.value = false
         }
     }
 
     fun updateUserAge(age: Int) {
-        if (age > 0) {
-            viewModelScope.launch {
-                repository.updateUserAge(age)
+        viewModelScope.launch {
+            _isUpdating.value = true
+            _updateError.value = null
+
+            when (val result = repository.updateUserAge(age)) {
+                is Result.Error -> {
+                    _updateError.value = result.message
+                }
+                is Result.Success -> {
+                    // Success handled automatically
+                }
+                is Result.Loading -> {
+                    // Handle loading state if needed
+                }
             }
+
+            _isUpdating.value = false
         }
     }
 
@@ -192,10 +212,23 @@ class SettingsViewModel(private val repository: SettingsRepository) : ViewModel(
 
     // Health Preferences Actions
     fun updateStepGoal(steps: Int) {
-        if (steps >= 1000) {
-            viewModelScope.launch {
-                repository.updateStepGoal(steps)
+        viewModelScope.launch {
+            _isUpdating.value = true
+            _updateError.value = null
+
+            when (val result = repository.updateStepGoal(steps)) {
+                is Result.Error -> {
+                    _updateError.value = result.message
+                }
+                is Result.Success -> {
+                    // Success handled automatically
+                }
+                is Result.Loading -> {
+                    // Handle loading state if needed
+                }
             }
+
+            _isUpdating.value = false
         }
     }
 
@@ -303,7 +336,14 @@ class SettingsViewModel(private val repository: SettingsRepository) : ViewModel(
         }
     }
 
-    // Cache Actions
+    /**
+     * Clear any error messages
+     */
+    fun clearError() {
+        _updateError.value = null
+    }
+
+
     fun updateCacheSize() {
         viewModelScope.launch {
             val cacheSizeBytes = repository.getAppCacheSize()

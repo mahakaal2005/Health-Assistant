@@ -12,10 +12,6 @@ plugins {
 
     id("jacoco")
 
-    id("io.gitlab.arturbosch.detekt")
-
-
-
 
 }
 
@@ -91,6 +87,7 @@ android {
 
         dataBinding =true
 
+
     }
 
 }
@@ -100,25 +97,15 @@ tasks.withType<Test> {
 }
 
 
-
 dependencies {
 
-
-
     implementation(libs.androidx.core.ktx)
-
     implementation(libs.androidx.appcompat)
-
     implementation(libs.material)
-
     implementation(libs.androidx.activity)
-
     implementation(libs.androidx.constraintlayout)
-
     implementation(libs.lottie)
-
     implementation(libs.androidx.navigation.fragment.ktx)
-
     implementation(libs.androidx.navigation.ui.ktx)
 
     // Import the Firebase BoM
@@ -152,14 +139,14 @@ dependencies {
     implementation(libs.androidx.room.ktx)
 
     // Add datastore dependency
-    implementation (libs.androidx.datastore.preferences)
+    implementation(libs.androidx.datastore.preferences)
 
     // Add Hilt dependencies
-    implementation( libs.hilt.android)
-    ksp (libs.hilt.compiler)
+    implementation(libs.hilt.android)
+    ksp(libs.hilt.compiler)
 
     // Coroutines dependencies
-    implementation (libs.kotlinx.coroutines.android)
+    implementation(libs.kotlinx.coroutines.android)
     implementation(libs.kotlinx.coroutines.play.services)
 
     // ViewPager2 for onboarding screens
@@ -167,11 +154,19 @@ dependencies {
 
     // Dots indicator library for ViewPager2 navigation
     implementation(libs.dotsindicator)
-    testImplementation(kotlin("test"))
 
+    // Test dependencies
+    testImplementation(kotlin("test"))
     testImplementation(libs.kotlin.test)
     testImplementation(libs.mockk)
     testImplementation(libs.kotlinx.coroutines.test)
     testImplementation(libs.junit.jupiter.api)
     testRuntimeOnly(libs.junit.jupiter.engine)
+    testImplementation(libs.turbine)
+
+    // Traditional Android View System dependencies (XML + Kotlin)
+    implementation(libs.androidx.lifecycle.viewmodel.ktx)
+    implementation(libs.androidx.lifecycle.livedata.ktx)
+    implementation(libs.androidx.fragment.ktx)
+
 }

@@ -15,6 +15,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import com.example.health_assistant.R
+import com.example.health_assistant.core.util.Result
 import com.example.health_assistant.databinding.CardAccountActionsBinding
 import com.example.health_assistant.databinding.CardAppSettingsBinding
 import com.example.health_assistant.databinding.CardHealthPreferencesBinding
@@ -96,56 +97,85 @@ class SettingsFragment : Fragment() {
         with(userOverviewBinding) {
             viewLifecycleOwner.lifecycleScope.launch {
                 // UserName
-                viewModel.userName.collectLatest { name ->
-                    userName.text = name
+                viewModel.userName.collectLatest { result ->
+                    when (result) {
+                        is Result.Success -> userName.text = result.data ?: ""
+                        is Result.Error -> userName.text = "Error loading"
+                        is Result.Loading -> userName.text = "Loading..."
+                    }
                 }
             }
 
             viewLifecycleOwner.lifecycleScope.launch {
                 // User Age & Gender combined
-                viewModel.userAgeGenderText.collectLatest { text ->
-                    userAgeGender.text = text
+                viewModel.userAgeGenderText.collectLatest { result ->
+                    when (result) {
+                        is Result.Success -> userAgeGender.text = result.data ?: ""
+                        is Result.Error -> userAgeGender.text = "Error loading"
+                        is Result.Loading -> userAgeGender.text = "Loading..."
+                    }
                 }
             }
 
             viewLifecycleOwner.lifecycleScope.launch {
                 // Health Goal
-                viewModel.userHealthGoal.collectLatest { goal ->
-                    userHealthGoal.text = goal
+                viewModel.userHealthGoal.collectLatest { result ->
+                    when (result) {
+                        is Result.Success -> userHealthGoal.text = result.data ?: ""
+                        is Result.Error -> userHealthGoal.text = "Error loading"
+                        is Result.Loading -> userHealthGoal.text = "Loading..."
+                    }
                 }
             }
 
             viewLifecycleOwner.lifecycleScope.launch {
                 // Health Status
-                viewModel.userHealthStatus.collectLatest { status ->
-                    healthStatusValue.text = status
+                viewModel.userHealthStatus.collectLatest { result ->
+                    when (result) {
+                        is Result.Success -> healthStatusValue.text = result.data ?: ""
+                        is Result.Error -> healthStatusValue.text = "Error loading"
+                        is Result.Loading -> healthStatusValue.text = "Loading..."
+                    }
                 }
             }
 
             viewLifecycleOwner.lifecycleScope.launch {
                 // Avatar
-                viewModel.avatarUri.collectLatest { uri ->
-                    try {
-                        if (uri != null) {
-                            // Try to load the image safely
+                viewModel.avatarUri.collectLatest { result ->
+                    when (result) {
+                        is Result.Success -> {
+                            val uri = result.data
                             try {
-                                // Check if we can access the URI before attempting to load it
-                                context?.contentResolver?.openInputStream(uri)?.use {
-                                    // Successfully opened stream, safe to load
-                                    userAvatar.setImageURI(uri)
+                                if (uri != null) {
+                                    // Try to load the image safely
+                                    try {
+                                        // Check if we can access the URI before attempting to load it
+                                        context?.contentResolver?.openInputStream(uri)?.use {
+                                            // Successfully opened stream, safe to load
+                                            userAvatar.setImageURI(uri)
+                                        }
+                                    } catch (e: Exception) {
+                                        // Fallback to default avatar if any error occurs
+                                        userAvatar.setImageResource(R.drawable.default_avatar)
+                                        // Log the error but don't crash
+                                        android.util.Log.e("SettingsFragment", "Error loading avatar: ${e.message}")
+                                    }
+                                } else {
+                                    userAvatar.setImageResource(R.drawable.default_avatar)
                                 }
                             } catch (e: Exception) {
-                                // Fallback to default avatar if any error occurs
                                 userAvatar.setImageResource(R.drawable.default_avatar)
-                                // Log the error but don't crash
-                                android.util.Log.e("SettingsFragment", "Error loading avatar: ${e.message}")
+                                android.util.Log.e("SettingsFragment", "Error in avatar flow: ${e.message}")
                             }
-                        } else {
-                            userAvatar.setImageResource(R.drawable.default_avatar)
                         }
-                    } catch (e: Exception) {
-                        userAvatar.setImageResource(R.drawable.default_avatar)
-                        android.util.Log.e("SettingsFragment", "Error in avatar flow: ${e.message}")
+                        is Result.Error -> {
+                            userAvatar.setImageResource(R.drawable.default_avatar)
+                            android.util.Log.e("SettingsFragment", "Error loading avatar: ${result.message}")
+                        }
+                        is Result.Loading -> {
+                            // Keep current avatar while loading, or show a placeholder
+                            // userAvatar.setImageResource(R.drawable.loading_placeholder) // if you have one
+                        }
                     }
                 }
             }
@@ -165,14 +195,15 @@ class SettingsFragment : Fragment() {
         with(healthPreferencesBinding) {
             // Step Goal Slider
             viewLifecycleOwner.lifecycleScope.launch {
-                viewModel.stepGoal.collectLatest { goal ->
-                    stepGoalSlider.value = goal.toFloat()
-                }
-            }
-
-            viewLifecycleOwner.lifecycleScope.launch {
-                viewModel.stepGoalText.collectLatest { text ->
-                    stepGoalValue.text = text
+                viewModel.stepGoal.collectLatest { result ->
+                    when (result) {
+                        is Result.Success -> {
+                            stepGoalSlider.value = result.data?.toFloat() ?: 5000f
+                            stepGoalValue.text = "${result.data ?: 5000} steps"
+                        }
+                        is Result.Error -> stepGoalValue.text = "Error loading"
+                        is Result.Loading -> stepGoalValue.text = "Loading..."
+                    }
                 }
             }
 
@@ -184,14 +215,15 @@ class SettingsFragment : Fragment() {
 
             // Water Goal Slider
             viewLifecycleOwner.lifecycleScope.launch {
-                viewModel.waterGoal.collectLatest { goal ->
-                    waterGoalSlider.value = goal
-                }
-            }
-
-            viewLifecycleOwner.lifecycleScope.launch {
-                viewModel.waterGoalText.collectLatest { text ->
-                    waterGoalValue.text = text
+                viewModel.waterGoal.collectLatest { result ->
+                    when (result) {
+                        is Result.Success -> {
+                            waterGoalSlider.value = result.data ?: 2.0f
+                            waterGoalValue.text = "${result.data ?: 2.0f} L"
+                        }
+                        is Result.Error -> waterGoalValue.text = "Error loading"
+                        is Result.Loading -> waterGoalValue.text = "Loading..."
+                    }
                 }
             }
 
@@ -203,14 +235,15 @@ class SettingsFragment : Fragment() {
 
             // Sleep Goal Slider
             viewLifecycleOwner.lifecycleScope.launch {
-                viewModel.sleepGoal.collectLatest { goal ->
-                    sleepGoalSlider.value = goal
-                }
-            }
-
-            viewLifecycleOwner.lifecycleScope.launch {
-                viewModel.sleepGoalText.collectLatest { text ->
-                    sleepGoalValue.text = text
+                viewModel.sleepGoal.collectLatest { result ->
+                    when (result) {
+                        is Result.Success -> {
+                            sleepGoalSlider.value = result.data ?: 8.0f
+                            sleepGoalValue.text = "${result.data ?: 8.0f} hours"
+                        }
+                        is Result.Error -> sleepGoalValue.text = "Error loading"
+                        is Result.Loading -> sleepGoalValue.text = "Loading..."
+                    }
                 }
             }
 
@@ -222,8 +255,12 @@ class SettingsFragment : Fragment() {
 
             // AI Personalization Toggle
             viewLifecycleOwner.lifecycleScope.launch {
-                viewModel.aiPersonalizationEnabled.collectLatest { enabled ->
-                    aiPersonalizationSwitch.isChecked = enabled
+                viewModel.aiPersonalizationEnabled.collectLatest { result ->
+                    when (result) {
+                        is Result.Success -> aiPersonalizationSwitch.isChecked = result.data ?: false
+                        is Result.Error -> aiPersonalizationSwitch.isChecked = false
+                        is Result.Loading -> { /* Keep current state while loading */ }
+                    }
                 }
             }
 
@@ -237,9 +274,16 @@ class SettingsFragment : Fragment() {
             languageDropdown.setAdapter(languageAdapter)
 
             viewLifecycleOwner.lifecycleScope.launch {
-                viewModel.appLanguage.collectLatest { language ->
-                    if (languageDropdown.text.toString() != language) {
-                        languageDropdown.setText(language, false)
+                viewModel.appLanguage.collectLatest { result ->
+                    when (result) {
+                        is Result.Success -> {
+                            val language = result.data ?: "English (US)"
+                            if (languageDropdown.text.toString() != language) {
+                                languageDropdown.setText(language, false)
+                            }
+                        }
+                        is Result.Error -> languageDropdown.setText("English (US)", false)
+                        is Result.Loading -> { /* Keep current state while loading */ }
                     }
                 }
             }
@@ -250,11 +294,18 @@ class SettingsFragment : Fragment() {
 
             // Theme Selection
             viewLifecycleOwner.lifecycleScope.launch {
-                viewModel.appTheme.collectLatest { theme ->
-                    when (theme) {
-                        "Light" -> themeLight.isChecked = true
-                        "Dark" -> themeDark.isChecked = true
-                        "System Default" -> themeSystem.isChecked = true
+                viewModel.appTheme.collectLatest { result ->
+                    when (result) {
+                        is Result.Success -> {
+                            when (result.data) {
+                                "Light" -> themeLight.isChecked = true
+                                "Dark" -> themeDark.isChecked = true
+                                "System Default" -> themeSystem.isChecked = true
+                                else -> themeLight.isChecked = true
+                            }
+                        }
+                        is Result.Error -> themeLight.isChecked = true
+                        is Result.Loading -> { /* Keep current state while loading */ }
                     }
                 }
             }
@@ -275,8 +326,12 @@ class SettingsFragment : Fragment() {
         with(notificationsBinding) {
             // Medication Reminders Switch
             viewLifecycleOwner.lifecycleScope.launch {
-                viewModel.medicationRemindersEnabled.collectLatest { enabled ->
-                    medicationReminderSwitch.isChecked = enabled
+                viewModel.medicationRemindersEnabled.collectLatest { result ->
+                    when (result) {
+                        is Result.Success -> medicationReminderSwitch.isChecked = result.data ?: false
+                        is Result.Error -> medicationReminderSwitch.isChecked = false
+                        is Result.Loading -> { /* Keep current state while loading */ }
+                    }
                 }
             }
 
@@ -286,8 +341,12 @@ class SettingsFragment : Fragment() {
 
             // Wellness Check-ins Switch
             viewLifecycleOwner.lifecycleScope.launch {
-                viewModel.wellnessCheckinsEnabled.collectLatest { enabled ->
-                    wellnessCheckinSwitch.isChecked = enabled
+                viewModel.wellnessCheckinsEnabled.collectLatest { result ->
+                    when (result) {
+                        is Result.Success -> wellnessCheckinSwitch.isChecked = result.data ?: false
+                        is Result.Error -> wellnessCheckinSwitch.isChecked = false
+                        is Result.Loading -> { /* Keep current state while loading */ }
+                    }
                 }
             }
 
@@ -297,8 +356,12 @@ class SettingsFragment : Fragment() {
 
             // Activity Goals Switch
             viewLifecycleOwner.lifecycleScope.launch {
-                viewModel.activityGoalsEnabled.collectLatest { enabled ->
-                    activityGoalsSwitch.isChecked = enabled
+                viewModel.activityGoalsEnabled.collectLatest { result ->
+                    when (result) {
+                        is Result.Success -> activityGoalsSwitch.isChecked = result.data ?: false
+                        is Result.Error -> activityGoalsSwitch.isChecked = false
+                        is Result.Loading -> { /* Keep current state while loading */ }
+                    }
                 }
             }
 
@@ -308,8 +371,12 @@ class SettingsFragment : Fragment() {
 
             // Water Reminders Switch
             viewLifecycleOwner.lifecycleScope.launch {
-                viewModel.waterRemindersEnabled.collectLatest { enabled ->
-                    waterReminderSwitch.isChecked = enabled
+                viewModel.waterRemindersEnabled.collectLatest { result ->
+                    when (result) {
+                        is Result.Success -> waterReminderSwitch.isChecked = result.data ?: false
+                        is Result.Error -> waterReminderSwitch.isChecked = false
+                        is Result.Loading -> { /* Keep current state while loading */ }
+                    }
                 }
             }
 
@@ -319,8 +386,12 @@ class SettingsFragment : Fragment() {
 
             // Health Reports Switch
             viewLifecycleOwner.lifecycleScope.launch {
-                viewModel.healthReportsEnabled.collectLatest { enabled ->
-                    healthReportsSwitch.isChecked = enabled
+                viewModel.healthReportsEnabled.collectLatest { result ->
+                    when (result) {
+                        is Result.Success -> healthReportsSwitch.isChecked = result.data ?: false
+                        is Result.Error -> healthReportsSwitch.isChecked = false
+                        is Result.Loading -> { /* Keep current state while loading */ }
+                    }
                 }
             }
 
@@ -339,9 +410,16 @@ class SettingsFragment : Fragment() {
             regionDropdown.setAdapter(regionAdapter)
 
             viewLifecycleOwner.lifecycleScope.launch {
-                viewModel.appRegion.collectLatest { region ->
-                    if (regionDropdown.text.toString() != region) {
-                        regionDropdown.setText(region, false)
+                viewModel.appRegion.collectLatest { result ->
+                    when (result) {
+                        is Result.Success -> {
+                            val region = result.data ?: "United States"
+                            if (regionDropdown.text.toString() != region) {
+                                regionDropdown.setText(region, false)
+                            }
+                        }
+                        is Result.Error -> regionDropdown.setText("United States", false)
+                        is Result.Loading -> { /* Keep current state while loading */ }
                     }
                 }
             }
@@ -352,8 +430,12 @@ class SettingsFragment : Fragment() {
 
             // Data Sync Switch
             viewLifecycleOwner.lifecycleScope.launch {
-                viewModel.dataSyncEnabled.collectLatest { enabled ->
-                    dataSyncSwitch.isChecked = enabled
+                viewModel.dataSyncEnabled.collectLatest { result ->
+                    when (result) {
+                        is Result.Success -> dataSyncSwitch.isChecked = result.data ?: false
+                        is Result.Error -> dataSyncSwitch.isChecked = false
+                        is Result.Loading -> { /* Keep current state while loading */ }
+                    }
                 }
             }
 
@@ -361,10 +443,17 @@ class SettingsFragment : Fragment() {
                 viewModel.toggleDataSync(isChecked)
             }
 
-            // App Lock Status Text
+            // App Lock Status - Generate text based on enabled state
             viewLifecycleOwner.lifecycleScope.launch {
-                viewModel.appLockStatusText.collectLatest { text ->
-                    appLockStatus.text = text
+                viewModel.appLockEnabled.collectLatest { result ->
+                    when (result) {
+                        is Result.Success -> {
+                            val isEnabled = result.data ?: false
+                            appLockStatus.text = if (isEnabled) "Enabled" else "Disabled"
+                        }
+                        is Result.Error -> appLockStatus.text = "Error loading"
+                        is Result.Loading -> appLockStatus.text = "Loading..."
+                    }
                 }
             }
 
@@ -372,13 +461,23 @@ class SettingsFragment : Fragment() {
             appLockContainer.setOnClickListener {
                 // This would typically open a PIN setup dialog
                 // For demo, we'll just toggle the state
-                viewModel.setAppLockEnabled(!viewModel.appLockEnabled.value)
+                viewLifecycleOwner.lifecycleScope.launch {
+                    viewModel.appLockEnabled.value.let { result ->
+                        if (result is Result.Success) {
+                            viewModel.setAppLockEnabled(!(result.data ?: false))
+                        }
+                    }
+                }
             }
 
             // Biometric Auth Switch
             viewLifecycleOwner.lifecycleScope.launch {
-                viewModel.biometricAuthEnabled.collectLatest { enabled ->
-                    biometricAuthSwitch.isChecked = enabled
+                viewModel.biometricAuthEnabled.collectLatest { result ->
+                    when (result) {
+                        is Result.Success -> biometricAuthSwitch.isChecked = result.data ?: false
+                        is Result.Error -> biometricAuthSwitch.isChecked = false
+                        is Result.Loading -> { /* Keep current state while loading */ }
+                    }
                 }
             }
 
@@ -417,8 +516,12 @@ class SettingsFragment : Fragment() {
 
             // Beta Program Switch
             viewLifecycleOwner.lifecycleScope.launch {
-                viewModel.betaProgramEnabled.collectLatest { enabled ->
-                    betaProgramSwitch.isChecked = enabled
+                viewModel.betaProgramEnabled.collectLatest { result ->
+                    when (result) {
+                        is Result.Success -> betaProgramSwitch.isChecked = result.data ?: false
+                        is Result.Error -> betaProgramSwitch.isChecked = false
+                        is Result.Loading -> { /* Keep current state while loading */ }
+                    }
                 }
             }
 

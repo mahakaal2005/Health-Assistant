@@ -7,6 +7,7 @@ import android.security.keystore.KeyProperties
 import android.util.Log
 import androidx.security.crypto.EncryptedSharedPreferences
 import androidx.security.crypto.MasterKey
+import com.example.health_assistant.core.util.Result
 import com.example.health_assistant.data.repository.interfaces.AuthRepository
 import com.example.health_assistant.data.repository.interfaces.UserProfileRepository
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -85,17 +86,29 @@ class SessionManager @Inject constructor(
      */
     private fun observeAuthStateChanges() {
         coroutineScope.launch {
-            authRepository.getCurrentUser().collect { firebaseUser ->
-                if (firebaseUser != null) {
-                    // User is logged in to Firebase, create local session
-                    val userId = firebaseUser.uid
-                    val email = firebaseUser.email ?: ""
-                    createLoginSession(userId, email)
-                    Log.d(TAG, "Firebase auth state: User logged in, local session created")
-                } else {
-                    // User is logged out from Firebase, clear local session
-                    clearSessionOnly()
-                    Log.d(TAG, "Firebase auth state: User logged out, local session cleared")
+            authRepository.getCurrentUser().collect { result ->
+                when (result) {
+                    is Result.Success -> {
+                        val firebaseUser = result.data
+                        if (firebaseUser != null) {
+                            // User is logged in to Firebase, create local session
+                            val userId = firebaseUser.uid
+                            val email = firebaseUser.email ?: ""
+                            createLoginSession(userId, email)
+                            Log.d(TAG, "Firebase auth state: User logged in, local session created")
+                        } else {
+                            // User is logged out from Firebase, clear local session
+                            clearSessionOnly()
+                            Log.d(TAG, "Firebase auth state: User logged out, local session cleared")
+                        }
+                    }
+                    is Result.Error -> {
+                        Log.e(TAG, "Error observing auth state: ${result.message}")
+                        clearSessionOnly()
+                    }
+                    is Result.Loading -> {
+                        // Handle loading state if needed
+                    }
                 }
             }
         }

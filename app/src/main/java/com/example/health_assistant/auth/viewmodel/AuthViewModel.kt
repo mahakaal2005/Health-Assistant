@@ -4,6 +4,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.health_assistant.core.util.Result
 import com.example.health_assistant.data.repository.interfaces.AuthRepository
 import com.example.health_assistant.data.repository.interfaces.UserProfileRepository
 import com.google.firebase.auth.FirebaseUser
@@ -29,8 +30,18 @@ class AuthViewModel @Inject constructor(
     init {
         // Observe the current user from the auth repository
         viewModelScope.launch {
-            authRepository.getCurrentUser().collect { user ->
-                _currentUser.value = user
+            authRepository.getCurrentUser().collect { result ->
+                when (result) {
+                    is Result.Success -> {
+                        _currentUser.value = result.data
+                    }
+                    is Result.Error -> {
+                        _currentUser.value = null
+                    }
+                    is Result.Loading -> {
+                        // Keep current value during loading
+                    }
+                }
             }
         }
     }
@@ -42,17 +53,22 @@ class AuthViewModel @Inject constructor(
         _authState.value = AuthState.Loading
 
         viewModelScope.launch {
-            authRepository.registerUser(email, password)
-                .onSuccess { user ->
+            val result = authRepository.registerUser(email, password)
+            when (result) {
+                is Result.Success -> {
                     _authState.value = AuthState.Success
                     // Save user profile data
-                    user?.let {
-                        userProfileRepository.saveUserProfile(it.uid, it.email ?: "")
+                    result.data?.let { user ->
+                        userProfileRepository.saveUserProfile(user.uid, user.email ?: "")
                     }
                 }
-                .onFailure { exception ->
-                    _authState.value = AuthState.Error(exception.message ?: "Registration failed")
+                is Result.Error -> {
+                    _authState.value = AuthState.Error(result.message)
                 }
+                is Result.Loading -> {
+                    // Already handled above
+                }
+            }
         }
     }
 
@@ -63,17 +79,22 @@ class AuthViewModel @Inject constructor(
         _authState.value = AuthState.Loading
 
         viewModelScope.launch {
-            authRepository.signInUser(email, password)
-                .onSuccess { user ->
+            val result = authRepository.signInUser(email, password)
+            when (result) {
+                is Result.Success -> {
                     _authState.value = AuthState.Success
                     // Save user profile data
-                    user?.let {
-                        userProfileRepository.saveUserProfile(it.uid, it.email ?: "")
+                    result.data?.let { user ->
+                        userProfileRepository.saveUserProfile(user.uid, user.email ?: "")
                     }
                 }
-                .onFailure { exception ->
-                    _authState.value = AuthState.Error(exception.message ?: "Login failed")
+                is Result.Error -> {
+                    _authState.value = AuthState.Error(result.message)
                 }
+                is Result.Loading -> {
+                    // Already handled above
+                }
+            }
         }
     }
 
@@ -84,13 +105,39 @@ class AuthViewModel @Inject constructor(
         _authState.value = AuthState.Loading
 
         viewModelScope.launch {
-            authRepository.sendPasswordResetEmail(email)
-                .onSuccess {
+            val result = authRepository.sendPasswordResetEmail(email)
+            when (result) {
+                is Result.Success -> {
                     _authState.value = AuthState.Success
                 }
-                .onFailure { exception ->
-                    _authState.value = AuthState.Error(exception.message ?: "Password reset failed")
+                is Result.Error -> {
+                    _authState.value = AuthState.Error(result.message)
                 }
+                is Result.Loading -> {
+                    // Already handled above
+                }
+            }
+        }
+    }
+
+    /**
+     * Sign out the current user
+     */
+    fun signOut() {
+        viewModelScope.launch {
+            val result = authRepository.signOut()
+            when (result) {
+                is Result.Success -> {
+                    _currentUser.value = null
+                    userProfileRepository.clearUserProfile()
+                }
+                is Result.Error -> {
+                    // Handle sign out error if needed
+                }
+                is Result.Loading -> {
+                    // Handle loading state if needed
+                }
+            }
         }
     }
 

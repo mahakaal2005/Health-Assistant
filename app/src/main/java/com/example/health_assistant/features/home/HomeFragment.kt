@@ -78,8 +78,10 @@ class HomeFragment : Fragment() {
 
         // Observe health metrics data
         healthMetricsViewModel.healthMetrics.observe(viewLifecycleOwner, Observer { metrics ->
-            // Update UI with health metrics
-            updateHealthMetrics(metrics)
+            // Update UI with health metrics - handle nullable metrics
+            metrics?.let {
+                updateHealthMetrics(it)
+            }
         })
 
         // Check SharedPreferences to determine if animations should run

@@ -10,8 +10,8 @@ import androidx.navigation.fragment.findNavController
 import com.example.health_assistant.R
 import com.example.health_assistant.databinding.AuthFragmentStartingBinding
 import com.example.health_assistant.features.onboarding.OnboardingPreferencesRepository
+import com.example.health_assistant.core.util.Result
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -53,20 +53,32 @@ class StartingFragment : Fragment() {
     }
 
     /**
-     * Checks if onboarding has been completed and navigates accordingly
-     * Only call this after Hilt has a chance to inject dependencies
+     * Check if onboarding has been completed and navigate accordingly
      */
     private fun checkOnboardingStatus() {
         if (::onboardingPreferencesRepository.isInitialized) {
             viewLifecycleOwner.lifecycleScope.launch {
                 try {
-                    val isOnboardingCompleted = onboardingPreferencesRepository.isOnboardingCompleted.firstOrNull() ?: false
-
-                    if (isOnboardingCompleted) {
-                        // If onboarding is completed, navigate directly to account decision
-                        findNavController().navigate(R.id.action_startingFragment_to_accountDecisionFragment)
+                    onboardingPreferencesRepository.isOnboardingCompleted.collect { result ->
+                        when (result) {
+                            is Result.Success -> {
+                                if (result.data) {
+                                    // If onboarding is completed, navigate directly to account decision
+                                    val navController = findNavController()
+                                    navController.navigate(R.id.action_startingFragment_to_accountDecisionFragment)
+                                }
+                                // Otherwise, stay on this screen for the user to press "Get Started"
+                            }
+                            is Result.Error -> {
+                                // Handle error case - log or show error message if needed
+                                // For now, just stay on this screen
+                            }
+                            is Result.Loading -> {
+                                // Handle loading case if needed
+                                // For now, just wait for the result
+                            }
+                        }
                     }
-                    // Otherwise, stay on this screen for the user to press "Get Started"
                 } catch (e: Exception) {
                     // Safely handle any exceptions during flow collection
                 }

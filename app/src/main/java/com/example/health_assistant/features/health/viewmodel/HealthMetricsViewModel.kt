@@ -1,9 +1,10 @@
 package com.example.health_assistant.features.health.viewmodel
 
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
+import com.example.health_assistant.core.util.Result
 import com.example.health_assistant.data.repository.interfaces.HealthRepository
 import com.example.health_assistant.features.health.model.HealthMetrics
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -18,60 +19,90 @@ class HealthMetricsViewModel @Inject constructor(
     private val healthRepository: HealthRepository
 ) : ViewModel() {
 
-    // LiveData for health metrics
-    val healthMetrics: LiveData<HealthMetrics> = healthRepository.getHealthMetrics().asLiveData()
+    private val _healthMetrics = MutableLiveData<HealthMetrics?>()
+    val healthMetrics: LiveData<HealthMetrics?> = _healthMetrics
+
+    private val _error = MutableLiveData<String?>()
+    val error: LiveData<String?> = _error
+
+    init {
+        loadTodayMetrics()
+    }
+
+    private fun loadTodayMetrics() {
+        viewModelScope.launch {
+            val currentDate = getCurrentDate()
+            healthRepository.getDailyHealthMetrics(currentDate).collect { result ->
+                when (result) {
+                    is Result.Success -> {
+                        _healthMetrics.value = result.data
+                        _error.value = null
+                    }
+                    is Result.Error -> {
+                        _error.value = result.message
+                    }
+                    is Result.Loading -> {
+                        // Handle loading state if needed
+                    }
+                }
+            }
+        }
+    }
 
     /**
      * Update steps count
      */
     fun updateSteps(steps: Int) {
         viewModelScope.launch {
-            healthRepository.updateSteps(steps)
+            healthRepository.updateStepCount(steps).let { result ->
+                if (result is Result.Error) {
+                    _error.value = result.message
+                }
+            }
         }
     }
 
     /**
-     * Update calories burned
+     * Update water intake
      */
-    fun updateCalories(calories: Int) {
+    fun updateWaterIntake(liters: Float) {
         viewModelScope.launch {
-            healthRepository.updateCalories(calories)
+            healthRepository.updateWaterIntake(liters).let { result ->
+                if (result is Result.Error) {
+                    _error.value = result.message
+                }
+            }
         }
     }
 
     /**
-     * Update workout duration
+     * Update sleep duration
      */
-    fun updateWorkout(minutes: Int) {
+    fun updateSleepDuration(hours: Float) {
         viewModelScope.launch {
-            healthRepository.updateWorkout(minutes)
+            healthRepository.updateSleepDuration(hours).let { result ->
+                if (result is Result.Error) {
+                    _error.value = result.message
+                }
+            }
         }
     }
 
     /**
-     * Update target steps
+     * Save current health metrics
      */
-    fun updateStepsTarget(target: Int) {
+    fun saveHealthMetrics(metrics: HealthMetrics) {
         viewModelScope.launch {
-            healthRepository.updateStepsTarget(target)
+            healthRepository.saveDailyHealthMetrics(metrics).let { result ->
+                if (result is Result.Error) {
+                    _error.value = result.message
+                }
+            }
         }
     }
 
-    /**
-     * Update target calories
-     */
-    fun updateCaloriesTarget(target: Int) {
-        viewModelScope.launch {
-            healthRepository.updateCaloriesTarget(target)
-        }
-    }
-
-    /**
-     * Update target workout duration
-     */
-    fun updateWorkoutTarget(target: Int) {
-        viewModelScope.launch {
-            healthRepository.updateWorkoutTarget(target)
-        }
+    private fun getCurrentDate(): String {
+        return java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.getDefault())
+            .format(java.util.Date())
     }
 }

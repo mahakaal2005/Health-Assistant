@@ -3,16 +3,28 @@ package com.example.health_assistant.features.settings.data
 import android.content.Context
 import android.net.Uri
 import androidx.datastore.core.DataStore
-import androidx.datastore.preferences.core.*
+import androidx.datastore.preferences.core.MutablePreferences
+import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.core.booleanPreferencesKey
+import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.floatPreferencesKey
+import androidx.datastore.preferences.core.intPreferencesKey
+import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
-import kotlinx.coroutines.flow.*
+import com.example.health_assistant.core.util.Result
+import com.example.health_assistant.core.util.RetryUtil
+import com.example.health_assistant.core.util.safeSuspendCall
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.flow
 import java.io.File
 
 // Create a DataStore instance at the module level
 private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "settings")
 
 /**
- * Repository for managing user settings data persistence
+ * Repository for managing user settings data persistence with robust error handling
+ * All operations return Result<T> to handle loading, success, and error states
  */
 class SettingsRepository(private val context: Context) {
 
@@ -47,258 +59,479 @@ class SettingsRepository(private val context: Context) {
         val BETA_PROGRAM = booleanPreferencesKey("beta_program")
     }
 
-    // User Profile Data
-    val userName: Flow<String> = context.dataStore.data
-        .map { preferences ->
-            preferences[PreferencesKeys.USER_NAME] ?: "Alex Johnson"
-        }
-
-    val userAge: Flow<Int> = context.dataStore.data
-        .map { preferences ->
-            preferences[PreferencesKeys.USER_AGE] ?: 28
-        }
-
-    val userGender: Flow<String> = context.dataStore.data
-        .map { preferences ->
-            preferences[PreferencesKeys.USER_GENDER] ?: "Male"
-        }
-
-    val userHealthGoal: Flow<String> = context.dataStore.data
-        .map { preferences ->
-            preferences[PreferencesKeys.USER_HEALTH_GOAL] ?: "Focus on cardio and weight loss"
-        }
-
-    val userHealthStatus: Flow<String> = context.dataStore.data
-        .map { preferences ->
-            preferences[PreferencesKeys.USER_HEALTH_STATUS] ?: "Excellent"
-        }
-
-    val avatarUri: Flow<Uri?> = context.dataStore.data
-        .map { preferences ->
-            val path = preferences[PreferencesKeys.AVATAR_PATH]
-            if (path != null) Uri.parse(path) else null
-        }
-
-    // Health Preferences Data
-    val stepGoal: Flow<Int> = context.dataStore.data
-        .map { preferences ->
-            preferences[PreferencesKeys.STEP_GOAL] ?: 10000
-        }
-
-    val waterGoal: Flow<Float> = context.dataStore.data
-        .map { preferences ->
-            preferences[PreferencesKeys.WATER_GOAL] ?: 2.5f
-        }
-
-    val sleepGoal: Flow<Float> = context.dataStore.data
-        .map { preferences ->
-            preferences[PreferencesKeys.SLEEP_GOAL] ?: 8.0f
-        }
-
-    // Personalization Data
-    val aiPersonalizationEnabled: Flow<Boolean> = context.dataStore.data
-        .map { preferences ->
-            preferences[PreferencesKeys.AI_PERSONALIZATION] ?: true
-        }
-
-    val appLanguage: Flow<String> = context.dataStore.data
-        .map { preferences ->
-            preferences[PreferencesKeys.APP_LANGUAGE] ?: "English (US)"
-        }
-
-    val appTheme: Flow<String> = context.dataStore.data
-        .map { preferences ->
-            preferences[PreferencesKeys.APP_THEME] ?: "Light"
-        }
-
-    // Notification Settings
-    val medicationRemindersEnabled: Flow<Boolean> = context.dataStore.data
-        .map { preferences ->
-            preferences[PreferencesKeys.NOTIFICATION_MEDICATION] ?: true
-        }
-
-    val wellnessCheckinsEnabled: Flow<Boolean> = context.dataStore.data
-        .map { preferences ->
-            preferences[PreferencesKeys.NOTIFICATION_WELLNESS] ?: true
-        }
-
-    val activityGoalsEnabled: Flow<Boolean> = context.dataStore.data
-        .map { preferences ->
-            preferences[PreferencesKeys.NOTIFICATION_ACTIVITY] ?: true
-        }
-
-    val waterRemindersEnabled: Flow<Boolean> = context.dataStore.data
-        .map { preferences ->
-            preferences[PreferencesKeys.NOTIFICATION_WATER] ?: true
-        }
-
-    val healthReportsEnabled: Flow<Boolean> = context.dataStore.data
-        .map { preferences ->
-            preferences[PreferencesKeys.NOTIFICATION_REPORTS] ?: true
-        }
-
-    // App Settings
-    val appRegion: Flow<String> = context.dataStore.data
-        .map { preferences ->
-            preferences[PreferencesKeys.APP_REGION] ?: "United States"
-        }
-
-    val dataSyncEnabled: Flow<Boolean> = context.dataStore.data
-        .map { preferences ->
-            preferences[PreferencesKeys.DATA_SYNC] ?: true
-        }
-
-    val appLockEnabled: Flow<Boolean> = context.dataStore.data
-        .map { preferences ->
-            preferences[PreferencesKeys.APP_LOCK_ENABLED] ?: false
-        }
-
-    val biometricAuthEnabled: Flow<Boolean> = context.dataStore.data
-        .map { preferences ->
-            preferences[PreferencesKeys.BIOMETRIC_AUTH] ?: true
-        }
-
-    // Beta Program
-    val betaProgramEnabled: Flow<Boolean> = context.dataStore.data
-        .map { preferences ->
-            preferences[PreferencesKeys.BETA_PROGRAM] ?: false
-        }
-
-    // Update User Profile
-    suspend fun updateUserName(name: String) {
-        context.dataStore.edit { preferences ->
-            preferences[PreferencesKeys.USER_NAME] = name
+    // User Profile Data with error handling
+    val userName: Flow<Result<String>> = flow {
+        try {
+            context.dataStore.data.collect { preferences ->
+                emit(Result.Success(preferences[PreferencesKeys.USER_NAME] ?: "Alex Johnson"))
+            }
+        } catch (exception: Exception) {
+            emit(Result.Error(exception, "Failed to load user name") as Result<String>)
         }
     }
 
-    suspend fun updateUserAge(age: Int) {
-        context.dataStore.edit { preferences ->
-            preferences[PreferencesKeys.USER_AGE] = age
+    val userAge: Flow<Result<Int>> = flow {
+        try {
+            context.dataStore.data.collect { preferences ->
+                emit(Result.Success(preferences[PreferencesKeys.USER_AGE] ?: 28))
+            }
+        } catch (exception: Exception) {
+            emit(Result.Error(exception, "Failed to load user age") as Result<Int>)
         }
     }
 
-    suspend fun updateUserGender(gender: String) {
-        context.dataStore.edit { preferences ->
-            preferences[PreferencesKeys.USER_GENDER] = gender
+    val userGender: Flow<Result<String>> = flow {
+        try {
+            context.dataStore.data.collect { preferences ->
+                emit(Result.Success(preferences[PreferencesKeys.USER_GENDER] ?: "Male"))
+            }
+        } catch (exception: Exception) {
+            emit(Result.Error(exception, "Failed to load user gender") as Result<String>)
         }
     }
 
-    suspend fun updateUserHealthGoal(goal: String) {
-        context.dataStore.edit { preferences ->
-            preferences[PreferencesKeys.USER_HEALTH_GOAL] = goal
+    val userHealthGoal: Flow<Result<String>> = flow {
+        try {
+            context.dataStore.data.collect { preferences ->
+                emit(Result.Success(preferences[PreferencesKeys.USER_HEALTH_GOAL] ?: "Focus on cardio and weight loss"))
+            }
+        } catch (exception: Exception) {
+            emit(Result.Error(exception, "Failed to load health goal") as Result<String>)
         }
     }
 
-    suspend fun updateUserHealthStatus(status: String) {
-        context.dataStore.edit { preferences ->
-            preferences[PreferencesKeys.USER_HEALTH_STATUS] = status
+    val userHealthStatus: Flow<Result<String>> = flow {
+        try {
+            context.dataStore.data.collect { preferences ->
+                emit(Result.Success(preferences[PreferencesKeys.USER_HEALTH_STATUS] ?: "Excellent"))
+            }
+        } catch (exception: Exception) {
+            emit(Result.Error(exception, "Failed to load health status") as Result<String>)
         }
     }
 
-    suspend fun updateAvatarUri(uri: Uri) {
-        context.dataStore.edit { preferences ->
-            preferences[PreferencesKeys.AVATAR_PATH] = uri.toString()
+    val avatarUri: Flow<Result<Uri?>> = flow {
+        try {
+            context.dataStore.data.collect { preferences ->
+                val path = preferences[PreferencesKeys.AVATAR_PATH]
+                val uri = if (path != null) Uri.parse(path) else null
+                emit(Result.Success(uri))
+            }
+        } catch (exception: Exception) {
+            emit(Result.Error(exception, "Failed to load avatar") as Result<Uri?>)
         }
     }
 
-    // Update Health Preferences
-    suspend fun updateStepGoal(steps: Int) {
-        context.dataStore.edit { preferences ->
-            preferences[PreferencesKeys.STEP_GOAL] = steps
+    // Health Preferences Data with error handling
+    val stepGoal: Flow<Result<Int>> = flow {
+        try {
+            context.dataStore.data.collect { preferences ->
+                emit(Result.Success(preferences[PreferencesKeys.STEP_GOAL] ?: 10000))
+            }
+        } catch (exception: Exception) {
+            emit(Result.Error(exception, "Failed to load step goal") as Result<Int>)
         }
     }
 
-    suspend fun updateWaterGoal(liters: Float) {
-        context.dataStore.edit { preferences ->
-            preferences[PreferencesKeys.WATER_GOAL] = liters
+    val waterGoal: Flow<Result<Float>> = flow {
+        try {
+            context.dataStore.data.collect { preferences ->
+                emit(Result.Success(preferences[PreferencesKeys.WATER_GOAL] ?: 2.5f))
+            }
+        } catch (exception: Exception) {
+            emit(Result.Error(exception, "Failed to load water goal") as Result<Float>)
         }
     }
 
-    suspend fun updateSleepGoal(hours: Float) {
-        context.dataStore.edit { preferences ->
-            preferences[PreferencesKeys.SLEEP_GOAL] = hours
+    val sleepGoal: Flow<Result<Float>> = flow {
+        try {
+            context.dataStore.data.collect { preferences ->
+                emit(Result.Success(preferences[PreferencesKeys.SLEEP_GOAL] ?: 8.0f))
+            }
+        } catch (exception: Exception) {
+            emit(Result.Error(exception, "Failed to load sleep goal") as Result<Float>)
         }
     }
 
-    // Update Personalization
-    suspend fun updateAiPersonalization(enabled: Boolean) {
-        context.dataStore.edit { preferences ->
-            preferences[PreferencesKeys.AI_PERSONALIZATION] = enabled
+    // Personalization Data with error handling
+    val aiPersonalizationEnabled: Flow<Result<Boolean>> = flow {
+        try {
+            context.dataStore.data.collect { preferences ->
+                emit(Result.Success(preferences[PreferencesKeys.AI_PERSONALIZATION] ?: true))
+            }
+        } catch (exception: Exception) {
+            emit(Result.Error(exception, "Failed to load AI personalization setting") as Result<Boolean>)
         }
     }
 
-    suspend fun updateAppLanguage(language: String) {
-        context.dataStore.edit { preferences ->
-            preferences[PreferencesKeys.APP_LANGUAGE] = language
+    val appLanguage: Flow<Result<String>> = flow {
+        try {
+            context.dataStore.data.collect { preferences ->
+                emit(Result.Success(preferences[PreferencesKeys.APP_LANGUAGE] ?: "English (US)"))
+            }
+        } catch (exception: Exception) {
+            emit(Result.Error(exception, "Failed to load app language") as Result<String>)
         }
     }
 
-    suspend fun updateAppTheme(theme: String) {
-        context.dataStore.edit { preferences ->
-            preferences[PreferencesKeys.APP_THEME] = theme
+    val appTheme: Flow<Result<String>> = flow {
+        try {
+            context.dataStore.data.collect { preferences ->
+                emit(Result.Success(preferences[PreferencesKeys.APP_THEME] ?: "Light"))
+            }
+        } catch (exception: Exception) {
+            emit(Result.Error(exception, "Failed to load app theme") as Result<String>)
         }
     }
 
-    // Update Notifications
-    suspend fun updateMedicationReminders(enabled: Boolean) {
-        context.dataStore.edit { preferences ->
-            preferences[PreferencesKeys.NOTIFICATION_MEDICATION] = enabled
+    // Notification Settings with error handling
+    val medicationRemindersEnabled: Flow<Result<Boolean>> = flow {
+        try {
+            context.dataStore.data.collect { preferences ->
+                emit(Result.Success(preferences[PreferencesKeys.NOTIFICATION_MEDICATION] ?: true))
+            }
+        } catch (exception: Exception) {
+            emit(Result.Error(exception, "Failed to load medication reminders setting") as Result<Boolean>)
         }
     }
 
-    suspend fun updateWellnessCheckins(enabled: Boolean) {
-        context.dataStore.edit { preferences ->
-            preferences[PreferencesKeys.NOTIFICATION_WELLNESS] = enabled
+    val wellnessCheckinsEnabled: Flow<Result<Boolean>> = flow {
+        try {
+            context.dataStore.data.collect { preferences ->
+                emit(Result.Success(preferences[PreferencesKeys.NOTIFICATION_WELLNESS] ?: true))
+            }
+        } catch (exception: Exception) {
+            emit(Result.Error(exception, "Failed to load wellness check-ins setting") as Result<Boolean>)
         }
     }
 
-    suspend fun updateActivityGoals(enabled: Boolean) {
-        context.dataStore.edit { preferences ->
-            preferences[PreferencesKeys.NOTIFICATION_ACTIVITY] = enabled
+    val activityGoalsEnabled: Flow<Result<Boolean>> = flow {
+        try {
+            context.dataStore.data.collect { preferences ->
+                emit(Result.Success(preferences[PreferencesKeys.NOTIFICATION_ACTIVITY] ?: true))
+            }
+        } catch (exception: Exception) {
+            emit(Result.Error(exception, "Failed to load activity goals setting") as Result<Boolean>)
         }
     }
 
-    suspend fun updateWaterReminders(enabled: Boolean) {
-        context.dataStore.edit { preferences ->
-            preferences[PreferencesKeys.NOTIFICATION_WATER] = enabled
+    val waterRemindersEnabled: Flow<Result<Boolean>> = flow {
+        try {
+            context.dataStore.data.collect { preferences ->
+                emit(Result.Success(preferences[PreferencesKeys.NOTIFICATION_WATER] ?: true))
+            }
+        } catch (exception: Exception) {
+            emit(Result.Error(exception, "Failed to load water reminders setting") as Result<Boolean>)
         }
     }
 
-    suspend fun updateHealthReports(enabled: Boolean) {
-        context.dataStore.edit { preferences ->
-            preferences[PreferencesKeys.NOTIFICATION_REPORTS] = enabled
+    val healthReportsEnabled: Flow<Result<Boolean>> = flow {
+        try {
+            context.dataStore.data.collect { preferences ->
+                emit(Result.Success(preferences[PreferencesKeys.NOTIFICATION_REPORTS] ?: true))
+            }
+        } catch (exception: Exception) {
+            emit(Result.Error(exception, "Failed to load health reports setting") as Result<Boolean>)
         }
     }
 
-    // Update App Settings
-    suspend fun updateAppRegion(region: String) {
-        context.dataStore.edit { preferences ->
-            preferences[PreferencesKeys.APP_REGION] = region
+    // App Settings with error handling
+    val appRegion: Flow<Result<String>> = flow {
+        try {
+            context.dataStore.data.collect { preferences ->
+                emit(Result.Success(preferences[PreferencesKeys.APP_REGION] ?: "United States"))
+            }
+        } catch (exception: Exception) {
+            emit(Result.Error(exception, "Failed to load app region") as Result<String>)
         }
     }
 
-    suspend fun updateDataSync(enabled: Boolean) {
-        context.dataStore.edit { preferences ->
-            preferences[PreferencesKeys.DATA_SYNC] = enabled
+    val dataSyncEnabled: Flow<Result<Boolean>> = flow {
+        try {
+            context.dataStore.data.collect { preferences ->
+                emit(Result.Success(preferences[PreferencesKeys.DATA_SYNC] ?: true))
+            }
+        } catch (exception: Exception) {
+            emit(Result.Error(exception, "Failed to load data sync setting") as Result<Boolean>)
         }
     }
 
-    suspend fun updateAppLock(enabled: Boolean) {
-        context.dataStore.edit { preferences ->
-            preferences[PreferencesKeys.APP_LOCK_ENABLED] = enabled
+    val appLockEnabled: Flow<Result<Boolean>> = flow {
+        try {
+            context.dataStore.data.collect { preferences ->
+                emit(Result.Success(preferences[PreferencesKeys.APP_LOCK_ENABLED] ?: false))
+            }
+        } catch (exception: Exception) {
+            emit(Result.Error(exception, "Failed to load app lock setting") as Result<Boolean>)
         }
     }
 
-    suspend fun updateBiometricAuth(enabled: Boolean) {
-        context.dataStore.edit { preferences ->
-            preferences[PreferencesKeys.BIOMETRIC_AUTH] = enabled
+    val biometricAuthEnabled: Flow<Result<Boolean>> = flow {
+        try {
+            context.dataStore.data.collect { preferences ->
+                emit(Result.Success(preferences[PreferencesKeys.BIOMETRIC_AUTH] ?: true))
+            }
+        } catch (exception: Exception) {
+            emit(Result.Error(exception, "Failed to load biometric auth setting") as Result<Boolean>)
         }
     }
 
-    // Update Beta Program
-    suspend fun updateBetaProgram(enabled: Boolean) {
-        context.dataStore.edit { preferences ->
-            preferences[PreferencesKeys.BETA_PROGRAM] = enabled
+    // Beta Program with error handling
+    val betaProgramEnabled: Flow<Result<Boolean>> = flow {
+        try {
+            context.dataStore.data.collect { preferences ->
+                emit(Result.Success(preferences[PreferencesKeys.BETA_PROGRAM] ?: false))
+            }
+        } catch (exception: Exception) {
+            emit(Result.Error(exception, "Failed to load beta program setting") as Result<Boolean>)
+        }
+    }
+
+    // Update User Profile with retry logic and error handling
+    suspend fun updateUserName(name: String): Result<Unit> = safeSuspendCall {
+        RetryUtil.retryWithBackoff(
+            maxRetries = 2, // DataStore operations typically don't need many retries
+            shouldRetry = { it is java.io.IOException }
+        ) {
+            context.dataStore.edit { preferences ->
+                preferences[PreferencesKeys.USER_NAME] = name
+            }
+        }
+    }
+
+    suspend fun updateUserAge(age: Int): Result<Unit> = safeSuspendCall {
+        RetryUtil.retryWithBackoff(
+            maxRetries = 2,
+            shouldRetry = { it is java.io.IOException }
+        ) {
+            context.dataStore.edit { preferences ->
+                preferences[PreferencesKeys.USER_AGE] = age
+            }
+        }
+    }
+
+    suspend fun updateUserGender(gender: String): Result<Unit> = safeSuspendCall {
+        RetryUtil.retryWithBackoff(
+            maxRetries = 2,
+            shouldRetry = { it is java.io.IOException }
+        ) {
+            context.dataStore.edit { preferences ->
+                preferences[PreferencesKeys.USER_GENDER] = gender
+            }
+        }
+    }
+
+    suspend fun updateUserHealthGoal(goal: String): Result<Unit> = safeSuspendCall {
+        RetryUtil.retryWithBackoff(
+            maxRetries = 2,
+            shouldRetry = { it is java.io.IOException }
+        ) {
+            context.dataStore.edit { preferences ->
+                preferences[PreferencesKeys.USER_HEALTH_GOAL] = goal
+            }
+        }
+    }
+
+    suspend fun updateUserHealthStatus(status: String): Result<Unit> = safeSuspendCall {
+        RetryUtil.retryWithBackoff(
+            maxRetries = 2,
+            shouldRetry = { it is java.io.IOException }
+        ) {
+            context.dataStore.edit { preferences ->
+                preferences[PreferencesKeys.USER_HEALTH_STATUS] = status
+            }
+        }
+    }
+
+    suspend fun updateAvatarUri(uri: Uri): Result<Unit> = safeSuspendCall {
+        RetryUtil.retryWithBackoff(
+            maxRetries = 2,
+            shouldRetry = { it is java.io.IOException }
+        ) {
+            context.dataStore.edit { preferences ->
+                preferences[PreferencesKeys.AVATAR_PATH] = uri.toString()
+            }
+        }
+    }
+
+    // Update Health Preferences with error handling
+    suspend fun updateStepGoal(steps: Int): Result<Unit> = safeSuspendCall {
+        RetryUtil.retryWithBackoff(
+            maxRetries = 2,
+            shouldRetry = { it is java.io.IOException }
+        ) {
+            context.dataStore.edit { preferences ->
+                preferences[PreferencesKeys.STEP_GOAL] = steps
+            }
+        }
+    }
+
+    suspend fun updateWaterGoal(liters: Float): Result<Unit> = safeSuspendCall {
+        RetryUtil.retryWithBackoff(
+            maxRetries = 2,
+            shouldRetry = { it is java.io.IOException }
+        ) {
+            context.dataStore.edit { preferences ->
+                preferences[PreferencesKeys.WATER_GOAL] = liters
+            }
+        }
+    }
+
+    suspend fun updateSleepGoal(hours: Float): Result<Unit> = safeSuspendCall {
+        RetryUtil.retryWithBackoff(
+            maxRetries = 2,
+            shouldRetry = { it is java.io.IOException }
+        ) {
+            context.dataStore.edit { preferences ->
+                preferences[PreferencesKeys.SLEEP_GOAL] = hours
+            }
+        }
+    }
+
+    // Update Personalization with error handling
+    suspend fun updateAiPersonalization(enabled: Boolean): Result<Unit> = safeSuspendCall {
+        RetryUtil.retryWithBackoff(
+            maxRetries = 2,
+            shouldRetry = { it is java.io.IOException }
+        ) {
+            context.dataStore.edit { preferences ->
+                preferences[PreferencesKeys.AI_PERSONALIZATION] = enabled
+            }
+        }
+    }
+
+    suspend fun updateAppLanguage(language: String): Result<Unit> = safeSuspendCall {
+        RetryUtil.retryWithBackoff(
+            maxRetries = 2,
+            shouldRetry = { it is java.io.IOException }
+        ) {
+            context.dataStore.edit { preferences ->
+                preferences[PreferencesKeys.APP_LANGUAGE] = language
+            }
+        }
+    }
+
+    suspend fun updateAppTheme(theme: String): Result<Unit> = safeSuspendCall {
+        RetryUtil.retryWithBackoff(
+            maxRetries = 2,
+            shouldRetry = { it is java.io.IOException }
+        ) {
+            context.dataStore.edit { preferences ->
+                preferences[PreferencesKeys.APP_THEME] = theme
+            }
+        }
+    }
+
+    // Update Notifications with error handling
+    suspend fun updateMedicationReminders(enabled: Boolean): Result<Unit> = safeSuspendCall {
+        RetryUtil.retryWithBackoff(
+            maxRetries = 2,
+            shouldRetry = { it is java.io.IOException }
+        ) {
+            context.dataStore.edit { preferences ->
+                preferences[PreferencesKeys.NOTIFICATION_MEDICATION] = enabled
+            }
+        }
+    }
+
+    suspend fun updateWellnessCheckins(enabled: Boolean): Result<Unit> = safeSuspendCall {
+        RetryUtil.retryWithBackoff(
+            maxRetries = 2,
+            shouldRetry = { it is java.io.IOException }
+        ) {
+            context.dataStore.edit { preferences ->
+                preferences[PreferencesKeys.NOTIFICATION_WELLNESS] = enabled
+            }
+        }
+    }
+
+    suspend fun updateActivityGoals(enabled: Boolean): Result<Unit> = safeSuspendCall {
+        RetryUtil.retryWithBackoff(
+            maxRetries = 2,
+            shouldRetry = { it is java.io.IOException }
+        ) {
+            context.dataStore.edit { preferences ->
+                preferences[PreferencesKeys.NOTIFICATION_ACTIVITY] = enabled
+            }
+        }
+    }
+
+    suspend fun updateWaterReminders(enabled: Boolean): Result<Unit> = safeSuspendCall {
+        RetryUtil.retryWithBackoff(
+            maxRetries = 2,
+            shouldRetry = { it is java.io.IOException }
+        ) {
+            context.dataStore.edit { preferences ->
+                preferences[PreferencesKeys.NOTIFICATION_WATER] = enabled
+            }
+        }
+    }
+
+    suspend fun updateHealthReports(enabled: Boolean): Result<Unit> = safeSuspendCall {
+        RetryUtil.retryWithBackoff(
+            maxRetries = 2,
+            shouldRetry = { it is java.io.IOException }
+        ) {
+            context.dataStore.edit { preferences ->
+                preferences[PreferencesKeys.NOTIFICATION_REPORTS] = enabled
+            }
+        }
+    }
+
+    // Update App Settings with error handling
+    suspend fun updateAppRegion(region: String): Result<Unit> = safeSuspendCall {
+        RetryUtil.retryWithBackoff(
+            maxRetries = 2,
+            shouldRetry = { it is java.io.IOException }
+        ) {
+            context.dataStore.edit { preferences ->
+                preferences[PreferencesKeys.APP_REGION] = region
+            }
+        }
+    }
+
+    suspend fun updateDataSync(enabled: Boolean): Result<Unit> = safeSuspendCall {
+        RetryUtil.retryWithBackoff(
+            maxRetries = 2,
+            shouldRetry = { it is java.io.IOException }
+        ) {
+            context.dataStore.edit { preferences ->
+                preferences[PreferencesKeys.DATA_SYNC] = enabled
+            }
+        }
+    }
+
+    suspend fun updateAppLock(enabled: Boolean): Result<Unit> = safeSuspendCall {
+        RetryUtil.retryWithBackoff(
+            maxRetries = 2,
+            shouldRetry = { it is java.io.IOException }
+        ) {
+            context.dataStore.edit { preferences ->
+                preferences[PreferencesKeys.APP_LOCK_ENABLED] = enabled
+            }
+        }
+    }
+
+    suspend fun updateBiometricAuth(enabled: Boolean): Result<Unit> = safeSuspendCall {
+        RetryUtil.retryWithBackoff(
+            maxRetries = 2,
+            shouldRetry = { it is java.io.IOException }
+        ) {
+            context.dataStore.edit { preferences ->
+                preferences[PreferencesKeys.BIOMETRIC_AUTH] = enabled
+            }
+        }
+    }
+
+    // Update Beta Program with error handling
+    suspend fun updateBetaProgram(enabled: Boolean): Result<Unit> = safeSuspendCall {
+        RetryUtil.retryWithBackoff(
+            maxRetries = 2,
+            shouldRetry = { it is java.io.IOException }
+        ) {
+            context.dataStore.edit { preferences ->
+                preferences[PreferencesKeys.BETA_PROGRAM] = enabled
+            }
         }
     }
 
@@ -364,5 +597,18 @@ class SettingsRepository(private val context: Context) {
             }
         }
         return true
+    }
+
+    /**
+     * Bulk update method for updating multiple settings atomically
+     * Useful for reducing DataStore write operations and improving performance
+     */
+    suspend fun updateMultipleSettings(updates: (MutablePreferences) -> Unit): Result<Unit> = safeSuspendCall {
+        RetryUtil.retryWithBackoff(
+            maxRetries = 2,
+            shouldRetry = { it is java.io.IOException }
+        ) {
+            context.dataStore.edit(updates)
+        }
     }
 }

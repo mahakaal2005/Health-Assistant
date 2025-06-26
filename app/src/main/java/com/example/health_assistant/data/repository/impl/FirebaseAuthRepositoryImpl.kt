@@ -1,6 +1,7 @@
 package com.example.health_assistant.data.repository.impl
 
 import android.util.Log
+import com.example.health_assistant.core.util.Result
 import com.example.health_assistant.data.repository.interfaces.AuthRepository
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
@@ -21,13 +22,13 @@ class FirebaseAuthRepositoryImpl @Inject constructor(
 
     private val TAG = "FirebaseAuthRepository"
 
-    override fun getCurrentUser(): Flow<FirebaseUser?> = callbackFlow {
+    override fun getCurrentUser(): Flow<Result<FirebaseUser?>> = callbackFlow {
         // Initially emit the current user
-        trySend(firebaseAuth.currentUser)
+        trySend(Result.Success(firebaseAuth.currentUser))
 
         // Set up auth state listener
         val authStateListener = FirebaseAuth.AuthStateListener { auth ->
-            trySend(auth.currentUser)
+            trySend(Result.Success(auth.currentUser))
         }
 
         // Register the listener
@@ -44,10 +45,10 @@ class FirebaseAuthRepositoryImpl @Inject constructor(
             val authResult = firebaseAuth.createUserWithEmailAndPassword(email, password).await()
             val user = authResult.user
             Log.d(TAG, "Registration successful for user: ${user?.uid}")
-            Result.success(user)
+            Result.Success(user)
         } catch (e: Exception) {
             Log.e(TAG, "Registration failed: ${e.message}")
-            Result.failure(e)
+            Result.Error(exception = e)
         }
     }
 
@@ -56,28 +57,68 @@ class FirebaseAuthRepositoryImpl @Inject constructor(
             val authResult = firebaseAuth.signInWithEmailAndPassword(email, password).await()
             val user = authResult.user
             Log.d(TAG, "Sign-in successful for user: ${user?.uid}")
-            Result.success(user)
+            Result.Success(user)
         } catch (e: Exception) {
             Log.e(TAG, "Sign-in failed: ${e.message}")
-            Result.failure(e)
+            Result.Error(exception = e)
         }
     }
 
-    override suspend fun signOut() {
-        Log.d(TAG, "Signing out user")
-        firebaseAuth.signOut()
+    override suspend fun signOut(): Result<Unit> {
+        return try {
+            Log.d(TAG, "Signing out user")
+            firebaseAuth.signOut()
+            Result.Success(Unit)
+        } catch (e: Exception) {
+            Log.e(TAG, "Sign-out failed: ${e.message}")
+            Result.Error(exception = e)
+        }
     }
 
     override suspend fun sendPasswordResetEmail(email: String): Result<Unit> {
         return try {
             firebaseAuth.sendPasswordResetEmail(email).await()
-            Result.success(Unit)
+            Result.Success(Unit)
         } catch (e: Exception) {
-            Result.failure(e)
+            Result.Error(exception = e)
         }
     }
 
     override fun isUserLoggedIn(): Boolean {
         return firebaseAuth.currentUser != null
+    }
+
+    override suspend fun deleteAccount(): Result<Unit> {
+        return try {
+            val currentUser = firebaseAuth.currentUser
+            if (currentUser != null) {
+                currentUser.delete().await()
+                Log.d(TAG, "User account deleted successfully")
+                Result.Success(Unit)
+            } else {
+                Log.e(TAG, "No user logged in to delete")
+                Result.Error(message = "No user logged in")
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "Failed to delete account: ${e.message}")
+            Result.Error(exception = e)
+        }
+    }
+
+    override suspend fun updatePassword(newPassword: String): Result<Unit> {
+        return try {
+            val currentUser = firebaseAuth.currentUser
+            if (currentUser != null) {
+                currentUser.updatePassword(newPassword).await()
+                Log.d(TAG, "Password updated successfully")
+                Result.Success(Unit)
+            } else {
+                Log.e(TAG, "No user logged in to update password")
+                Result.Error(message = "No user logged in")
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "Failed to update password: ${e.message}")
+            Result.Error(exception = e)
+        }
     }
 }
