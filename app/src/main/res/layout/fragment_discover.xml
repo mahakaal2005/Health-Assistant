@@ -363,14 +363,12 @@
                                 app:layout_constraintTop_toTopOf="parent" />
 
                             <!-- Clear Searches Button -->
-                            <com.google.android.material.button.MaterialButton
+                            <Button
                                 android:id="@+id/clear_searches_button"
-                                style="@style/Widget.MaterialComponents.Button.TextButton"
+                                style="@style/Widget.HealthAssistant.Button.Primary"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="Clear"
-                                android:textSize="14sp"
-                                android:textColor="@color/colorPrimaryGradientEnd"
                                 app:layout_constraintEnd_toEndOf="parent"
                                 app:layout_constraintBaseline_toBaselineOf="@+id/recent_searches_title" />
 

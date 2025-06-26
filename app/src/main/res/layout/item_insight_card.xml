@@ -60,18 +60,11 @@
             <!-- Action Button (optional) -->
             <Button
                 android:id="@+id/insight_action_button"
+                style="@style/Widget.HealthAssistant.Button.Primary"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="12dp"
-                android:text="Learn More"
-                android:textSize="14sp"
-                android:textAllCaps="false"
-                android:textColor="#03A9F4"
-                android:background="?attr/selectableItemBackground"
-                android:paddingStart="0dp"
-                android:paddingEnd="0dp"
-                android:minWidth="0dp"
-                android:minHeight="0dp" />
+                android:text="Learn More" />
         </LinearLayout>
     </FrameLayout>
 </androidx.cardview.widget.CardView>
