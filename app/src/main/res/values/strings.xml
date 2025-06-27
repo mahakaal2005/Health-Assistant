@@ -82,4 +82,9 @@
     <string name="select_birthday">Select Birthday</string>
     <string name="profile_saved_successfully">Profile saved successfully!</string>
     <string name="error_saving_profile">Error saving profile. Please try again.</string>
+
+    <!-- Edit Profile -->
+    <string name="loading_profile">Loading profile...</string>
+    <string name="saving_profile">Saving profile...</string>
+    <string name="saving_changes">Saving changes...</string>
 </resources>

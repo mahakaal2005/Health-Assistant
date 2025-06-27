@@ -102,6 +102,7 @@ dependencies {
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.material)
+    implementation( libs.material.v190)
     implementation(libs.androidx.activity)
     implementation(libs.androidx.constraintlayout)
     implementation(libs.lottie)
@@ -168,6 +169,7 @@ dependencies {
     testImplementation(libs.junit.jupiter.api)
     testRuntimeOnly(libs.junit.jupiter.engine)
     testImplementation(libs.turbine)
+    androidTestImplementation(libs.androidx.accessibility.test.framework)
 
     // Traditional Android View System dependencies (XML + Kotlin)
     implementation(libs.androidx.lifecycle.viewmodel.ktx)

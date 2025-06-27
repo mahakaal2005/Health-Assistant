@@ -1,4 +1,5 @@
 [versions]
+accessibilityTestFramework = "4.0.0"
 agp = "8.10.1"
 circleimageview = "3.1.0"
 coil = "2.5.0"
@@ -29,6 +30,7 @@ lottie = "6.0.1"
 material = "1.12.0"
 activity = "1.10.1"
 constraintlayout = "2.2.1"
+materialVersion = "1.9.0"
 mockk = "1.13.10"
 navigationUiKtx = "2.9.0"
 firebase-bom = "32.8.0"
@@ -41,6 +43,7 @@ turbine = "1.0.0"
 viewpager2 = "1.1.0"
 
 [libraries]
+androidx-accessibility-test-framework = { module = "androidx.test:accessibility-test-framework", version.ref = "accessibilityTestFramework" }
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 androidx-core-ktx-v1120 = { module = "androidx.core:core-ktx", version.ref = "coreKtxVersion" }
 androidx-datastore-preferences = { module = "androidx.datastore:datastore-preferences", version.ref = "datastorePreferences" }
@@ -93,6 +96,7 @@ androidx-constraintlayout = { group = "androidx.constraintlayout", name = "const
 firebase-bom = { group = "com.google.firebase", name = "firebase-bom", version.ref = "firebase-bom" }
 firebase-auth = { group = "com.google.firebase", name = "firebase-auth" }
 androidx-security-crypto-ktx = { group = "androidx.security", name = "security-crypto-ktx", version.ref = "securityCryptoKtx" }
+material-v190 = { module = "com.google.android.material:material", version.ref = "materialVersion" }
 mockk = { module = "io.mockk:mockk", version.ref = "mockk" }
 storage-kt = { module = "io.github.jan-tennert.supabase:storage-kt", version.ref = "storageKt" }
 turbine = { module = "app.cash.turbine:turbine", version.ref = "turbine" }

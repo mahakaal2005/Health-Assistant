@@ -31,7 +31,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <!-- Toolbar -->
+        <!-- Enhanced Toolbar with Save Action -->
         <com.google.android.material.appbar.MaterialToolbar
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
@@ -43,19 +43,67 @@
             app:navigationIconTint="@android:color/white"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent" />
+            app:layout_constraintEnd_toEndOf="parent">
 
-        <!-- Progress Indicator -->
-        <com.google.android.material.progressindicator.CircularProgressIndicator
-            android:id="@+id/progress_indicator"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:indeterminate="true"
+            <!-- Save Button in Toolbar -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/toolbar_save_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="end"
+                android:layout_marginEnd="16dp"
+                android:text="Save"
+                android:textColor="@android:color/white"
+                android:textSize="14sp"
+                android:minWidth="64dp"
+                android:enabled="false"
+                style="@style/Widget.Material3.Button.TextButton"
+                app:strokeColor="@android:color/white"
+                app:strokeWidth="1dp" />
+
+        </com.google.android.material.appbar.MaterialToolbar>
+
+        <!-- Progress Overlay -->
+        <FrameLayout
+            android:id="@+id/progress_overlay"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="#80000000"
             android:visibility="gone"
+            android:clickable="true"
+            android:focusable="true"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent" />
+            app:layout_constraintEnd_toEndOf="parent">
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:orientation="vertical"
+                android:gravity="center"
+                android:background="@drawable/glassmorphism_card_background"
+                android:padding="24dp">
+
+                <com.google.android.material.progressindicator.CircularProgressIndicator
+                    android:id="@+id/progress_indicator"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:indeterminate="true" />
+
+                <TextView
+                    android:id="@+id/progress_text"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:text="Saving profile..."
+                    android:textColor="@android:color/white"
+                    android:textSize="16sp" />
+
+            </LinearLayout>
+
+        </FrameLayout>
 
         <!-- Main Content -->
         <androidx.core.widget.NestedScrollView
@@ -77,7 +125,7 @@
                 android:layout_height="wrap_content"
                 android:orientation="vertical">
 
-                <!-- Profile Photo Card -->
+                <!-- Profile Avatar Section -->
                 <androidx.cardview.widget.CardView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -98,28 +146,57 @@
                             android:padding="@dimen/content_padding_medium"
                             android:gravity="center">
 
-                            <!-- Section Header -->
-                            <TextView
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:layout_marginBottom="@dimen/content_padding_medium"
-                                android:text="Profile Photo"
-                                style="@style/TextAppearance.HealthAssistant.SectionTitle" />
+                            <!-- Profile Image with Upload Indicator -->
+                            <FrameLayout
+                                android:layout_width="120dp"
+                                android:layout_height="120dp">
 
-                            <de.hdodenhof.circleimageview.CircleImageView
-                                android:id="@+id/profile_image_view"
-                                android:layout_width="100dp"
-                                android:layout_height="100dp"
-                                android:src="@drawable/ic_person"
-                                app:civ_border_width="3dp"
-                                app:civ_border_color="@color/colorPrimaryGradientStart" />
+                                <de.hdodenhof.circleimageview.CircleImageView
+                                    android:id="@+id/profile_image_view"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="match_parent"
+                                    android:src="@drawable/ic_person"
+                                    android:contentDescription="Profile picture"
+                                    app:civ_border_width="3dp"
+                                    app:civ_border_color="@color/colorPrimaryGradientStart" />
 
+                                <!-- Upload Progress Indicator -->
+                                <com.google.android.material.progressindicator.CircularProgressIndicator
+                                    android:id="@+id/photo_upload_progress"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="match_parent"
+                                    android:visibility="gone"
+                                    android:indeterminate="true"
+                                    app:indicatorColor="@color/colorPrimaryGradientStart" />
+
+                                <!-- Camera Icon Overlay -->
+                                <FrameLayout
+                                    android:layout_width="36dp"
+                                    android:layout_height="36dp"
+                                    android:layout_gravity="bottom|end"
+                                    android:background="@drawable/circle_button_background"
+                                    android:elevation="2dp">
+
+                                    <ImageView
+                                        android:layout_width="20dp"
+                                        android:layout_height="20dp"
+                                        android:layout_gravity="center"
+                                        android:src="@drawable/ic_camera"
+                                        android:contentDescription="Change profile picture"
+                                        app:tint="@android:color/white" />
+
+                                </FrameLayout>
+
+                            </FrameLayout>
+
+                            <!-- Change Photo Button -->
                             <com.google.android.material.button.MaterialButton
                                 android:id="@+id/change_photo_button"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:layout_marginTop="12dp"
+                                android:layout_marginTop="16dp"
                                 android:text="Change Photo"
+                                android:contentDescription="Tap to change profile picture"
                                 style="@style/Widget.Material3.Button.TextButton"
                                 app:icon="@drawable/ic_camera"
                                 app:iconGravity="textStart"
@@ -132,7 +209,7 @@
 
                 </androidx.cardview.widget.CardView>
 
-                <!-- Personal Information Card -->
+                <!-- Personal Information Section -->
                 <androidx.cardview.widget.CardView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -153,12 +230,29 @@
                             android:padding="@dimen/content_padding_medium">
 
                             <!-- Section Header -->
-                            <TextView
+                            <LinearLayout
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
-                                android:layout_marginBottom="@dimen/content_padding_medium"
-                                android:text="Personal Information"
-                                style="@style/TextAppearance.HealthAssistant.SectionTitle" />
+                                android:orientation="horizontal"
+                                android:gravity="center_vertical"
+                                android:layout_marginBottom="@dimen/content_padding_medium">
+
+                                <ImageView
+                                    android:layout_width="24dp"
+                                    android:layout_height="24dp"
+                                    android:src="@drawable/ic_person"
+                                    android:contentDescription="Personal information"
+                                    app:tint="@color/colorPrimaryGradientStart" />
+
+                                <TextView
+                                    android:layout_width="0dp"
+                                    android:layout_height="wrap_content"
+                                    android:layout_weight="1"
+                                    android:layout_marginStart="12dp"
+                                    android:text="Personal Information"
+                                    style="@style/TextAppearance.HealthAssistant.SectionTitle" />
+
+                            </LinearLayout>
 
                             <!-- Email (Read-only) -->
                             <TextView
@@ -166,6 +260,7 @@
                                 android:layout_height="wrap_content"
                                 android:text="Email Address"
                                 android:textSize="14sp"
+                                android:textStyle="bold"
                                 android:textColor="@color/textPrimary"
                                 android:layout_marginBottom="4dp" />
 
@@ -178,44 +273,76 @@
                                 android:textSize="16sp"
                                 android:textColor="@color/textSecondary"
                                 android:layout_marginBottom="@dimen/content_padding_medium"
+                                android:drawableStart="@drawable/ic_email"
+                                android:drawablePadding="12dp"
+                                android:drawableTint="@color/textSecondary"
+                                android:contentDescription="Your email address, cannot be changed"
                                 tools:text="user@example.com" />
 
                             <!-- Display Name -->
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Display Name *"
+                                android:textSize="14sp"
+                                android:textStyle="bold"
+                                android:textColor="@color/textPrimary"
+                                android:layout_marginBottom="4dp" />
+
                             <com.google.android.material.textfield.TextInputLayout
                                 android:id="@+id/display_name_input_layout"
                                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
                                 android:layout_marginBottom="@dimen/content_padding_medium"
-                                android:hint="Display Name"
+                                android:hint="Enter your display name"
                                 app:boxBackgroundColor="#10FFFFFF"
                                 app:boxStrokeColor="@color/colorPrimaryGradientStart"
-                                app:hintTextColor="@color/colorPrimaryGradientStart">
+                                app:hintTextColor="@color/colorPrimaryGradientStart"
+                                app:startIconDrawable="@drawable/ic_person"
+                                app:startIconTint="@color/colorPrimaryGradientStart"
+                                app:helperText="This is how others will see your name"
+                                app:helperTextTextColor="@color/textSecondary"
+                                app:counterEnabled="true"
+                                app:counterMaxLength="50">
 
                                 <com.google.android.material.textfield.TextInputEditText
                                     android:id="@+id/display_name_edit_text"
                                     android:layout_width="match_parent"
                                     android:layout_height="wrap_content"
-                                    android:inputType="textPersonName"
+                                    android:inputType="textPersonName|textCapWords"
                                     android:maxLength="50"
-                                    android:textColor="@color/textPrimary" />
+                                    android:textColor="@color/textPrimary"
+                                    android:contentDescription="Your display name" />
 
                             </com.google.android.material.textfield.TextInputLayout>
 
                             <!-- Birthday -->
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Birthday"
+                                android:textSize="14sp"
+                                android:textStyle="bold"
+                                android:textColor="@color/textPrimary"
+                                android:layout_marginBottom="4dp" />
+
                             <com.google.android.material.textfield.TextInputLayout
                                 android:id="@+id/birthday_input_layout"
                                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
                                 android:layout_marginBottom="@dimen/content_padding_medium"
-                                android:hint="Birthday"
+                                android:hint="Select your birthday"
                                 app:boxBackgroundColor="#10FFFFFF"
                                 app:boxStrokeColor="@color/colorPrimaryGradientStart"
                                 app:hintTextColor="@color/colorPrimaryGradientStart"
+                                app:startIconDrawable="@drawable/ic_calendar"
+                                app:startIconTint="@color/colorPrimaryGradientStart"
                                 app:endIconMode="custom"
                                 app:endIconDrawable="@drawable/ic_calendar"
-                                app:endIconTint="@color/colorPrimaryGradientStart">
+                                app:endIconTint="@color/colorPrimaryGradientStart"
+                                app:helperText="Optional - helps personalize your experience">
 
                                 <com.google.android.material.textfield.TextInputEditText
                                     android:id="@+id/birthday_edit_text"
@@ -224,28 +351,42 @@
                                     android:inputType="none"
                                     android:focusable="false"
                                     android:clickable="true"
-                                    android:textColor="@color/textPrimary" />
+                                    android:textColor="@color/textPrimary"
+                                    android:contentDescription="Tap to select your birthday" />
 
                             </com.google.android.material.textfield.TextInputLayout>
 
                             <!-- Gender -->
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Gender"
+                                android:textSize="14sp"
+                                android:textStyle="bold"
+                                android:textColor="@color/textPrimary"
+                                android:layout_marginBottom="4dp" />
+
                             <com.google.android.material.textfield.TextInputLayout
                                 android:id="@+id/gender_input_layout"
                                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
-                                android:hint="Gender"
+                                android:hint="Select gender"
                                 app:boxBackgroundColor="#10FFFFFF"
                                 app:boxStrokeColor="@color/colorPrimaryGradientStart"
                                 app:hintTextColor="@color/colorPrimaryGradientStart"
-                                app:endIconTint="@color/colorPrimaryGradientStart">
+                                app:startIconDrawable="@drawable/ic_person"
+                                app:startIconTint="@color/colorPrimaryGradientStart"
+                                app:endIconTint="@color/colorPrimaryGradientStart"
+                                app:helperText="Optional - helps customize health recommendations">
 
                                 <AutoCompleteTextView
                                     android:id="@+id/gender_dropdown"
                                     android:layout_width="match_parent"
                                     android:layout_height="wrap_content"
                                     android:inputType="none"
-                                    android:textColor="@color/textPrimary" />
+                                    android:textColor="@color/textPrimary"
+                                    android:contentDescription="Select your gender from the dropdown" />
 
                             </com.google.android.material.textfield.TextInputLayout>
 
@@ -255,7 +396,7 @@
 
                 </androidx.cardview.widget.CardView>
 
-                <!-- Health Information Card -->
+                <!-- Health Information Section -->
                 <androidx.cardview.widget.CardView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -276,119 +417,124 @@
                             android:padding="@dimen/content_padding_medium">
 
                             <!-- Section Header -->
-                            <TextView
+                            <LinearLayout
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
-                                android:layout_marginBottom="@dimen/content_padding_medium"
-                                android:text="Health Information"
-                                style="@style/TextAppearance.HealthAssistant.SectionTitle" />
+                                android:orientation="horizontal"
+                                android:gravity="center_vertical"
+                                android:layout_marginBottom="@dimen/content_padding_medium">
+
+                                <ImageView
+                                    android:layout_width="24dp"
+                                    android:layout_height="24dp"
+                                    android:src="@drawable/ic_health_monitoring"
+                                    android:contentDescription="Health information"
+                                    app:tint="@color/colorPrimaryGradientStart" />
+
+                                <TextView
+                                    android:layout_width="0dp"
+                                    android:layout_height="wrap_content"
+                                    android:layout_weight="1"
+                                    android:layout_marginStart="12dp"
+                                    android:text="Health Information"
+                                    style="@style/TextAppearance.HealthAssistant.SectionTitle" />
+
+                            </LinearLayout>
 
                             <!-- Height and Weight Row -->
                             <LinearLayout
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
                                 android:orientation="horizontal"
-                                android:weightSum="2">
+                                android:weightSum="2"
+                                android:baselineAligned="false">
 
-                                <!-- Height -->
-                                <com.google.android.material.textfield.TextInputLayout
-                                    android:id="@+id/height_input_layout"
-                                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                                <!-- Height Section -->
+                                <LinearLayout
                                     android:layout_width="0dp"
                                     android:layout_height="wrap_content"
                                     android:layout_weight="1"
                                     android:layout_marginEnd="8dp"
-                                    android:hint="Height (cm)"
-                                    app:boxBackgroundColor="#10FFFFFF"
-                                    app:boxStrokeColor="@color/colorPrimaryGradientStart"
-                                    app:hintTextColor="@color/colorPrimaryGradientStart">
+                                    android:orientation="vertical">
 
-                                    <com.google.android.material.textfield.TextInputEditText
-                                        android:id="@+id/height_edit_text"
+                                    <TextView
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:text="Height"
+                                        android:textSize="14sp"
+                                        android:textStyle="bold"
+                                        android:textColor="@color/textPrimary"
+                                        android:layout_marginBottom="4dp" />
+
+                                    <com.google.android.material.textfield.TextInputLayout
+                                        android:id="@+id/height_input_layout"
+                                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                                         android:layout_width="match_parent"
                                         android:layout_height="wrap_content"
-                                        android:inputType="numberDecimal"
-                                        android:maxLength="5"
-                                        android:textColor="@color/textPrimary" />
+                                        android:hint="cm"
+                                        app:boxBackgroundColor="#10FFFFFF"
+                                        app:boxStrokeColor="@color/colorPrimaryGradientStart"
+                                        app:hintTextColor="@color/colorPrimaryGradientStart"
+                                        app:suffixText="cm"
+                                        app:suffixTextColor="@color/textSecondary">
 
-                                </com.google.android.material.textfield.TextInputLayout>
+                                        <com.google.android.material.textfield.TextInputEditText
+                                            android:id="@+id/height_edit_text"
+                                            android:layout_width="match_parent"
+                                            android:layout_height="wrap_content"
+                                            android:inputType="numberDecimal"
+                                            android:maxLength="5"
+                                            android:textColor="@color/textPrimary"
+                                            android:contentDescription="Enter your height in centimeters" />
 
-                                <!-- Weight -->
-                                <com.google.android.material.textfield.TextInputLayout
-                                    android:id="@+id/weight_input_layout"
-                                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                                    </com.google.android.material.textfield.TextInputLayout>
+
+                                </LinearLayout>
+
+                                <!-- Weight Section -->
+                                <LinearLayout
                                     android:layout_width="0dp"
                                     android:layout_height="wrap_content"
                                     android:layout_weight="1"
                                     android:layout_marginStart="8dp"
-                                    android:hint="Weight (kg)"
-                                    app:boxBackgroundColor="#10FFFFFF"
-                                    app:boxStrokeColor="@color/colorPrimaryGradientStart"
-                                    app:hintTextColor="@color/colorPrimaryGradientStart">
+                                    android:orientation="vertical">
 
-                                    <com.google.android.material.textfield.TextInputEditText
-                                        android:id="@+id/weight_edit_text"
+                                    <TextView
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:text="Weight"
+                                        android:textSize="14sp"
+                                        android:textStyle="bold"
+                                        android:textColor="@color/textPrimary"
+                                        android:layout_marginBottom="4dp" />
+
+                                    <com.google.android.material.textfield.TextInputLayout
+                                        android:id="@+id/weight_input_layout"
+                                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                                         android:layout_width="match_parent"
                                         android:layout_height="wrap_content"
-                                        android:inputType="numberDecimal"
-                                        android:maxLength="5"
-                                        android:textColor="@color/textPrimary" />
+                                        android:hint="kg"
+                                        app:boxBackgroundColor="#10FFFFFF"
+                                        app:boxStrokeColor="@color/colorPrimaryGradientStart"
+                                        app:hintTextColor="@color/colorPrimaryGradientStart"
+                                        app:suffixText="kg"
+                                        app:suffixTextColor="@color/textSecondary">
 
-                                </com.google.android.material.textfield.TextInputLayout>
+                                        <com.google.android.material.textfield.TextInputEditText
+                                            android:id="@+id/weight_edit_text"
+                                            android:layout_width="match_parent"
+                                            android:layout_height="wrap_content"
+                                            android:inputType="numberDecimal"
+                                            android:maxLength="5"
+                                            android:textColor="@color/textPrimary"
+                                            android:contentDescription="Enter your weight in kilograms" />
+
+                                    </com.google.android.material.textfield.TextInputLayout>
+
+                                </LinearLayout>
 
                             </LinearLayout>
 
-                        </LinearLayout>
-
-                    </FrameLayout>
-
-                </androidx.cardview.widget.CardView>
-
-                <!-- Action Buttons Card -->
-                <androidx.cardview.widget.CardView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_margin="@dimen/content_padding_medium"
-                    app:cardBackgroundColor="@android:color/transparent"
-                    app:cardCornerRadius="@dimen/corner_radius_large"
-                    app:cardElevation="@dimen/card_elevation_small">
-
-                    <FrameLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:background="@drawable/glassmorphism_card_background">
-
-                        <LinearLayout
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:orientation="horizontal"
-                            android:padding="@dimen/content_padding_medium"
-                            android:weightSum="2">
-
-                            <!-- Cancel Button -->
-                            <com.google.android.material.button.MaterialButton
-                                android:id="@+id/cancel_button"
-                                android:layout_width="0dp"
-                                android:layout_height="56dp"
-                                android:layout_weight="1"
-                                android:layout_marginEnd="8dp"
-                                android:text="Cancel"
-                                android:textSize="16sp"
-                                style="@style/Widget.Material3.Button.OutlinedButton"
-                                app:strokeColor="@color/colorPrimaryGradientStart"
-                                app:strokeWidth="2dp"
-                                android:textColor="@color/colorPrimaryGradientStart" />
-
-                            <!-- Save Button -->
-                            <com.google.android.material.button.MaterialButton
-                                android:id="@+id/save_button"
-                                android:layout_width="0dp"
-                                android:layout_height="56dp"
-                                android:layout_weight="1"
-                                android:layout_marginStart="8dp"
-                                android:text="Save Changes"
-                                android:textSize="16sp"
-                                app:backgroundTint="@color/colorPrimaryGradientStart" />
 
                         </LinearLayout>
 

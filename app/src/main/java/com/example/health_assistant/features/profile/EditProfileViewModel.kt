@@ -6,179 +6,462 @@ import androidx.lifecycle.viewModelScope
 import com.example.health_assistant.core.util.Result
 import com.example.health_assistant.data.repository.interfaces.UserProfile
 import com.example.health_assistant.data.repository.interfaces.UserProfileRepository
+import com.example.health_assistant.features.profile.data.ProfileFieldMapper
+import com.example.health_assistant.features.profile.data.ProfileImageManager
+import com.example.health_assistant.features.profile.state.*
+import com.example.health_assistant.features.profile.validation.ProfileValidationRules
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
+import java.text.SimpleDateFormat
+import java.util.*
 import javax.inject.Inject
 
 /**
- * ViewModel for Edit Profile functionality
- * Handles profile loading, validation, and saving with proper error handling
+ * Enhanced ViewModel for Edit Profile functionality with comprehensive state management
+ * Provides reactive UI updates, real-time validation, and robust error handling
  */
 @HiltViewModel
 class EditProfileViewModel @Inject constructor(
-    private val userProfileRepository: UserProfileRepository
+    private val userProfileRepository: UserProfileRepository,
+    private val profileImageManager: ProfileImageManager
 ) : ViewModel() {
 
-    // Profile loading state
-    private val _profileState = MutableStateFlow<ProfileState>(ProfileState.Loading)
-    val profileState: StateFlow<ProfileState> = _profileState.asStateFlow()
+    // Date formatters
+    private val isoDateFormatter = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+    private val displayDateFormatter = SimpleDateFormat("MMM dd, yyyy", Locale.getDefault())
 
-    // Save operation state
-    private val _saveState = MutableStateFlow<SaveState>(SaveState.Idle)
-    val saveState: StateFlow<SaveState> = _saveState.asStateFlow()
+    // Internal mutable state flows
+    private val _uiState = MutableStateFlow<EditProfileUiState>(EditProfileUiState.Initial)
+    private val _saveState = MutableStateFlow<SaveOperationState>(SaveOperationState.Idle)
+    private val _photoUploadState = MutableStateFlow<PhotoUploadState>(PhotoUploadState.Idle)
+    private val _formState = MutableStateFlow(FormState())
+    private val _loadingState = MutableStateFlow(LoadingState())
 
-    // Validation errors
-    private val _validationErrors = MutableStateFlow<Map<String, String>>(emptyMap())
-    val validationErrors: StateFlow<Map<String, String>> = _validationErrors.asStateFlow()
+    // Field validation states
+    private val _displayNameValidation = MutableStateFlow<FieldValidationState>(FieldValidationState.Idle)
+    private val _birthdayValidation = MutableStateFlow<FieldValidationState>(FieldValidationState.Idle)
+    private val _genderValidation = MutableStateFlow<FieldValidationState>(FieldValidationState.Idle)
+    private val _heightValidation = MutableStateFlow<FieldValidationState>(FieldValidationState.Idle)
+    private val _weightValidation = MutableStateFlow<FieldValidationState>(FieldValidationState.Idle)
 
-    // Current profile data
-    private var currentProfile: UserProfile? = null
-
-    // Photo URL state
+    // Current form data
+    private val _currentDisplayName = MutableStateFlow("")
+    private val _currentBirthday = MutableStateFlow<String?>(null)
+    private val _currentGender = MutableStateFlow<String?>(null)
+    private val _currentHeight = MutableStateFlow<String?>(null)
+    private val _currentWeight = MutableStateFlow<String?>(null)
     private val _currentPhotoUrl = MutableStateFlow<String?>(null)
+
+    // Original profile data for change detection
+    private var originalProfile: ProfileData? = null
+
+    // Public exposed state flows
+    val uiState: StateFlow<EditProfileUiState> = _uiState.asStateFlow()
+    val saveState: StateFlow<SaveOperationState> = _saveState.asStateFlow()
+    val photoUploadState: StateFlow<PhotoUploadState> = _photoUploadState.asStateFlow()
+    val formState: StateFlow<FormState> = _formState.asStateFlow()
+    val loadingState: StateFlow<LoadingState> = _loadingState.asStateFlow()
+
+    // Field validation states
+    val displayNameValidation: StateFlow<FieldValidationState> = _displayNameValidation.asStateFlow()
+    val birthdayValidation: StateFlow<FieldValidationState> = _birthdayValidation.asStateFlow()
+    val genderValidation: StateFlow<FieldValidationState> = _genderValidation.asStateFlow()
+    val heightValidation: StateFlow<FieldValidationState> = _heightValidation.asStateFlow()
+    val weightValidation: StateFlow<FieldValidationState> = _weightValidation.asStateFlow()
+
+    // Current form data
+    val currentDisplayName: StateFlow<String> = _currentDisplayName.asStateFlow()
+    val currentBirthday: StateFlow<String?> = _currentBirthday.asStateFlow()
+    val currentGender: StateFlow<String?> = _currentGender.asStateFlow()
+    val currentHeight: StateFlow<String?> = _currentHeight.asStateFlow()
+    val currentWeight: StateFlow<String?> = _currentWeight.asStateFlow()
     val currentPhotoUrl: StateFlow<String?> = _currentPhotoUrl.asStateFlow()
 
+    init {
+        // Monitor form changes for validation
+        setupFormChangeMonitoring()
+    }
+
     /**
-     * Load current user profile
+     * Load current user profile with enhanced error handling
      */
     fun loadProfile() {
         viewModelScope.launch {
-            _profileState.value = ProfileState.Loading
+            _loadingState.value = _loadingState.value.copy(isLoadingProfile = true)
+            _uiState.value = EditProfileUiState.Loading
 
             when (val result = userProfileRepository.getUserProfile()) {
                 is Result.Success -> {
                     if (result.data != null) {
-                        currentProfile = result.data
-                        _currentPhotoUrl.value = result.data.photoUrl
-                        _profileState.value = ProfileState.Success(result.data)
+                        val profileData = ProfileFieldMapper.mapUserProfileToProfileData(result.data)
+                        originalProfile = profileData
+
+                        // Load local photo if available
+                        val localPhotoPath = profileImageManager.getProfileImagePath(result.data.userId)
+                        val updatedProfileData = if (localPhotoPath != null) {
+                            profileData.copy(photoUrl = localPhotoPath)
+                        } else {
+                            profileData
+                        }
+
+                        populateFormFields(updatedProfileData)
+                        _uiState.value = EditProfileUiState.Success(updatedProfileData)
                     } else {
-                        _profileState.value = ProfileState.Error("Profile not found")
+                        _uiState.value = EditProfileUiState.Error(
+                            "Profile not found. Please try again.",
+                            ErrorCause.UNKNOWN
+                        )
                     }
                 }
                 is Result.Error -> {
-                    _profileState.value = ProfileState.Error(result.message ?: "Failed to load profile")
+                    _uiState.value = EditProfileUiState.Error(
+                        result.message ?: "Failed to load profile. Please check your connection.",
+                        ErrorCause.NETWORK
+                    )
                 }
                 is Result.Loading -> {
-                    _profileState.value = ProfileState.Loading
+                    // Already handled in loading state
                 }
+            }
+
+            _loadingState.value = _loadingState.value.copy(isLoadingProfile = false)
+        }
+    }
+
+    /**
+     * Update display name with real-time validation
+     */
+    fun updateDisplayName(displayName: String) {
+        _currentDisplayName.value = displayName
+        validateFieldRealTime(ProfileField.DISPLAY_NAME, displayName)
+        updateFormState()
+    }
+
+    /**
+     * Update birthday with validation
+     */
+    fun updateBirthday(birthday: String?, isoFormat: String? = null) {
+        _currentBirthday.value = isoFormat ?: birthday
+        validateFieldRealTime(ProfileField.BIRTHDAY, birthday ?: "")
+        updateFormState()
+    }
+
+    /**
+     * Update gender with validation
+     */
+    fun updateGender(gender: String?) {
+        _currentGender.value = gender
+        validateFieldRealTime(ProfileField.GENDER, gender ?: "")
+        updateFormState()
+    }
+
+    /**
+     * Update height with validation
+     */
+    fun updateHeight(height: String?) {
+        _currentHeight.value = height
+        validateFieldRealTime(ProfileField.HEIGHT, height ?: "")
+        updateFormState()
+    }
+
+    /**
+     * Update weight with validation
+     */
+    fun updateWeight(weight: String?) {
+        _currentWeight.value = weight
+        validateFieldRealTime(ProfileField.WEIGHT, weight ?: "")
+        updateFormState()
+    }
+
+    /**
+     * Update profile photo with Room integration for persistence
+     */
+    fun updateProfilePhoto(uri: Uri) {
+        viewModelScope.launch {
+            _photoUploadState.value = PhotoUploadState.Uploading
+            _loadingState.value = _loadingState.value.copy(isUploadingPhoto = true)
+
+            try {
+                val currentProfileState = _uiState.value
+                if (currentProfileState !is EditProfileUiState.Success) {
+                    _photoUploadState.value = PhotoUploadState.Error(
+                        "Profile not loaded. Please try again.",
+                        retryable = true
+                    )
+                    return@launch
+                }
+
+                // Save image using ProfileImageManager
+                when (val result = profileImageManager.saveProfileImage(currentProfileState.profile.userId, uri)) {
+                    is ProfileImageManager.Result.Success -> {
+                        _currentPhotoUrl.value = result.data
+                        _photoUploadState.value = PhotoUploadState.Success(result.data)
+                        updateFormState()
+                    }
+                    is ProfileImageManager.Result.Error -> {
+                        _photoUploadState.value = PhotoUploadState.Error(
+                            result.message,
+                            retryable = true
+                        )
+                    }
+                }
+            } catch (e: Exception) {
+                _photoUploadState.value = PhotoUploadState.Error(
+                    "Failed to process image. Please try again.",
+                    retryable = true
+                )
+            } finally {
+                _loadingState.value = _loadingState.value.copy(isUploadingPhoto = false)
             }
         }
     }
 
     /**
-     * Update profile photo URI
-     * For now stores as string, will be enhanced with Room integration
+     * Save profile with comprehensive validation and error handling
      */
-    fun updateProfilePhoto(uri: Uri) {
-        _currentPhotoUrl.value = uri.toString()
-    }
-
-    /**
-     * Save profile with validation
-     */
-    fun saveProfile(
-        displayName: String,
-        birthday: String?,
-        gender: String?,
-        height: Float?,
-        weight: Float?
-    ) {
-        // Clear previous validation errors
-        _validationErrors.value = emptyMap()
-
-        // Validate input
-        val errors = validateInput(displayName, birthday, gender, height, weight)
-        if (errors.isNotEmpty()) {
-            _validationErrors.value = errors
-            return
-        }
-
-        // Save if validation passes
+    fun saveProfile() {
         viewModelScope.launch {
-            _saveState.value = SaveState.Saving
+            _saveState.value = SaveOperationState.Saving
+            _loadingState.value = _loadingState.value.copy(isSaving = true)
 
-            val profile = currentProfile
-            if (profile == null) {
-                _saveState.value = SaveState.Error("Profile not loaded")
+            // Final validation before save
+            val validationErrors = ProfileValidationRules.validateAllFields(
+                _currentDisplayName.value,
+                _currentBirthday.value,
+                _currentGender.value,
+                _currentHeight.value,
+                _currentWeight.value
+            )
+
+            if (validationErrors.isNotEmpty()) {
+                _formState.value = _formState.value.copy(validationErrors = validationErrors)
+                _saveState.value = SaveOperationState.Error(
+                    "Please fix the errors before saving",
+                    SaveErrorCause.VALIDATION,
+                    retryable = false
+                )
+                _loadingState.value = _loadingState.value.copy(isSaving = false)
+                return@launch
+            }
+
+            val currentProfileState = _uiState.value
+            if (currentProfileState !is EditProfileUiState.Success) {
+                _saveState.value = SaveOperationState.Error(
+                    "Profile data not available. Please refresh and try again.",
+                    SaveErrorCause.UNKNOWN
+                )
+                _loadingState.value = _loadingState.value.copy(isSaving = false)
                 return@launch
             }
 
             // Create updated profile
-            val updatedProfile = profile.copy(
-                displayName = displayName.takeIf { it.isNotBlank() },
-                birthday = birthday,
-                gender = gender,
-                height = height,
-                weight = weight,
+            val updatedProfile = currentProfileState.profile.copy(
+                displayName = _currentDisplayName.value.trim(),
+                birthday = _currentBirthday.value,
+                gender = Gender.fromString(_currentGender.value),
+                height = _currentHeight.value?.toFloatOrNull(),
+                weight = _currentWeight.value?.toFloatOrNull(),
                 photoUrl = _currentPhotoUrl.value,
-                isProfileComplete = true // Mark as complete when user saves
+                isProfileComplete = true
             )
 
+            // Convert to UserProfile for repository
+            val userProfile = mapProfileDataToUserProfile(updatedProfile)
+
             // Save to repository
-            when (val result = userProfileRepository.updateUserProfileInFirestore(updatedProfile)) {
+            when (val result = userProfileRepository.updateUserProfileInFirestore(userProfile)) {
                 is Result.Success -> {
-                    // Also update local storage
-                    userProfileRepository.saveUserProfile(profile.userId, profile.email)
-                    _saveState.value = SaveState.Success
+                    // Update local storage
+                    userProfileRepository.saveUserProfile(updatedProfile.userId, updatedProfile.email)
+                    originalProfile = updatedProfile
+                    _saveState.value = SaveOperationState.Success
+                    updateFormState() // Reset hasChanges flag
                 }
                 is Result.Error -> {
-                    _saveState.value = SaveState.Error(result.message ?: "Failed to save profile")
+                    val errorCause = when {
+                        result.message?.contains("network", ignoreCase = true) == true -> SaveErrorCause.NETWORK
+                        result.message?.contains("auth", ignoreCase = true) == true -> SaveErrorCause.AUTHENTICATION
+                        result.message?.contains("firestore", ignoreCase = true) == true -> SaveErrorCause.FIRESTORE
+                        else -> SaveErrorCause.UNKNOWN
+                    }
+                    _saveState.value = SaveOperationState.Error(
+                        result.message ?: "Failed to save profile. Please try again.",
+                        errorCause
+                    )
                 }
                 is Result.Loading -> {
-                    // Already in saving state
+                    // Already handled in saving state
                 }
+            }
+
+            _loadingState.value = _loadingState.value.copy(isSaving = false)
+        }
+    }
+
+    /**
+     * Reset save state to idle
+     */
+    fun resetSaveState() {
+        _saveState.value = SaveOperationState.Idle
+    }
+
+    /**
+     * Check if form has unsaved changes
+     */
+    fun hasUnsavedChanges(): Boolean {
+        val original = originalProfile ?: return false
+
+        return _currentDisplayName.value != original.displayName ||
+               _currentBirthday.value != original.birthday ||
+               _currentGender.value != original.gender?.name ||
+               _currentHeight.value != original.height?.toString() ||
+               _currentWeight.value != original.weight?.toString() ||
+               _currentPhotoUrl.value != original.photoUrl
+    }
+
+    /**
+     * Setup monitoring of form fields for real-time validation
+     */
+    private fun setupFormChangeMonitoring() {
+        // Combine latest values from all form fields
+        combine(
+            _currentDisplayName,
+            _currentBirthday,
+            _currentGender,
+            _currentHeight,
+            _currentWeight
+        ) { displayName, birthday, gender, height, weight ->
+            // Validate each field individually
+            validateFieldRealTime(ProfileField.DISPLAY_NAME, displayName)
+            validateFieldRealTime(ProfileField.BIRTHDAY, birthday ?: "")
+            validateFieldRealTime(ProfileField.GENDER, gender ?: "")
+            validateFieldRealTime(ProfileField.HEIGHT, height ?: "")
+            validateFieldRealTime(ProfileField.WEIGHT, weight ?: "")
+        }.launchIn(viewModelScope)
+    }
+
+    /**
+     * Validate a specific field in real-time
+     */
+    private fun validateFieldRealTime(field: ProfileField, value: String) {
+        val validationState = when (field) {
+            ProfileField.DISPLAY_NAME -> {
+                if (value.isBlank()) {
+                    FieldValidationState.Error("Display name is required")
+                } else if (value.length < 2) {
+                    FieldValidationState.Error("Display name must be at least 2 characters")
+                } else if (value.length > 50) {
+                    FieldValidationState.Error("Display name must be less than 50 characters")
+                } else {
+                    FieldValidationState.Valid
+                }
+            }
+            ProfileField.BIRTHDAY -> {
+                if (value.isBlank()) {
+                    FieldValidationState.Valid // Optional field, no error if blank
+                } else if (!isValidDate(value)) {
+                    FieldValidationState.Error("Invalid date format")
+                } else if (!isReasonableAge(value)) {
+                    FieldValidationState.Error("Please enter a valid birth date")
+                } else {
+                    FieldValidationState.Valid
+                }
+            }
+            ProfileField.GENDER -> {
+                if (value.isBlank()) {
+                    FieldValidationState.Error("Gender is required")
+                } else {
+                    FieldValidationState.Valid
+                }
+            }
+            ProfileField.HEIGHT -> {
+                if (value.isBlank()) {
+                    FieldValidationState.Valid // Optional field, no error if blank
+                } else {
+                    val heightValue = value.toFloatOrNull()
+                    if (heightValue == null || heightValue < 50f || heightValue > 300f) {
+                        FieldValidationState.Error("Height must be between 50 and 300 cm")
+                    } else {
+                        FieldValidationState.Valid
+                    }
+                }
+            }
+            ProfileField.WEIGHT -> {
+                if (value.isBlank()) {
+                    FieldValidationState.Valid // Optional field, no error if blank
+                } else {
+                    val weightValue = value.toFloatOrNull()
+                    if (weightValue == null || weightValue < 20f || weightValue > 500f) {
+                        FieldValidationState.Error("Weight must be between 20 and 500 kg")
+                    } else {
+                        FieldValidationState.Valid
+                    }
+                }
+            }
+            ProfileField.PHOTO -> {
+                // Photo validation is handled separately in updateProfilePhoto
+                FieldValidationState.Valid
+            }
+        }
+
+        // Update the corresponding validation state flow
+        when (field) {
+            ProfileField.DISPLAY_NAME -> _displayNameValidation.value = validationState
+            ProfileField.BIRTHDAY -> _birthdayValidation.value = validationState
+            ProfileField.GENDER -> _genderValidation.value = validationState
+            ProfileField.HEIGHT -> _heightValidation.value = validationState
+            ProfileField.WEIGHT -> _weightValidation.value = validationState
+            ProfileField.PHOTO -> {
+                // Photo validation state is handled in photoUploadState
             }
         }
     }
 
     /**
-     * Validate user input with comprehensive rules
+     * Update form state based on current values and validation results
      */
-    private fun validateInput(
-        displayName: String,
-        birthday: String?,
-        gender: String?,
-        height: Float?,
-        weight: Float?
-    ): Map<String, String> {
-        val errors = mutableMapOf<String, String>()
+    private fun updateFormState() {
+        _formState.value = _formState.value.copy(
+            hasChanges = hasUnsavedChanges(),
+            isValid = true, // Will be updated based on validation results
+            isDirty = hasUnsavedChanges(),
+            validationErrors = emptyMap() // Reset errors on valid change
+        )
+    }
 
-        // Display name validation
-        if (displayName.isBlank()) {
-            errors["displayName"] = "Display name is required"
-        } else if (displayName.length < 2) {
-            errors["displayName"] = "Display name must be at least 2 characters"
-        } else if (displayName.length > 50) {
-            errors["displayName"] = "Display name must be less than 50 characters"
-        }
+    /**
+     * Map UserProfile to ProfileData for internal representation
+     */
+    private fun mapUserProfileToProfileData(userProfile: UserProfile): ProfileData {
+        return ProfileData(
+            userId = userProfile.userId,
+            email = userProfile.email,
+            displayName = userProfile.displayName ?: "",
+            birthday = userProfile.birthday,
+            gender = Gender.fromString(userProfile.gender),
+            height = userProfile.height,
+            weight = userProfile.weight,
+            photoUrl = userProfile.photoUrl,
+            isProfileComplete = userProfile.isProfileComplete
+        )
+    }
 
-        // Birthday validation (optional but if provided must be valid)
-        birthday?.let { birthdayStr ->
-            if (!isValidDate(birthdayStr)) {
-                errors["birthday"] = "Invalid date format"
-            } else if (!isReasonableAge(birthdayStr)) {
-                errors["birthday"] = "Please enter a valid birth date"
-            }
-        }
-
-        // Height validation (optional but if provided must be reasonable)
-        height?.let { h ->
-            if (h < 50f || h > 300f) {
-                errors["height"] = "Height must be between 50 and 300 cm"
-            }
-        }
-
-        // Weight validation (optional but if provided must be reasonable)
-        weight?.let { w ->
-            if (w < 20f || w > 500f) {
-                errors["weight"] = "Weight must be between 20 and 500 kg"
-            }
-        }
-
-        return errors
+    /**
+     * Map ProfileData to UserProfile for repository operations
+     */
+    private fun mapProfileDataToUserProfile(profileData: ProfileData): UserProfile {
+        return UserProfile(
+            userId = profileData.userId,
+            email = profileData.email,
+            displayName = profileData.displayName.takeIf { it.isNotBlank() },
+            birthday = profileData.birthday,
+            gender = profileData.gender?.name,
+            height = profileData.height,
+            weight = profileData.weight,
+            photoUrl = profileData.photoUrl,
+            isProfileComplete = profileData.isProfileComplete
+        )
     }
 
     /**
@@ -206,7 +489,7 @@ class EditProfileViewModel @Inject constructor(
         return try {
             val parts = dateString.split("-")
             val birthYear = parts[0].toInt()
-            val currentYear = java.time.Year.now().value
+            val currentYear = Calendar.getInstance().get(Calendar.YEAR)
             val age = currentYear - birthYear
 
             age in 5..120
@@ -216,25 +499,14 @@ class EditProfileViewModel @Inject constructor(
     }
 
     /**
-     * Reset save state to idle
+     * Populate form fields with profile data
      */
-    fun resetSaveState() {
-        _saveState.value = SaveState.Idle
-    }
-
-    /**
-     * Sealed classes for state management
-     */
-    sealed class ProfileState {
-        object Loading : ProfileState()
-        data class Success(val profile: UserProfile) : ProfileState()
-        data class Error(val message: String) : ProfileState()
-    }
-
-    sealed class SaveState {
-        object Idle : SaveState()
-        object Saving : SaveState()
-        object Success : SaveState()
-        data class Error(val message: String) : SaveState()
+    private fun populateFormFields(profileData: ProfileData) {
+        _currentDisplayName.value = profileData.displayName
+        _currentBirthday.value = profileData.birthday
+        _currentGender.value = profileData.gender?.name
+        _currentHeight.value = profileData.height?.toString()
+        _currentWeight.value = profileData.weight?.toString()
+        _currentPhotoUrl.value = profileData.photoUrl
     }
 }
