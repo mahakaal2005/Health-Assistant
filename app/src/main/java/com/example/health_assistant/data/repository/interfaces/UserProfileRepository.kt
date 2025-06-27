@@ -45,6 +45,25 @@ interface UserProfileRepository {
      * @return Result containing user profile or error
      */
     suspend fun getUserProfile(): Result<UserProfile?>
+
+    /**
+     * Update personal health information
+     * @param personalHealthInfo Personal health data to save
+     * @return Result indicating success or failure
+     */
+    suspend fun updatePersonalHealthInfo(personalHealthInfo: PersonalHealthInfo): Result<Unit>
+
+    /**
+     * Mark user profile as complete
+     * @return Result indicating success or failure
+     */
+    suspend fun markProfileComplete(): Result<Unit>
+
+    /**
+     * Check if user profile is complete
+     * @return Result containing boolean indicating if profile is complete
+     */
+    suspend fun isProfileComplete(): Result<Boolean>
 }
 
 /**
@@ -55,5 +74,21 @@ data class UserProfile(
     val email: String,
     val displayName: String? = null,
     val photoUrl: String? = null,
-    val createdAt: Long = System.currentTimeMillis()
+    val createdAt: Long = System.currentTimeMillis(),
+    // Personal health information
+    val gender: String? = null,
+    val height: Float? = null, // in cm
+    val weight: Float? = null, // in kg
+    val birthday: String? = null, // ISO date format (YYYY-MM-DD)
+    val isProfileComplete: Boolean = false
+)
+
+/**
+ * Data class for updating personal health information
+ */
+data class PersonalHealthInfo(
+    val gender: String,
+    val height: Float, // in cm
+    val weight: Float, // in kg
+    val birthday: String // ISO date format (YYYY-MM-DD)
 )

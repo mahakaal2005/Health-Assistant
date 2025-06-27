@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="200dp"
+    android:height="150dp"
+    android:viewportWidth="200"
+    android:viewportHeight="150">
+
+    <!-- Background circle -->
+    <path
+        android:fillColor="#FFF3E0"
+        android:pathData="M100,75m-70,0a70,70 0,1 1,140 0a70,70 0,1 1,-140 0" />
+
+    <!-- Person figure -->
+    <!-- Head (using path instead of circle) -->
+    <path
+        android:fillColor="#FFA726"
+        android:pathData="M100,28a12,12 0,1 1,0 24a12,12 0,1 1,0 -24z" />
+
+    <!-- Body -->
+    <path
+        android:fillColor="#FFA726"
+        android:pathData="M88,52 L112,52 L110,85 L90,85 Z" />
+
+    <!-- Arms -->
+    <path
+        android:fillColor="#FFA726"
+        android:pathData="M78,60 L88,55 L90,70 L80,75 Z" />
+    <path
+        android:fillColor="#FFA726"
+        android:pathData="M112,55 L122,60 L120,75 L110,70 Z" />
+
+    <!-- Legs -->
+    <path
+        android:fillColor="#FFA726"
+        android:pathData="M90,85 L95,115 L85,115 L80,85 Z" />
+    <path
+        android:fillColor="#FFA726"
+        android:pathData="M110,85 L120,85 L115,115 L105,115 Z" />
+
+    <!-- Dumbbells (using path instead of circles) -->
+    <path
+        android:fillColor="#757575"
+        android:pathData="M75,61a4,4 0,1 1,0 8a4,4 0,1 1,0 -8z" />
+    <path
+        android:fillColor="#757575"
+        android:pathData="M125,61a4,4 0,1 1,0 8a4,4 0,1 1,0 -8z" />
+
+    <!-- Motion lines -->
+    <path
+        android:strokeColor="#FFB74D"
+        android:strokeWidth="2"
+        android:pathData="M65,50 Q70,45 75,50" />
+    <path
+        android:strokeColor="#FFB74D"
+        android:strokeWidth="2"
+        android:pathData="M125,50 Q130,45 135,50" />
+</vector>

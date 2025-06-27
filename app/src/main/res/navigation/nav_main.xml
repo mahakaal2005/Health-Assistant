@@ -109,4 +109,18 @@
             app:destination="@id/authActivity" />
     </fragment>
 
+    <!-- Complete Profile Fragment -->
+    <fragment
+        android:id="@+id/completeProfileFragment"
+        android:name="com.example.health_assistant.features.completeprofile.CompleteProfileFragment"
+        android:label="Complete Profile"
+        tools:layout="@layout/fragment_complete_profile">
+
+        <action
+            android:id="@+id/action_completeProfile_to_home"
+            app:destination="@id/homeFragment"
+            app:popUpTo="@id/nav_main"
+            app:popUpToInclusive="false" />
+    </fragment>
+
 </navigation>

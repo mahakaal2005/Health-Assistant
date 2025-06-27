@@ -147,6 +147,16 @@ class AuthViewModel @Inject constructor(
     fun isUserLoggedIn(): Boolean {
         return authRepository.isUserLoggedIn()
     }
+
+    /**
+     * Check if the current user's profile is complete
+     */
+    suspend fun isProfileComplete(): Boolean {
+        return when (val result = userProfileRepository.isProfileComplete()) {
+            is Result.Success -> result.data
+            else -> false
+        }
+    }
 }
 
 /**

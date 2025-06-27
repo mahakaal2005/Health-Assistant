@@ -9,6 +9,7 @@ import com.example.health_assistant.core.util.RetryUtil
 import com.example.health_assistant.core.util.safeSuspendCall
 import com.example.health_assistant.data.repository.interfaces.UserProfile
 import com.example.health_assistant.data.repository.interfaces.UserProfileRepository
+import com.example.health_assistant.data.repository.interfaces.PersonalHealthInfo
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
@@ -35,6 +36,12 @@ class DataStoreUserProfileRepository @Inject constructor(
         val DISPLAY_NAME = stringPreferencesKey("display_name")
         val PHOTO_URL = stringPreferencesKey("photo_url")
         val CREATED_AT = longPreferencesKey("created_at")
+        // Personal health information keys
+        val GENDER = stringPreferencesKey("gender")
+        val HEIGHT = floatPreferencesKey("height")
+        val WEIGHT = floatPreferencesKey("weight")
+        val BIRTHDAY = stringPreferencesKey("birthday")
+        val IS_PROFILE_COMPLETE = booleanPreferencesKey("is_profile_complete")
     }
 
     override fun getUserEmail(): Flow<Result<String?>> = dataStore.data
@@ -103,7 +110,12 @@ class DataStoreUserProfileRepository @Inject constructor(
                     email = email,
                     displayName = preferences[PreferencesKeys.DISPLAY_NAME],
                     photoUrl = preferences[PreferencesKeys.PHOTO_URL],
-                    createdAt = preferences[PreferencesKeys.CREATED_AT] ?: System.currentTimeMillis()
+                    createdAt = preferences[PreferencesKeys.CREATED_AT] ?: System.currentTimeMillis(),
+                    gender = preferences[PreferencesKeys.GENDER],
+                    height = preferences[PreferencesKeys.HEIGHT],
+                    weight = preferences[PreferencesKeys.WEIGHT],
+                    birthday = preferences[PreferencesKeys.BIRTHDAY],
+                    isProfileComplete = preferences[PreferencesKeys.IS_PROFILE_COMPLETE] ?: false
                 )
             } else {
                 null
@@ -111,5 +123,39 @@ class DataStoreUserProfileRepository @Inject constructor(
         }
 
         userProfile
+    }
+
+    override suspend fun updatePersonalHealthInfo(personalHealthInfo: PersonalHealthInfo): Result<Unit> =
+        safeSuspendCall {
+            RetryUtil.retryWithBackoff(
+                maxRetries = 2,
+                shouldRetry = { it is java.io.IOException }
+            ) {
+                dataStore.edit { preferences ->
+                    preferences[PreferencesKeys.GENDER] = personalHealthInfo.gender
+                    preferences[PreferencesKeys.HEIGHT] = personalHealthInfo.height
+                    preferences[PreferencesKeys.WEIGHT] = personalHealthInfo.weight
+                    preferences[PreferencesKeys.BIRTHDAY] = personalHealthInfo.birthday
+                }
+            }
+        }
+
+    override suspend fun markProfileComplete(): Result<Unit> = safeSuspendCall {
+        RetryUtil.retryWithBackoff(
+            maxRetries = 2,
+            shouldRetry = { it is java.io.IOException }
+        ) {
+            dataStore.edit { preferences ->
+                preferences[PreferencesKeys.IS_PROFILE_COMPLETE] = true
+            }
+        }
+    }
+
+    override suspend fun isProfileComplete(): Result<Boolean> = safeSuspendCall {
+        var isComplete = false
+        dataStore.data.collect { preferences ->
+            isComplete = preferences[PreferencesKeys.IS_PROFILE_COMPLETE] ?: false
+        }
+        isComplete
     }
 }

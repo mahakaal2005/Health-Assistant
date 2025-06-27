@@ -81,9 +81,28 @@
             app:destination="@id/loginFragment"
             app:popUpTo="@id/signUpFragment"
             app:popUpToInclusive="true" />
+        <!-- Action to navigate to complete profile after signup -->
+        <action
+            android:id="@+id/action_signUpFragment_to_completeProfile"
+            app:destination="@id/completeProfileFragment"
+            app:popUpTo="@id/nav_auth"
+            app:popUpToInclusive="true" />
         <!-- Updated to navigate to MainActivity instead of dashboardFragment -->
         <action
             android:id="@+id/action_signUpFragment_to_mainActivity"
+            app:destination="@id/mainActivity"
+            app:popUpTo="@id/nav_auth"
+            app:popUpToInclusive="true" />
+    </fragment>
+
+    <!-- Complete Profile Fragment for new users -->
+    <fragment
+        android:id="@+id/completeProfileFragment"
+        android:name="com.example.health_assistant.features.completeprofile.CompleteProfileFragment"
+        android:label="Complete Profile"
+        tools:layout="@layout/fragment_complete_profile">
+        <action
+            android:id="@+id/action_completeProfile_to_mainActivity"
             app:destination="@id/mainActivity"
             app:popUpTo="@id/nav_auth"
             app:popUpToInclusive="true" />

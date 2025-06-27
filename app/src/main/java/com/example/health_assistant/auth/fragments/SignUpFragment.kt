@@ -88,8 +88,8 @@ class SignUpFragment : Fragment() {
                 }
                 is AuthState.Success -> {
                     setLoadingState(false)
-                    // Navigate to dashboard on successful registration
-                    navigateToDashboard()
+                    // Check if profile is complete and navigate accordingly
+                    navigateAfterSuccessfulSignup()
                 }
                 is AuthState.Error -> {
                     setLoadingState(false)
@@ -136,6 +136,21 @@ class SignUpFragment : Fragment() {
         }
 
         return true
+    }
+
+    private fun navigateAfterSuccessfulSignup() {
+        try {
+            Log.d("SignUpFragment", "Checking profile completion status after successful signup")
+
+            // For new signups, the profile is always incomplete initially
+            // Navigate to complete profile screen
+            findNavController().navigate(R.id.action_signUpFragment_to_completeProfile)
+
+        } catch (e: Exception) {
+            Log.e("SignUpFragment", "Error navigating after signup", e)
+            // Fallback to dashboard if navigation fails
+            navigateToDashboard()
+        }
     }
 
     private fun navigateToDashboard() {

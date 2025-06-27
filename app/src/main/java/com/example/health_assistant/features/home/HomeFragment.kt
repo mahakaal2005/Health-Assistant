@@ -413,7 +413,7 @@ class HomeFragment : Fragment() {
      */
     private fun animateAlpha(view: View, fromAlpha: Float, toAlpha: Float, duration: Long, delay: Long) {
         view.alpha = fromAlpha
-        view.animate()
+         view.animate()
             .alpha(toAlpha)
             .setDuration(duration)
             .setStartDelay(delay)
