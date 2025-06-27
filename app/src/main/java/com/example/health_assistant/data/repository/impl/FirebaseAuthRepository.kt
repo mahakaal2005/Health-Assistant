@@ -4,6 +4,7 @@ import com.example.health_assistant.core.util.Result
 import com.example.health_assistant.core.util.RetryUtil
 import com.example.health_assistant.core.util.safeSuspendCall
 import com.example.health_assistant.data.repository.interfaces.AuthRepository
+import com.google.firebase.auth.EmailAuthProvider
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import kotlinx.coroutines.channels.awaitClose
@@ -106,6 +107,23 @@ class FirebaseAuthRepository @Inject constructor(
             ) {
                 currentUser.updatePassword(newPassword).await()
             }
+        } else {
+            throw IllegalStateException("No user is currently logged in")
+        }
+    }
+
+    /**
+     * Re-authenticates the user with the given email and password, required for sensitive operations like account deletion.
+     *
+     * @param email The email of the user.
+     * @param password The password of the user.
+     * @return Result indicating success or failure.
+     */
+    override suspend fun reauthenticateUser(email: String, password: String): Result<Unit> = safeSuspendCall {
+        val currentUser = firebaseAuth.currentUser
+        if (currentUser != null) {
+            val credential = EmailAuthProvider.getCredential(email, password)
+            currentUser.reauthenticate(credential).await()
         } else {
             throw IllegalStateException("No user is currently logged in")
         }

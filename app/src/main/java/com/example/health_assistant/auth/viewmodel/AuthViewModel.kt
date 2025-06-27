@@ -51,7 +51,7 @@ class AuthViewModel @Inject constructor(
      * Register a new user with email and password
      * Creates user profile in both local DataStore and Firestore
      */
-    fun registerUser(email: String, password: String) {
+    fun registerUser(email: String, password: String, displayName: String) {
         _authState.value = AuthState.Loading
 
         viewModelScope.launch {
@@ -59,11 +59,11 @@ class AuthViewModel @Inject constructor(
             when (result) {
                 is Result.Success -> {
                     result.data?.let { user ->
-                        // Create complete user profile for Firestore
+                        // Create complete user profile for Firestore with provided displayName
                         val userProfile = UserProfile(
                             userId = user.uid,
                             email = user.email ?: email,
-                            displayName = user.displayName,
+                            displayName = displayName.takeIf { it.isNotBlank() } ?: user.displayName,
                             photoUrl = user.photoUrl?.toString(),
                             createdAt = System.currentTimeMillis(),
                             isProfileComplete = false
@@ -198,6 +198,78 @@ class AuthViewModel @Inject constructor(
         return when (val result = userProfileRepository.isProfileComplete()) {
             is Result.Success -> result.data
             else -> false
+        }
+    }
+
+    /**
+     * Delete the current user's account
+     */
+    suspend fun deleteAccount(): Result<Unit> {
+        return authRepository.deleteAccount()
+    }
+
+    /**
+     * Re-authenticate the current user with their credentials
+     * Required before performing sensitive operations like account deletion
+     */
+    suspend fun reauthenticateUser(email: String, password: String): Result<Unit> {
+        return authRepository.reauthenticateUser(email, password)
+    }
+
+    /**
+     * Delete account with automatic re-authentication
+     * This method handles the re-authentication flow automatically and deletes user data from both Firestore and Authentication
+     */
+    suspend fun deleteAccountWithReauth(email: String, password: String): Result<Unit> {
+        // First, re-authenticate the user
+        val reauthResult = reauthenticateUser(email, password)
+
+        return when (reauthResult) {
+            is Result.Success -> {
+                // Re-authentication successful, get user ID before deletion
+                val currentUser = com.google.firebase.auth.FirebaseAuth.getInstance().currentUser
+                val userId = currentUser?.uid
+
+                if (userId == null) {
+                    return Result.Error(message = "Unable to get user ID for account deletion", exception = IllegalStateException("User ID is null"))
+                }
+
+                // Step 1: Delete user profile from Firestore first
+                val firestoreDeleteResult = userProfileRepository.deleteUserProfileFromFirestore(userId)
+
+                // Step 2: Clear local profile data
+                userProfileRepository.clearUserProfile()
+
+                // Step 3: Delete the authentication account (even if Firestore deletion fails)
+                val authDeleteResult = deleteAccount()
+
+                when (authDeleteResult) {
+                    is Result.Success -> {
+                        // Account deletion successful
+                        if (firestoreDeleteResult is Result.Error) {
+                            // Log Firestore deletion failure but don't fail the entire operation
+                            android.util.Log.w("AuthViewModel", "Firestore profile deletion failed but auth deletion succeeded: ${firestoreDeleteResult.message}")
+                        }
+                        Result.Success(Unit)
+                    }
+                    is Result.Error -> {
+                        // Authentication deletion failed
+                        Result.Error(message = "Account deletion failed: ${authDeleteResult.message}", exception = authDeleteResult.exception)
+                    }
+                    is Result.Loading -> {
+                        // This shouldn't happen with suspend functions
+                        Result.Error(message = "Unexpected loading state during account deletion", exception = IllegalStateException("Unexpected loading state"))
+                    }
+                }
+            }
+            is Result.Error -> {
+                // Re-authentication failed
+                Result.Error(message = "Re-authentication failed: ${reauthResult.message}", exception = reauthResult.exception)
+            }
+            is Result.Loading -> {
+                // This shouldn't happen with suspend functions
+                Result.Error(message = "Unexpected loading state during re-authentication", exception = IllegalStateException("Unexpected loading state"))
+            }
         }
     }
 }

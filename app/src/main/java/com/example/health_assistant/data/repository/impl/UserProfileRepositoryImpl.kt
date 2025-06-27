@@ -325,6 +325,19 @@ class UserProfileRepositoryImpl @Inject constructor(
         }
     }
 
+    override suspend fun deleteUserProfileFromFirestore(userId: String): Result<Unit> {
+        return try {
+            firestore.collection(USERS_COLLECTION)
+                .document(userId)
+                .delete()
+                .await()
+
+            Result.Success(Unit)
+        } catch (e: Exception) {
+            Result.Error(e, "Failed to delete user profile from Firestore")
+        }
+    }
+
     // ==================== PRIVATE HELPER METHODS ====================
 
     /**

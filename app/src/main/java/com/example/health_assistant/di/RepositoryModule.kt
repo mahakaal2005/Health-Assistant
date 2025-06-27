@@ -1,6 +1,6 @@
 package com.example.health_assistant.di
 
-import com.example.health_assistant.data.repository.impl.FirebaseAuthRepositoryImpl
+import com.example.health_assistant.data.repository.impl.FirebaseAuthRepository
 import com.example.health_assistant.data.repository.impl.HealthRepositoryImpl
 import com.example.health_assistant.data.repository.impl.UserProfileRepositoryImpl
 import com.example.health_assistant.data.repository.interfaces.AuthRepository
@@ -21,7 +21,7 @@ abstract class RepositoryModule {
 
     @Binds
     @Singleton
-    abstract fun bindAuthRepository(firebaseAuthRepositoryImpl: FirebaseAuthRepositoryImpl): AuthRepository
+    abstract fun bindAuthRepository(firebaseAuthRepository: FirebaseAuthRepository): AuthRepository
 
     @Binds
     @Singleton

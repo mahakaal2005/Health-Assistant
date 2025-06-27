@@ -65,11 +65,12 @@ class SignUpFragment : Fragment() {
             // Validate form and attempt account creation
             if (validateForm()) {
                 // Get user input data
+                val name = binding.nameInput.text.toString().trim()
                 val email = binding.emailInput.text.toString().trim()
                 val password = binding.passwordInput.text.toString().trim()
 
-                // Register user using ViewModel
-                viewModel.registerUser(email, password)
+                // Register user using ViewModel with display name
+                viewModel.registerUser(email, password, name)
             }
         }
 

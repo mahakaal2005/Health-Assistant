@@ -56,6 +56,14 @@ interface AuthRepository {
     suspend fun deleteAccount(): Result<Unit>
 
     /**
+     * Re-authenticate the current user with their credentials
+     * @param email User's email
+     * @param password User's password
+     * @return Result indicating success or failure
+     */
+    suspend fun reauthenticateUser(email: String, password: String): Result<Unit>
+
+    /**
      * Update user password
      * @param newPassword The new password
      * @return Result indicating success or failure

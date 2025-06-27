@@ -85,6 +85,13 @@ interface UserProfileRepository {
      * @return Result indicating success or failure
      */
     suspend fun updateUserProfileInFirestore(userProfile: UserProfile): Result<Unit>
+
+    /**
+     * Delete user profile from Firestore
+     * @param userId User's unique identifier
+     * @return Result indicating success or failure
+     */
+    suspend fun deleteUserProfileFromFirestore(userId: String): Result<Unit>
 }
 
 /**

@@ -12,9 +12,13 @@ import android.widget.ArrayAdapter
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.fragment.findNavController
 import com.example.health_assistant.R
+import com.example.health_assistant.auth.viewmodel.AuthState
+import com.example.health_assistant.auth.viewmodel.AuthViewModel
 import com.example.health_assistant.core.util.Result
 import com.example.health_assistant.databinding.CardAccountActionsBinding
 import com.example.health_assistant.databinding.CardAppSettingsBinding
@@ -25,12 +29,15 @@ import com.example.health_assistant.databinding.CardUserOverviewBinding
 import com.example.health_assistant.databinding.FragmentSettingsBinding
 import com.example.health_assistant.features.settings.data.SettingsRepository
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.google.android.material.snackbar.Snackbar
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
 /**
  * Fragment for displaying and managing all app settings.
  */
+@AndroidEntryPoint
 class SettingsFragment : Fragment() {
 
     private var _binding: FragmentSettingsBinding? = null
@@ -45,6 +52,9 @@ class SettingsFragment : Fragment() {
     private lateinit var accountActionsBinding: CardAccountActionsBinding
 
     private lateinit var viewModel: SettingsViewModel
+
+    // Inject AuthViewModel for logout and delete account functionality
+    private val authViewModel: AuthViewModel by viewModels()
 
     // Image picker for profile avatar
     private val getContent = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
@@ -600,8 +610,7 @@ class SettingsFragment : Fragment() {
             .setTitle("Log Out")
             .setMessage("Are you sure you want to log out?")
             .setPositiveButton("Log Out") { _, _ ->
-                Toast.makeText(requireContext(), "Logging out...", Toast.LENGTH_SHORT).show()
-                // In a real app, you would trigger the logout process here
+                performLogout()
             }
             .setNegativeButton("Cancel", null)
             .show()
@@ -612,27 +621,61 @@ class SettingsFragment : Fragment() {
             .setTitle("Delete Account")
             .setMessage("Are you sure you want to delete your account? This action cannot be undone.")
             .setPositiveButton("Delete") { _, _ ->
-                showDeleteAccountConfirmationDialog()
+                performDeleteAccount()
             }
             .setNegativeButton("Cancel", null)
             .show()
     }
 
-    private fun showDeleteAccountConfirmationDialog() {
-        // Second confirmation for destructive action
-        MaterialAlertDialogBuilder(requireContext())
-            .setTitle("Confirm Deletion")
-            .setMessage("Please type 'DELETE' to confirm account deletion.")
-            .setPositiveButton("Confirm") { _, _ ->
-                Toast.makeText(requireContext(), "Account deletion process started", Toast.LENGTH_SHORT).show()
-                // In a real app, you would trigger the account deletion process here
+    /**
+     * Perform actual logout operation using AuthViewModel
+     */
+    private fun performLogout() {
+        // Show loading state
+        accountActionsBinding.logoutButton.isEnabled = false
+
+        // Use the universal logout system
+        com.example.health_assistant.core.util.AuthNavigationUtil.performUniversalLogout(
+            authViewModel = authViewModel,
+            context = requireContext(),
+            activity = requireActivity(),
+            onLogoutStart = {
+                Snackbar.make(binding.root, "Logging out...", Snackbar.LENGTH_SHORT).show()
+            },
+            onLogoutSuccess = {
+                Snackbar.make(binding.root, "Logged out successfully", Snackbar.LENGTH_SHORT).show()
+            },
+            onLogoutError = { error ->
+                accountActionsBinding.logoutButton.isEnabled = true
+                Snackbar.make(binding.root, "Logout failed: $error", Snackbar.LENGTH_LONG).show()
             }
-            .setNegativeButton("Cancel", null)
-            .show()
+        )
     }
 
-    override fun onDestroyView() {
-        super.onDestroyView()
-        _binding = null
+    /**
+     * Perform actual account deletion using AuthViewModel
+     */
+    private fun performDeleteAccount() {
+        // Show loading state
+        accountActionsBinding.deleteAccountButton.isEnabled = false
+
+        // Use the universal account deletion system with password confirmation
+        com.example.health_assistant.core.util.AuthNavigationUtil.performUniversalAccountDeletion(
+            authViewModel = authViewModel,
+            context = requireContext(),
+            coroutineScope = viewLifecycleOwner.lifecycleScope,
+            activity = requireActivity(),
+            onDeleteStart = {
+                // Show loading message when deletion starts
+                Snackbar.make(binding.root, "Deleting account...", Snackbar.LENGTH_SHORT).show()
+            },
+            onDeleteSuccess = {
+                Snackbar.make(binding.root, "Account deleted successfully", Snackbar.LENGTH_SHORT).show()
+            },
+            onDeleteError = { error ->
+                accountActionsBinding.deleteAccountButton.isEnabled = true
+                Snackbar.make(binding.root, error, Snackbar.LENGTH_LONG).show()
+            }
+        )
     }
 }
