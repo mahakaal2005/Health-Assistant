@@ -7,6 +7,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.health_assistant.core.util.Result
 import com.example.health_assistant.data.repository.interfaces.AuthRepository
 import com.example.health_assistant.data.repository.interfaces.UserProfileRepository
+import com.example.health_assistant.data.repository.interfaces.UserProfile
 import com.google.firebase.auth.FirebaseUser
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
@@ -48,6 +49,7 @@ class AuthViewModel @Inject constructor(
 
     /**
      * Register a new user with email and password
+     * Creates user profile in both local DataStore and Firestore
      */
     fun registerUser(email: String, password: String) {
         _authState.value = AuthState.Loading
@@ -56,10 +58,35 @@ class AuthViewModel @Inject constructor(
             val result = authRepository.registerUser(email, password)
             when (result) {
                 is Result.Success -> {
-                    _authState.value = AuthState.Success
-                    // Save user profile data
                     result.data?.let { user ->
-                        userProfileRepository.saveUserProfile(user.uid, user.email ?: "")
+                        // Create complete user profile for Firestore
+                        val userProfile = UserProfile(
+                            userId = user.uid,
+                            email = user.email ?: email,
+                            displayName = user.displayName,
+                            photoUrl = user.photoUrl?.toString(),
+                            createdAt = System.currentTimeMillis(),
+                            isProfileComplete = false
+                        )
+
+                        // Create profile in Firestore (this also saves to local DataStore)
+                        val firestoreResult = userProfileRepository.createUserProfileInFirestore(userProfile)
+                        when (firestoreResult) {
+                            is Result.Success -> {
+                                _authState.value = AuthState.Success
+                            }
+                            is Result.Error -> {
+                                // Firestore failed, but auth succeeded - still allow user to proceed
+                                // Save to local DataStore as fallback
+                                userProfileRepository.saveUserProfile(user.uid, user.email ?: email)
+                                _authState.value = AuthState.Success
+                            }
+                            is Result.Loading -> {
+                                // Should not happen for suspend function
+                            }
+                        }
+                    } ?: run {
+                        _authState.value = AuthState.Error("User data not available after signup")
                     }
                 }
                 is Result.Error -> {
@@ -74,6 +101,7 @@ class AuthViewModel @Inject constructor(
 
     /**
      * Sign in an existing user with email and password
+     * Syncs user profile from Firestore if available
      */
     fun signInUser(email: String, password: String) {
         _authState.value = AuthState.Loading
@@ -82,10 +110,25 @@ class AuthViewModel @Inject constructor(
             val result = authRepository.signInUser(email, password)
             when (result) {
                 is Result.Success -> {
-                    _authState.value = AuthState.Success
-                    // Save user profile data
                     result.data?.let { user ->
-                        userProfileRepository.saveUserProfile(user.uid, user.email ?: "")
+                        // Try to sync profile from Firestore first
+                        val syncResult = userProfileRepository.syncUserProfileFromFirestore(user.uid)
+                        when (syncResult) {
+                            is Result.Success -> {
+                                // Successfully synced from Firestore or profile doesn't exist
+                                _authState.value = AuthState.Success
+                            }
+                            is Result.Error -> {
+                                // Firestore sync failed, save basic info to local DataStore
+                                userProfileRepository.saveUserProfile(user.uid, user.email ?: email)
+                                _authState.value = AuthState.Success
+                            }
+                            is Result.Loading -> {
+                                // Should not happen for suspend function
+                            }
+                        }
+                    } ?: run {
+                        _authState.value = AuthState.Error("User data not available after sign in")
                     }
                 }
                 is Result.Error -> {

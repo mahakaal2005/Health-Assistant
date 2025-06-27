@@ -6,10 +6,8 @@ import com.example.health_assistant.data.repository.impl.UserProfileRepositoryIm
 import com.example.health_assistant.data.repository.interfaces.AuthRepository
 import com.example.health_assistant.data.repository.interfaces.HealthRepository
 import com.example.health_assistant.data.repository.interfaces.UserProfileRepository
-import com.google.firebase.auth.FirebaseAuth
 import dagger.Binds
 import dagger.Module
-import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import javax.inject.Singleton
@@ -32,12 +30,4 @@ abstract class RepositoryModule {
     @Binds
     @Singleton
     abstract fun bindUserProfileRepository(userProfileRepositoryImpl: UserProfileRepositoryImpl): UserProfileRepository
-
-    companion object {
-        @Provides
-        @Singleton
-        fun provideFirebaseAuth(): FirebaseAuth {
-            return FirebaseAuth.getInstance()
-        }
-    }
 }

@@ -128,17 +128,20 @@ class CompleteProfileFragment : Fragment() {
     private fun handleEvent(event: CompleteProfileEvent) {
         when (event) {
             is CompleteProfileEvent.NavigateToHome -> {
-                // Navigate to MainActivity instead of trying to access homeFragment directly
-                // Since we're in AuthActivity, we need to start MainActivity
+                // Ensure loading state is reset before navigation attempts
                 try {
                     com.example.health_assistant.main.MainActivity.startWithHomeFragment(requireContext())
                     requireActivity().finish()
                 } catch (e: Exception) {
+                    android.util.Log.e("CompleteProfile", "MainActivity start failed", e)
                     // Fallback: try using the navigation action to MainActivity
                     try {
                         findNavController().navigate(R.id.action_completeProfile_to_mainActivity)
                     } catch (navException: Exception) {
-                        Toast.makeText(requireContext(), "Navigation error: ${e.message}", Toast.LENGTH_LONG).show()
+                        android.util.Log.e("CompleteProfile", "Navigation failed", navException)
+                        // Last resort: Reset the loading state and show error
+                        viewModel.resetLoadingState()
+                        Toast.makeText(requireContext(), "Navigation error. Please try again.", Toast.LENGTH_LONG).show()
                     }
                 }
             }

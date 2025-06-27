@@ -64,6 +64,27 @@ interface UserProfileRepository {
      * @return Result containing boolean indicating if profile is complete
      */
     suspend fun isProfileComplete(): Result<Boolean>
+
+    /**
+     * Create user profile in Firestore after successful signup
+     * @param userProfile Complete user profile data
+     * @return Result indicating success or failure
+     */
+    suspend fun createUserProfileInFirestore(userProfile: UserProfile): Result<Unit>
+
+    /**
+     * Sync user profile from Firestore
+     * @param userId User's unique identifier
+     * @return Result containing user profile from Firestore or error
+     */
+    suspend fun syncUserProfileFromFirestore(userId: String): Result<UserProfile?>
+
+    /**
+     * Update user profile in Firestore
+     * @param userProfile Updated user profile data
+     * @return Result indicating success or failure
+     */
+    suspend fun updateUserProfileInFirestore(userProfile: UserProfile): Result<Unit>
 }
 
 /**

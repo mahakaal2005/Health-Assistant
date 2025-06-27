@@ -74,19 +74,83 @@ class CompleteProfileViewModel @Inject constructor(
                     birthday = currentState.selectedBirthday!!
                 )
 
-                when (val result = userProfileRepository.updatePersonalHealthInfo(personalHealthInfo)) {
+                android.util.Log.d("CompleteProfile", "About to save health info: gender=${personalHealthInfo.gender}, height=${personalHealthInfo.height}, weight=${personalHealthInfo.weight}, birthday=${personalHealthInfo.birthday}")
+
+                // Step 1: Save personal health info locally first
+                val healthInfoResult = userProfileRepository.updatePersonalHealthInfo(personalHealthInfo)
+
+                if (healthInfoResult is Result.Success) {
+                    android.util.Log.d("CompleteProfile", "Health info saved successfully to DataStore")
+
+                    // Step 2: Mark profile as complete
+                    val completeResult = userProfileRepository.markProfileComplete()
+
+                    if (completeResult is Result.Success) {
+                        android.util.Log.d("CompleteProfile", "Profile marked as complete")
+
+                        // Step 3: Get profile and sync to Firestore (non-blocking)
+                        launch {
+                            try {
+                                val profileResult = userProfileRepository.getUserProfile()
+                                if (profileResult is Result.Success && profileResult.data != null) {
+                                    userProfileRepository.updateUserProfileInFirestore(profileResult.data)
+                                    android.util.Log.d("CompleteProfile", "Firestore sync completed")
+                                }
+                            } catch (e: Exception) {
+                                android.util.Log.e("CompleteProfile", "Firestore sync failed", e)
+                            }
+                        }
+
+                        // Always stop loading and navigate after successful local save
+                        _uiState.value = _uiState.value.copy(isLoading = false)
+                        _events.emit(CompleteProfileEvent.ShowSuccess("Profile saved successfully!"))
+                        _events.emit(CompleteProfileEvent.NavigateToHome)
+                    } else {
+                        android.util.Log.e("CompleteProfile", "Failed to mark profile complete: ${(completeResult as? Result.Error)?.message}")
+                        _uiState.value = _uiState.value.copy(isLoading = false)
+                        _events.emit(CompleteProfileEvent.ShowError("Failed to complete profile. Please try again."))
+                    }
+                } else {
+                    android.util.Log.e("CompleteProfile", "Failed to save health info: ${(healthInfoResult as? Result.Error)?.message}")
+                    _uiState.value = _uiState.value.copy(isLoading = false)
+                    _events.emit(CompleteProfileEvent.ShowError("Failed to save profile data. Please try again."))
+                }
+            } catch (e: Exception) {
+                android.util.Log.e("CompleteProfile", "Exception during save", e)
+                _uiState.value = _uiState.value.copy(isLoading = false)
+                _events.emit(CompleteProfileEvent.ShowError("Error saving profile. Please try again."))
+            }
+        }
+    }
+
+    /**
+     * Reset loading state - used when navigation fails
+     */
+    fun resetLoadingState() {
+        _uiState.value = _uiState.value.copy(isLoading = false)
+    }
+
+    fun skipProfile() {
+        viewModelScope.launch {
+            _uiState.value = _uiState.value.copy(isLoading = true)
+
+            try {
+                // Mark profile as complete even when skipped
+                when (val result = userProfileRepository.markProfileComplete()) {
                     is Result.Success -> {
-                        // Mark profile as complete
-                        when (val markCompleteResult = userProfileRepository.markProfileComplete()) {
+                        // Also sync the "completed but skipped" status to Firestore
+                        when (val profileResult = userProfileRepository.getUserProfile()) {
                             is Result.Success -> {
-                                _events.emit(CompleteProfileEvent.ShowSuccess("Profile saved successfully!"))
-                                _events.emit(CompleteProfileEvent.NavigateToHome)
+                                profileResult.data?.let { userProfile ->
+                                    val updatedProfile = userProfile.copy(isProfileComplete = true)
+                                    // Non-blocking Firestore sync
+                                    userProfileRepository.updateUserProfileInFirestore(updatedProfile)
+                                }
                             }
-                            is Result.Error -> {
-                                _events.emit(CompleteProfileEvent.ShowError(markCompleteResult.message))
-                            }
+                            is Result.Error -> { /* Continue anyway */ }
                             is Result.Loading -> { /* Handle if needed */ }
                         }
+                        _events.emit(CompleteProfileEvent.NavigateToHome)
                     }
                     is Result.Error -> {
                         _events.emit(CompleteProfileEvent.ShowError(result.message))
@@ -94,24 +158,9 @@ class CompleteProfileViewModel @Inject constructor(
                     is Result.Loading -> { /* Handle if needed */ }
                 }
             } catch (e: Exception) {
-                _events.emit(CompleteProfileEvent.ShowError("Error saving profile. Please try again."))
+                _events.emit(CompleteProfileEvent.ShowError("Error completing profile. Please try again."))
             } finally {
                 _uiState.value = _uiState.value.copy(isLoading = false)
-            }
-        }
-    }
-
-    fun skipProfile() {
-        viewModelScope.launch {
-            // Mark profile as complete even when skipped
-            when (val result = userProfileRepository.markProfileComplete()) {
-                is Result.Success -> {
-                    _events.emit(CompleteProfileEvent.NavigateToHome)
-                }
-                is Result.Error -> {
-                    _events.emit(CompleteProfileEvent.ShowError(result.message))
-                }
-                is Result.Loading -> { /* Handle if needed */ }
             }
         }
     }

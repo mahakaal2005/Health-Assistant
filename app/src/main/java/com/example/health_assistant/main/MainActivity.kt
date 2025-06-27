@@ -20,7 +20,9 @@ import androidx.navigation.ui.navigateUp
 import androidx.navigation.ui.setupWithNavController
 import com.example.health_assistant.R
 import com.example.health_assistant.databinding.MainActivityBinding
+import com.example.health_assistant.data.sync.ProfileSyncManager
 import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
@@ -28,6 +30,10 @@ class MainActivity : AppCompatActivity() {
     private lateinit var navController: NavController
     private lateinit var appBarConfiguration: AppBarConfiguration
     private val TAG = "MainActivity"
+
+    // Inject ProfileSyncManager for automatic Firestore synchronization
+    @Inject
+    lateinit var profileSyncManager: ProfileSyncManager
 
     companion object {
         private const val EXTRA_SKIP_ACCOUNT_DECISION = "skip_account_decision"
@@ -51,6 +57,9 @@ class MainActivity : AppCompatActivity() {
 
         // Enable full screen experience after view is set
         setupFullScreen()
+
+        // Start automatic profile synchronization with Firestore
+        initializeProfileSync()
 
         // Update window insets handling to work with hidden status bar and display cutout
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
@@ -139,6 +148,18 @@ class MainActivity : AppCompatActivity() {
             // Enable drawing behind display cutouts for Android 9+
             window.attributes.layoutInDisplayCutoutMode =
                 WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES
+        }
+    }
+
+    // Initialize profile synchronization with Firestore
+    private fun initializeProfileSync() {
+        try {
+            // Start automatic profile synchronization monitoring
+            profileSyncManager.startSyncMonitoring(this)
+            Log.d(TAG, "Profile sync manager initialized successfully")
+        } catch (e: Exception) {
+            Log.e(TAG, "Error initializing profile sync: ${e.message}")
+            // App should continue even if sync fails
         }
     }
 }

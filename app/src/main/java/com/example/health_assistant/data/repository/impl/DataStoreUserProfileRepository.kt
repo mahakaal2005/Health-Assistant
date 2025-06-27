@@ -158,4 +158,37 @@ class DataStoreUserProfileRepository @Inject constructor(
         }
         isComplete
     }
+
+    // ==================== FIRESTORE METHODS (NOT IMPLEMENTED IN DATASTORE-ONLY VERSION) ====================
+
+    override suspend fun createUserProfileInFirestore(userProfile: UserProfile): Result<Unit> {
+        // This implementation only uses DataStore, so we'll save locally and return success
+        return saveUserProfile(userProfile.userId, userProfile.email)
+    }
+
+    override suspend fun syncUserProfileFromFirestore(userId: String): Result<UserProfile?> {
+        // This implementation only uses DataStore, so we'll return the local profile
+        return getUserProfile()
+    }
+
+    override suspend fun updateUserProfileInFirestore(userProfile: UserProfile): Result<Unit> {
+        // This implementation only uses DataStore, so we'll update locally
+        return try {
+            dataStore.edit { preferences ->
+                preferences[PreferencesKeys.USER_ID] = userProfile.userId
+                preferences[PreferencesKeys.EMAIL] = userProfile.email
+                userProfile.displayName?.let { preferences[PreferencesKeys.DISPLAY_NAME] = it }
+                userProfile.photoUrl?.let { preferences[PreferencesKeys.PHOTO_URL] = it }
+                preferences[PreferencesKeys.CREATED_AT] = userProfile.createdAt
+                userProfile.gender?.let { preferences[PreferencesKeys.GENDER] = it }
+                userProfile.height?.let { preferences[PreferencesKeys.HEIGHT] = it }
+                userProfile.weight?.let { preferences[PreferencesKeys.WEIGHT] = it }
+                userProfile.birthday?.let { preferences[PreferencesKeys.BIRTHDAY] = it }
+                preferences[PreferencesKeys.IS_PROFILE_COMPLETE] = userProfile.isProfileComplete
+            }
+            Result.Success(Unit)
+        } catch (e: Exception) {
+            Result.Error(e, "Failed to update user profile locally")
+        }
+    }
 }

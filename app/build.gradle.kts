@@ -114,6 +114,11 @@ dependencies {
     implementation(libs.firebase.auth)
     // Add Firebase Realtime Database dependency
     implementation(libs.firebase.firestore)
+    // Firebase Firestore
+    implementation(libs.firebase.firestore.ktx)
+    implementation(libs.firebase.auth.ktx)
+    // Coroutines support for Firebase
+    implementation(libs.kotlinx.coroutines.play.services.v1102)
 
     // Image loading (for displaying images from Firebase Storage)
     implementation(libs.coil3.coil)
