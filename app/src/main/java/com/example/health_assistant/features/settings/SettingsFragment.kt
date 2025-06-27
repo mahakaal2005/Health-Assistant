@@ -25,7 +25,6 @@ import com.example.health_assistant.databinding.CardAppSettingsBinding
 import com.example.health_assistant.databinding.CardHealthPreferencesBinding
 import com.example.health_assistant.databinding.CardHelpSupportBinding
 import com.example.health_assistant.databinding.CardNotificationsBinding
-import com.example.health_assistant.databinding.CardUserOverviewBinding
 import com.example.health_assistant.databinding.FragmentSettingsBinding
 import com.example.health_assistant.features.settings.data.SettingsRepository
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
@@ -44,7 +43,6 @@ class SettingsFragment : Fragment() {
     private val binding get() = _binding!!
 
     // Card bindings for included layouts
-    private lateinit var userOverviewBinding: CardUserOverviewBinding
     private lateinit var healthPreferencesBinding: CardHealthPreferencesBinding
     private lateinit var notificationsBinding: CardNotificationsBinding
     private lateinit var appSettingsBinding: CardAppSettingsBinding
@@ -56,16 +54,6 @@ class SettingsFragment : Fragment() {
     // Inject AuthViewModel for logout and delete account functionality
     private val authViewModel: AuthViewModel by viewModels()
 
-    // Image picker for profile avatar
-    private val getContent = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-        if (result.resultCode == Activity.RESULT_OK) {
-            result.data?.data?.let { uri ->
-                // Update the avatar in ViewModel
-                viewModel.updateAvatarUri(uri)
-            }
-        }
-    }
-
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -74,7 +62,6 @@ class SettingsFragment : Fragment() {
         _binding = FragmentSettingsBinding.inflate(inflater, container, false)
 
         // Initialize included layout bindings
-        userOverviewBinding = CardUserOverviewBinding.bind(binding.userOverview.root)
         healthPreferencesBinding = CardHealthPreferencesBinding.bind(binding.healthPreferences.root)
         notificationsBinding = CardNotificationsBinding.bind(binding.notifications.root)
         appSettingsBinding = CardAppSettingsBinding.bind(binding.appSettings.root)
@@ -88,7 +75,6 @@ class SettingsFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         setupViewModel()
-        setupUserProfileCard()
         setupHealthPreferencesCard()
         setupNotificationsCard()
         setupAppSettingsCard()
@@ -102,104 +88,6 @@ class SettingsFragment : Fragment() {
         viewModel = ViewModelProvider(this, factory)[SettingsViewModel::class.java]
     }
 
-    private fun setupUserProfileCard() {
-        // Observe user profile data changes
-        with(userOverviewBinding) {
-            viewLifecycleOwner.lifecycleScope.launch {
-                // UserName
-                viewModel.userName.collectLatest { result ->
-                    when (result) {
-                        is Result.Success -> userName.text = result.data ?: ""
-                        is Result.Error -> userName.text = "Error loading"
-                        is Result.Loading -> userName.text = "Loading..."
-                    }
-                }
-            }
-
-            viewLifecycleOwner.lifecycleScope.launch {
-                // User Age & Gender combined
-                viewModel.userAgeGenderText.collectLatest { result ->
-                    when (result) {
-                        is Result.Success -> userAgeGender.text = result.data ?: ""
-                        is Result.Error -> userAgeGender.text = "Error loading"
-                        is Result.Loading -> userAgeGender.text = "Loading..."
-                    }
-                }
-            }
-
-            viewLifecycleOwner.lifecycleScope.launch {
-                // Health Goal
-                viewModel.userHealthGoal.collectLatest { result ->
-                    when (result) {
-                        is Result.Success -> userHealthGoal.text = result.data ?: ""
-                        is Result.Error -> userHealthGoal.text = "Error loading"
-                        is Result.Loading -> userHealthGoal.text = "Loading..."
-                    }
-                }
-            }
-
-            viewLifecycleOwner.lifecycleScope.launch {
-                // Health Status
-                viewModel.userHealthStatus.collectLatest { result ->
-                    when (result) {
-                        is Result.Success -> healthStatusValue.text = result.data ?: ""
-                        is Result.Error -> healthStatusValue.text = "Error loading"
-                        is Result.Loading -> healthStatusValue.text = "Loading..."
-                    }
-                }
-            }
-
-            viewLifecycleOwner.lifecycleScope.launch {
-                // Avatar
-                viewModel.avatarUri.collectLatest { result ->
-                    when (result) {
-                        is Result.Success -> {
-                            val uri = result.data
-                            try {
-                                if (uri != null) {
-                                    // Try to load the image safely
-                                    try {
-                                        // Check if we can access the URI before attempting to load it
-                                        context?.contentResolver?.openInputStream(uri)?.use {
-                                            // Successfully opened stream, safe to load
-                                            userAvatar.setImageURI(uri)
-                                        }
-                                    } catch (e: Exception) {
-                                        // Fallback to default avatar if any error occurs
-                                        userAvatar.setImageResource(R.drawable.default_avatar)
-                                        // Log the error but don't crash
-                                        android.util.Log.e("SettingsFragment", "Error loading avatar: ${e.message}")
-                                    }
-                                } else {
-                                    userAvatar.setImageResource(R.drawable.default_avatar)
-                                }
-                            } catch (e: Exception) {
-                                userAvatar.setImageResource(R.drawable.default_avatar)
-                                android.util.Log.e("SettingsFragment", "Error in avatar flow: ${e.message}")
-                            }
-                        }
-                        is Result.Error -> {
-                            userAvatar.setImageResource(R.drawable.default_avatar)
-                            android.util.Log.e("SettingsFragment", "Error loading avatar: ${result.message}")
-                        }
-                        is Result.Loading -> {
-                            // Keep current avatar while loading, or show a placeholder
-                            // userAvatar.setImageResource(R.drawable.loading_placeholder) // if you have one
-                        }
-                    }
-                }
-            }
-
-            // Set up click listeners
-            editAvatarButton.setOnClickListener {
-                openImagePicker()
-            }
-
-            editProfileButton.setOnClickListener {
-                showEditProfileDialog()
-            }
-        }
-    }
 
     private fun setupHealthPreferencesCard() {
         with(healthPreferencesBinding) {
@@ -579,10 +467,6 @@ class SettingsFragment : Fragment() {
         }
     }
 
-    private fun openImagePicker() {
-        val intent = Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
-        getContent.launch(intent)
-    }
 
     private fun showEditProfileDialog() {
         // In a real app, this would be a more comprehensive dialog

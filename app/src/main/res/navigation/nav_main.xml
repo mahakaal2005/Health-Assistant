@@ -92,6 +92,9 @@
             android:id="@+id/action_profileFragment_to_settingsFragment"
             app:destination="@id/settingsFragment" />
         <action
+            android:id="@+id/action_profileFragment_to_editProfileFragment"
+            app:destination="@id/editProfileFragment" />
+        <action
             android:id="@+id/action_profileFragment_to_authActivity"
             app:destination="@id/authActivity" />
     </fragment>
@@ -104,6 +107,9 @@
         <action
             android:id="@+id/action_settingsFragment_to_profileFragment"
             app:destination="@id/profileFragment" />
+        <action
+            android:id="@+id/action_settingsFragment_to_editProfileFragment"
+            app:destination="@id/editProfileFragment" />
         <action
             android:id="@+id/action_settingsFragment_to_authActivity"
             app:destination="@id/authActivity" />
@@ -120,6 +126,20 @@
             android:id="@+id/action_completeProfile_to_home"
             app:destination="@id/homeFragment"
             app:popUpTo="@id/nav_main"
+            app:popUpToInclusive="false" />
+    </fragment>
+
+    <!-- Edit Profile Fragment -->
+    <fragment
+        android:id="@+id/editProfileFragment"
+        android:name="com.example.health_assistant.features.profile.EditProfileFragment"
+        android:label="Edit Profile"
+        tools:layout="@layout/fragment_edit_profile">
+
+        <action
+            android:id="@+id/action_editProfileFragment_to_profileFragment"
+            app:destination="@id/profileFragment"
+            app:popUpTo="@id/profileFragment"
             app:popUpToInclusive="false" />
     </fragment>
 

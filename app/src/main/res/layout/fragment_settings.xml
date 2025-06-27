@@ -80,20 +80,12 @@
                 android:layout_height="wrap_content"
                 android:orientation="vertical">
 
-                <!-- User Overview Card -->
-                <include
-                    android:id="@+id/user_overview"
-                    layout="@layout/card_user_overview"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content" />
-
                 <!-- Health Preferences Card -->
                 <include
                     android:id="@+id/health_preferences"
                     layout="@layout/card_health_preferences"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="@dimen/spacing_section_vertical" />
+                    android:layout_height="wrap_content" />
 
                 <!-- Notifications Card -->
                 <include

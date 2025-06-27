@@ -54,6 +54,12 @@ class ProfileFragment : Fragment() {
             findNavController().navigate(R.id.action_profileFragment_to_settingsFragment)
         }
 
+        // Set up edit profile button click listener
+        binding.editProfileButton.setOnClickListener {
+            // Navigate to Edit Profile screen
+            findNavController().navigate(R.id.action_profileFragment_to_editProfileFragment)
+        }
+
         // Set up logout button click listener
         binding.logoutButton.setOnClickListener {
             showLogoutConfirmationDialog()

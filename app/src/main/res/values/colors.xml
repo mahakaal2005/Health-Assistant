@@ -49,7 +49,13 @@
     <color name="success">#4CAF50</color>
     <color name="warning">#FF9800</color>
     <color name="error">#F44336</color>
-    <color name="info">#2196F3</color>
+
+    <!-- Primary color alias for consistency -->
+    <color name="primary_color">@color/colorPrimary</color>
+
+    <!-- Additional needed colors -->
+    <color name="accent_color">@color/colorSecondary</color>
+    <color name="surface_color">@color/colorSurface</color>
 
     <!-- Health Status Colors -->
     <color name="healthExcellent">#43A047</color>
