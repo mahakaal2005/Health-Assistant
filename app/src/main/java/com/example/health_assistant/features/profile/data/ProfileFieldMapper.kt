@@ -23,6 +23,7 @@ object ProfileFieldMapper {
             userId = userProfile.userId,
             email = userProfile.email,
             displayName = userProfile.displayName ?: "",
+            bio = userProfile.bio?.takeIf { it.isNotBlank() },
             photoUrl = userProfile.photoUrl?.takeIf { it.isNotBlank() },
             birthday = userProfile.birthday?.takeIf { it.isNotBlank() },
             gender = userProfile.gender?.let { genderString ->
@@ -45,6 +46,7 @@ object ProfileFieldMapper {
             userId = profileData.userId,
             email = profileData.email,
             displayName = profileData.displayName.takeIf { it.isNotBlank() },
+            bio = profileData.bio?.takeIf { it.isNotBlank() },
             photoUrl = profileData.photoUrl?.takeIf { it.isNotBlank() },
             birthday = profileData.birthday?.takeIf { it.isNotBlank() },
             gender = profileData.gender?.displayName,

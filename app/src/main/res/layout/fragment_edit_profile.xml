@@ -156,7 +156,10 @@
                                     android:layout_width="match_parent"
                                     android:layout_height="match_parent"
                                     android:src="@drawable/ic_person"
-                                    android:contentDescription="Profile picture"
+                                    android:contentDescription="Profile picture - tap to view full size"
+                                    android:clickable="true"
+                                    android:focusable="true"
+                                    android:foreground="?android:attr/selectableItemBackgroundBorderless"
                                     app:civ_border_width="3dp"
                                     app:civ_border_color="@color/colorPrimaryGradientStart" />
 
@@ -171,11 +174,16 @@
 
                                 <!-- Camera Icon Overlay -->
                                 <FrameLayout
+                                    android:id="@+id/change_photo_button"
                                     android:layout_width="36dp"
                                     android:layout_height="36dp"
                                     android:layout_gravity="bottom|end"
                                     android:background="@drawable/circle_button_background"
-                                    android:elevation="2dp">
+                                    android:elevation="2dp"
+                                    android:clickable="true"
+                                    android:focusable="true"
+                                    android:foreground="?android:attr/selectableItemBackgroundBorderless"
+                                    android:contentDescription="Change profile picture">
 
                                     <ImageView
                                         android:layout_width="20dp"
@@ -189,19 +197,6 @@
 
                             </FrameLayout>
 
-                            <!-- Change Photo Button -->
-                            <com.google.android.material.button.MaterialButton
-                                android:id="@+id/change_photo_button"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_marginTop="16dp"
-                                android:text="Change Photo"
-                                android:contentDescription="Tap to change profile picture"
-                                style="@style/Widget.Material3.Button.TextButton"
-                                app:icon="@drawable/ic_camera"
-                                app:iconGravity="textStart"
-                                app:iconTint="@color/colorPrimaryGradientStart"
-                                android:textColor="@color/colorPrimaryGradientStart" />
 
                         </LinearLayout>
 
@@ -314,6 +309,46 @@
                                     android:maxLength="50"
                                     android:textColor="@color/textPrimary"
                                     android:contentDescription="Your display name" />
+
+                            </com.google.android.material.textfield.TextInputLayout>
+
+                            <!-- Bio -->
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Bio"
+                                android:textSize="14sp"
+                                android:textStyle="bold"
+                                android:textColor="@color/textPrimary"
+                                android:layout_marginBottom="4dp" />
+
+                            <com.google.android.material.textfield.TextInputLayout
+                                android:id="@+id/bio_input_layout"
+                                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginBottom="@dimen/content_padding_medium"
+                                android:hint="Tell us about yourself"
+                                app:boxBackgroundColor="#10FFFFFF"
+                                app:boxStrokeColor="@color/colorPrimaryGradientStart"
+                                app:hintTextColor="@color/colorPrimaryGradientStart"
+                                app:startIconDrawable="@drawable/ic_person"
+                                app:startIconTint="@color/colorPrimaryGradientStart"
+                                app:helperText="Share your interests, goals, or motivation"
+                                app:helperTextTextColor="@color/textSecondary"
+                                app:counterEnabled="true"
+                                app:counterMaxLength="200">
+
+                                <com.google.android.material.textfield.TextInputEditText
+                                    android:id="@+id/bio_edit_text"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:inputType="textMultiLine|textCapSentences"
+                                    android:maxLength="200"
+                                    android:minLines="3"
+                                    android:maxLines="5"
+                                    android:textColor="@color/textPrimary"
+                                    android:contentDescription="Your bio description" />
 
                             </com.google.android.material.textfield.TextInputLayout>
 

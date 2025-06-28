@@ -98,34 +98,18 @@
                     app:layout_constraintTop_toBottomOf="@+id/profileIntroText"
                     android:layout_marginTop="8dp">
 
-                    <FrameLayout
-                        android:id="@+id/edit_avatar_button"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="bottom|end"
-                        android:background="@drawable/circle_button_background"
-                        android:clickable="true"
-                        android:elevation="6dp"
-                        android:focusable="true"
-                        android:foreground="?attr/selectableItemBackgroundBorderless">
-
-                        <ImageView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_gravity="center"
-                            android:src="@android:drawable/ic_menu_camera"
-                            app:tint="#FFFFFF" />
-                    </FrameLayout>
-
                     <de.hdodenhof.circleimageview.CircleImageView
                         android:id="@+id/profile_avatar"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         android:src="@android:drawable/ic_menu_myplaces"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:foreground="?android:attr/selectableItemBackgroundBorderless"
+                        android:contentDescription="View profile photo in full screen"
                         app:civ_border_width="2dp"
                         app:civ_border_color="#30FFFFFF" />
 
-                    <!-- Edit Icon Overlay -->
                 </FrameLayout>
 
                 <!-- User Name -->
@@ -143,22 +127,7 @@
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@+id/avatar_container" />
 
-                <!-- Username Handle -->
-                <TextView
-                    android:id="@+id/username_handle"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
-                    android:text="\@alex_health"
-                    android:textSize="16sp"
-                    android:textColor="@color/text_secondary"
-                    android:alpha="0.8"
-                    android:elevation="1dp"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/user_full_name" />
-
-                <!-- Bio Text -->
+                <!-- Bio Text - Now editable in EditProfileFragment -->
                 <TextView
                     android:id="@+id/user_bio"
                     android:layout_width="0dp"
@@ -167,13 +136,14 @@
                     android:layout_marginTop="12dp"
                     android:layout_marginEnd="32dp"
                     android:gravity="center"
-                    android:text="Fitness enthusiast | Health advocate | Working towards a better me every day"
+                    android:text="Add your bio in Edit Profile"
                     android:textSize="14sp"
                     android:textColor="@color/text_primary"
                     android:alpha="0.9"
+                    android:minHeight="40dp"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/username_handle" />
+                    app:layout_constraintTop_toBottomOf="@+id/user_full_name" />
 
                 <!-- Edit Profile Button -->
                 <Button

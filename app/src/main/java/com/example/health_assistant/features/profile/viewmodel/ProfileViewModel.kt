@@ -23,6 +23,9 @@ class ProfileViewModel @Inject constructor(
     private val _userEmail = MutableLiveData<String?>()
     val userEmail: LiveData<String?> = _userEmail
 
+    private val _userProfile = MutableLiveData<com.example.health_assistant.data.repository.interfaces.UserProfile?>()
+    val userProfile: LiveData<com.example.health_assistant.data.repository.interfaces.UserProfile?> = _userProfile
+
     private val _userId = MutableLiveData<String?>()
     val userId: LiveData<String?> = _userId
 
@@ -35,40 +38,29 @@ class ProfileViewModel @Inject constructor(
 
     private fun loadUserProfile() {
         viewModelScope.launch {
-            // Load user email
-            userProfileRepository.getUserEmail().collect { result ->
-                when (result) {
-                    is Result.Success -> {
-                        _userEmail.value = result.data
-                        _error.value = null
-                    }
-                    is Result.Error -> {
-                        _error.value = result.message
-                    }
-                    is Result.Loading -> {
-                        // Handle loading state if needed
-                    }
+            // Load full user profile
+            when (val result = userProfileRepository.getUserProfile()) {
+                is Result.Success -> {
+                    _userProfile.value = result.data
+                    _userEmail.value = result.data?.email
+                    _userId.value = result.data?.userId
+                    _error.value = null
+                }
+                is Result.Error -> {
+                    _error.value = result.message
+                }
+                is Result.Loading -> {
+                    // Handle loading state if needed
                 }
             }
         }
+    }
 
-        viewModelScope.launch {
-            // Load user ID
-            userProfileRepository.getUserId().collect { result ->
-                when (result) {
-                    is Result.Success -> {
-                        _userId.value = result.data
-                        _error.value = null
-                    }
-                    is Result.Error -> {
-                        _error.value = result.message
-                    }
-                    is Result.Loading -> {
-                        // Handle loading state if needed
-                    }
-                }
-            }
-        }
+    /**
+     * Refresh profile data
+     */
+    fun refreshProfile() {
+        loadUserProfile()
     }
 
     /**

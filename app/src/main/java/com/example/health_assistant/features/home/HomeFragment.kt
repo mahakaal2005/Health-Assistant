@@ -22,6 +22,7 @@ import com.example.health_assistant.features.health.model.HealthMetrics
 import com.example.health_assistant.features.health.viewmodel.HealthMetricsViewModel
 import com.example.health_assistant.features.home.adapters.WellnessTipsAdapter
 import com.example.health_assistant.features.home.models.WellnessTip
+import com.example.health_assistant.utils.ProfilePhotoManager
 import dagger.hilt.android.AndroidEntryPoint
 import java.text.SimpleDateFormat
 import java.util.Calendar
@@ -42,6 +43,10 @@ class HomeFragment : Fragment() {
 
     @Inject
     lateinit var sessionManager: SessionManager
+
+    // Inject ProfilePhotoManager using Hilt
+    @Inject
+    lateinit var profilePhotoManager: ProfilePhotoManager
 
     private lateinit var wellnessTipsAdapter: WellnessTipsAdapter
 
@@ -75,6 +80,7 @@ class HomeFragment : Fragment() {
         setupHealthSummary()
         setupQuickActions()
         setupWellnessInsights()
+        loadProfilePhoto()
 
         // Observe health metrics data
         healthMetricsViewModel.healthMetrics.observe(viewLifecycleOwner, Observer { metrics ->
@@ -112,6 +118,22 @@ class HomeFragment : Fragment() {
                 animateHealthScore(85) // Using 85 as the value, replace with actual data source
             }
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        // Refresh profile photo when returning to home (e.g., from EditProfileFragment)
+        loadProfilePhoto()
+    }
+
+    private fun loadProfilePhoto() {
+        // Load profile photo using the shared manager
+        profilePhotoManager.loadProfilePhoto(
+            context = requireContext(),
+            imageView = binding.userAvatar,
+            lifecycleOwner = viewLifecycleOwner,
+            enableFullScreenClick = true
+        )
     }
 
     /**
@@ -161,26 +183,33 @@ class HomeFragment : Fragment() {
      * Sets up the contextual card with wellness tip or weather
      */
     private fun setupContextualCard() {
-        // In a real implementation, this would be dynamic based on time, weather API, etc.
-        val isMorning = Calendar.getInstance().get(Calendar.HOUR_OF_DAY) < 12
+        // Always show wellness tip instead of time-based weather/tip
+        binding.contextualIcon.setImageResource(android.R.drawable.ic_menu_info_details)
+        binding.contextualIcon.setColorFilter(ContextCompat.getColor(requireContext(), R.color.colorPrimaryGradientStart))
+        binding.contextualTitle.text = "Wellness Tip"
 
-        if (isMorning) {
-            // Weather card in morning
-            binding.contextualIcon.setImageResource(android.R.drawable.ic_menu_compass)
-            binding.contextualIcon.setColorFilter(ContextCompat.getColor(requireContext(), R.color.colorPrimaryGradientEnd))
-            binding.contextualTitle.text = "Today's Weather"
-            binding.contextualContent.text = "Sunny • 72°F • Perfect for a walk outside!"
-        } else {
-            // Wellness tip in afternoon/evening
-            binding.contextualIcon.setImageResource(android.R.drawable.ic_menu_info_details)
-            binding.contextualIcon.setColorFilter(ContextCompat.getColor(requireContext(), R.color.colorPrimaryGradientStart))
-            binding.contextualTitle.text = "Wellness Tip"
-            binding.contextualContent.text = "Take 5 minutes to meditate before bed for better sleep quality."
-        }
+        // Rotate through different wellness tips
+        val wellnessTips = listOf(
+            "Stay hydrated! Aim for 8 glasses of water today.",
+            "Take a 5-minute break every hour to stretch and move.",
+            "Practice deep breathing for 2 minutes to reduce stress.",
+            "Get 7-9 hours of quality sleep for better health.",
+            "Eat a colorful variety of fruits and vegetables daily.",
+            "Take a short walk after meals to aid digestion.",
+            "Practice gratitude by writing down 3 things you're thankful for.",
+            "Limit screen time before bed for better sleep quality.",
+            "Stay active with at least 30 minutes of exercise daily.",
+            "Take time to connect with friends and family today."
+        )
+
+        // Select a random tip or use day-based rotation
+        val dayOfYear = Calendar.getInstance().get(Calendar.DAY_OF_YEAR)
+        val selectedTip = wellnessTips[dayOfYear % wellnessTips.size]
+        binding.contextualContent.text = selectedTip
 
         // Add click interaction
         binding.contextualCard.setOnClickListener {
-            Toast.makeText(context, "More information", Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, "More wellness tips coming soon!", Toast.LENGTH_SHORT).show()
         }
     }
 

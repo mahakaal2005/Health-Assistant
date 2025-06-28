@@ -95,9 +95,11 @@ class EditProfileFragment : Fragment() {
                 handleBackNavigation()
             }
 
-            // Photo change functionality
+            // Profile image click - show full screen view
+            profileImageView.setOnClickListener { showFullScreenImage() }
+
+            // Camera icon click - open image picker for changing photo
             changePhotoButton.setOnClickListener { openImagePicker() }
-            profileImageView.setOnClickListener { openImagePicker() }
 
             // Birthday field setup
             birthdayEditText.setOnClickListener { showDatePicker() }
@@ -167,6 +169,12 @@ class EditProfileFragment : Fragment() {
             displayNameEditText.addTextChangedListener { text ->
                 val displayName = text?.toString() ?: ""
                 viewModel.updateDisplayName(displayName)
+            }
+
+            // Bio validation - Now enabled with ViewModel support
+            bioEditText.addTextChangedListener { text ->
+                val bio = text?.toString()?.takeIf { it.isNotBlank() }
+                viewModel.updateBio(bio)
             }
 
             // Height validation
@@ -321,6 +329,12 @@ class EditProfileFragment : Fragment() {
         }
 
         viewLifecycleOwner.lifecycleScope.launch {
+            viewModel.bioValidation.collect { state ->
+                updateFieldValidation(binding.bioInputLayout, state)
+            }
+        }
+
+        viewLifecycleOwner.lifecycleScope.launch {
             viewModel.birthdayValidation.collect { state ->
                 updateFieldValidation(binding.birthdayInputLayout, state)
             }
@@ -353,6 +367,14 @@ class EditProfileFragment : Fragment() {
             viewModel.currentDisplayName.collect { displayName ->
                 if (binding.displayNameEditText.text.toString() != displayName) {
                     binding.displayNameEditText.setText(displayName)
+                }
+            }
+        }
+
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewModel.currentBio.collect { bio ->
+                if (binding.bioEditText.text.toString() != (bio ?: "")) {
+                    binding.bioEditText.setText(bio ?: "")
                 }
             }
         }
@@ -503,6 +525,7 @@ class EditProfileFragment : Fragment() {
         binding.scrollView.post {
             val errorFields = listOf(
                 binding.displayNameInputLayout to binding.displayNameInputLayout.error,
+                binding.bioInputLayout to binding.bioInputLayout.error,
                 binding.birthdayInputLayout to binding.birthdayInputLayout.error,
                 binding.genderInputLayout to binding.genderInputLayout.error,
                 binding.heightInputLayout to binding.heightInputLayout.error,
@@ -568,6 +591,7 @@ class EditProfileFragment : Fragment() {
                 // Clear all fields if profile is missing
                 emailTextView.text = ""
                 displayNameEditText.setText("")
+                bioEditText.setText("")
                 birthdayEditText.setText("")
                 birthdayEditText.tag = null
                 genderDropdown.setText("", false)
@@ -583,6 +607,15 @@ class EditProfileFragment : Fragment() {
             // Display name
             if (displayNameEditText.text.toString() != profile.displayName) {
                 displayNameEditText.setText(profile.displayName)
+            }
+
+            // Bio
+            profile.bio?.let { bio ->
+                if (bioEditText.text.toString() != bio) {
+                    bioEditText.setText(bio)
+                }
+            } ?: run {
+                bioEditText.setText("")
             }
 
             // Birthday
@@ -695,6 +728,57 @@ class EditProfileFragment : Fragment() {
             showError("Failed to open image picker. Please try again.")
             android.util.Log.e("EditProfile", "Failed to open image picker", e)
         }
+    }
+
+    /**
+     * Show the profile image in full screen with zoom functionality
+     */
+    private fun showFullScreenImage() {
+        // Get the current image from the profile image view
+        val drawable = binding.profileImageView.drawable
+        if (drawable == null) {
+            showError("No image to display")
+            return
+        }
+
+        // Create and show full screen image dialog
+        val dialog = android.app.Dialog(requireContext(), android.R.style.Theme_Black_NoTitleBar_Fullscreen)
+        val dialogBinding = com.example.health_assistant.databinding.DialogFullscreenImageBinding.inflate(layoutInflater)
+        dialog.setContentView(dialogBinding.root)
+
+        // Set the image
+        dialogBinding.fullscreenImage.setImageDrawable(drawable)
+
+        // Show instructions for a few seconds
+        dialogBinding.instructionsText.visibility = View.VISIBLE
+        dialogBinding.instructionsText.postDelayed({
+            if (dialog.isShowing) {
+                dialogBinding.instructionsText.animate()
+                    .alpha(0f)
+                    .setDuration(500)
+                    .withEndAction {
+                        dialogBinding.instructionsText.visibility = View.GONE
+                    }
+                    .start()
+            }
+        }, 3000)
+
+        // Set up close button
+        dialogBinding.closeButton.setOnClickListener {
+            dialog.dismiss()
+        }
+
+        // Close on tap (the ZoomableImageView will handle single tap)
+        dialogBinding.fullscreenImage.setOnClickListener {
+            dialog.dismiss()
+        }
+
+        // Close on background tap
+        dialogBinding.root.setOnClickListener {
+            dialog.dismiss()
+        }
+
+        dialog.show()
     }
 
     private fun showError(message: String) {

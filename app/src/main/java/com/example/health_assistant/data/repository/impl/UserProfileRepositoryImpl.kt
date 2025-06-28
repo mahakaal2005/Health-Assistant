@@ -35,6 +35,7 @@ class UserProfileRepositoryImpl @Inject constructor(
         private val USER_EMAIL_KEY = stringPreferencesKey("user_email")
         private val USER_ID_KEY = stringPreferencesKey("user_id")
         private val DISPLAY_NAME_KEY = stringPreferencesKey("display_name")
+        private val BIO_KEY = stringPreferencesKey("bio") // Add bio key for DataStore
         private val PHOTO_URL_KEY = stringPreferencesKey("photo_url")
         private val CREATED_AT_KEY = longPreferencesKey("created_at")
         // Personal health information keys
@@ -119,6 +120,7 @@ class UserProfileRepositoryImpl @Inject constructor(
                     userId = userId,
                     email = email,
                     displayName = displayName,
+                    bio = preferences[BIO_KEY], // Include bio from DataStore
                     photoUrl = preferences[PHOTO_URL_KEY],
                     createdAt = preferences[CREATED_AT_KEY] ?: System.currentTimeMillis(),
                     gender = preferences[GENDER_KEY],
@@ -220,6 +222,7 @@ class UserProfileRepositoryImpl @Inject constructor(
                 "uid" to userProfile.userId,
                 "email" to userProfile.email,
                 "displayName" to (userProfile.displayName ?: ""), // Empty string instead of null
+                "bio" to (userProfile.bio ?: ""), // Empty string instead of null
                 "photoUrl" to (userProfile.photoUrl ?: ""), // Empty string instead of null
                 "createdAt" to com.google.firebase.Timestamp(java.util.Date(userProfile.createdAt)),
                 "updatedAt" to com.google.firebase.Timestamp.now(),
@@ -261,17 +264,24 @@ class UserProfileRepositoryImpl @Inject constructor(
                 val data = document.data ?: return Result.Success(null)
 
                 // Helper function to convert empty strings back to null for optional fields
-                fun String?.nullIfEmpty(): String? = if (this.isNullOrEmpty()) null else this
+                // BUT preserve actual display names even if they look empty
+                fun String?.nullIfTrulyEmpty(): String? = when {
+                    this == null -> null
+                    this.isBlank() -> null
+                    else -> this
+                }
 
                 val userProfile = UserProfile(
                     userId = data["uid"] as String,
                     email = data["email"] as String,
-                    // Convert empty strings back to null for optional fields
-                    displayName = (data["displayName"] as? String).nullIfEmpty(),
-                    photoUrl = (data["photoUrl"] as? String).nullIfEmpty(),
+                    // For display name, preserve any non-blank value since users enter this during signup
+                    displayName = (data["displayName"] as? String)?.takeIf { it.isNotBlank() },
+                    // For bio, preserve any non-blank value that user has entered
+                    bio = (data["bio"] as? String)?.takeIf { it.isNotBlank() },
+                    photoUrl = (data["photoUrl"] as? String).nullIfTrulyEmpty(),
                     createdAt = (data["createdAt"] as? com.google.firebase.Timestamp)?.toDate()?.time ?: System.currentTimeMillis(),
                     // Handle health info fields with proper type conversion and null handling
-                    gender = (data["gender"] as? String).nullIfEmpty(),
+                    gender = (data["gender"] as? String).nullIfTrulyEmpty(),
                     height = when (val heightValue = data["height"]) {
                         is Double -> if (heightValue == 0.0) null else heightValue.toFloat()
                         is Float -> if (heightValue == 0.0f) null else heightValue
@@ -284,7 +294,7 @@ class UserProfileRepositoryImpl @Inject constructor(
                         is Long -> if (weightValue == 0L) null else weightValue.toFloat()
                         else -> null
                     },
-                    birthday = (data["birthday"] as? String).nullIfEmpty(),
+                    birthday = (data["birthday"] as? String).nullIfTrulyEmpty(),
                     isProfileComplete = data["isProfileComplete"] as? Boolean ?: false
                 )
 
@@ -305,6 +315,7 @@ class UserProfileRepositoryImpl @Inject constructor(
             // Use consistent null handling for updates - same as create method
             val updateData = mapOf(
                 "displayName" to (userProfile.displayName ?: ""), // Empty string instead of null
+                "bio" to (userProfile.bio ?: ""), // Include bio in Firestore updates
                 "photoUrl" to (userProfile.photoUrl ?: ""), // Empty string instead of null
                 "updatedAt" to com.google.firebase.Timestamp.now(),
                 "gender" to (userProfile.gender ?: ""), // Empty string for unspecified gender
@@ -348,8 +359,9 @@ class UserProfileRepositoryImpl @Inject constructor(
             dataStore.edit { preferences ->
                 preferences[USER_ID_KEY] = userProfile.userId
                 preferences[USER_EMAIL_KEY] = userProfile.email
-                preferences[DISPLAY_NAME_KEY] = userProfile.displayName ?: ""
-                preferences[PHOTO_URL_KEY] = userProfile.photoUrl ?: ""
+                userProfile.displayName?.let { preferences[DISPLAY_NAME_KEY] = it }
+                userProfile.bio?.let { preferences[BIO_KEY] = it }
+                userProfile.photoUrl?.let { preferences[PHOTO_URL_KEY] = it }
                 preferences[CREATED_AT_KEY] = userProfile.createdAt
                 userProfile.gender?.let { preferences[GENDER_KEY] = it }
                 userProfile.height?.let { preferences[HEIGHT_KEY] = it }
@@ -369,6 +381,7 @@ class UserProfileRepositoryImpl @Inject constructor(
                 preferences[USER_ID_KEY] = userProfile.userId
                 preferences[USER_EMAIL_KEY] = userProfile.email
                 preferences[DISPLAY_NAME_KEY] = userProfile.displayName ?: ""
+                preferences[BIO_KEY] = userProfile.bio ?: "" // Include bio in local storage
                 preferences[PHOTO_URL_KEY] = userProfile.photoUrl ?: ""
                 preferences[CREATED_AT_KEY] = userProfile.createdAt
                 preferences[GENDER_KEY] = userProfile.gender ?: ""

@@ -108,6 +108,7 @@ data class UserProfile(
     val userId: String,
     val email: String,
     val displayName: String? = null,
+    val bio: String? = null, // User's bio/description
     val photoUrl: String? = null,
     val createdAt: Long = System.currentTimeMillis(),
     // Personal health information

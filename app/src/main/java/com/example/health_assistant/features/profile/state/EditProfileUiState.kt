@@ -67,6 +67,7 @@ data class ProfileData(
     val userId: String,
     val email: String,
     val displayName: String = "",
+    val bio: String? = null, // User bio/description
     val photoUrl: String? = null,
     val birthday: String? = null, // ISO format YYYY-MM-DD
     val gender: Gender? = null,
@@ -81,6 +82,7 @@ data class ProfileData(
  */
 enum class ProfileField {
     DISPLAY_NAME,
+    BIO,
     BIRTHDAY,
     GENDER,
     HEIGHT,

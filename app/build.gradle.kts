@@ -176,4 +176,8 @@ dependencies {
     implementation(libs.androidx.lifecycle.livedata.ktx)
     implementation(libs.androidx.fragment.ktx)
 
+
+    implementation (libs.play.services.fitness)
+    implementation(libs.androidx.health.services.client)
+    implementation (libs.kotlinx.coroutines.android.v1102)
 }

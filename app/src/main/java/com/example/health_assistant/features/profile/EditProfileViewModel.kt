@@ -40,6 +40,7 @@ class EditProfileViewModel @Inject constructor(
 
     // Field validation states
     private val _displayNameValidation = MutableStateFlow<FieldValidationState>(FieldValidationState.Idle)
+    private val _bioValidation = MutableStateFlow<FieldValidationState>(FieldValidationState.Idle)
     private val _birthdayValidation = MutableStateFlow<FieldValidationState>(FieldValidationState.Idle)
     private val _genderValidation = MutableStateFlow<FieldValidationState>(FieldValidationState.Idle)
     private val _heightValidation = MutableStateFlow<FieldValidationState>(FieldValidationState.Idle)
@@ -47,6 +48,7 @@ class EditProfileViewModel @Inject constructor(
 
     // Current form data
     private val _currentDisplayName = MutableStateFlow("")
+    private val _currentBio = MutableStateFlow<String?>(null)
     private val _currentBirthday = MutableStateFlow<String?>(null)
     private val _currentGender = MutableStateFlow<String?>(null)
     private val _currentHeight = MutableStateFlow<String?>(null)
@@ -65,6 +67,7 @@ class EditProfileViewModel @Inject constructor(
 
     // Field validation states
     val displayNameValidation: StateFlow<FieldValidationState> = _displayNameValidation.asStateFlow()
+    val bioValidation: StateFlow<FieldValidationState> = _bioValidation.asStateFlow()
     val birthdayValidation: StateFlow<FieldValidationState> = _birthdayValidation.asStateFlow()
     val genderValidation: StateFlow<FieldValidationState> = _genderValidation.asStateFlow()
     val heightValidation: StateFlow<FieldValidationState> = _heightValidation.asStateFlow()
@@ -72,6 +75,7 @@ class EditProfileViewModel @Inject constructor(
 
     // Current form data
     val currentDisplayName: StateFlow<String> = _currentDisplayName.asStateFlow()
+    val currentBio: StateFlow<String?> = _currentBio.asStateFlow()
     val currentBirthday: StateFlow<String?> = _currentBirthday.asStateFlow()
     val currentGender: StateFlow<String?> = _currentGender.asStateFlow()
     val currentHeight: StateFlow<String?> = _currentHeight.asStateFlow()
@@ -135,6 +139,15 @@ class EditProfileViewModel @Inject constructor(
     fun updateDisplayName(displayName: String) {
         _currentDisplayName.value = displayName
         validateFieldRealTime(ProfileField.DISPLAY_NAME, displayName)
+        updateFormState()
+    }
+
+    /**
+     * Update bio with validation
+     */
+    fun updateBio(bio: String?) {
+        _currentBio.value = bio
+        validateFieldRealTime(ProfileField.BIO, bio ?: "")
         updateFormState()
     }
 
@@ -258,6 +271,7 @@ class EditProfileViewModel @Inject constructor(
             // Create updated profile (do NOT update photoUrl here)
             val updatedProfile = currentProfileState.profile.copy(
                 displayName = _currentDisplayName.value.trim(),
+                bio = _currentBio.value?.trim(),
                 birthday = _currentBirthday.value,
                 gender = Gender.fromString(_currentGender.value),
                 height = _currentHeight.value?.toFloatOrNull(),
@@ -313,6 +327,7 @@ class EditProfileViewModel @Inject constructor(
         val original = originalProfile ?: return false
 
         return _currentDisplayName.value != original.displayName ||
+               _currentBio.value != original.bio ||
                _currentBirthday.value != original.birthday ||
                _currentGender.value != original.gender?.name ||
                _currentHeight.value != original.height?.toString() ||
@@ -324,21 +339,42 @@ class EditProfileViewModel @Inject constructor(
      * Setup monitoring of form fields for real-time validation
      */
     private fun setupFormChangeMonitoring() {
-        // Combine latest values from all form fields
-        combine(
-            _currentDisplayName,
-            _currentBirthday,
-            _currentGender,
-            _currentHeight,
-            _currentWeight
-        ) { displayName, birthday, gender, height, weight ->
-            // Validate each field individually
-            validateFieldRealTime(ProfileField.DISPLAY_NAME, displayName)
-            validateFieldRealTime(ProfileField.BIRTHDAY, birthday ?: "")
-            validateFieldRealTime(ProfileField.GENDER, gender ?: "")
-            validateFieldRealTime(ProfileField.HEIGHT, height ?: "")
-            validateFieldRealTime(ProfileField.WEIGHT, weight ?: "")
-        }.launchIn(viewModelScope)
+        // Monitor each field individually to avoid complex combine issues
+        viewModelScope.launch {
+            _currentDisplayName.collect { displayName ->
+                validateFieldRealTime(ProfileField.DISPLAY_NAME, displayName)
+            }
+        }
+
+        viewModelScope.launch {
+            _currentBio.collect { bio ->
+                validateFieldRealTime(ProfileField.BIO, bio ?: "")
+            }
+        }
+
+        viewModelScope.launch {
+            _currentBirthday.collect { birthday ->
+                validateFieldRealTime(ProfileField.BIRTHDAY, birthday ?: "")
+            }
+        }
+
+        viewModelScope.launch {
+            _currentGender.collect { gender ->
+                validateFieldRealTime(ProfileField.GENDER, gender ?: "")
+            }
+        }
+
+        viewModelScope.launch {
+            _currentHeight.collect { height ->
+                validateFieldRealTime(ProfileField.HEIGHT, height ?: "")
+            }
+        }
+
+        viewModelScope.launch {
+            _currentWeight.collect { weight ->
+                validateFieldRealTime(ProfileField.WEIGHT, weight ?: "")
+            }
+        }
     }
 
     /**
@@ -353,6 +389,15 @@ class EditProfileViewModel @Inject constructor(
                     FieldValidationState.Error("Display name must be at least 2 characters")
                 } else if (value.length > 50) {
                     FieldValidationState.Error("Display name must be less than 50 characters")
+                } else {
+                    FieldValidationState.Valid
+                }
+            }
+            ProfileField.BIO -> {
+                if (value.isBlank()) {
+                    FieldValidationState.Valid // Optional field, no error if blank
+                } else if (value.length > 160) {
+                    FieldValidationState.Error("Bio must be less than 160 characters")
                 } else {
                     FieldValidationState.Valid
                 }
@@ -408,6 +453,7 @@ class EditProfileViewModel @Inject constructor(
         // Update the corresponding validation state flow
         when (field) {
             ProfileField.DISPLAY_NAME -> _displayNameValidation.value = validationState
+            ProfileField.BIO -> _bioValidation.value = validationState
             ProfileField.BIRTHDAY -> _birthdayValidation.value = validationState
             ProfileField.GENDER -> _genderValidation.value = validationState
             ProfileField.HEIGHT -> _heightValidation.value = validationState
@@ -438,6 +484,7 @@ class EditProfileViewModel @Inject constructor(
             userId = userProfile.userId,
             email = userProfile.email,
             displayName = userProfile.displayName ?: "",
+            bio = userProfile.bio, // Add bio field mapping
             birthday = userProfile.birthday,
             gender = Gender.fromString(userProfile.gender),
             height = userProfile.height,
@@ -455,6 +502,7 @@ class EditProfileViewModel @Inject constructor(
             userId = profileData.userId,
             email = profileData.email,
             displayName = profileData.displayName.takeIf { it.isNotBlank() },
+            bio = profileData.bio, // Add bio field mapping
             birthday = profileData.birthday,
             gender = profileData.gender?.name,
             height = profileData.height,
@@ -503,6 +551,7 @@ class EditProfileViewModel @Inject constructor(
      */
     private fun populateFormFields(profileData: ProfileData) {
         _currentDisplayName.value = profileData.displayName
+        _currentBio.value = profileData.bio
         _currentBirthday.value = profileData.birthday
         _currentGender.value = profileData.gender?.name
         _currentHeight.value = profileData.height?.toString()
