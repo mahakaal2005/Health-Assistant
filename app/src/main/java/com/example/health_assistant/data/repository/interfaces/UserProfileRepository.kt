@@ -92,6 +92,13 @@ interface UserProfileRepository {
      * @return Result indicating success or failure
      */
     suspend fun deleteUserProfileFromFirestore(userId: String): Result<Unit>
+
+    /**
+     * Save the entire user profile to local storage (DataStore)
+     * @param userProfile User profile data to save
+     * @return Result indicating success or failure
+     */
+    suspend fun saveUserProfileLocally(userProfile: UserProfile): Result<Unit>
 }
 
 /**

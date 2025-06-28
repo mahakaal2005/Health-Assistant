@@ -255,25 +255,25 @@ class EditProfileViewModel @Inject constructor(
                 return@launch
             }
 
-            // Create updated profile
+            // Create updated profile (do NOT update photoUrl here)
             val updatedProfile = currentProfileState.profile.copy(
                 displayName = _currentDisplayName.value.trim(),
                 birthday = _currentBirthday.value,
                 gender = Gender.fromString(_currentGender.value),
                 height = _currentHeight.value?.toFloatOrNull(),
                 weight = _currentWeight.value?.toFloatOrNull(),
-                photoUrl = _currentPhotoUrl.value,
+                // photoUrl is intentionally NOT updated here
                 isProfileComplete = true
             )
 
             // Convert to UserProfile for repository
             val userProfile = mapProfileDataToUserProfile(updatedProfile)
 
-            // Save to repository
+            // Save to repository (Firestore)
             when (val result = userProfileRepository.updateUserProfileInFirestore(userProfile)) {
                 is Result.Success -> {
-                    // Update local storage
-                    userProfileRepository.saveUserProfile(updatedProfile.userId, updatedProfile.email)
+                    // Update all fields in local storage for offline access
+                    userProfileRepository.saveUserProfileLocally(userProfile)
                     originalProfile = updatedProfile
                     _saveState.value = SaveOperationState.Success
                     updateFormState() // Reset hasChanges flag
@@ -508,5 +508,78 @@ class EditProfileViewModel @Inject constructor(
         _currentHeight.value = profileData.height?.toString()
         _currentWeight.value = profileData.weight?.toString()
         _currentPhotoUrl.value = profileData.photoUrl
+    }
+
+    /**
+     * Get the current user ID from the repository (suspend function)
+     */
+    suspend fun getCurrentUserId(): String? {
+        return try {
+            userProfileRepository.getUserId().firstOrNull()?.let {
+                if (it is Result.Success) it.data else null
+            }
+        } catch (e: Exception) {
+            null
+        }
+    }
+
+    /**
+     * Force sync the user profile from Firestore/remote and update UI state
+     */
+    fun syncProfileFromRemote(userId: String) {
+        viewModelScope.launch {
+            _loadingState.value = _loadingState.value.copy(isLoadingProfile = true)
+            _uiState.value = EditProfileUiState.Loading
+            when (val result = userProfileRepository.syncUserProfileFromFirestore(userId)) {
+                is Result.Success -> {
+                    if (result.data != null) {
+                        val profileData = ProfileFieldMapper.mapUserProfileToProfileData(result.data)
+                        originalProfile = profileData
+                        populateFormFields(profileData)
+                        _uiState.value = EditProfileUiState.Success(profileData)
+                    } else {
+                        _uiState.value = EditProfileUiState.Error(
+                            "Profile not found in remote storage.",
+                            ErrorCause.UNKNOWN
+                        )
+                    }
+                }
+                is Result.Error -> {
+                    _uiState.value = EditProfileUiState.Error(
+                        result.message ?: "Failed to sync profile from remote.",
+                        ErrorCause.NETWORK
+                    )
+                }
+                is Result.Loading -> {
+                    // Optionally handle loading state if needed
+                }
+            }
+            _loadingState.value = _loadingState.value.copy(isLoadingProfile = false)
+        }
+    }
+
+    /**
+     * Sync profile from Firestore and update local storage when Edit Profile is opened
+     * This should be called from the fragment's onViewCreated before loading the profile.
+     */
+    fun syncProfileOnEditOpen() {
+        viewModelScope.launch {
+            val userId = getCurrentUserId()
+            if (!userId.isNullOrBlank()) {
+                when (val result = userProfileRepository.syncUserProfileFromFirestore(userId)) {
+                    is Result.Success -> {
+                        result.data?.let {
+                            userProfileRepository.saveUserProfileLocally(it)
+                        }
+                    }
+                    is Result.Error -> {
+                        // Optionally log or handle error
+                    }
+                    is Result.Loading -> {
+                        // Optionally handle loading state
+                    }
+                }
+            }
+        }
     }
 }

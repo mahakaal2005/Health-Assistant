@@ -362,4 +362,24 @@ class UserProfileRepositoryImpl @Inject constructor(
             android.util.Log.e("UserProfileRepo", "Failed to update local DataStore", e)
         }
     }
+
+    override suspend fun saveUserProfileLocally(userProfile: UserProfile): Result<Unit> {
+        return try {
+            dataStore.edit { preferences ->
+                preferences[USER_ID_KEY] = userProfile.userId
+                preferences[USER_EMAIL_KEY] = userProfile.email
+                preferences[DISPLAY_NAME_KEY] = userProfile.displayName ?: ""
+                preferences[PHOTO_URL_KEY] = userProfile.photoUrl ?: ""
+                preferences[CREATED_AT_KEY] = userProfile.createdAt
+                preferences[GENDER_KEY] = userProfile.gender ?: ""
+                preferences[HEIGHT_KEY] = userProfile.height ?: 0f
+                preferences[WEIGHT_KEY] = userProfile.weight ?: 0f
+                preferences[BIRTHDAY_KEY] = userProfile.birthday ?: ""
+                preferences[IS_PROFILE_COMPLETE_KEY] = userProfile.isProfileComplete
+            }
+            Result.Success(Unit)
+        } catch (e: Exception) {
+            Result.Error(exception = e)
+        }
+    }
 }

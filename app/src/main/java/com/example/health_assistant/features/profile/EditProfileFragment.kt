@@ -74,6 +74,9 @@ class EditProfileFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        // Always sync profile from Firestore to local storage when Edit Profile is opened
+        viewModel.syncProfileOnEditOpen()
+
         setupUI()
         setupObservers()
         setupRealTimeValidation()
@@ -186,7 +189,6 @@ class EditProfileFragment : Fragment() {
     private fun handleUiState(state: EditProfileUiState) {
         when (state) {
             is EditProfileUiState.Initial -> {
-                // Initial state, show loading
                 binding.progressOverlay.visibility = View.VISIBLE
             }
             is EditProfileUiState.Loading -> {
@@ -201,6 +203,11 @@ class EditProfileFragment : Fragment() {
                 binding.progressOverlay.visibility = View.GONE
                 showError(state.message)
 
+                // If profile not found locally, try to sync from Firestore
+                if (state.message.contains("Profile not found", ignoreCase = true)) {
+                    forceSyncProfileFromRemote()
+                }
+
                 // Show retry option based on error cause
                 when (state.cause) {
                     ErrorCause.NETWORK -> {
@@ -212,6 +219,18 @@ class EditProfileFragment : Fragment() {
                         showError(state.message)
                     }
                 }
+            }
+        }
+    }
+
+    /**
+     * Force sync profile from Firestore if local data is missing
+     */
+    private fun forceSyncProfileFromRemote() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            val userId = viewModel.getCurrentUserId()
+            if (!userId.isNullOrBlank()) {
+                viewModel.syncProfileFromRemote(userId)
             }
         }
     }
@@ -541,10 +560,23 @@ class EditProfileFragment : Fragment() {
     }
 
     /**
-     * Populate form fields from profile data
+     * Populate form fields from profile data, with fallback to clear fields if data is missing
      */
-    private fun populateFields(profile: ProfileData) {
+    private fun populateFields(profile: ProfileData?) {
         with(binding) {
+            if (profile == null) {
+                // Clear all fields if profile is missing
+                emailTextView.text = ""
+                displayNameEditText.setText("")
+                birthdayEditText.setText("")
+                birthdayEditText.tag = null
+                genderDropdown.setText("", false)
+                heightEditText.setText("")
+                weightEditText.setText("")
+                loadProfileImage(null)
+                return
+            }
+
             // Email (read-only)
             emailTextView.text = profile.email
 
