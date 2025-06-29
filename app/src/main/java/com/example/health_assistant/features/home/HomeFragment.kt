@@ -104,7 +104,7 @@ class HomeFragment : Fragment() {
             // Skip entrance animations on subsequent launches
             binding.greetingText.alpha = 1f
             binding.dateText.alpha = 1f
-            binding.avatarContainer.alpha = 1f
+            binding.userAvatar.alpha = 1f
             binding.contextualCard.alpha = 1f
             binding.healthSummaryCard.alpha = 1f
             binding.quickActionsTitle.alpha = 1f
@@ -154,10 +154,10 @@ class HomeFragment : Fragment() {
         binding.dateText.text = dateFormat.format(Date())
 
         // Set up avatar click interaction
-        binding.avatarContainer.setOnClickListener {
+        binding.userAvatar.setOnClickListener {
             // Apply a quick pulse animation
-            val scaleX = ObjectAnimator.ofFloat(binding.avatarContainer, "scaleX", 1f, 0.9f, 1f)
-            val scaleY = ObjectAnimator.ofFloat(binding.avatarContainer, "scaleY", 1f, 0.9f, 1f)
+            val scaleX = ObjectAnimator.ofFloat(binding.userAvatar, "scaleX", 1f, 0.9f, 1f)
+            val scaleY = ObjectAnimator.ofFloat(binding.userAvatar, "scaleY", 1f, 0.9f, 1f)
             scaleX.duration = 300
             scaleY.duration = 300
             scaleX.interpolator = OvershootInterpolator()
@@ -313,7 +313,7 @@ class HomeFragment : Fragment() {
         // Animate in sequence for a premium feel
         animateAlpha(binding.greetingText, 0f, 1f, animDuration, 0)
         animateAlpha(binding.dateText, 0f, 1f, animDuration, animDelay)
-        animateAlpha(binding.avatarContainer, 0f, 1f, animDuration, animDelay * 2)
+        animateAlpha(binding.userAvatar, 0f, 1f, animDuration, animDelay * 2)
         animateAlpha(binding.contextualCard, 0f, 1f, animDuration, animDelay * 3)
 
         // Health card rises up with a slight delay

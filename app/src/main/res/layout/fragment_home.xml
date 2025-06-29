@@ -87,6 +87,7 @@
                         style="@style/TextAppearance.HealthAssistant.Greeting"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:layout_gravity="center"
                         android:text="Good morning, Alex"
                         android:elevation="2dp" />
 
@@ -96,33 +97,26 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="4dp"
-                        android:text="June 14, 2025"
+                        android:layout_gravity="center"
+                        android:text="June 29, 2025"
                         android:elevation="1dp"/>
                 </LinearLayout>
 
-                <!-- Interactive User Avatar with Ripple Effect -->
-                <FrameLayout
-                    android:id="@+id/avatar_container"
-                    android:layout_width="60dp"
-                    android:layout_height="60dp"
-                    android:background="@drawable/glassmorphism_card_background"
-                    android:foreground="?attr/selectableItemBackgroundBorderless"
-                    android:padding="2dp"
-                    android:elevation="3dp"
+                <!-- Clean User Avatar - Just the Image -->
+                <de.hdodenhof.circleimageview.CircleImageView
+                    android:id="@+id/user_avatar"
+                    android:layout_width="56dp"
+                    android:layout_height="56dp"
+                    android:layout_marginTop="12dp"
+                    android:clickable="true"
+                    android:contentDescription="View profile photo"
+                    android:focusable="true"
+                    android:scaleType="centerCrop"
+                    android:src="@android:drawable/ic_menu_myplaces"
+                    app:civ_border_color="#FFFFFF"
+                    app:civ_border_width="2dp"
                     app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintTop_toTopOf="parent">
-
-                    <de.hdodenhof.circleimageview.CircleImageView
-                        android:id="@+id/user_avatar"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:src="@android:drawable/ic_menu_myplaces"
-                        android:clickable="true"
-                        android:focusable="true"
-                        android:contentDescription="View profile photo in full screen"
-                        app:civ_border_width="2dp"
-                        app:civ_border_color="#30FFFFFF" />
-                </FrameLayout>
+                    app:layout_constraintTop_toTopOf="parent" />
             </androidx.constraintlayout.widget.ConstraintLayout>
 
             <!-- Health Summary Card with Glassmorphism Effect -->

@@ -30,7 +30,7 @@ android {
 
         applicationId = "com.example.health_assistant"
 
-        minSdk = 24
+        minSdk = 30
 
         targetSdk = 35
 

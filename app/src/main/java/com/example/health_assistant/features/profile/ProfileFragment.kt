@@ -65,20 +65,14 @@ class ProfileFragment : Fragment() {
     }
 
     private fun observeViewModel() {
-        viewModel.userEmail.observe(viewLifecycleOwner) { email ->
-            if (!email.isNullOrEmpty()) {
-                binding.profileIntroText.text = "Hello, $email"
-            }
-        }
-
-        // Observe full user profile to display bio and other fields
+        // Observe full user profile to display name and other fields
         viewModel.userProfile.observe(viewLifecycleOwner) { profile ->
             profile?.let {
-                // Update display name if available
+                // Update the user's full name display
                 if (!it.displayName.isNullOrBlank()) {
-                    binding.profileIntroText.text = "Hello, ${it.displayName}"
-                } else if (!it.email.isNullOrEmpty()) {
-                    binding.profileIntroText.text = "Hello, ${it.email}"
+                    binding.userFullName.text = it.displayName
+                } else {
+                    binding.userFullName.text = "User" // Fallback name
                 }
 
                 // Update bio field
@@ -91,6 +85,9 @@ class ProfileFragment : Fragment() {
                 }
             }
         }
+
+        // Keep the welcome text as set in XML - don't override it
+        // This preserves your "Welcome Buddy!!" message
     }
 
     private fun setupUI() {
