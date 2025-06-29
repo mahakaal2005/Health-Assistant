@@ -49,7 +49,7 @@ class AuthViewModel @Inject constructor(
 
     /**
      * Register a new user with email and password
-     * Creates user profile in both local DataStore and Firestore
+     * Creates user profile in both local DataStore and Firestore with display name
      */
     fun registerUser(email: String, password: String, displayName: String) {
         _authState.value = AuthState.Loading
@@ -59,25 +59,36 @@ class AuthViewModel @Inject constructor(
             when (result) {
                 is Result.Success -> {
                     result.data?.let { user ->
+                        // Ensure we have a proper display name
+                        val finalDisplayName = when {
+                            displayName.isNotBlank() -> displayName.trim()
+                            user.displayName?.isNotBlank() == true -> user.displayName!!
+                            else -> email.substringBefore("@").replaceFirstChar {
+                                if (it.isLowerCase()) it.titlecase() else it.toString()
+                            }
+                        }
+
                         // Create complete user profile for Firestore with provided displayName
                         val userProfile = UserProfile(
                             userId = user.uid,
                             email = user.email ?: email,
-                            displayName = displayName.takeIf { it.isNotBlank() } ?: user.displayName,
+                            displayName = finalDisplayName,
                             photoUrl = user.photoUrl?.toString(),
                             createdAt = System.currentTimeMillis(),
-                            isProfileComplete = false
+                            isProfileComplete = false // User still needs to complete other profile details
                         )
 
                         // Create profile in Firestore (this also saves to local DataStore)
                         val firestoreResult = userProfileRepository.createUserProfileInFirestore(userProfile)
                         when (firestoreResult) {
                             is Result.Success -> {
+                                android.util.Log.d("AuthViewModel", "User profile created successfully in Firestore with displayName: $finalDisplayName")
                                 _authState.value = AuthState.Success
                             }
                             is Result.Error -> {
+                                android.util.Log.w("AuthViewModel", "Firestore profile creation failed: ${firestoreResult.message}")
                                 // Firestore failed, but auth succeeded - still allow user to proceed
-                                // Save to local DataStore as fallback
+                                // Save to local DataStore as fallback with display name
                                 userProfileRepository.saveUserProfile(user.uid, user.email ?: email)
                                 _authState.value = AuthState.Success
                             }

@@ -18,6 +18,7 @@ import androidx.navigation.fragment.findNavController
 import com.example.health_assistant.R
 import com.example.health_assistant.databinding.FragmentEditProfileBinding
 import com.example.health_assistant.features.profile.state.*
+import com.example.health_assistant.utils.ProfilePhotoManager
 import com.google.android.material.datepicker.CalendarConstraints
 import com.google.android.material.datepicker.MaterialDatePicker
 import com.google.android.material.snackbar.Snackbar
@@ -26,6 +27,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.*
+import javax.inject.Inject
 
 /**
  * Enhanced Edit Profile Fragment with modern UX patterns, accessibility, and reactive state management
@@ -38,6 +40,10 @@ class EditProfileFragment : Fragment() {
     private val binding get() = _binding!!
 
     private val viewModel: EditProfileViewModel by viewModels()
+
+    // Inject ProfilePhotoManager for synchronized photo handling across fragments
+    @Inject
+    lateinit var profilePhotoManager: ProfilePhotoManager
 
     // Date formatters for birthday handling
     private val isoDateFormatter = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
@@ -303,7 +309,7 @@ class EditProfileFragment : Fragment() {
             is PhotoUploadState.Success -> {
                 binding.photoUploadProgress.visibility = View.GONE
                 // Load the image (will be enhanced with Room integration)
-                loadProfileImage(state.photoUrl)
+                profilePhotoManager.loadProfileImage(state.photoUrl, binding.profileImageView)
             }
             is PhotoUploadState.Error -> {
                 binding.photoUploadProgress.visibility = View.GONE
@@ -422,7 +428,7 @@ class EditProfileFragment : Fragment() {
 
         viewLifecycleOwner.lifecycleScope.launch {
             viewModel.currentPhotoUrl.collect { photoUrl ->
-                loadProfileImage(photoUrl)
+                profilePhotoManager.loadProfileImage(photoUrl, binding.profileImageView)
             }
         }
     }
@@ -545,27 +551,6 @@ class EditProfileFragment : Fragment() {
     }
 
     /**
-     * Load and display profile image with fallback handling
-     */
-    private fun loadProfileImage(photoUrl: String?) {
-        if (photoUrl.isNullOrBlank()) {
-            // Show default avatar
-            binding.profileImageView.setImageResource(R.drawable.ic_person)
-            return
-        }
-
-        try {
-            // For now, basic URI handling - will be enhanced with Room integration
-            val uri = Uri.parse(photoUrl)
-            binding.profileImageView.setImageURI(uri)
-        } catch (e: Exception) {
-            // Fallback to default image
-            binding.profileImageView.setImageResource(R.drawable.ic_person)
-            android.util.Log.w("EditProfile", "Failed to load profile image: ${e.message}")
-        }
-    }
-
-    /**
      * Setup gender dropdown with accessibility support
      */
     private fun setupGenderDropdown() {
@@ -597,7 +582,7 @@ class EditProfileFragment : Fragment() {
                 genderDropdown.setText("", false)
                 heightEditText.setText("")
                 weightEditText.setText("")
-                loadProfileImage(null)
+                profilePhotoManager.loadProfileImage(null, profileImageView)
                 return
             }
 
@@ -658,7 +643,7 @@ class EditProfileFragment : Fragment() {
             }
 
             // Profile photo
-            loadProfileImage(profile.photoUrl)
+            profilePhotoManager.loadProfileImage(profile.photoUrl, profileImageView)
         }
     }
 

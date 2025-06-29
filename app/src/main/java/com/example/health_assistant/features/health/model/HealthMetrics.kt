@@ -6,7 +6,7 @@ package com.example.health_assistant.features.health.model
 data class HealthMetrics(
     val steps: HealthMetric = HealthMetric(0, 9000),
     val calories: HealthMetric = HealthMetric(0, 300),
-    val workout: HealthMetric = HealthMetric(0, 30)
+    val heartPoints: HealthMetric = HealthMetric(0, 50)
 )
 
 /**

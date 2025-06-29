@@ -22,7 +22,7 @@ class HealthRepositoryImpl @Inject constructor() : HealthRepository {
             getCurrentDate() to HealthMetrics(
                 steps = com.example.health_assistant.features.health.model.HealthMetric(171, 9000),
                 calories = com.example.health_assistant.features.health.model.HealthMetric(8, 300),
-                workout = com.example.health_assistant.features.health.model.HealthMetric(0, 30)
+                heartPoints = com.example.health_assistant.features.health.model.HealthMetric(0, 50)
             )
         )
     )
@@ -121,7 +121,7 @@ class HealthRepositoryImpl @Inject constructor() : HealthRepository {
         return HealthMetrics(
             steps = com.example.health_assistant.features.health.model.HealthMetric(0, 9000),
             calories = com.example.health_assistant.features.health.model.HealthMetric(0, 300),
-            workout = com.example.health_assistant.features.health.model.HealthMetric(0, 30)
+            heartPoints = com.example.health_assistant.features.health.model.HealthMetric(0, 50)
         )
     }
 }

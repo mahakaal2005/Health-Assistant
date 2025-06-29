@@ -14,9 +14,12 @@ import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.health_assistant.R
 import com.example.health_assistant.auth.session.SessionManager
+import com.example.health_assistant.core.util.Result
+import com.example.health_assistant.data.repository.interfaces.UserProfileRepository
 import com.example.health_assistant.databinding.FragmentHomeBinding
 import com.example.health_assistant.features.health.model.HealthMetrics
 import com.example.health_assistant.features.health.viewmodel.HealthMetricsViewModel
@@ -24,6 +27,7 @@ import com.example.health_assistant.features.home.adapters.WellnessTipsAdapter
 import com.example.health_assistant.features.home.models.WellnessTip
 import com.example.health_assistant.utils.ProfilePhotoManager
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
@@ -47,6 +51,10 @@ class HomeFragment : Fragment() {
     // Inject ProfilePhotoManager using Hilt
     @Inject
     lateinit var profilePhotoManager: ProfilePhotoManager
+
+    // Inject UserProfileRepository to get real-time display name
+    @Inject
+    lateinit var userProfileRepository: UserProfileRepository
 
     private lateinit var wellnessTipsAdapter: WellnessTipsAdapter
 
@@ -81,6 +89,9 @@ class HomeFragment : Fragment() {
         setupQuickActions()
         setupWellnessInsights()
         loadProfilePhoto()
+
+        // Load user profile and update greeting in real-time
+        loadUserProfileAndUpdateGreeting()
 
         // Observe health metrics data
         healthMetricsViewModel.healthMetrics.observe(viewLifecycleOwner, Observer { metrics ->
@@ -124,8 +135,13 @@ class HomeFragment : Fragment() {
         super.onResume()
         // Refresh profile photo when returning to home (e.g., from EditProfileFragment)
         loadProfilePhoto()
+        // Refresh greeting with updated display name
+        loadUserProfileAndUpdateGreeting()
     }
 
+    /**
+     * Load and display user's profile photo using the shared ProfilePhotoManager
+     */
     private fun loadProfilePhoto() {
         // Load profile photo using the shared manager
         profilePhotoManager.loadProfilePhoto(
@@ -137,17 +153,79 @@ class HomeFragment : Fragment() {
     }
 
     /**
-     * Sets up personalized greeting with user name and time-based greeting
+     * Load user profile and update greeting with real display name
      */
-    private fun setupGreetingSection() {
-        // Set user name if available with proper capitalization
+    private fun loadUserProfileAndUpdateGreeting() {
+        lifecycleScope.launch {
+            try {
+                val result = userProfileRepository.getUserProfile()
+                when (result) {
+                    is Result.Success -> {
+                        val profile = result.data
+                        updateGreetingWithProfile(profile?.displayName)
+                    }
+                    is Result.Error -> {
+                        // Fallback to email-based name if profile fetch fails
+                        updateGreetingWithFallback()
+                    }
+                    is Result.Loading -> {
+                        // Show loading state or keep current greeting
+                    }
+                }
+            } catch (e: Exception) {
+                // Handle error gracefully
+                updateGreetingWithFallback()
+                android.util.Log.e("HomeFragment", "Error loading user profile for greeting", e)
+            }
+        }
+    }
+
+    /**
+     * Update greeting text with user's display name (first name only)
+     */
+    private fun updateGreetingWithProfile(displayName: String?) {
+        val firstName = when {
+            !displayName.isNullOrBlank() -> {
+                // Extract first name from display name
+                displayName.trim().split(" ").firstOrNull()?.takeIf { it.isNotBlank() }
+            }
+            else -> null
+        }
+
+        val greetingName = firstName ?: run {
+            // Fallback to email-derived name
+            sessionManager.getUserEmail()?.let { email ->
+                email.substringBefore("@").replaceFirstChar { char ->
+                    if (char.isLowerCase()) char.titlecase(Locale.getDefault()) else char.toString()
+                }
+            } ?: "User"
+        }
+
+        // Update greeting text with time-based greeting and first name
+        binding.greetingText.text = "${getTimeBasedGreeting()}, $greetingName"
+    }
+
+    /**
+     * Fallback method to update greeting when profile is not available
+     */
+    private fun updateGreetingWithFallback() {
         val userEmail = sessionManager.getUserEmail()
-        userEmail?.let {
-            val userName = it.substringBefore("@").replaceFirstChar { char ->
+        val userName = userEmail?.let {
+            it.substringBefore("@").replaceFirstChar { char ->
                 if (char.isLowerCase()) char.titlecase(Locale.getDefault()) else char.toString()
             }
-            binding.greetingText.text = "${getTimeBasedGreeting()}, $userName"
-        }
+        } ?: "User"
+
+        binding.greetingText.text = "${getTimeBasedGreeting()}, $userName"
+    }
+
+    /**
+     * Sets up personalized greeting with user name and time-based greeting
+     * Initial setup - will be updated by loadUserProfileAndUpdateGreeting()
+     */
+    private fun setupGreetingSection() {
+        // Set initial greeting (will be updated with real profile data)
+        updateGreetingWithFallback()
 
         // Set current date in friendly format
         val dateFormat = SimpleDateFormat("EEEE, MMMM d", Locale.getDefault())
@@ -184,8 +262,6 @@ class HomeFragment : Fragment() {
      */
     private fun setupContextualCard() {
         // Always show wellness tip instead of time-based weather/tip
-        binding.contextualIcon.setImageResource(android.R.drawable.ic_menu_info_details)
-        binding.contextualIcon.setColorFilter(ContextCompat.getColor(requireContext(), R.color.colorPrimaryGradientStart))
         binding.contextualTitle.text = "Wellness Tip"
 
         // Rotate through different wellness tips
@@ -220,12 +296,12 @@ class HomeFragment : Fragment() {
         // Initialize the triple-ring progress view with initial/empty values
         binding.tripleRingProgress.setStepsProgress(0, 9000)
         binding.tripleRingProgress.setCaloriesProgress(0, 300)
-        binding.tripleRingProgress.setWorkoutProgress(0, 30)
+        binding.tripleRingProgress.setHeartPointsProgress(0, 50)
 
         // Initialize text values in the legend
         binding.stepsValue.text = "0 / 9000 steps"
         binding.caloriesValue.text = "0 / 300 kcal"
-        binding.workoutValue.text = "0 / 30 min"
+        binding.heartPointsValue.text = "0 / 50 points"
     }
 
     /**
@@ -243,15 +319,15 @@ class HomeFragment : Fragment() {
             metrics.calories.target
         )
 
-        binding.tripleRingProgress.setWorkoutProgress(
-            metrics.workout.current,
-            metrics.workout.target
+        binding.tripleRingProgress.setHeartPointsProgress(
+            metrics.heartPoints.current,
+            metrics.heartPoints.target
         )
 
         // Update text values in the legend
         binding.stepsValue.text = "${metrics.steps.current} / ${metrics.steps.target} steps"
         binding.caloriesValue.text = "${metrics.calories.current} / ${metrics.calories.target} kcal"
-        binding.workoutValue.text = "${metrics.workout.current} / ${metrics.workout.target} min"
+        binding.heartPointsValue.text = "${metrics.heartPoints.current} / ${metrics.heartPoints.target} points"
     }
 
 
@@ -343,10 +419,11 @@ class HomeFragment : Fragment() {
      */
     private fun getTimeBasedGreeting(): String {
         return when (Calendar.getInstance().get(Calendar.HOUR_OF_DAY)) {
-            in 5..11 -> "Good morning"
-            in 12..16 -> "Good afternoon"
-            in 17..21 -> "Good evening"
-            else -> "Hello"
+            in 0..4 -> "Good night"      // 12 AM - 4 AM
+            in 5..11 -> "Good morning"   // 5 AM - 11 AM
+            in 12..16 -> "Good afternoon" // 12 PM - 4 PM
+            in 17..23 -> "Good evening"  // 5 PM - 11 PM
+            else -> "Good morning"       // Fallback (should never happen)
         }
     }
 
@@ -457,17 +534,17 @@ class HomeFragment : Fragment() {
         // This is a simple example - in a real app this would use real health data
         val stepsProgress = overallHealthScore * 90 / 100  // 90% of health score converted to steps
         val caloriesProgress = overallHealthScore * 8 / 100 // 8% of health score converted to calories
-        val workoutProgress = overallHealthScore * 10 / 100 // 10% of health score converted to workout minutes
+        val heartPointsProgress = overallHealthScore * 10 / 100 // 10% of health score converted to heart points
 
         // Update progress in the triple ring view
         binding.tripleRingProgress.setStepsProgress(stepsProgress, 9000)
         binding.tripleRingProgress.setCaloriesProgress(caloriesProgress, 300)
-        binding.tripleRingProgress.setWorkoutProgress(workoutProgress, 30)
+        binding.tripleRingProgress.setHeartPointsProgress(heartPointsProgress, 50)
 
         // Update the text displays
         binding.stepsValue.text = "$stepsProgress / 9000 steps"
         binding.caloriesValue.text = "$caloriesProgress / 300 kcal"
-        binding.workoutValue.text = "$workoutProgress / 30 min"
+        binding.heartPointsValue.text = "$heartPointsProgress / 50 points"
     }
 
     override fun onDestroyView() {

@@ -16,7 +16,7 @@ import com.example.health_assistant.R
  * A custom view that displays three concentric rings representing different health metrics:
  * - Outer ring (orange): Steps
  * - Middle ring (green): Calories
- * - Inner ring (blue): Workout Duration
+ * - Inner ring (blue): Heart Points
  *
  * Each ring shows progress towards a goal.
  */
@@ -181,14 +181,25 @@ class TripleRingProgressView @JvmOverloads constructor(
     }
 
     /**
-     * Set the progress for the inner ring (workout duration)
+     * Set the progress for the inner ring (heart points)
      * @param current Current value
      * @param target Target value
      */
-    fun setWorkoutProgress(current: Int, target: Int) {
+    fun setHeartPointsProgress(current: Int, target: Int) {
         val progress = if (target > 0) (current.toFloat() / target).coerceIn(0f, 1f) else 0f
         animateProgress(progress, innerRingProgress, RING_TYPE_INNER)
         innerRingProgress = progress
+    }
+
+    /**
+     * Set the progress for the inner ring (workout duration) - DEPRECATED
+     * Use setHeartPointsProgress() instead
+     * @param current Current value
+     * @param target Target value
+     */
+    @Deprecated("Use setHeartPointsProgress() instead", ReplaceWith("setHeartPointsProgress(current, target)"))
+    fun setWorkoutProgress(current: Int, target: Int) {
+        setHeartPointsProgress(current, target)
     }
 
     /**

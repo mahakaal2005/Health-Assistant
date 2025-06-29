@@ -74,6 +74,48 @@ class ProfilePhotoManager @Inject constructor(
     }
 
     /**
+     * Load profile image from a specific URL or path into a CircleImageView
+     * This method is used by EditProfileFragment to synchronize photo updates
+     */
+    fun loadProfileImage(photoUrl: String?, imageView: CircleImageView) {
+        if (photoUrl.isNullOrBlank()) {
+            // Show default avatar
+            imageView.setImageResource(R.drawable.ic_person)
+            return
+        }
+
+        try {
+            // Handle different types of photo URLs/paths
+            when {
+                photoUrl.startsWith("file://") -> {
+                    // Local file path
+                    val uri = Uri.parse(photoUrl)
+                    imageView.setImageURI(uri)
+                }
+                photoUrl.startsWith("content://") -> {
+                    // Content URI
+                    val uri = Uri.parse(photoUrl)
+                    imageView.setImageURI(uri)
+                }
+                photoUrl.startsWith("http://") || photoUrl.startsWith("https://") -> {
+                    // Remote URL - for future Firebase Storage integration
+                    // For now, fallback to default
+                    imageView.setImageResource(R.drawable.ic_person)
+                }
+                else -> {
+                    // Assume it's a local file path
+                    val uri = Uri.parse("file://$photoUrl")
+                    imageView.setImageURI(uri)
+                }
+            }
+        } catch (e: Exception) {
+            // Fallback to default image
+            imageView.setImageResource(R.drawable.ic_person)
+            android.util.Log.w("ProfilePhotoManager", "Failed to load profile image: ${e.message}")
+        }
+    }
+
+    /**
      * Show profile photo in full screen with zoom functionality
      */
     private fun showFullScreenImage(context: Context, imageView: CircleImageView) {

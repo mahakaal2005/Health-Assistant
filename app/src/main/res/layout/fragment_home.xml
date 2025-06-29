@@ -76,11 +76,13 @@
                     android:id="@+id/greeting_container"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginEnd="16dp"
+                    android:layout_marginEnd="10dp"
+                    android:layout_marginStart="10dp"
                     android:orientation="vertical"
                     app:layout_constraintEnd_toStartOf="@+id/avatar_container"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent">
+                    app:layout_constraintTop_toTopOf="parent"
+                    tools:ignore="UnknownIdInLayout">
 
                     <TextView
                         android:id="@+id/greeting_text"
@@ -246,40 +248,40 @@
                                 app:layout_constraintTop_toBottomOf="@id/calories_icon"
                                 app:layout_constraintEnd_toEndOf="parent" />
 
-                            <!-- Workout Metric -->
+                            <!-- Heart Points Metric -->
                             <ImageView
-                                android:id="@+id/workout_icon"
+                                android:id="@+id/heart_points_icon"
                                 android:layout_width="24dp"
                                 android:layout_height="24dp"
                                 android:layout_marginTop="16dp"
-                                android:contentDescription="Workout"
+                                android:contentDescription="Heart Points"
                                 android:src="@drawable/ic_workout"
                                 app:layout_constraintStart_toStartOf="parent"
                                 app:layout_constraintTop_toBottomOf="@id/calories_value"
                                 app:tint="@color/progress_blue" />
 
                             <TextView
-                                android:id="@+id/workout_label"
+                                android:id="@+id/heart_points_label"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:layout_marginStart="8dp"
-                                android:text="Workout"
+                                android:text="Heart Points"
                                 android:textSize="14sp"
                                 android:textStyle="bold"
-                                app:layout_constraintStart_toEndOf="@id/workout_icon"
-                                app:layout_constraintTop_toTopOf="@id/workout_icon"
-                                app:layout_constraintBottom_toBottomOf="@id/workout_icon" />
+                                app:layout_constraintStart_toEndOf="@id/heart_points_icon"
+                                app:layout_constraintTop_toTopOf="@id/heart_points_icon"
+                                app:layout_constraintBottom_toBottomOf="@id/heart_points_icon" />
 
                             <TextView
-                                android:id="@+id/workout_value"
+                                android:id="@+id/heart_points_value"
                                 android:layout_width="0dp"
                                 android:layout_height="wrap_content"
-                                android:text="0 / 30 min"
+                                android:text="0 / 50 points"
                                 android:textSize="13sp"
                                 android:layout_marginTop="2dp"
                                 android:layout_marginStart="16dp"
-                                app:layout_constraintStart_toStartOf="@id/workout_icon"
-                                app:layout_constraintTop_toBottomOf="@id/workout_icon"
+                                app:layout_constraintStart_toStartOf="@id/heart_points_icon"
+                                app:layout_constraintTop_toBottomOf="@id/heart_points_icon"
                                 app:layout_constraintEnd_toEndOf="parent" />
 
                         </androidx.constraintlayout.widget.ConstraintLayout>
@@ -329,13 +331,6 @@
                             android:orientation="horizontal"
                             app:layout_constraintTop_toBottomOf="@id/contextual_title">
 
-                            <ImageView
-                                android:id="@+id/contextual_icon"
-                                android:layout_width="40dp"
-                                android:layout_height="40dp"
-                                android:layout_marginEnd="12dp"
-                                android:src="@android:drawable/ic_menu_info_details"
-                                app:tint="#1A73E8" />
 
                             <TextView
                                 android:id="@+id/contextual_content"

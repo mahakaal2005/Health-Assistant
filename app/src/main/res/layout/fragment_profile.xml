@@ -101,13 +101,13 @@
                         android:id="@+id/profile_avatar"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
-                        android:src="@android:drawable/ic_menu_myplaces"
                         android:clickable="true"
+                        android:contentDescription="View profile photo in full screen"
                         android:focusable="true"
                         android:foreground="?android:attr/selectableItemBackgroundBorderless"
-                        android:contentDescription="View profile photo in full screen"
-                        app:civ_border_width="3dp"
-                        app:civ_border_color="@color/colorPrimaryGradientStart" />
+                        android:src="@android:drawable/ic_menu_myplaces"
+                        app:civ_border_color="@color/colorPrimaryGradientStart"
+                        app:civ_border_width="3dp" />
 
                 </FrameLayout>
 
