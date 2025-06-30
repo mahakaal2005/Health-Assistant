@@ -117,44 +117,52 @@
     <string name="prescription_photo_preview_description">Prescription photo preview</string>
     <string name="prescription_doctor_name_hint">Doctor Name</string>
     <string name="prescription_disease_category_hint">Disease Category</string>
-    <string name="prescription_notes_hint">Notes (Optional)</string>
+    <string name="prescription_notes_hint">Notes (optional)</string>
+    <string name="prescription_form_save">Save Prescription</string>
+    <string name="prescription_form_cancel">Cancel</string>
+    <string name="prescription_form_loading">Saving prescription…</string>
 
-    <!-- Prescription Detail -->
+    <!-- Edit Prescription Dialog Strings -->
+    <string name="edit_prescription_title">Edit Prescription</string>
+    <string name="action_update">Update</string>
+    <string name="prescription_updated_successfully">Prescription updated successfully</string>
+    <string name="error_updating_prescription">Failed to update prescription</string>
+
+    <!-- Detail Dialog Strings -->
     <string name="prescription_detail_title">Prescription Details</string>
-    <string name="prescription_close_description">Close</string>
+    <string name="prescription_modified_date">Modified: %1$s</string>
+    <string name="prescription_close_description">Close prescription details</string>
     <string name="prescription_edit_description">Edit prescription</string>
-    <string name="prescription_zoom_hint">Tap to zoom</string>
+    <string name="prescription_zoom_hint">Tap to zoom image</string>
     <string name="prescription_doctor_information">Doctor Information</string>
-    <string name="prescription_category_information">Category</string>
+    <string name="prescription_category_information">Category Information</string>
     <string name="prescription_date_information">Date Information</string>
-    <string name="prescription_date_added">Added:</string>
-    <string name="prescription_date_modified">Modified:</string>
+    <string name="prescription_date_added">Date Added</string>
+    <string name="prescription_date_modified">Date Modified</string>
     <string name="prescription_notes">Notes</string>
 
-    <!-- Disease Categories -->
-    <string name="disease_category_cardiology">Cardiology</string>
-    <string name="disease_category_diabetes">Diabetes</string>
-    <string name="disease_category_respiratory">Respiratory</string>
-    <string name="disease_category_orthopedic">Orthopedic</string>
-    <string name="disease_category_dermatology">Dermatology</string>
-    <string name="disease_category_neurology">Neurology</string>
-    <string name="disease_category_general">General Medicine</string>
-    <string name="disease_category_other">Other</string>
-
-    <!-- Error Messages -->
-    <string name="prescription_error_no_photo">Please capture a photo of the prescription</string>
-    <string name="prescription_error_no_doctor_name">Please enter the doctor\'s name</string>
-    <string name="prescription_error_no_category">Please select a disease category</string>
-    <string name="prescription_error_save_failed">Failed to save prescription. Please try again.</string>
-    <string name="prescription_error_delete_failed">Failed to delete prescription. Please try again.</string>
-    <string name="prescription_error_camera_permission">Camera permission is required to capture photos</string>
-
-    <!-- Confirmation Messages -->
+    <!-- Delete Confirmation Strings -->
     <string name="prescription_delete_confirmation_title">Delete Prescription?</string>
     <string name="prescription_delete_confirmation_message">This action cannot be undone.</string>
-    <string name="prescription_saved_successfully">Prescription saved successfully</string>
-    <string name="prescription_updated_successfully">Prescription updated successfully</string>
     <string name="prescription_deleted_successfully">Prescription deleted successfully</string>
+    <string name="error_deleting_prescription">Failed to delete prescription</string>
+
+    <!-- Validation Error Messages -->
+    <string name="error_doctor_name_required">Doctor name is required</string>
+    <string name="error_invalid_doctor_name">Please enter a valid doctor name</string>
+    <string name="error_prescription_photo_required">Please capture a prescription photo</string>
+    <string name="error_category_required">Please select a disease category</string>
+    <string name="prescription_error_camera_permission">Camera permission is required to capture prescriptions</string>
+    <string name="prescription_saved_successfully">Prescription saved successfully</string>
+
+    <!-- Additional strings for combined view/edit fragment -->
+    <string name="prescription_notes_empty">No notes added</string>
+    <string name="discard_changes_title">Discard Changes?</string>
+    <string name="discard_changes_message">You have unsaved changes. Are you sure you want to discard them?</string>
+    <string name="action_discard">Discard</string>
+    <string name="action_continue_editing">Continue Editing</string>
+    <string name="action_cancel">Cancel</string>
+    <string name="action_delete">Delete</string>
 
     <!-- Camera Capture Strings -->
     <string name="capture_prescription">Capture Prescription</string>

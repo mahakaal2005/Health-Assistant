@@ -4,11 +4,14 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.os.bundleOf
 import androidx.core.widget.addTextChangedListener
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.health_assistant.R
 import com.example.health_assistant.databinding.FragmentPrescriptionsBinding
 import com.example.health_assistant.features.prescriptions.adapter.PrescriptionsAdapter
 import com.example.health_assistant.features.prescriptions.dialogs.AddPrescriptionBottomSheet
@@ -45,6 +48,7 @@ class PrescriptionsFragment : Fragment() {
         setupRecyclerView()
         setupSearchBar()
         setupFab()
+        setupFragmentResultListeners()
         observeViewModel()
     }
 
@@ -112,6 +116,32 @@ class PrescriptionsFragment : Fragment() {
         }
     }
 
+    private fun setupFragmentResultListeners() {
+        // Listen for prescription deleted result
+        parentFragmentManager.setFragmentResultListener("prescription_deleted", this) { _, bundle ->
+            val message = bundle.getString("message")
+            message?.let {
+                Snackbar.make(binding.root, it, Snackbar.LENGTH_SHORT).show()
+            }
+        }
+
+        // Listen for prescription updated result
+        parentFragmentManager.setFragmentResultListener("prescription_updated", this) { _, bundle ->
+            val message = bundle.getString("message")
+            message?.let {
+                Snackbar.make(binding.root, it, Snackbar.LENGTH_SHORT).show()
+            }
+        }
+
+        // Listen for prescription errors
+        parentFragmentManager.setFragmentResultListener("prescription_error", this) { _, bundle ->
+            val error = bundle.getString("error")
+            error?.let {
+                Snackbar.make(binding.root, it, Snackbar.LENGTH_LONG).show()
+            }
+        }
+    }
+
     private fun observeViewModel() {
         // Observe prescriptions list
         viewLifecycleOwner.lifecycleScope.launch {
@@ -168,15 +198,17 @@ class PrescriptionsFragment : Fragment() {
     }
 
     private fun showPrescriptionDetail(prescriptionId: String) {
-        // TODO: Navigate to prescription detail fragment/dialog
-        // For now, show a placeholder message
-        Snackbar.make(binding.root, "Opening prescription details", Snackbar.LENGTH_SHORT).show()
+        // Navigate to the combined detail/edit fragment
+        val bundle = bundleOf("prescription_id" to prescriptionId)
+        findNavController().navigate(
+            R.id.action_prescriptions_to_prescription_detail,
+            bundle
+        )
     }
 
     private fun editPrescription(prescriptionId: String) {
-        // TODO: Open edit prescription dialog
-        // For now, show a placeholder message
-        Snackbar.make(binding.root, "Edit prescription", Snackbar.LENGTH_SHORT).show()
+        // Use the same detail fragment - it handles both viewing and editing
+        showPrescriptionDetail(prescriptionId)
     }
 
     private fun confirmDeletePrescription(prescriptionId: String) {

@@ -20,6 +20,13 @@ object PrescriptionUtils {
     }
 
     /**
+     * Format LocalDateTime for display in UI (alias for formatDateTime)
+     */
+    fun formatDate(dateTime: LocalDateTime): String {
+        return formatDateTime(dateTime)
+    }
+
+    /**
      * Format LocalDateTime for display with time
      */
     fun formatDateTimeWithTime(dateTime: LocalDateTime): String {
@@ -124,6 +131,25 @@ object PrescriptionUtils {
             notes = notes?.takeIf { it.isNotBlank() },
             userId = userId
         )
+    }
+
+    /**
+     * Validate doctor name format
+     */
+    fun isValidDoctorName(doctorName: String): Boolean {
+        if (doctorName.isBlank()) return false
+
+        // Doctor name should be at least 2 characters
+        if (doctorName.trim().length < 2) return false
+
+        // Should contain only letters, spaces, periods, and common name characters
+        val namePattern = Regex("^[a-zA-Z\\s.'-]+$")
+        if (!namePattern.matches(doctorName.trim())) return false
+
+        // Should not be all spaces or special characters
+        if (doctorName.trim().all { it.isWhitespace() || it in ".'- " }) return false
+
+        return true
     }
 }
 

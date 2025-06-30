@@ -75,22 +75,64 @@ class PrescriptionsViewModel @Inject constructor(
     }
 
     /**
-     * Delete a prescription
+     * Delete a prescription by ID
      */
     fun deletePrescription(prescriptionId: String) {
         viewModelScope.launch {
-            _uiState.value = _uiState.value.copy(isLoading = true)
+            try {
+                _uiState.value = _uiState.value.copy(isLoading = true)
+                val result = prescriptionRepository.deletePrescription(prescriptionId)
+                result.fold(
+                    onSuccess = {
+                        _uiState.value = _uiState.value.copy(
+                            isLoading = false,
+                            message = "Prescription deleted successfully"
+                        )
+                    },
+                    onFailure = { error ->
+                        _uiState.value = _uiState.value.copy(
+                            isLoading = false,
+                            error = "Failed to delete prescription: ${error.message}"
+                        )
+                    }
+                )
+            } catch (e: Exception) {
+                _uiState.value = _uiState.value.copy(
+                    isLoading = false,
+                    error = "Failed to delete prescription: ${e.message}"
+                )
+            }
+        }
+    }
 
-            val result = prescriptionRepository.deletePrescription(prescriptionId)
-
-            _uiState.value = _uiState.value.copy(
-                isLoading = false,
-                message = if (result.isSuccess) {
-                    "Prescription deleted successfully"
-                } else {
-                    "Failed to delete prescription"
-                }
-            )
+    /**
+     * Update an existing prescription
+     */
+    fun updatePrescription(prescription: Prescription) {
+        viewModelScope.launch {
+            try {
+                _uiState.value = _uiState.value.copy(isLoading = true)
+                val result = prescriptionRepository.updatePrescription(prescription)
+                result.fold(
+                    onSuccess = {
+                        _uiState.value = _uiState.value.copy(
+                            isLoading = false,
+                            message = "Prescription updated successfully"
+                        )
+                    },
+                    onFailure = { error ->
+                        _uiState.value = _uiState.value.copy(
+                            isLoading = false,
+                            error = "Failed to update prescription: ${error.message}"
+                        )
+                    }
+                )
+            } catch (e: Exception) {
+                _uiState.value = _uiState.value.copy(
+                    isLoading = false,
+                    error = "Failed to update prescription: ${e.message}"
+                )
+            }
         }
     }
 
