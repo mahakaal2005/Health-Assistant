@@ -34,7 +34,17 @@
         <action
             android:id="@+id/action_homeFragment_to_profileFragment"
             app:destination="@id/profileFragment" />
+        <action
+            android:id="@+id/action_homeFragment_to_prescriptionsFragment"
+            app:destination="@id/prescriptionsFragment" />
     </fragment>
+
+    <!-- Prescriptions Fragment -->
+    <fragment
+        android:id="@+id/prescriptionsFragment"
+        android:name="com.example.health_assistant.features.prescriptions.PrescriptionsFragment"
+        android:label="@string/prescriptions_title"
+        tools:layout="@layout/fragment_prescriptions" />
 
     <fragment
         android:id="@+id/discoverFragment"

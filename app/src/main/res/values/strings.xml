@@ -87,4 +87,73 @@
     <string name="loading_profile">Loading profile...</string>
     <string name="saving_profile">Saving profile...</string>
     <string name="saving_changes">Saving changes...</string>
+
+    <!-- Prescriptions Feature Strings -->
+    <!-- Main Screen -->
+    <string name="prescriptions_title">Prescriptions</string>
+    <string name="prescription_search_hint">Search by doctor name…</string>
+    <string name="prescription_empty_state_title">No Prescriptions Yet</string>
+    <string name="prescription_empty_state_message">Add your first prescription by tapping the + button below</string>
+    <string name="prescription_add_description">Add new prescription</string>
+
+    <!-- Prescription Card -->
+    <string name="prescription_image_description">Prescription image</string>
+    <string name="prescription_more_actions_description">More actions</string>
+    <string name="prescription_action_view">View</string>
+    <string name="prescription_action_edit">Edit</string>
+    <string name="prescription_action_delete">Delete</string>
+    <string name="prescription_action_share">Share</string>
+    <string name="prescription_action_cancel">Cancel</string>
+    <string name="prescription_action_save">Save</string>
+
+    <!-- Category Header -->
+    <string name="prescription_category_icon_description">Category icon</string>
+
+    <!-- Add Prescription -->
+    <string name="prescription_add_title">Add New Prescription</string>
+    <string name="prescription_capture_photo">Capture Photo</string>
+    <string name="prescription_capture_photo_hint">Tap to take a photo of your prescription</string>
+    <string name="prescription_retake_photo">Retake</string>
+    <string name="prescription_photo_preview_description">Prescription photo preview</string>
+    <string name="prescription_doctor_name_hint">Doctor Name</string>
+    <string name="prescription_disease_category_hint">Disease Category</string>
+    <string name="prescription_notes_hint">Notes (Optional)</string>
+
+    <!-- Prescription Detail -->
+    <string name="prescription_detail_title">Prescription Details</string>
+    <string name="prescription_close_description">Close</string>
+    <string name="prescription_edit_description">Edit prescription</string>
+    <string name="prescription_zoom_hint">Tap to zoom</string>
+    <string name="prescription_doctor_information">Doctor Information</string>
+    <string name="prescription_category_information">Category</string>
+    <string name="prescription_date_information">Date Information</string>
+    <string name="prescription_date_added">Added:</string>
+    <string name="prescription_date_modified">Modified:</string>
+    <string name="prescription_notes">Notes</string>
+
+    <!-- Disease Categories -->
+    <string name="disease_category_cardiology">Cardiology</string>
+    <string name="disease_category_diabetes">Diabetes</string>
+    <string name="disease_category_respiratory">Respiratory</string>
+    <string name="disease_category_orthopedic">Orthopedic</string>
+    <string name="disease_category_dermatology">Dermatology</string>
+    <string name="disease_category_neurology">Neurology</string>
+    <string name="disease_category_general">General Medicine</string>
+    <string name="disease_category_other">Other</string>
+
+    <!-- Error Messages -->
+    <string name="prescription_error_no_photo">Please capture a photo of the prescription</string>
+    <string name="prescription_error_no_doctor_name">Please enter the doctor\'s name</string>
+    <string name="prescription_error_no_category">Please select a disease category</string>
+    <string name="prescription_error_save_failed">Failed to save prescription. Please try again.</string>
+    <string name="prescription_error_delete_failed">Failed to delete prescription. Please try again.</string>
+    <string name="prescription_error_camera_permission">Camera permission is required to capture photos</string>
+
+    <!-- Confirmation Messages -->
+    <string name="prescription_delete_confirmation_title">Delete Prescription?</string>
+    <string name="prescription_delete_confirmation_message">This action cannot be undone.</string>
+    <string name="prescription_saved_successfully">Prescription saved successfully</string>
+    <string name="prescription_updated_successfully">Prescription updated successfully</string>
+    <string name="prescription_deleted_successfully">Prescription deleted successfully</string>
+
 </resources>

@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:gravity="center_vertical"
+    android:paddingHorizontal="20dp"
+    android:paddingVertical="16dp"
+    android:background="@color/colorBackground">
+
+    <!-- Category Icon -->
+    <ImageView
+        android:id="@+id/category_icon"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:layout_marginEnd="12dp"
+        android:contentDescription="@string/prescription_category_icon_description"
+        app:tint="@color/colorPrimary"
+        tools:src="@drawable/ic_medical_category" />
+
+    <!-- Category Name -->
+    <TextView
+        android:id="@+id/category_name"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        style="@style/TextAppearance.HealthAssistant.Subtitle"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        android:textColor="@color/colorPrimary"
+        tools:text="Cardiology" />
+
+    <!-- Prescription Count -->
+    <TextView
+        android:id="@+id/prescription_count"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:background="@drawable/prescription_count_background"
+        android:paddingHorizontal="12dp"
+        android:paddingVertical="4dp"
+        android:textSize="12sp"
+        android:textColor="@color/colorOnPrimary"
+        android:textStyle="bold"
+        tools:text="3" />
+
+</LinearLayout>

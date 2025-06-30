@@ -180,4 +180,8 @@ dependencies {
     implementation (libs.play.services.fitness)
     implementation(libs.androidx.health.services.client)
     implementation (libs.kotlinx.coroutines.android.v1102)
+
+    implementation(libs.androidx.camera.camera2)
+    implementation(libs.androidx.camera.lifecycle)
+    implementation(libs.androidx.camera.view)
 }
