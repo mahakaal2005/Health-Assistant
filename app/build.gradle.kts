@@ -170,7 +170,7 @@ dependencies {
     testImplementation(libs.junit.jupiter.api)
     testRuntimeOnly(libs.junit.jupiter.engine)
     testImplementation(libs.turbine)
-    androidTestImplementation(libs.androidx.accessibility.test.framework)
+    // androidTestImplementation(libs.androidx.accessibility.test.framework) // Commented out due to dependency issues
 
     // Traditional Android View System dependencies (XML + Kotlin)
     implementation(libs.androidx.lifecycle.viewmodel.ktx)

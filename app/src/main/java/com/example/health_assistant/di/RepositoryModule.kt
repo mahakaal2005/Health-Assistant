@@ -2,7 +2,7 @@ package com.example.health_assistant.di
 
 import com.example.health_assistant.data.repository.impl.FirebaseAuthRepository
 import com.example.health_assistant.data.repository.impl.HealthRepositoryImpl
-import com.example.health_assistant.data.repository.impl.MockPrescriptionRepositoryImpl
+import com.example.health_assistant.data.repository.impl.RoomPrescriptionRepositoryImpl
 import com.example.health_assistant.data.repository.impl.UserProfileRepositoryImpl
 import com.example.health_assistant.data.repository.interfaces.AuthRepository
 import com.example.health_assistant.data.repository.interfaces.HealthRepository
@@ -36,6 +36,6 @@ abstract class RepositoryModule {
     @Binds
     @Singleton
     abstract fun bindPrescriptionRepository(
-        mockPrescriptionRepositoryImpl: MockPrescriptionRepositoryImpl
+        roomPrescriptionRepositoryImpl: RoomPrescriptionRepositoryImpl
     ): PrescriptionRepository
 }

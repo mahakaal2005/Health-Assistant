@@ -2,7 +2,9 @@ package com.example.health_assistant.di
 
 import android.content.Context
 import androidx.room.Room
+import com.example.health_assistant.data.local.dao.DiseaseCategoryDao
 import com.example.health_assistant.data.local.dao.ProfileImageDao
+import com.example.health_assistant.data.local.dao.PrescriptionDao
 import com.example.health_assistant.data.local.database.HealthAssistantDatabase
 import dagger.Module
 import dagger.Provides
@@ -28,12 +30,22 @@ object DatabaseModule {
             HealthAssistantDatabase::class.java,
             "health_assistant_database"
         )
-        .fallbackToDestructiveMigration()
+        .addMigrations(HealthAssistantDatabase.MIGRATION_1_2)
         .build()
     }
 
     @Provides
     fun provideProfileImageDao(database: HealthAssistantDatabase): ProfileImageDao {
         return database.profileImageDao()
+    }
+
+    @Provides
+    fun providePrescriptionDao(database: HealthAssistantDatabase): PrescriptionDao {
+        return database.prescriptionDao()
+    }
+
+    @Provides
+    fun provideDiseaseCategoryDao(database: HealthAssistantDatabase): DiseaseCategoryDao {
+        return database.diseaseCategoryDao()
     }
 }

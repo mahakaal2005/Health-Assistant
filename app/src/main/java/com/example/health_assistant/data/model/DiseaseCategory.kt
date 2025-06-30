@@ -83,5 +83,19 @@ data class DiseaseCategory(
         fun findById(id: String): DiseaseCategory? {
             return getDefaultCategories().find { it.id == id }
         }
+
+        /**
+         * Get default fallback category when no specific category is found
+         * Returns "Other" category as the default fallback
+         */
+        fun getDefaultCategory(): DiseaseCategory {
+            return DiseaseCategory(
+                id = "other",
+                name = "OTHER",
+                displayName = "Other",
+                iconRes = R.drawable.ic_medical_category,
+                isCustom = false
+            )
+        }
     }
 }
