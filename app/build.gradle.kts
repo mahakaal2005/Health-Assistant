@@ -154,6 +154,7 @@ dependencies {
     // Coroutines dependencies
     implementation(libs.kotlinx.coroutines.android)
     implementation(libs.kotlinx.coroutines.play.services)
+    implementation(libs.kotlinx.coroutines.guava)
 
     // ViewPager2 for onboarding screens
     implementation(libs.androidx.viewpager2)

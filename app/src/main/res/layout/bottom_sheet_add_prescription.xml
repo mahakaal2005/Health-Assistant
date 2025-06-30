@@ -1,172 +1,117 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
-    android:background="@drawable/bottom_sheet_background"
-    android:paddingHorizontal="24dp"
-    android:paddingTop="16dp"
-    android:paddingBottom="32dp">
+    android:padding="24dp">
 
-    <!-- Bottom Sheet Handle -->
-    <View
-        android:layout_width="40dp"
-        android:layout_height="4dp"
-        android:layout_gravity="center_horizontal"
-        android:layout_marginBottom="24dp"
-        android:background="@drawable/bottom_sheet_handle" />
-
-    <!-- Title -->
+    <!-- Header -->
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="24dp"
         android:text="@string/prescription_add_title"
-        style="@style/TextAppearance.HealthAssistant.Title"
         android:textSize="20sp"
-        android:gravity="center" />
+        android:textStyle="bold"
+        android:gravity="center"
+        android:layout_marginBottom="24dp" />
 
     <!-- Photo Capture Section -->
-    <androidx.cardview.widget.CardView
+    <FrameLayout
+        android:id="@+id/capturePhotoPlaceholder"
         android:layout_width="match_parent"
         android:layout_height="200dp"
-        android:layout_marginBottom="24dp"
-        app:cardCornerRadius="12dp"
-        app:cardElevation="2dp"
-        app:cardBackgroundColor="@color/surfaceLight">
+        android:background="@drawable/prescription_image_background"
+        android:layout_marginBottom="16dp">
 
-        <FrameLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent">
+        <ImageView
+            android:layout_width="64dp"
+            android:layout_height="64dp"
+            android:layout_gravity="center"
+            android:src="@drawable/ic_camera"
+            android:contentDescription="@string/prescription_capture_photo"
+            app:tint="@color/textSecondary" />
 
-            <!-- Photo Preview -->
-            <ImageView
-                android:id="@+id/photo_preview"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:scaleType="centerCrop"
-                android:visibility="gone"
-                android:contentDescription="@string/prescription_photo_preview_description" />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginTop="80dp"
+            android:text="@string/prescription_capture_photo_hint"
+            android:textColor="@color/textSecondary"
+            android:textSize="14sp" />
 
-            <!-- Capture Photo Placeholder -->
-            <LinearLayout
-                android:id="@+id/capture_photo_placeholder"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:orientation="vertical"
-                android:gravity="center"
-                android:background="?android:attr/selectableItemBackground"
-                android:clickable="true"
-                android:focusable="true">
+    </FrameLayout>
 
-                <ImageView
-                    android:layout_width="64dp"
-                    android:layout_height="64dp"
-                    android:layout_marginBottom="16dp"
-                    android:src="@drawable/ic_camera"
-                    app:tint="@color/colorPrimary"
-                    android:alpha="0.7" />
+    <!-- Photo Preview -->
+    <ImageView
+        android:id="@+id/photoPreview"
+        android:layout_width="match_parent"
+        android:layout_height="200dp"
+        android:layout_marginBottom="16dp"
+        android:scaleType="centerCrop"
+        android:background="@drawable/prescription_image_background"
+        android:visibility="gone"
+        android:contentDescription="@string/prescription_photo_preview_description" />
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/prescription_capture_photo"
-                    style="@style/TextAppearance.HealthAssistant.Body"
-                    android:textColor="@color/colorPrimary"
-                    android:textStyle="bold" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
-                    android:text="@string/prescription_capture_photo_hint"
-                    style="@style/TextAppearance.HealthAssistant.Caption"
-                    android:gravity="center" />
-
-            </LinearLayout>
-
-            <!-- Retake Photo Button -->
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/retake_photo_button"
-                style="@style/Widget.Material3.Button.TextButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="top|end"
-                android:layout_margin="8dp"
-                android:text="@string/prescription_retake_photo"
-                android:visibility="gone"
-                app:icon="@drawable/ic_refresh"
-                app:iconSize="16dp" />
-
-        </FrameLayout>
-
-    </androidx.cardview.widget.CardView>
+    <!-- Retake Photo Button -->
+    <Button
+        android:id="@+id/retakePhotoButton"
+        style="@style/Widget.Material3.Button.TextButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:text="@string/prescription_retake_photo"
+        android:visibility="gone"
+        android:layout_marginBottom="16dp" />
 
     <!-- Doctor Name Input -->
     <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/doctor_name_input_layout"
-        style="@style/Widget.HealthAssistant.TextInputLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="16dp"
         android:hint="@string/prescription_doctor_name_hint"
-        app:startIconDrawable="@drawable/ic_person"
-        app:startIconTint="@color/textSecondary"
-        app:endIconMode="clear_text">
+        android:layout_marginBottom="16dp"
+        style="@style/Widget.Material3.TextInputLayout.OutlinedBox">
 
         <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/doctor_name_edit_text"
+            android:id="@+id/doctorNameEditText"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:inputType="textPersonName|textCapWords"
-            android:maxLines="1"
-            android:imeOptions="actionNext" />
+            android:inputType="textPersonName|textCapWords" />
 
     </com.google.android.material.textfield.TextInputLayout>
 
     <!-- Disease Category Dropdown -->
     <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/disease_category_input_layout"
-        style="@style/Widget.HealthAssistant.TextInputLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="16dp"
         android:hint="@string/prescription_disease_category_hint"
-        app:startIconDrawable="@drawable/ic_medical_category"
-        app:startIconTint="@color/textSecondary"
-        app:endIconMode="dropdown_menu">
+        android:layout_marginBottom="16dp"
+        style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu">
 
         <AutoCompleteTextView
-            android:id="@+id/disease_category_dropdown"
+            android:id="@+id/diseaseCategoryDropdown"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:inputType="none"
-            android:focusable="false"
-            android:clickable="true" />
+            android:inputType="none" />
 
     </com.google.android.material.textfield.TextInputLayout>
 
-    <!-- Notes Input (Optional) -->
+    <!-- Notes Input -->
     <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/notes_input_layout"
-        style="@style/Widget.HealthAssistant.TextInputLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="24dp"
         android:hint="@string/prescription_notes_hint"
-        app:startIconDrawable="@drawable/ic_note"
-        app:startIconTint="@color/textSecondary"
-        app:endIconMode="clear_text">
+        android:layout_marginBottom="24dp"
+        style="@style/Widget.Material3.TextInputLayout.OutlinedBox">
 
         <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/notes_edit_text"
+            android:id="@+id/notesEditText"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:inputType="textMultiLine|textCapSentences"
-            android:maxLines="3"
-            android:imeOptions="actionDone" />
+            android:minLines="3"
+            android:maxLines="5" />
 
     </com.google.android.material.textfield.TextInputLayout>
 
@@ -177,18 +122,16 @@
         android:orientation="horizontal"
         android:gravity="end">
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/cancel_button"
+        <Button
+            android:id="@+id/cancelButton"
             style="@style/Widget.Material3.Button.TextButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="8dp"
             android:text="@string/prescription_action_cancel"
-            android:textColor="@color/textSecondary" />
+            android:layout_marginEnd="8dp" />
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/save_button"
-            style="@style/Widget.HealthAssistant.Button.Primary"
+        <Button
+            android:id="@+id/saveButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/prescription_action_save"

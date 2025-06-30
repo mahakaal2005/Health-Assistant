@@ -11,6 +11,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.health_assistant.databinding.FragmentPrescriptionsBinding
 import com.example.health_assistant.features.prescriptions.adapter.PrescriptionsAdapter
+import com.example.health_assistant.features.prescriptions.dialogs.AddPrescriptionBottomSheet
 import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
@@ -191,9 +192,8 @@ class PrescriptionsFragment : Fragment() {
     }
 
     private fun openAddPrescriptionDialog() {
-        // TODO: Open add prescription bottom sheet
-        // For now, show a placeholder message
-        Snackbar.make(binding.root, "Add new prescription", Snackbar.LENGTH_SHORT).show()
+        val addPrescriptionDialog = AddPrescriptionBottomSheet()
+        addPrescriptionDialog.show(childFragmentManager, "AddPrescriptionBottomSheet")
     }
 
     override fun onDestroyView() {

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<paths xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Internal storage for prescription images -->
+    <files-path name="prescription_images" path="prescriptions/" />
+
+    <!-- Cache directory for temporary files -->
+    <cache-path name="prescription_cache" path="prescriptions/" />
+
+    <!-- External files directory (if needed) -->
+    <external-files-path name="prescription_external" path="prescriptions/" />
+</paths>

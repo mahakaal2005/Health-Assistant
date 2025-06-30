@@ -1,4 +1,4 @@
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <string name="app_name">Health_Assistant</string>
     <string name="app_display_name">VibeHealth</string>
 
@@ -155,5 +155,25 @@
     <string name="prescription_saved_successfully">Prescription saved successfully</string>
     <string name="prescription_updated_successfully">Prescription updated successfully</string>
     <string name="prescription_deleted_successfully">Prescription deleted successfully</string>
+
+    <!-- Camera Capture Strings -->
+    <string name="capture_prescription">Capture Prescription</string>
+    <string name="camera_guidance_text">Position the prescription within the frame and tap capture</string>
+    <string name="toggle_flash">Toggle Flash</string>
+    <string name="switch_camera">Switch Camera</string>
+    <string name="open_gallery">Open Gallery</string>
+    <string name="capture_photo">Capture Photo</string>
+    <string name="processing_image">Processing image...</string>
+    <string name="back">Back</string>
+
+    <!-- Prescription Strings -->
+    <string name="add_prescription">Add Prescription</string>
+    <string name="prescription_name">Prescription Name</string>
+    <string name="prescription_category">Category</string>
+    <string name="take_photo">Take Photo</string>
+    <string name="choose_from_gallery">Choose from Gallery</string>
+    <string name="save_prescription">Save Prescription</string>
+    <string name="prescription_saved">Prescription saved successfully</string>
+    <string name="prescription_save_error">Failed to save prescription</string>
 
 </resources>
