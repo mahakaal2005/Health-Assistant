@@ -5,45 +5,42 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="horizontal"
+    android:padding="16dp"
     android:gravity="center_vertical"
-    android:paddingHorizontal="20dp"
-    android:paddingVertical="16dp"
-    android:background="@color/colorBackground">
+    android:background="?attr/colorSurfaceVariant">
 
     <!-- Category Icon -->
     <ImageView
-        android:id="@+id/category_icon"
+        android:id="@+id/categoryIcon"
         android:layout_width="24dp"
         android:layout_height="24dp"
         android:layout_marginEnd="12dp"
-        android:contentDescription="@string/prescription_category_icon_description"
-        app:tint="@color/colorPrimary"
-        tools:src="@drawable/ic_medical_category" />
+        android:src="@drawable/ic_medical_category"
+        android:contentDescription="Category icon"
+        app:tint="?attr/colorOnSurfaceVariant" />
 
     <!-- Category Name -->
     <TextView
-        android:id="@+id/category_name"
+        android:id="@+id/categoryName"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="1"
-        style="@style/TextAppearance.HealthAssistant.Subtitle"
-        android:textSize="16sp"
+        android:textAppearance="?attr/textAppearanceSubtitle1"
         android:textStyle="bold"
-        android:textColor="@color/colorPrimary"
+        android:textColor="?attr/colorOnSurfaceVariant"
         tools:text="Cardiology" />
 
     <!-- Prescription Count -->
     <TextView
-        android:id="@+id/prescription_count"
+        android:id="@+id/prescriptionCount"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
+        android:textAppearance="?attr/textAppearanceCaption"
+        android:textColor="?attr/colorOnSurfaceVariant"
         android:background="@drawable/prescription_count_background"
-        android:paddingHorizontal="12dp"
-        android:paddingVertical="4dp"
-        android:textSize="12sp"
-        android:textColor="@color/colorOnPrimary"
-        android:textStyle="bold"
+        android:padding="8dp"
+        android:minWidth="32dp"
+        android:gravity="center"
         tools:text="3" />
 
 </LinearLayout>

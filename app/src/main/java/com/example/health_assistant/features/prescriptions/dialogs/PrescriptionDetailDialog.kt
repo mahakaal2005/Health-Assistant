@@ -126,7 +126,11 @@ class PrescriptionDetailDialog : DialogFragment() {
 
             // Set prescription details
             doctorNameDetail.text = prescription.doctorName
-            diseaseCategoryDetailChip.text = prescription.diseaseCategory.displayName
+
+            // Fixed: Get category by ID instead of accessing non-existent diseaseCategory property
+            val category = PrescriptionUtils.getCategoryById(prescription.categoryId)
+            diseaseCategoryDetailChip.text = category?.displayName ?: "Unknown Category"
+
             dateAddedDetail.text = PrescriptionUtils.formatDate(prescription.dateAdded)
 
             // Handle modified date

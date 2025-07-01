@@ -195,9 +195,9 @@ class HomeFragment : Fragment() {
 
         val greetingName = firstName ?: run {
             // Fallback to email-derived name
-            sessionManager.getUserEmail()?.let { email ->
+            sessionManager.getCurrentUserEmail()?.let { email ->
                 email.substringBefore("@").replaceFirstChar { char ->
-                    if (char.isLowerCase()) char.titlecase(Locale.getDefault()) else char.toString()
+                    if (char.isLowerCase()) char.titlecase() else char.toString()
                 }
             } ?: "User"
         }
@@ -210,10 +210,10 @@ class HomeFragment : Fragment() {
      * Fallback method to update greeting when profile is not available
      */
     private fun updateGreetingWithFallback() {
-        val userEmail = sessionManager.getUserEmail()
+        val userEmail = sessionManager.getCurrentUserEmail()
         val userName = userEmail?.let {
             it.substringBefore("@").replaceFirstChar { char ->
-                if (char.isLowerCase()) char.titlecase(Locale.getDefault()) else char.toString()
+                if (char.isLowerCase()) char.titlecase() else char.toString()
             }
         } ?: "User"
 

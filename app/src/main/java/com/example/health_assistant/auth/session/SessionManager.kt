@@ -150,52 +150,24 @@ class SessionManager @Inject constructor(
     }
 
     /**
-     * Check if user is logged in
+     * Get the current user ID from session
      */
-    fun isLoggedIn(): Boolean {
-        // First check our local session state - if we've explicitly logged out, stay logged out
-        val localLoggedIn = encryptedPrefs.getBoolean(KEY_IS_LOGGED_IN, false)
-
-        // If local session says we're logged out, don't try to auto-login even if Firebase has a session
-        if (!localLoggedIn) {
-            return false
-        }
-
-        // If local session says we're logged in, verify with Firebase auth repository
-        return authRepository.isUserLoggedIn()
+    fun getCurrentUserId(): String? {
+        return encryptedPrefs.getString(KEY_USER_ID, null)
     }
 
     /**
-     * Asynchronously check if user is logged in
-     * This method is safe to call from UI thread as it uses coroutines
+     * Check if user is currently logged in
      */
-    suspend fun isLoggedInAsync(): Boolean = withContext(Dispatchers.IO) {
-        try {
-            // First check our local session state
-            val localLoggedIn = encryptedPrefs.getBoolean(KEY_IS_LOGGED_IN, false)
+    fun isLoggedIn(): Boolean {
+        return encryptedPrefs.getBoolean(KEY_IS_LOGGED_IN, false)
+    }
 
-            if (!localLoggedIn) {
-                Log.d(TAG, "Local session indicates user is logged out")
-                return@withContext false
-            }
-
-            // If local session says we're logged in, verify with Firebase auth repository
-            val firebaseLoggedIn = authRepository.isUserLoggedIn()
-
-            if (!firebaseLoggedIn) {
-                // Firebase session expired, clear local session
-                Log.d(TAG, "Firebase session expired, clearing local session")
-                clearSession()
-                return@withContext false
-            }
-
-            Log.d(TAG, "User session is valid")
-            return@withContext true
-
-        } catch (e: Exception) {
-            Log.e(TAG, "Error checking login state: ${e.message}")
-            return@withContext false
-        }
+    /**
+     * Get the current user email from session
+     */
+    fun getCurrentUserEmail(): String? {
+        return encryptedPrefs.getString(KEY_USER_EMAIL, null)
     }
 
     /**
@@ -210,19 +182,6 @@ class SessionManager @Inject constructor(
         }
     }
 
-    /**
-     * Get the current user's email
-     */
-    fun getUserEmail(): String? {
-        return encryptedPrefs.getString(KEY_USER_EMAIL, null)
-    }
-
-    /**
-     * Get the current user's ID
-     */
-    fun getUserId(): String? {
-        return encryptedPrefs.getString(KEY_USER_ID, null)
-    }
 
     /**
      * Logout the user

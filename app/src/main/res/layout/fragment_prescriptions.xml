@@ -4,139 +4,131 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/colorBackground"
     tools:context=".features.prescriptions.PrescriptionsFragment">
 
-    <!-- App Bar with Search -->
-    <com.google.android.material.appbar.AppBarLayout
-        android:id="@+id/app_bar_layout"
+    <!-- Main Content -->
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="@color/colorBackground"
-        app:elevation="0dp">
+        android:layout_height="match_parent"
+        android:orientation="vertical">
 
+        <!-- Toolbar -->
         <com.google.android.material.appbar.MaterialToolbar
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
-            android:background="@color/colorBackground"
-            app:title="@string/prescriptions_title"
-            app:titleTextAppearance="@style/TextAppearance.HealthAssistant.Title"
-            app:navigationIcon="@drawable/ic_arrow_back"
-            app:navigationIconTint="@color/textPrimary" />
+            android:background="?attr/colorPrimary"
+            app:title="Prescriptions"
+            app:titleTextColor="?attr/colorOnPrimary"
+            app:navigationIcon="@drawable/ic_arrow_back" />
 
         <!-- Search Bar -->
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/search_input_layout"
-            style="@style/Widget.HealthAssistant.TextInputLayout"
+        <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:layout_marginEnd="16dp"
-            android:layout_marginBottom="8dp"
-            android:hint="@string/prescription_search_hint"
-            app:startIconDrawable="@drawable/ic_search"
-            app:startIconTint="@color/textSecondary"
-            app:endIconMode="clear_text"
-            app:boxCornerRadiusTopStart="12dp"
-            app:boxCornerRadiusTopEnd="12dp"
-            app:boxCornerRadiusBottomStart="12dp"
-            app:boxCornerRadiusBottomEnd="12dp">
+            android:layout_margin="16dp"
+            app:cardCornerRadius="8dp"
+            app:cardElevation="2dp">
 
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/search_edit_text"
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:inputType="text"
-                android:maxLines="1"
-                android:imeOptions="actionSearch" />
+                android:orientation="horizontal"
+                android:padding="8dp">
 
-        </com.google.android.material.textfield.TextInputLayout>
+                <EditText
+                    android:id="@+id/searchEditText"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:background="@null"
+                    android:hint="Search prescriptions..."
+                    android:inputType="text"
+                    android:padding="8dp" />
 
-    </com.google.android.material.appbar.AppBarLayout>
+                <ImageButton
+                    android:id="@+id/clearSearchButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:contentDescription="Clear search"
+                    android:padding="8dp"
+                    android:src="@drawable/ic_close" />
 
-    <!-- Main Content -->
-    <FrameLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+            </LinearLayout>
 
-        <!-- Prescriptions RecyclerView -->
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/prescriptions_recycler_view"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:padding="16dp"
-            android:clipToPadding="false"
-            android:overScrollMode="never"
-            tools:listitem="@layout/item_prescription_card" />
+        </com.google.android.material.card.MaterialCardView>
 
-        <!-- Empty State -->
-        <LinearLayout
-            android:id="@+id/empty_state_layout"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:orientation="vertical"
-            android:visibility="gone"
-            android:gravity="center"
-            android:padding="32dp">
-
-            <ImageView
-                android:layout_width="120dp"
-                android:layout_height="120dp"
-                android:src="@drawable/ic_prescription_placeholder"
-                android:alpha="0.3"
-                app:tint="@color/textSecondary" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="24dp"
-                android:text="@string/prescription_empty_state_title"
-                style="@style/TextAppearance.HealthAssistant.Title"
-                android:gravity="center" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:text="@string/prescription_empty_state_message"
-                style="@style/TextAppearance.HealthAssistant.Body"
-                android:gravity="center"
-                android:alpha="0.7" />
-
-        </LinearLayout>
-
-        <!-- Loading State -->
+        <!-- Content Container -->
         <FrameLayout
-            android:id="@+id/loading_layout"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:visibility="gone"
-            android:background="@color/colorBackground">
+            android:layout_height="0dp"
+            android:layout_weight="1">
 
+            <!-- Prescriptions RecyclerView -->
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/recyclerViewPrescriptions"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:clipToPadding="false"
+                android:paddingBottom="80dp"
+                tools:listitem="@layout/item_prescription_card" />
+
+            <!-- Empty State -->
+            <LinearLayout
+                android:id="@+id/emptyStateGroup"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:gravity="center"
+                android:orientation="vertical"
+                android:padding="32dp"
+                android:visibility="gone">
+
+                <ImageView
+                    android:layout_width="120dp"
+                    android:layout_height="120dp"
+                    android:alpha="0.6"
+                    android:src="@drawable/ic_prescription_placeholder" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:text="No prescriptions yet"
+                    android:textAppearance="?attr/textAppearanceHeadline6" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:gravity="center"
+                    android:text="Add your first prescription using the + button"
+                    android:textAppearance="?attr/textAppearanceBody2"
+                    android:textColor="?attr/colorOnSurfaceVariant" />
+
+            </LinearLayout>
+
+            <!-- Loading State -->
             <ProgressBar
+                android:id="@+id/progressBar"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:indeterminateTint="@color/colorPrimary" />
+                android:visibility="gone" />
 
         </FrameLayout>
 
-    </FrameLayout>
+    </LinearLayout>
 
     <!-- Floating Action Button -->
     <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/fab_add_prescription"
+        android:id="@+id/fabAddPrescription"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"
         android:layout_margin="16dp"
+        android:contentDescription="Add prescription"
         android:src="@drawable/ic_add"
-        android:contentDescription="@string/prescription_add_description"
-        app:tint="@color/colorOnPrimary"
-        app:backgroundTint="@color/colorPrimary"
-        app:elevation="6dp" />
+        app:tint="?attr/colorOnPrimary" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

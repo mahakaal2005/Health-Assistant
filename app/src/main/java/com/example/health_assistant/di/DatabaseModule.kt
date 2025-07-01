@@ -2,6 +2,8 @@ package com.example.health_assistant.di
 
 import android.content.Context
 import androidx.room.Room
+import androidx.room.RoomDatabase
+import androidx.sqlite.db.SupportSQLiteDatabase
 import com.example.health_assistant.data.local.dao.DiseaseCategoryDao
 import com.example.health_assistant.data.local.dao.ProfileImageDao
 import com.example.health_assistant.data.local.dao.PrescriptionDao
@@ -30,7 +32,13 @@ object DatabaseModule {
             HealthAssistantDatabase::class.java,
             "health_assistant_database"
         )
-        .addMigrations(HealthAssistantDatabase.MIGRATION_1_2)
+        .addCallback(object : RoomDatabase.Callback() {
+            override fun onCreate(db: SupportSQLiteDatabase) {
+                super.onCreate(db)
+                // Initialize default categories when database is first created
+                // This will be handled by the repository when first accessed
+            }
+        })
         .build()
     }
 

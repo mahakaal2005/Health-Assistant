@@ -1,38 +1,28 @@
 package com.example.health_assistant.data.repository.interfaces
 
+import com.example.health_assistant.core.util.Result
 import com.example.health_assistant.data.model.Prescription
 import kotlinx.coroutines.flow.Flow
 
 /**
- * Repository interface for prescription data operations
- * Defines contract for both mock and Room implementations
+ * Repository interface for prescription operations
  */
 interface PrescriptionRepository {
-
-    /**
-     * Get all prescriptions as a Flow for reactive UI updates
-     */
-    fun getAllPrescriptions(): Flow<List<Prescription>>
-
-    /**
-     * Get prescriptions filtered by disease category
-     */
-    fun getPrescriptionsByCategory(categoryId: String): Flow<List<Prescription>>
-
-    /**
-     * Search prescriptions by doctor name with real-time filtering
-     */
-    fun searchPrescriptionsByDoctor(doctorName: String): Flow<List<Prescription>>
-
-    /**
-     * Get prescriptions grouped by category for section headers
-     */
-    fun getPrescriptionsGroupedByCategory(): Flow<Map<String, List<Prescription>>>
 
     /**
      * Insert a new prescription
      */
     suspend fun insertPrescription(prescription: Prescription): Result<Unit>
+
+    /**
+     * Get all prescriptions for a user
+     */
+    suspend fun getAllPrescriptions(userId: String): Flow<Result<List<Prescription>>>
+
+    /**
+     * Get prescription by ID
+     */
+    suspend fun getPrescriptionById(id: String): Result<Prescription?>
 
     /**
      * Update an existing prescription
@@ -42,20 +32,21 @@ interface PrescriptionRepository {
     /**
      * Delete a prescription by ID
      */
-    suspend fun deletePrescription(prescriptionId: String): Result<Unit>
+    suspend fun deletePrescription(id: String): Result<Unit>
 
     /**
-     * Get a single prescription by ID
+     * Check if a category exists in the database
+     * This is crucial for foreign key constraint validation
      */
-    suspend fun getPrescriptionById(prescriptionId: String): Prescription?
+    suspend fun categoryExists(categoryId: String): Boolean
 
     /**
-     * Get prescription count for a specific category
+     * Get all available disease categories
      */
-    suspend fun getPrescriptionCountByCategory(categoryId: String): Int
+    suspend fun getAllCategories(): Result<List<com.example.health_assistant.data.model.DiseaseCategory>>
 
     /**
-     * Delete all prescriptions (for testing/cleanup)
+     * Initialize default categories if they don't exist
      */
-    suspend fun deleteAllPrescriptions(): Result<Unit>
+    suspend fun initializeDefaultCategories(): Result<Unit>
 }

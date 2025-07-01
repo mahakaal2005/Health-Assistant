@@ -1,144 +1,115 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    style="@style/CardView.HealthAssistant"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginHorizontal="4dp"
-    android:layout_marginVertical="6dp"
+    android:layout_margin="8dp"
     app:cardCornerRadius="12dp"
-    app:cardElevation="4dp">
+    app:cardElevation="4dp"
+    app:strokeWidth="0dp">
 
-    <androidx.constraintlayout.widget.ConstraintLayout
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:orientation="vertical"
         android:padding="16dp">
 
-        <!-- Prescription Image Thumbnail -->
-        <ImageView
-            android:id="@+id/prescription_image"
-            android:layout_width="80dp"
-            android:layout_height="80dp"
-            android:layout_marginEnd="16dp"
-            android:background="@drawable/prescription_image_background"
-            android:scaleType="centerCrop"
-            android:contentDescription="@string/prescription_image_description"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            tools:src="@drawable/ic_prescription_placeholder" />
-
-        <!-- Doctor Name -->
-        <TextView
-            android:id="@+id/doctor_name"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="8dp"
-            style="@style/TextAppearance.HealthAssistant.Title"
-            android:textSize="16sp"
-            android:maxLines="1"
-            android:ellipsize="end"
-            app:layout_constraintEnd_toStartOf="@+id/more_actions_button"
-            app:layout_constraintStart_toEndOf="@+id/prescription_image"
-            app:layout_constraintTop_toTopOf="parent"
-            tools:text="Dr. Smith" />
-
-        <!-- Disease Category Chip -->
-        <com.google.android.material.chip.Chip
-            android:id="@+id/disease_category_chip"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            android:textSize="12sp"
-            app:chipBackgroundColor="@color/colorSecondary"
-            app:chipStrokeWidth="0dp"
-            app:chipCornerRadius="8dp"
-            app:chipMinHeight="24dp"
-            app:textStartPadding="8dp"
-            app:textEndPadding="8dp"
-            app:layout_constraintStart_toEndOf="@+id/prescription_image"
-            app:layout_constraintTop_toBottomOf="@+id/doctor_name"
-            tools:text="Cardiology" />
-
-        <!-- Date Added -->
-        <TextView
-            android:id="@+id/date_added"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:layout_marginEnd="8dp"
-            style="@style/TextAppearance.HealthAssistant.Caption"
-            android:textSize="13sp"
-            android:maxLines="1"
-            app:layout_constraintEnd_toStartOf="@+id/more_actions_button"
-            app:layout_constraintStart_toEndOf="@+id/prescription_image"
-            app:layout_constraintTop_toBottomOf="@+id/disease_category_chip"
-            tools:text="Added: Jun 15, 2025" />
-
-        <!-- More Actions Button -->
-        <ImageButton
-            android:id="@+id/more_actions_button"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:background="?android:attr/selectableItemBackgroundBorderless"
-            android:src="@drawable/ic_more_vert"
-            android:contentDescription="@string/prescription_more_actions_description"
-            app:tint="@color/textSecondary"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
-
-        <!-- Quick Action Buttons (Initially Hidden) -->
+        <!-- Header with doctor name and category -->
         <LinearLayout
-            android:id="@+id/quick_actions_layout"
-            android:layout_width="0dp"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
             android:orientation="horizontal"
-            android:visibility="gone"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@+id/prescription_image"
-            app:layout_constraintTop_toBottomOf="@+id/date_added">
+            android:gravity="center_vertical"
+            android:layout_marginBottom="8dp">
 
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/view_button"
-                style="@style/Widget.Material3.Button.TextButton"
+            <TextView
+                android:id="@+id/doctorName"
                 android:layout_width="0dp"
-                android:layout_height="36dp"
+                android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:layout_marginEnd="4dp"
-                android:text="@string/prescription_action_view"
-                android:textSize="12sp"
-                app:icon="@drawable/ic_visibility"
-                app:iconSize="16dp" />
+                android:textAppearance="?attr/textAppearanceSubtitle1"
+                android:textStyle="bold"
+                android:textColor="?attr/colorOnSurface"
+                tools:text="Dr. John Smith" />
 
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/edit_button"
-                style="@style/Widget.Material3.Button.TextButton"
-                android:layout_width="0dp"
-                android:layout_height="36dp"
-                android:layout_weight="1"
-                android:layout_marginHorizontal="2dp"
-                android:text="@string/prescription_action_edit"
-                android:textSize="12sp"
-                app:icon="@drawable/ic_edit"
-                app:iconSize="16dp" />
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/delete_button"
-                style="@style/Widget.Material3.Button.TextButton"
-                android:layout_width="0dp"
-                android:layout_height="36dp"
-                android:layout_weight="1"
-                android:layout_marginStart="4dp"
-                android:text="@string/prescription_action_delete"
-                android:textSize="12sp"
-                android:textColor="@color/error"
-                app:icon="@drawable/ic_delete"
-                app:iconSize="16dp"
-                app:iconTint="@color/error" />
+            <com.google.android.material.chip.Chip
+                android:id="@+id/categoryName"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                style="@style/Widget.MaterialComponents.Chip.Action"
+                tools:text="Cardiology" />
 
         </LinearLayout>
 
-    </androidx.constraintlayout.widget.ConstraintLayout>
+        <!-- Date -->
+        <TextView
+            android:id="@+id/dateAdded"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?attr/textAppearanceCaption"
+            android:textColor="?attr/colorOnSurfaceVariant"
+            android:layout_marginBottom="8dp"
+            tools:text="Dec 15, 2024" />
 
-</androidx.cardview.widget.CardView>
+        <!-- Notes (optional) -->
+        <TextView
+            android:id="@+id/notes"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textAppearance="?attr/textAppearanceBody2"
+            android:textColor="?attr/colorOnSurfaceVariant"
+            android:layout_marginBottom="8dp"
+            android:visibility="gone"
+            tools:text="Take with food, monitor blood pressure"
+            tools:visibility="visible" />
+
+        <!-- Action buttons container -->
+        <LinearLayout
+            android:id="@+id/quickActionsLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="end"
+            android:visibility="gone">
+
+            <Button
+                android:id="@+id/viewButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="View"
+                style="@style/Widget.MaterialComponents.Button.TextButton"
+                android:layout_marginEnd="8dp" />
+
+            <Button
+                android:id="@+id/editButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Edit"
+                style="@style/Widget.MaterialComponents.Button.TextButton"
+                android:layout_marginEnd="8dp" />
+
+            <Button
+                android:id="@+id/deleteButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Delete"
+                style="@style/Widget.MaterialComponents.Button.TextButton" />
+
+        </LinearLayout>
+
+        <!-- More actions button -->
+        <ImageButton
+            android:id="@+id/moreActionsButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="end"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="More actions"
+            android:padding="8dp"
+            android:src="@drawable/ic_more_vert" />
+
+    </LinearLayout>
+
+</com.google.android.material.card.MaterialCardView>

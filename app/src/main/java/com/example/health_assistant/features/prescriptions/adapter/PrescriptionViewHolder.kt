@@ -28,17 +28,15 @@ class PrescriptionViewHolder(
             // Set doctor name
             doctorName.text = prescription.doctorName
 
-            // Set disease category chip
-            diseaseCategoryChip.text = prescription.diseaseCategory.displayName
+            // Fixed: Use 'categoryName' instead of 'diseaseCategoryChip' to match layout
+            val category = PrescriptionUtils.getCategoryById(prescription.categoryId)
+            categoryName.text = category?.displayName ?: "Unknown Category"
 
-            // Set formatted date
-            dateAdded.text = prescription.getDateAddedDisplay()
+            // Fixed: Use PrescriptionUtils.formatDate() instead of non-existent getDateAddedDisplay()
+            dateAdded.text = PrescriptionUtils.formatDate(prescription.dateAdded)
 
-            // Load prescription image (placeholder for now, will be replaced with actual image loading)
-            prescriptionImage.setImageResource(
-                prescription.diseaseCategory.iconRes
-                    ?: com.example.health_assistant.R.drawable.ic_prescription_placeholder
-            )
+            // Remove prescriptionImage reference since it doesn't exist in the layout
+            // The layout is focused on text information rather than images
 
             // Set up click listeners
             setupClickListeners(prescription.id)

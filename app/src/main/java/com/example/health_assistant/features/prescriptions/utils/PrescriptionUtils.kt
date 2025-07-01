@@ -2,43 +2,47 @@ package com.example.health_assistant.features.prescriptions.utils
 
 import com.example.health_assistant.data.model.DiseaseCategory
 import com.example.health_assistant.data.model.Prescription
-import java.time.LocalDateTime
-import java.time.format.DateTimeFormatter
-import java.util.*
+import java.io.File
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
+import java.util.UUID
 
 /**
- * Utility functions for prescription management
+ * Utility class for prescription operations
  */
 object PrescriptionUtils {
 
     /**
-     * Format LocalDateTime for display in UI
+     * Create a prescription object with proper validation
      */
-    fun formatDateTime(dateTime: LocalDateTime): String {
-        val formatter = DateTimeFormatter.ofPattern("MMM dd, yyyy")
-        return dateTime.format(formatter)
-    }
+    fun createPrescription(
+        imageUri: String,
+        localImagePath: String,
+        doctorName: String,
+        diseaseCategory: DiseaseCategory,
+        notes: String? = null,
+        userId: String
+    ): Prescription {
+        val file = File(localImagePath)
+        val fileName = file.name
+        val fileSize = if (file.exists()) file.length() else 0L
+        val mimeType = getMimeTypeFromPath(localImagePath)
 
-    /**
-     * Format LocalDateTime for display in UI (alias for formatDateTime)
-     */
-    fun formatDate(dateTime: LocalDateTime): String {
-        return formatDateTime(dateTime)
-    }
-
-    /**
-     * Format LocalDateTime for display with time
-     */
-    fun formatDateTimeWithTime(dateTime: LocalDateTime): String {
-        val formatter = DateTimeFormatter.ofPattern("MMM dd, yyyy 'at' HH:mm")
-        return dateTime.format(formatter)
-    }
-
-    /**
-     * Generate a unique prescription ID
-     */
-    fun generatePrescriptionId(): String {
-        return "prescription_${UUID.randomUUID()}"
+        return Prescription(
+            id = UUID.randomUUID().toString(),
+            userId = userId,
+            imageUri = imageUri,
+            localImagePath = localImagePath,
+            doctorName = doctorName,
+            categoryId = diseaseCategory.id, // Use the category ID for foreign key
+            notes = notes,
+            fileName = fileName,
+            mimeType = mimeType,
+            fileSize = fileSize,
+            dateAdded = System.currentTimeMillis(),
+            dateModified = System.currentTimeMillis()
+        )
     }
 
     /**
@@ -49,114 +53,68 @@ object PrescriptionUtils {
         diseaseCategory: DiseaseCategory?,
         imageUri: String?
     ): PrescriptionValidationResult {
-        val errors = mutableListOf<String>()
-
-        if (doctorName.isBlank()) {
-            errors.add("Doctor name is required")
-        }
-
-        if (diseaseCategory == null) {
-            errors.add("Disease category is required")
-        }
-
-        if (imageUri.isNullOrBlank()) {
-            errors.add("Prescription image is required")
-        }
-
-        return if (errors.isEmpty()) {
-            PrescriptionValidationResult.Valid
-        } else {
-            PrescriptionValidationResult.Invalid(errors)
+        return when {
+            doctorName.isBlank() -> PrescriptionValidationResult.InvalidDoctorName
+            diseaseCategory == null -> PrescriptionValidationResult.InvalidCategory
+            imageUri.isNullOrBlank() -> PrescriptionValidationResult.InvalidImage
+            else -> PrescriptionValidationResult.Valid
         }
     }
 
     /**
-     * Sort prescriptions by date (newest first)
+     * Format timestamp to readable date string
      */
-    fun sortPrescriptionsByDate(prescriptions: List<Prescription>): List<Prescription> {
-        return prescriptions.sortedByDescending { it.dateAdded }
+    fun formatDate(timestamp: Long): String {
+        val formatter = SimpleDateFormat("MMM dd, yyyy", Locale.getDefault())
+        return formatter.format(Date(timestamp))
     }
 
     /**
-     * Group prescriptions by category and sort within each group
+     * Format timestamp to readable date and time string
      */
-    fun groupAndSortPrescriptions(prescriptions: List<Prescription>): Map<DiseaseCategory, List<Prescription>> {
-        return prescriptions
-            .groupBy { it.diseaseCategory }
-            .mapValues { (_, prescriptions) -> sortPrescriptionsByDate(prescriptions) }
-            .toSortedMap(compareBy { it.displayName })
+    fun formatDateTime(timestamp: Long): String {
+        val formatter = SimpleDateFormat("MMM dd, yyyy 'at' HH:mm", Locale.getDefault())
+        return formatter.format(Date(timestamp))
     }
 
     /**
-     * Search prescriptions by doctor name (case-insensitive)
-     */
-    fun searchByDoctorName(prescriptions: List<Prescription>, query: String): List<Prescription> {
-        if (query.isBlank()) return prescriptions
-
-        return prescriptions.filter { prescription ->
-            prescription.doctorName.contains(query, ignoreCase = true)
-        }
-    }
-
-    /**
-     * Get prescription count by category
-     */
-    fun getPrescriptionCountByCategory(
-        prescriptions: List<Prescription>,
-        category: DiseaseCategory
-    ): Int {
-        return prescriptions.count { it.diseaseCategory.id == category.id }
-    }
-
-    /**
-     * Create a new prescription with current timestamp
-     */
-    fun createPrescription(
-        imageUri: String,
-        localImagePath: String,
-        doctorName: String,
-        diseaseCategory: DiseaseCategory,
-        notes: String?,
-        userId: String
-    ): Prescription {
-        val now = LocalDateTime.now()
-        return Prescription(
-            id = generatePrescriptionId(),
-            imageUri = imageUri,
-            localImagePath = localImagePath,
-            doctorName = doctorName.trim(),
-            diseaseCategory = diseaseCategory,
-            dateAdded = now,
-            dateModified = now,
-            notes = notes?.takeIf { it.isNotBlank() },
-            userId = userId
-        )
-    }
-
-    /**
-     * Validate doctor name format
+     * Validate doctor name
      */
     fun isValidDoctorName(doctorName: String): Boolean {
-        if (doctorName.isBlank()) return false
+        return doctorName.isNotBlank() &&
+               doctorName.length >= 2 &&
+               doctorName.length <= 100 &&
+               doctorName.trim() == doctorName && // No leading/trailing spaces
+               doctorName.matches(Regex("^[a-zA-Z\\s.'-]+$")) // Only letters, spaces, periods, apostrophes, hyphens
+    }
 
-        // Doctor name should be at least 2 characters
-        if (doctorName.trim().length < 2) return false
+    /**
+     * Get category by ID from default categories
+     */
+    fun getCategoryById(categoryId: String): DiseaseCategory? {
+        return DiseaseCategory.getDefaultCategories().find { it.id == categoryId }
+    }
 
-        // Should contain only letters, spaces, periods, and common name characters
-        val namePattern = Regex("^[a-zA-Z\\s.'-]+$")
-        if (!namePattern.matches(doctorName.trim())) return false
-
-        // Should not be all spaces or special characters
-        if (doctorName.trim().all { it.isWhitespace() || it in ".'- " }) return false
-
-        return true
+    /**
+     * Get MIME type from file path
+     */
+    private fun getMimeTypeFromPath(path: String): String {
+        return when {
+            path.endsWith(".jpg", ignoreCase = true) ||
+            path.endsWith(".jpeg", ignoreCase = true) -> "image/jpeg"
+            path.endsWith(".png", ignoreCase = true) -> "image/png"
+            path.endsWith(".webp", ignoreCase = true) -> "image/webp"
+            else -> "image/jpeg" // Default to JPEG
+        }
     }
 }
 
 /**
- * Result of prescription validation
+ * Validation result for prescription data
  */
 sealed class PrescriptionValidationResult {
     object Valid : PrescriptionValidationResult()
-    data class Invalid(val errors: List<String>) : PrescriptionValidationResult()
+    object InvalidDoctorName : PrescriptionValidationResult()
+    object InvalidCategory : PrescriptionValidationResult()
+    object InvalidImage : PrescriptionValidationResult()
 }

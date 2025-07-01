@@ -5,7 +5,7 @@ import com.example.health_assistant.databinding.ItemPrescriptionCategoryHeaderBi
 import com.example.health_assistant.features.prescriptions.PrescriptionItem
 
 /**
- * ViewHolder for category header items in prescriptions list
+ * ViewHolder for prescription category header items
  * Displays category name, icon, and prescription count
  */
 class CategoryHeaderViewHolder(
@@ -20,10 +20,13 @@ class CategoryHeaderViewHolder(
             // Set category icon if available
             item.category.iconRes?.let { iconRes ->
                 categoryIcon.setImageResource(iconRes)
+                categoryIcon.visibility = android.view.View.VISIBLE
+            } ?: run {
+                categoryIcon.visibility = android.view.View.GONE
             }
 
-            // Set prescription count
-            prescriptionCount.text = item.prescriptionCount.toString()
+            // Fixed: Use correct property name 'count' instead of 'prescriptionCount'
+            prescriptionCount.text = item.count.toString()
         }
     }
 }

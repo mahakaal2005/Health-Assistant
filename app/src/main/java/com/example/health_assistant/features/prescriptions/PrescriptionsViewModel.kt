@@ -2,10 +2,11 @@ package com.example.health_assistant.features.prescriptions
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.health_assistant.auth.session.SessionManager
+import com.example.health_assistant.core.util.Result
 import com.example.health_assistant.data.model.DiseaseCategory
 import com.example.health_assistant.data.model.Prescription
 import com.example.health_assistant.data.repository.interfaces.PrescriptionRepository
-import com.example.health_assistant.features.prescriptions.utils.PrescriptionUtils
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
@@ -17,7 +18,8 @@ import javax.inject.Inject
  */
 @HiltViewModel
 class PrescriptionsViewModel @Inject constructor(
-    private val prescriptionRepository: PrescriptionRepository
+    private val prescriptionRepository: PrescriptionRepository,
+    private val sessionManager: SessionManager
 ) : ViewModel() {
 
     // Search query for filtering prescriptions
@@ -28,80 +30,139 @@ class PrescriptionsViewModel @Inject constructor(
     private val _uiState = MutableStateFlow(PrescriptionsUiState())
     val uiState: StateFlow<PrescriptionsUiState> = _uiState.asStateFlow()
 
+    // Get current user ID
+    private val currentUserId: String
+        get() = sessionManager.getCurrentUserId() ?: ""
+
     // Combined flow of prescriptions with search filtering
     val prescriptions: StateFlow<List<PrescriptionItem>> = combine(
-        prescriptionRepository.getAllPrescriptions(),
+        flow {
+            if (currentUserId.isNotEmpty()) {
+                prescriptionRepository.getAllPrescriptions(currentUserId).collect { result ->
+                    emit(result)
+                }
+            } else {
+                emit(Result.Success(emptyList<Prescription>()))
+            }
+        },
         _searchQuery
-    ) { prescriptions, query ->
-        val filteredPrescriptions = if (query.isBlank()) {
-            prescriptions
-        } else {
-            PrescriptionUtils.searchByDoctorName(prescriptions, query)
-        }
+    ) { prescriptionResult, query ->
+        when (prescriptionResult) {
+            is Result.Success -> {
+                val prescriptions = prescriptionResult.data
+                val filteredPrescriptions = if (query.isBlank()) {
+                    prescriptions
+                } else {
+                    searchByDoctorName(prescriptions, query)
+                }
 
-        // Group prescriptions by category and create UI items
-        createPrescriptionItems(filteredPrescriptions)
+                // Group prescriptions by category and create UI items
+                createPrescriptionItems(filteredPrescriptions)
+            }
+            is Result.Error -> {
+                updateUiState { copy(errorMessage = prescriptionResult.message) }
+                emptyList()
+            }
+            is Result.Loading -> {
+                updateUiState { copy(isLoading = true) }
+                emptyList()
+            }
+        }
     }.stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(5000),
         initialValue = emptyList()
     )
 
-    init {
-        // Monitor prescriptions for empty state
-        viewModelScope.launch {
-            prescriptions.collect { items ->
-                val isEmpty = items.filterIsInstance<PrescriptionItem.PrescriptionCard>().isEmpty()
-                _uiState.value = _uiState.value.copy(
-                    isEmpty = isEmpty,
-                    isLoading = false
-                )
-            }
-        }
-    }
-
     /**
-     * Update search query for real-time filtering
+     * Update search query
      */
     fun updateSearchQuery(query: String) {
         _searchQuery.value = query
     }
 
     /**
-     * Clear search query
-     */
-    fun clearSearch() {
-        _searchQuery.value = ""
-    }
-
-    /**
-     * Delete a prescription by ID
+     * Delete a prescription
      */
     fun deletePrescription(prescriptionId: String) {
         viewModelScope.launch {
-            try {
-                _uiState.value = _uiState.value.copy(isLoading = true)
-                val result = prescriptionRepository.deletePrescription(prescriptionId)
-                result.fold(
-                    onSuccess = {
-                        _uiState.value = _uiState.value.copy(
+            updateUiState { copy(isLoading = true) }
+
+            val result = prescriptionRepository.deletePrescription(prescriptionId)
+            when (result) {
+                is Result.Success -> {
+                    updateUiState {
+                        copy(
                             isLoading = false,
-                            message = "Prescription deleted successfully"
-                        )
-                    },
-                    onFailure = { error ->
-                        _uiState.value = _uiState.value.copy(
-                            isLoading = false,
-                            error = "Failed to delete prescription: ${error.message}"
+                            successMessage = "Prescription deleted successfully"
                         )
                     }
-                )
-            } catch (e: Exception) {
-                _uiState.value = _uiState.value.copy(
-                    isLoading = false,
-                    error = "Failed to delete prescription: ${e.message}"
-                )
+                }
+                is Result.Error -> {
+                    updateUiState {
+                        copy(
+                            isLoading = false,
+                            errorMessage = result.message
+                        )
+                    }
+                }
+                is Result.Loading -> {
+                    // Keep loading state
+                }
             }
+        }
+    }
+
+    /**
+     * Refresh prescriptions
+     */
+    fun refreshPrescriptions() {
+        viewModelScope.launch {
+            updateUiState { copy(isLoading = true) }
+
+            if (currentUserId.isNotEmpty()) {
+                prescriptionRepository.getAllPrescriptions(currentUserId).collect { result ->
+                    when (result) {
+                        is Result.Success -> {
+                            updateUiState {
+                                copy(
+                                    isLoading = false,
+                                    errorMessage = null
+                                )
+                            }
+                        }
+                        is Result.Error -> {
+                            updateUiState {
+                                copy(
+                                    isLoading = false,
+                                    errorMessage = result.message
+                                )
+                            }
+                        }
+                        is Result.Loading -> {
+                            updateUiState { copy(isLoading = true) }
+                        }
+                    }
+                }
+            } else {
+                updateUiState {
+                    copy(
+                        isLoading = false,
+                        errorMessage = "User not logged in"
+                    )
+                }
+            }
+        }
+    }
+
+    /**
+     * Get prescription by ID - Fixed return type and error handling
+     */
+    suspend fun getPrescriptionById(prescriptionId: String): Prescription? {
+        return when (val result = prescriptionRepository.getPrescriptionById(prescriptionId)) {
+            is Result.Success -> result.data
+            is Result.Error -> null
+            is Result.Loading -> null
         }
     }
 
@@ -110,71 +171,114 @@ class PrescriptionsViewModel @Inject constructor(
      */
     fun updatePrescription(prescription: Prescription) {
         viewModelScope.launch {
-            try {
-                _uiState.value = _uiState.value.copy(isLoading = true)
-                val result = prescriptionRepository.updatePrescription(prescription)
-                result.fold(
-                    onSuccess = {
-                        _uiState.value = _uiState.value.copy(
+            updateUiState { copy(isLoading = true) }
+
+            val result = prescriptionRepository.updatePrescription(prescription)
+            when (result) {
+                is Result.Success -> {
+                    updateUiState {
+                        copy(
                             isLoading = false,
-                            message = "Prescription updated successfully"
-                        )
-                    },
-                    onFailure = { error ->
-                        _uiState.value = _uiState.value.copy(
-                            isLoading = false,
-                            error = "Failed to update prescription: ${error.message}"
+                            successMessage = "Prescription updated successfully"
                         )
                     }
-                )
-            } catch (e: Exception) {
-                _uiState.value = _uiState.value.copy(
-                    isLoading = false,
-                    error = "Failed to update prescription: ${e.message}"
-                )
+                }
+                is Result.Error -> {
+                    updateUiState {
+                        copy(
+                            isLoading = false,
+                            errorMessage = result.message
+                        )
+                    }
+                }
+                is Result.Loading -> {
+                    // Keep loading state
+                }
             }
         }
     }
 
     /**
-     * Get prescription by ID
+     * Clear error message
      */
-    suspend fun getPrescriptionById(prescriptionId: String): Prescription? {
-        return prescriptionRepository.getPrescriptionById(prescriptionId)
+    fun clearErrorMessage() {
+        updateUiState { copy(errorMessage = null) }
     }
 
     /**
-     * Clear any displayed message
+     * Clear success message
      */
-    fun clearMessage() {
-        _uiState.value = _uiState.value.copy(message = null)
+    fun clearSuccessMessage() {
+        updateUiState { copy(successMessage = null) }
     }
 
     /**
-     * Create prescription items for RecyclerView (headers + cards)
+     * Create prescription items from list for UI display
      */
     private fun createPrescriptionItems(prescriptions: List<Prescription>): List<PrescriptionItem> {
-        if (prescriptions.isEmpty()) return emptyList()
-
-        val grouped = PrescriptionUtils.groupAndSortPrescriptions(prescriptions)
+        val grouped = groupAndSortPrescriptions(prescriptions)
         val items = mutableListOf<PrescriptionItem>()
 
-        grouped.forEach { (category, categoryPrescriptions) ->
+        grouped.entries.forEach { (category, categoryPrescriptions) ->
             // Add category header
             items.add(
                 PrescriptionItem.CategoryHeader(
                     category = category,
-                    prescriptionCount = categoryPrescriptions.size
+                    count = categoryPrescriptions.size
                 )
             )
 
             // Add prescription cards
             categoryPrescriptions.forEach { prescription ->
-                items.add(PrescriptionItem.PrescriptionCard(prescription))
+                items.add(
+                    PrescriptionItem.PrescriptionCard(
+                        prescription = prescription,
+                        category = category
+                    )
+                )
             }
         }
 
         return items
+    }
+
+    /**
+     * Search prescriptions by doctor name
+     */
+    private fun searchByDoctorName(prescriptions: List<Prescription>, query: String): List<Prescription> {
+        return prescriptions.filter { prescription ->
+            prescription.doctorName.contains(query, ignoreCase = true)
+        }
+    }
+
+    /**
+     * Group and sort prescriptions by category
+     */
+    private fun groupAndSortPrescriptions(prescriptions: List<Prescription>): Map<DiseaseCategory, List<Prescription>> {
+        // Get all categories for proper grouping
+        val allCategories = DiseaseCategory.getDefaultCategories()
+        val categoryMap = allCategories.associateBy { it.id }
+
+        return prescriptions
+            .groupBy { prescription ->
+                // Find the category object by ID
+                categoryMap[prescription.categoryId] ?: DiseaseCategory(
+                    id = prescription.categoryId,
+                    displayName = "Unknown Category"
+                )
+            }
+            .mapValues { (_, prescriptions) ->
+                // Sort prescriptions within each category by date (newest first)
+                prescriptions.sortedByDescending { it.dateAdded }
+            }
+            .toSortedMap(compareBy { it.displayName })
+    }
+
+    /**
+     * Helper function to update UI state
+     */
+    private fun updateUiState(update: PrescriptionsUiState.() -> PrescriptionsUiState) {
+        _uiState.value = _uiState.value.update()
     }
 }
 
@@ -182,22 +286,23 @@ class PrescriptionsViewModel @Inject constructor(
  * UI state for prescriptions screen
  */
 data class PrescriptionsUiState(
-    val isLoading: Boolean = true,
-    val isEmpty: Boolean = false,
-    val message: String? = null,
-    val error: String? = null
+    val isLoading: Boolean = false,
+    val errorMessage: String? = null,
+    val successMessage: String? = null,
+    val isEmpty: Boolean = false
 )
 
 /**
- * Sealed class for different item types in RecyclerView
+ * Sealed class for different types of items in prescription list
  */
 sealed class PrescriptionItem {
     data class CategoryHeader(
         val category: DiseaseCategory,
-        val prescriptionCount: Int
+        val count: Int
     ) : PrescriptionItem()
 
     data class PrescriptionCard(
-        val prescription: Prescription
+        val prescription: Prescription,
+        val category: DiseaseCategory
     ) : PrescriptionItem()
 }

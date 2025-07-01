@@ -16,6 +16,8 @@ import androidx.lifecycle.lifecycleScope
 import coil3.load
 import coil3.request.crossfade
 import com.example.health_assistant.R
+import com.example.health_assistant.auth.session.SessionManager
+import com.example.health_assistant.core.util.Result
 import com.example.health_assistant.data.model.DiseaseCategory
 import com.example.health_assistant.data.repository.interfaces.PrescriptionRepository
 import com.example.health_assistant.databinding.BottomSheetAddPrescriptionBinding
@@ -46,6 +48,9 @@ class AddPrescriptionBottomSheet : BottomSheetDialogFragment() {
 
     @Inject
     lateinit var prescriptionRepository: PrescriptionRepository
+
+    @Inject
+    lateinit var sessionManager: SessionManager
 
     private lateinit var cameraManager: CameraManager
     private var capturedImageUri: Uri? = null
@@ -279,33 +284,53 @@ class AddPrescriptionBottomSheet : BottomSheetDialogFragment() {
 
         lifecycleScope.launch {
             try {
+                // Get current user ID from session manager
+                val currentUserId = sessionManager.getCurrentUserId()
+                if (currentUserId.isNullOrEmpty()) {
+                    showError("User not logged in. Please log in to save prescriptions.")
+                    return@launch
+                }
+
+                // Validate that the category exists in the database
+                val categoryExists = prescriptionRepository.categoryExists(category.id)
+                if (!categoryExists) {
+                    showError("Invalid category selected. Please select a valid category.")
+                    return@launch
+                }
+
                 // Save and compress image
                 val result = fileManager.saveAndCompressImage(imageUri)
 
                 if (result.isSuccess) {
                     val savedPath = result.getOrNull() ?: ""
-                    // Create prescription object
+                    // Create prescription object with valid user ID and category ID
                     val prescription = PrescriptionUtils.createPrescription(
                         imageUri = imageUri.toString(),
                         localImagePath = savedPath,
                         doctorName = doctorName,
                         diseaseCategory = category,
                         notes = notes?.takeIf { it.isNotBlank() },
-                        userId = "current_user" // TODO: Get from session manager
+                        userId = currentUserId // Use actual user ID from session
                     )
 
-                    // Save to repository - FIXED: Actually save the prescription
+                    // Save to repository
                     val saveResult = prescriptionRepository.insertPrescription(prescription)
                     if (saveResult.isSuccess) {
                         showSuccess(getString(R.string.prescription_saved_successfully))
                         dismiss()
                     } else {
-                        val error = saveResult.exceptionOrNull()
-                        showError("Failed to save prescription: ${error?.message ?: "Unknown error"}")
+                        val errorMessage = if (saveResult is Result.Error) {
+                            saveResult.message
+                        } else {
+                            "Unknown error"
+                        }
+                        showError("Failed to save prescription: $errorMessage")
                     }
                 } else {
-                    val error = result.exceptionOrNull()
-                    showError("Failed to save prescription: ${error?.message ?: "Unknown error"}")
+                    // Handle Kotlin standard Result failure properly
+                    val exception = result.exceptionOrNull()
+                    val errorMessage = exception?.message ?: "Failed to save image"
+                    showError("Failed to save prescription: $errorMessage")
                 }
             } catch (e: Exception) {
                 showError("Error saving prescription: ${e.message}")

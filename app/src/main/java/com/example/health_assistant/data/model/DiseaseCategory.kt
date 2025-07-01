@@ -1,101 +1,57 @@
 package com.example.health_assistant.data.model
 
-import androidx.annotation.DrawableRes
-import com.example.health_assistant.R
+import com.example.health_assistant.data.local.entity.DiseaseCategoryEntity
 
 /**
- * Data model for disease categories used in prescription organization
+ * Domain model for disease categories
  */
 data class DiseaseCategory(
     val id: String,
-    val name: String,
     val displayName: String,
-    @DrawableRes val iconRes: Int?,
-    val isCustom: Boolean = false
+    val description: String? = null,
+    val iconRes: Int? = null
 ) {
     companion object {
         /**
-         * Default disease categories available in the app
+         * Get the default disease categories
          */
         fun getDefaultCategories(): List<DiseaseCategory> {
             return listOf(
-                DiseaseCategory(
-                    id = "cardiology",
-                    name = "CARDIOLOGY",
-                    displayName = "Cardiology",
-                    iconRes = R.drawable.ic_medical_category
-                ),
-                DiseaseCategory(
-                    id = "diabetes",
-                    name = "DIABETES",
-                    displayName = "Diabetes",
-                    iconRes = R.drawable.ic_medical_category
-                ),
-                DiseaseCategory(
-                    id = "respiratory",
-                    name = "RESPIRATORY",
-                    displayName = "Respiratory",
-                    iconRes = R.drawable.ic_medical_category
-                ),
-                DiseaseCategory(
-                    id = "orthopedic",
-                    name = "ORTHOPEDIC",
-                    displayName = "Orthopedic",
-                    iconRes = R.drawable.ic_medical_category
-                ),
-                DiseaseCategory(
-                    id = "dermatology",
-                    name = "DERMATOLOGY",
-                    displayName = "Dermatology",
-                    iconRes = R.drawable.ic_medical_category
-                ),
-                DiseaseCategory(
-                    id = "neurology",
-                    name = "NEUROLOGY",
-                    displayName = "Neurology",
-                    iconRes = R.drawable.ic_medical_category
-                ),
-                DiseaseCategory(
-                    id = "general",
-                    name = "GENERAL",
-                    displayName = "General Medicine",
-                    iconRes = R.drawable.ic_medical_category
-                ),
-                DiseaseCategory(
-                    id = "other",
-                    name = "OTHER",
-                    displayName = "Other",
-                    iconRes = R.drawable.ic_medical_category
-                )
-            )
-        }
-
-        /**
-         * Find category by name
-         */
-        fun findByName(name: String): DiseaseCategory? {
-            return getDefaultCategories().find { it.name == name }
-        }
-
-        /**
-         * Find category by ID
-         */
-        fun findById(id: String): DiseaseCategory? {
-            return getDefaultCategories().find { it.id == id }
-        }
-
-        /**
-         * Get default fallback category when no specific category is found
-         * Returns "Other" category as the default fallback
-         */
-        fun getDefaultCategory(): DiseaseCategory {
-            return DiseaseCategory(
-                id = "other",
-                name = "OTHER",
-                displayName = "Other",
-                iconRes = R.drawable.ic_medical_category,
-                isCustom = false
+                DiseaseCategory("general", "General"),
+                DiseaseCategory("cardiology", "Cardiology"),
+                DiseaseCategory("dermatology", "Dermatology"),
+                DiseaseCategory("endocrinology", "Endocrinology"),
+                DiseaseCategory("gastroenterology", "Gastroenterology"),
+                DiseaseCategory("neurology", "Neurology"),
+                DiseaseCategory("orthopedics", "Orthopedics"),
+                DiseaseCategory("pediatrics", "Pediatrics"),
+                DiseaseCategory("psychiatry", "Psychiatry"),
+                DiseaseCategory("radiology", "Radiology")
             )
         }
     }
+
+    /**
+     * Convert to database entity
+     */
+    fun toEntity(): DiseaseCategoryEntity {
+        return DiseaseCategoryEntity(
+            id = id,
+            displayName = displayName,
+            description = description,
+            iconRes = iconRes
+        )
+    }
+}
+
+/**
+ * Extension function to convert entity back to domain model
+ */
+fun DiseaseCategoryEntity.toDiseaseCategory(): DiseaseCategory {
+    return DiseaseCategory(
+        id = id,
+        displayName = displayName,
+        description = description,
+        iconRes = iconRes
+    )
 }

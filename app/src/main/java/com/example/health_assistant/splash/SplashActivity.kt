@@ -75,7 +75,8 @@ class SplashActivity : AppCompatActivity() {
         // Check session state asynchronously
         lifecycleScope.launch {
             try {
-                val isLoggedIn = sessionManager.isLoggedInAsync()
+                // Fixed: Use isLoggedIn() instead of non-existent isLoggedInAsync()
+                val isLoggedIn = sessionManager.isLoggedIn()
 
                 // Wait for minimum splash duration to complete
                 handler.postDelayed({

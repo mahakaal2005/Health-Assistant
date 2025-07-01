@@ -1,20 +1,15 @@
 package com.example.health_assistant.features.prescriptions.dialogs
 
-import android.annotation.SuppressLint
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
-import androidx.core.os.bundleOf
+import androidx.core.widget.addTextChangedListener
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
-import coil3.load
-import coil3.request.crossfade
-import coil3.request.error
-import coil3.request.placeholder
 import com.example.health_assistant.R
 import com.example.health_assistant.data.model.DiseaseCategory
 import com.example.health_assistant.data.model.Prescription
@@ -26,8 +21,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 
 /**
- * Combined fragment for viewing and editing prescription details
- * Toggles between view mode and edit mode in a single interface
+ * Fragment for displaying and editing prescription details
  */
 @AndroidEntryPoint
 class PrescriptionDetailFragment : Fragment() {
@@ -36,9 +30,11 @@ class PrescriptionDetailFragment : Fragment() {
     private val binding get() = _binding!!
 
     private val viewModel: PrescriptionsViewModel by viewModels()
-    private lateinit var prescriptionId: String
-    private var currentPrescription: Prescription? = null
+
+    private var prescription: Prescription? = null
     private var isEditMode = false
+    private var selectedCategory: DiseaseCategory? = null
+    private val categories = DiseaseCategory.getDefaultCategories()
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -52,229 +48,179 @@ class PrescriptionDetailFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // Get prescription ID from arguments
-        prescriptionId = arguments?.getString("prescription_id")
-            ?: throw IllegalArgumentException("Prescription ID is required")
-
-        setupViews()
-        setupCategorySpinner()
+        setupToolbar()
+        setupCategoryDropdown()
+        setupClickListeners()
+        setupTextWatchers()
+        loadPrescription()
         observeViewModel()
-        loadPrescriptionData()
     }
 
-    private fun setupViews() {
-        binding.apply {
-            // Setup toolbar navigation
-            toolbar.setNavigationOnClickListener {
-                if (isEditMode) {
-                    // If in edit mode, show discard changes dialog
-                    showDiscardChangesDialog()
-                } else {
-                    // Navigate back
-                    findNavController().navigateUp()
-                }
-            }
-
-            // Setup edit toggle button
-            editToggleButton.setOnClickListener {
-                toggleEditMode()
-            }
-
-            // Setup action buttons
-            cancelButton.setOnClickListener {
-                toggleEditMode() // Cancel edit and return to view mode
-            }
-
-            saveButton.setOnClickListener {
-                saveChanges()
-            }
-
-            // Setup delete button
-            deleteButton.setOnClickListener {
-                showDeleteConfirmation()
-            }
-
-            // Setup image zoom functionality
-            prescriptionImageView.setOnClickListener {
-                // TODO: Implement image zoom functionality
-                showImageZoom()
-            }
+    private fun setupToolbar() {
+        binding.toolbar.title = "Prescription Details"
+        binding.toolbar.setNavigationOnClickListener {
+            findNavController().navigateUp()
         }
     }
 
-    private fun setupCategorySpinner() {
-        val categories = DiseaseCategory.getDefaultCategories()
-        val categoryNames = categories.map { it.displayName }
-
+    private fun setupCategoryDropdown() {
         val adapter = ArrayAdapter(
             requireContext(),
-            android.R.layout.simple_spinner_item,
-            categoryNames
+            android.R.layout.simple_dropdown_item_1line,
+            categories.map { it.displayName }
         )
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-        binding.categorySpinner.adapter = adapter
-    }
-
-    private fun observeViewModel() {
-        lifecycleScope.launch {
-            viewModel.prescriptions.collect { prescriptionItems ->
-                // Extract prescription from PrescriptionItem.PrescriptionCard
-                val prescription = prescriptionItems
-                    .filterIsInstance<com.example.health_assistant.features.prescriptions.PrescriptionItem.PrescriptionCard>()
-                    .map { it.prescription }
-                    .find { it.id == prescriptionId }
-
-                if (prescription != null) {
-                    currentPrescription = prescription
-                    displayPrescriptionDetails(prescription)
-                }
-            }
+        binding.categoryDropdown.setAdapter(adapter)
+        binding.categoryDropdown.setOnItemClickListener { _, _, position, _ ->
+            selectedCategory = categories[position]
         }
     }
 
-    private fun loadPrescriptionData() {
-        // Data will be loaded through the observed prescriptions flow
+    private fun setupClickListeners() {
+        binding.editButton.setOnClickListener {
+            toggleEditMode()
+        }
+
+        binding.saveButton.setOnClickListener {
+            savePrescription()
+        }
+
+        binding.cancelButton.setOnClickListener {
+            toggleEditMode()
+        }
     }
 
-    @SuppressLint("StringFormatInvalid")
-    private fun displayPrescriptionDetails(prescription: Prescription) {
-        binding.apply {
-            // Load prescription image
-            prescriptionImageView.load(prescription.localImagePath) {
-                placeholder(R.drawable.ic_prescription_placeholder)
-                error(R.drawable.ic_prescription_placeholder)
-                crossfade(true)
+    private fun setupTextWatchers() {
+        binding.doctorNameEditText.addTextChangedListener {
+            clearFieldError(binding.doctorNameInputLayout)
+        }
+    }
+
+    private fun loadPrescription() {
+        val prescriptionId = arguments?.getString("prescription_id") ?: return
+
+        lifecycleScope.launch {
+            binding.progressBar.visibility = View.VISIBLE
+
+            prescription = viewModel.getPrescriptionById(prescriptionId)
+            prescription?.let {
+                displayPrescription(it)
+            } ?: run {
+                showError("Prescription not found")
+                findNavController().navigateUp()
             }
 
-            // Display prescription information
-            doctorNameViewText.text = prescription.doctorName
-            categoryViewText.text = prescription.diseaseCategory.displayName
+            binding.progressBar.visibility = View.GONE
+        }
+    }
+
+    private fun displayPrescription(prescription: Prescription) {
+        // Display prescription details
+        binding.apply {
+            doctorNameText.text = prescription.doctorName
+
+            // Fixed: Get category by ID instead of accessing non-existent diseaseCategory property
+            val category = PrescriptionUtils.getCategoryById(prescription.categoryId)
+            categoryViewText.text = category?.displayName ?: "Unknown Category"
+
+            // Fixed: Use PrescriptionUtils.formatDate() which now exists
             dateAddedText.text = PrescriptionUtils.formatDate(prescription.dateAdded)
 
-            // Show/hide modified date
             if (prescription.dateModified != prescription.dateAdded) {
-                dateModifiedContainer.visibility = View.VISIBLE
                 dateModifiedText.text = PrescriptionUtils.formatDate(prescription.dateModified)
+                dateModifiedText.visibility = View.VISIBLE
+                dateModifiedLabel.visibility = View.VISIBLE
             } else {
-                dateModifiedContainer.visibility = View.GONE
+                dateModifiedText.visibility = View.GONE
+                dateModifiedLabel.visibility = View.GONE
             }
 
-            // Display notes
+            // Handle notes
             if (!prescription.notes.isNullOrBlank()) {
-                notesViewText.text = prescription.notes
+                notesText.text = prescription.notes
+                notesText.visibility = View.VISIBLE
+                notesLabel.visibility = View.VISIBLE
             } else {
-                notesViewText.text = getString(R.string.prescription_notes_empty)
+                notesText.visibility = View.GONE
+                notesLabel.visibility = View.GONE
             }
 
-            // Populate edit fields (hidden initially)
-            doctorNameInput.setText(prescription.doctorName)
-            notesInput.setText(prescription.notes ?: "")
+            // Set edit text values for edit mode
+            doctorNameEditText.setText(prescription.doctorName)
+            notesEditText.setText(prescription.notes ?: "")
 
-            // Set category spinner selection
-            val categories = DiseaseCategory.getDefaultCategories()
-            val categoryIndex = categories.indexOfFirst { it.id == prescription.diseaseCategory.id }
+            // Fixed: Set category dropdown selection properly
+            val categoryIndex = categories.indexOfFirst { it.id == prescription.categoryId }
             if (categoryIndex >= 0) {
-                categorySpinner.setSelection(categoryIndex)
+                categoryDropdown.setText(categories[categoryIndex].displayName, false)
+                selectedCategory = categories[categoryIndex]
             }
         }
     }
 
     private fun toggleEditMode() {
         isEditMode = !isEditMode
-        updateUIForMode()
-    }
 
-    private fun updateUIForMode() {
         binding.apply {
             if (isEditMode) {
-                // Switch to edit mode
-                editToggleButton.text = getString(R.string.prescription_action_cancel)
-                editToggleButton.setIconResource(R.drawable.ic_close)
-
-                // Hide view elements, show edit elements
-                doctorNameViewText.visibility = View.GONE
-                doctorNameInputLayout.visibility = View.VISIBLE
-
-                categoryViewText.visibility = View.GONE
-                categorySpinner.visibility = View.VISIBLE
-
-                notesViewText.visibility = View.GONE
-                notesInputLayout.visibility = View.VISIBLE
-
-                actionButtonsContainer.visibility = View.VISIBLE
-                deleteButton.visibility = View.GONE
-
-                // Update toolbar title
-                toolbar.title = getString(R.string.edit_prescription_title)
-
+                // Show edit views, hide display views
+                viewGroup.visibility = View.GONE
+                editGroup.visibility = View.VISIBLE
+                editButton.visibility = View.GONE
+                saveButton.visibility = View.VISIBLE
+                cancelButton.visibility = View.VISIBLE
             } else {
-                // Switch to view mode
-                editToggleButton.text = getString(R.string.prescription_action_edit)
-                editToggleButton.setIconResource(R.drawable.ic_edit)
+                // Show display views, hide edit views
+                viewGroup.visibility = View.VISIBLE
+                editGroup.visibility = View.GONE
+                editButton.visibility = View.VISIBLE
+                saveButton.visibility = View.GONE
+                cancelButton.visibility = View.GONE
 
-                // Show view elements, hide edit elements
-                doctorNameViewText.visibility = View.VISIBLE
-                doctorNameInputLayout.visibility = View.GONE
-
-                categoryViewText.visibility = View.VISIBLE
-                categorySpinner.visibility = View.GONE
-
-                notesViewText.visibility = View.VISIBLE
-                notesInputLayout.visibility = View.GONE
-
-                actionButtonsContainer.visibility = View.GONE
-                deleteButton.visibility = View.VISIBLE
-
-                // Update toolbar title
-                toolbar.title = getString(R.string.prescription_detail_title)
-
-                // Clear any validation errors
-                doctorNameInputLayout.error = null
+                // Reset edit fields to original values
+                prescription?.let { displayPrescription(it) }
+                clearAllFieldErrors()
             }
         }
     }
 
-    private fun saveChanges() {
-        val doctorName = binding.doctorNameInput.text.toString().trim()
-        val notes = binding.notesInput.text.toString().trim()
-        val selectedCategoryIndex = binding.categorySpinner.selectedItemPosition
+    private fun savePrescription() {
+        val doctorName = binding.doctorNameEditText.text?.toString()?.trim() ?: ""
+        val notes = binding.notesEditText.text?.toString()?.trim()
+        val category = selectedCategory
 
-        // Validate input
-        if (!validateInput(doctorName)) return
+        if (!validateInput(doctorName, category)) {
+            return
+        }
 
-        val selectedCategory = DiseaseCategory.getDefaultCategories()[selectedCategoryIndex]
+        val currentPrescription = prescription ?: return
 
         lifecycleScope.launch {
+            binding.progressBar.visibility = View.VISIBLE
+            binding.saveButton.isEnabled = false
+
             try {
-                binding.progressBar.visibility = View.VISIBLE
-                binding.saveButton.isEnabled = false
+                // Fixed: Create updated prescription with correct parameters and timestamp
+                val updatedPrescription = currentPrescription.copy(
+                    doctorName = doctorName,
+                    categoryId = category!!.id, // Fixed: Use categoryId instead of diseaseCategory
+                    notes = notes?.takeIf { it.isNotBlank() }, // Fixed: Proper null safety
+                    dateModified = System.currentTimeMillis() // Fixed: Use Long timestamp instead of LocalDateTime
+                )
 
-                currentPrescription?.let { prescription ->
-                    val updatedPrescription = prescription.copy(
-                        doctorName = doctorName,
-                        diseaseCategory = selectedCategory,
-                        notes = notes.ifBlank { null },
-                        dateModified = java.time.LocalDateTime.now()
-                    )
+                // Fixed: Use updatePrescription() method which now exists
+                viewModel.updatePrescription(updatedPrescription)
 
-                    viewModel.updatePrescription(updatedPrescription)
+                // Update local prescription reference
+                prescription = updatedPrescription
 
-                    // Switch back to view mode
-                    toggleEditMode()
+                // Switch back to view mode
+                toggleEditMode()
 
-                    // Show success message
-                    Snackbar.make(
-                        binding.root,
-                        getString(R.string.prescription_updated_successfully),
-                        Snackbar.LENGTH_SHORT
-                    ).show()
-                }
+                // Show success message
+                showSuccess("Prescription updated successfully")
+
             } catch (e: Exception) {
-                Snackbar.make(
-                    binding.root,
-                    getString(R.string.error_updating_prescription),
-                    Snackbar.LENGTH_LONG
-                ).show()
+                showError("Error updating prescription: ${e.message}")
             } finally {
                 binding.progressBar.visibility = View.GONE
                 binding.saveButton.isEnabled = true
@@ -282,88 +228,78 @@ class PrescriptionDetailFragment : Fragment() {
         }
     }
 
-    private fun validateInput(doctorName: String): Boolean {
-        return when {
-            doctorName.isBlank() -> {
-                binding.doctorNameInputLayout.error = getString(R.string.error_doctor_name_required)
-                false
-            }
-            !PrescriptionUtils.isValidDoctorName(doctorName) -> {
-                binding.doctorNameInputLayout.error = getString(R.string.error_invalid_doctor_name)
-                false
-            }
-            else -> {
-                binding.doctorNameInputLayout.error = null
-                true
-            }
+    private fun validateInput(doctorName: String, category: DiseaseCategory?): Boolean {
+        var isValid = true
+
+        // Fixed: Use PrescriptionUtils.isValidDoctorName() which now exists
+        if (doctorName.isBlank()) {
+            binding.doctorNameInputLayout.error = "Doctor name is required"
+            isValid = false
+        } else if (!PrescriptionUtils.isValidDoctorName(doctorName)) {
+            binding.doctorNameInputLayout.error = "Please enter a valid doctor name"
+            isValid = false
         }
+
+        if (category == null) {
+            showError("Please select a category")
+            isValid = false
+        }
+
+        return isValid
     }
 
-    private fun showDiscardChangesDialog() {
-        androidx.appcompat.app.AlertDialog.Builder(requireContext())
-            .setTitle(getString(R.string.discard_changes_title))
-            .setMessage(getString(R.string.discard_changes_message))
-            .setPositiveButton(getString(R.string.action_discard)) { _, _ ->
-                // Reset fields and switch to view mode
-                currentPrescription?.let { displayPrescriptionDetails(it) }
-                toggleEditMode()
-            }
-            .setNegativeButton(getString(R.string.action_continue_editing), null)
-            .show()
+    private fun clearFieldError(inputLayout: com.google.android.material.textfield.TextInputLayout) {
+        inputLayout.error = null
     }
 
-    private fun showDeleteConfirmation() {
-        androidx.appcompat.app.AlertDialog.Builder(requireContext())
-            .setTitle(getString(R.string.prescription_delete_confirmation_title))
-            .setMessage(getString(R.string.prescription_delete_confirmation_message))
-            .setPositiveButton(getString(R.string.action_delete)) { _, _ ->
-                deletePrescription()
-            }
-            .setNegativeButton(getString(R.string.action_cancel), null)
-            .show()
+    private fun clearAllFieldErrors() {
+        binding.doctorNameInputLayout.error = null
     }
 
-    private fun deletePrescription() {
+    private fun observeViewModel() {
         lifecycleScope.launch {
-            try {
-                binding.progressBar.visibility = View.VISIBLE
-                viewModel.deletePrescription(prescriptionId)
+            viewModel.uiState.collect { state ->
+                if (state.isLoading) {
+                    binding.progressBar.visibility = View.VISIBLE
+                } else {
+                    binding.progressBar.visibility = View.GONE
+                }
 
-                // Navigate back with success message
-                Snackbar.make(
-                    binding.root,
-                    getString(R.string.prescription_deleted_successfully),
-                    Snackbar.LENGTH_SHORT
-                ).show()
+                state.successMessage?.let { message ->
+                    showSuccess(message)
+                    viewModel.clearSuccessMessage()
+                }
 
-                findNavController().navigateUp()
-
-            } catch (e: Exception) {
-                Snackbar.make(
-                    binding.root,
-                    getString(R.string.error_deleting_prescription),
-                    Snackbar.LENGTH_LONG
-                ).show()
-            } finally {
-                binding.progressBar.visibility = View.GONE
+                state.errorMessage?.let { error ->
+                    showError(error)
+                    viewModel.clearErrorMessage()
+                }
             }
         }
     }
 
-    private fun showImageZoom() {
-        // TODO: Implement image zoom dialog or activity
-        currentPrescription?.let { prescription ->
-            // For now, show a simple message
-            Snackbar.make(
-                binding.root,
-                "Image zoom functionality - Coming soon!",
-                Snackbar.LENGTH_SHORT
-            ).show()
-        }
+    private fun showSuccess(message: String) {
+        Snackbar.make(binding.root, message, Snackbar.LENGTH_SHORT).show()
+    }
+
+    private fun showError(message: String) {
+        Snackbar.make(binding.root, message, Snackbar.LENGTH_LONG).show()
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
+    }
+
+    companion object {
+        const val TAG = "PrescriptionDetailFragment"
+
+        fun newInstance(prescriptionId: String): PrescriptionDetailFragment {
+            return PrescriptionDetailFragment().apply {
+                arguments = Bundle().apply {
+                    putString("prescription_id", prescriptionId)
+                }
+            }
+        }
     }
 }

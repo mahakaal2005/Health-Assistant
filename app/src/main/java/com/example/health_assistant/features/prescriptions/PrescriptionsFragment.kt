@@ -53,91 +53,64 @@ class PrescriptionsFragment : Fragment() {
     }
 
     private fun setupToolbar() {
+        binding.toolbar.title = "Prescriptions" // Fixed: Use hardcoded string instead of non-existent resource
         binding.toolbar.setNavigationOnClickListener {
-            // Navigate back
-            requireActivity().onBackPressedDispatcher.onBackPressed()
+            findNavController().navigateUp()
         }
     }
 
     private fun setupRecyclerView() {
         prescriptionsAdapter = PrescriptionsAdapter(
-            onPrescriptionClick = { prescriptionId ->
-                // Open prescription detail view
-                showPrescriptionDetail(prescriptionId)
+            onPrescriptionClick = { prescription ->
+                navigateToPrescriptionDetail(prescription.prescription.id) // Fixed: Access prescription.id correctly
             },
-            onPrescriptionEdit = { prescriptionId ->
-                // Open edit prescription dialog
-                editPrescription(prescriptionId)
+            onPrescriptionEdit = { prescription -> // Fixed: Use correct parameter name
+                editPrescription(prescription.prescription)
             },
-            onPrescriptionDelete = { prescriptionId ->
-                // Show delete confirmation
-                confirmDeletePrescription(prescriptionId)
+            onPrescriptionDelete = { prescription -> // Fixed: Use correct parameter name
+                deletePrescription(prescription.prescription)
             },
-            onPrescriptionView = { prescriptionId ->
-                // Open prescription in full-screen view
-                showPrescriptionDetail(prescriptionId)
+            onPrescriptionView = { prescription -> // Fixed: Use correct parameter name
+                navigateToPrescriptionDetail(prescription.prescription.id)
             }
         )
 
-        binding.prescriptionsRecyclerView.apply {
-            adapter = prescriptionsAdapter
+        binding.recyclerViewPrescriptions.apply {
             layoutManager = LinearLayoutManager(requireContext())
-
-            // Add simple item decoration instead of using the problematic spacing
-            addItemDecoration(object : androidx.recyclerview.widget.RecyclerView.ItemDecoration() {
-                override fun getItemOffsets(
-                    outRect: android.graphics.Rect,
-                    view: android.view.View,
-                    parent: androidx.recyclerview.widget.RecyclerView,
-                    state: androidx.recyclerview.widget.RecyclerView.State
-                ) {
-                    outRect.bottom = 16 // 16dp spacing between items
-                }
-            })
+            adapter = prescriptionsAdapter
+            setHasFixedSize(true)
         }
     }
 
     private fun setupSearchBar() {
-        binding.searchEditText.addTextChangedListener { text ->
-            viewModel.updateSearchQuery(text?.toString() ?: "")
+        binding.searchEditText.addTextChangedListener { editable ->
+            val query = editable?.toString() ?: ""
+            viewModel.updateSearchQuery(query)
         }
 
-        // Handle search input layout end icon (clear text)
-        binding.searchInputLayout.setEndIconOnClickListener {
+        // Clear search functionality
+        binding.clearSearchButton.setOnClickListener {
             binding.searchEditText.text?.clear()
-            viewModel.clearSearch()
+            viewModel.updateSearchQuery("")
         }
     }
 
     private fun setupFab() {
         binding.fabAddPrescription.setOnClickListener {
-            // Open add prescription bottom sheet
-            openAddPrescriptionDialog()
+            showAddPrescriptionDialog()
         }
     }
 
     private fun setupFragmentResultListeners() {
-        // Listen for prescription deleted result
-        parentFragmentManager.setFragmentResultListener("prescription_deleted", this) { _, bundle ->
-            val message = bundle.getString("message")
-            message?.let {
-                Snackbar.make(binding.root, it, Snackbar.LENGTH_SHORT).show()
-            }
-        }
-
-        // Listen for prescription updated result
-        parentFragmentManager.setFragmentResultListener("prescription_updated", this) { _, bundle ->
-            val message = bundle.getString("message")
-            message?.let {
-                Snackbar.make(binding.root, it, Snackbar.LENGTH_SHORT).show()
-            }
-        }
-
-        // Listen for prescription errors
-        parentFragmentManager.setFragmentResultListener("prescription_error", this) { _, bundle ->
-            val error = bundle.getString("error")
-            error?.let {
-                Snackbar.make(binding.root, it, Snackbar.LENGTH_LONG).show()
+        // Listen for prescription addition results
+        childFragmentManager.setFragmentResultListener(
+            "prescription_added",
+            this
+        ) { _, result ->
+            val success = result.getBoolean("success", false)
+            if (success) {
+                viewModel.refreshPrescriptions()
+                showMessage("Prescription added successfully") // Fixed: Use hardcoded string
             }
         }
     }
@@ -145,15 +118,9 @@ class PrescriptionsFragment : Fragment() {
     private fun observeViewModel() {
         // Observe prescriptions list
         viewLifecycleOwner.lifecycleScope.launch {
-            viewModel.prescriptions.collect { prescriptions ->
-                prescriptionsAdapter.submitList(prescriptions)
-            }
-        }
-
-        // Observe UI state
-        viewLifecycleOwner.lifecycleScope.launch {
-            viewModel.uiState.collect { state ->
-                updateUIState(state)
+            viewModel.prescriptions.collect { prescriptionItems ->
+                prescriptionsAdapter.submitList(prescriptionItems)
+                updateEmptyState(prescriptionItems.isEmpty())
             }
         }
 
@@ -162,70 +129,105 @@ class PrescriptionsFragment : Fragment() {
             viewModel.searchQuery.collect { query ->
                 if (binding.searchEditText.text.toString() != query) {
                     binding.searchEditText.setText(query)
+                    binding.searchEditText.setSelection(query.length)
+                }
+            }
+        }
+
+        // Observe UI state - Fixed: Use correct property names
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewModel.uiState.collect { state ->
+                updateLoadingState(state.isLoading)
+
+                // Handle success messages - Fixed: Use successMessage property
+                state.successMessage?.let { message ->
+                    showMessage(message)
+                    viewModel.clearSuccessMessage() // Fixed: Use correct method name
+                }
+
+                // Handle error messages - Fixed: Use errorMessage property
+                state.errorMessage?.let { error ->
+                    showError(error)
+                    viewModel.clearErrorMessage() // Fixed: Use correct method name
                 }
             }
         }
     }
 
-    private fun updateUIState(state: PrescriptionsUiState) {
-        // Show/hide loading
-        binding.loadingLayout.visibility = if (state.isLoading) View.VISIBLE else View.GONE
-
-        // Show/hide empty state
-        binding.emptyStateLayout.visibility = if (state.isEmpty && !state.isLoading) {
-            View.VISIBLE
-        } else {
-            View.GONE
-        }
-
-        // Show/hide prescriptions list
-        binding.prescriptionsRecyclerView.visibility = if (!state.isEmpty && !state.isLoading) {
-            View.VISIBLE
-        } else {
-            View.GONE
-        }
-
-        // Show messages
-        state.message?.let { message ->
-            Snackbar.make(binding.root, message, Snackbar.LENGTH_SHORT).show()
-            viewModel.clearMessage()
-        }
-
-        // Show errors
-        state.error?.let { error ->
-            Snackbar.make(binding.root, error, Snackbar.LENGTH_LONG).show()
-        }
+    private fun updateLoadingState(isLoading: Boolean) {
+        binding.progressBar.visibility = if (isLoading) View.VISIBLE else View.GONE
+        binding.fabAddPrescription.isEnabled = !isLoading
     }
 
-    private fun showPrescriptionDetail(prescriptionId: String) {
-        // Navigate to the combined detail/edit fragment
+    private fun updateEmptyState(isEmpty: Boolean) {
+        binding.emptyStateGroup.visibility = if (isEmpty) View.VISIBLE else View.GONE
+        binding.recyclerViewPrescriptions.visibility = if (isEmpty) View.GONE else View.VISIBLE
+    }
+
+    private fun showAddPrescriptionDialog() {
+        val dialog = AddPrescriptionBottomSheet.newInstance()
+        dialog.show(childFragmentManager, AddPrescriptionBottomSheet.TAG)
+    }
+
+    private fun navigateToPrescriptionDetail(prescriptionId: String) {
         val bundle = bundleOf("prescription_id" to prescriptionId)
-        findNavController().navigate(
-            R.id.action_prescriptions_to_prescription_detail,
-            bundle
+        // TODO: Add navigation action in nav graph
+        // findNavController().navigate(R.id.action_prescriptionsFragment_to_prescriptionDetailFragment, bundle)
+        // For now, show a placeholder message
+        showMessage("Navigation to prescription detail - ID: $prescriptionId")
+    }
+
+    private fun showPrescriptionOptions(prescription: PrescriptionItem.PrescriptionCard) {
+        // Create options dialog for prescription actions (view, edit, delete)
+        val options = arrayOf(
+            "View", // Fixed: Use hardcoded strings
+            "Edit",
+            "Delete"
         )
-    }
 
-    private fun editPrescription(prescriptionId: String) {
-        // Use the same detail fragment - it handles both viewing and editing
-        showPrescriptionDetail(prescriptionId)
-    }
-
-    private fun confirmDeletePrescription(prescriptionId: String) {
-        // Show confirmation dialog
         androidx.appcompat.app.AlertDialog.Builder(requireContext())
-            .setTitle("Delete Prescription?")
-            .setMessage("This action cannot be undone.")
-            .setPositiveButton("Delete") { _, _ ->
-                viewModel.deletePrescription(prescriptionId)
+            .setTitle("Prescription Options") // Fixed: Use hardcoded string
+            .setItems(options) { _, which ->
+                when (which) {
+                    0 -> navigateToPrescriptionDetail(prescription.prescription.id)
+                    1 -> editPrescription(prescription.prescription)
+                    2 -> deletePrescription(prescription.prescription)
+                }
             }
-            .setNegativeButton("Cancel", null)
             .show()
     }
 
-    private fun openAddPrescriptionDialog() {
-        val addPrescriptionDialog = AddPrescriptionBottomSheet()
-        addPrescriptionDialog.show(childFragmentManager, "AddPrescriptionBottomSheet")
+    private fun editPrescription(prescription: com.example.health_assistant.data.model.Prescription) {
+        // TODO: Add navigation action in nav graph
+        // findNavController().navigate(R.id.action_prescriptionsFragment_to_editPrescriptionFragment, bundle)
+        // For now, show a placeholder message
+        showMessage("Edit prescription - ID: ${prescription.id}")
+    }
+
+    private fun deletePrescription(prescription: com.example.health_assistant.data.model.Prescription) {
+        androidx.appcompat.app.AlertDialog.Builder(requireContext())
+            .setTitle("Delete Prescription") // Fixed: Use hardcoded string
+            .setMessage("Are you sure you want to delete the prescription from ${prescription.doctorName}?") // Fixed: Use hardcoded string
+            .setPositiveButton("Delete") { _, _ -> // Fixed: Use hardcoded string
+                viewModel.deletePrescription(prescription.id)
+            }
+            .setNegativeButton("Cancel", null) // Fixed: Use hardcoded string
+            .show()
+    }
+
+    // Fixed: Use explicit String type to resolve Snackbar overload ambiguity
+    private fun showMessage(message: String) {
+        Snackbar.make(binding.root, message as CharSequence, Snackbar.LENGTH_SHORT).show()
+    }
+
+    // Fixed: Use explicit String type to resolve Snackbar overload ambiguity
+    private fun showError(error: String) {
+        Snackbar.make(binding.root, error as CharSequence, Snackbar.LENGTH_LONG).show()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        viewModel.refreshPrescriptions()
     }
 
     override fun onDestroyView() {

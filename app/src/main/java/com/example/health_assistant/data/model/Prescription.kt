@@ -1,51 +1,70 @@
 package com.example.health_assistant.data.model
 
-import java.time.LocalDateTime
+import com.example.health_assistant.data.local.entity.PrescriptionEntity
 import java.util.UUID
 
 /**
- * Core data model for prescription information
- * Used throughout the app for prescription management
+ * Domain model for prescriptions
  */
 data class Prescription(
     val id: String = UUID.randomUUID().toString(),
+    val userId: String,
     val imageUri: String,
     val localImagePath: String,
     val doctorName: String,
-    val diseaseCategory: DiseaseCategory,
-    val dateAdded: LocalDateTime,
-    val dateModified: LocalDateTime,
+    val categoryId: String,
     val notes: String? = null,
-    val userId: String
+    val fileName: String,
+    val mimeType: String?,
+    val fileSize: Long,
+    val imageWidth: Int? = null,
+    val imageHeight: Int? = null,
+    val dateAdded: Long = System.currentTimeMillis(),
+    val dateModified: Long = System.currentTimeMillis()
 ) {
     /**
-     * Format date for display in UI
+     * Convert to database entity
      */
-    fun getFormattedDateAdded(): String {
-        return "${dateAdded.monthValue}/${dateAdded.dayOfMonth}/${dateAdded.year}"
+    fun toEntity(): PrescriptionEntity {
+        return PrescriptionEntity(
+            id = id,
+            userId = userId,
+            imageUri = imageUri,
+            localImagePath = localImagePath,
+            doctorName = doctorName,
+            categoryId = categoryId,
+            notes = notes,
+            fileName = fileName,
+            mimeType = mimeType,
+            fileSize = fileSize,
+            imageWidth = imageWidth,
+            imageHeight = imageHeight,
+            dateAdded = dateAdded,
+            dateModified = dateModified,
+            createdAt = dateAdded,
+            updatedAt = dateModified
+        )
     }
+}
 
-    /**
-     * Format date for display in UI
-     */
-    fun getFormattedDateModified(): String {
-        return "${dateModified.monthValue}/${dateModified.dayOfMonth}/${dateModified.year}"
-    }
-
-    /**
-     * Check if prescription has notes
-     */
-    fun hasNotes(): Boolean = !notes.isNullOrBlank()
-
-    /**
-     * Get display text for date added
-     */
-    fun getDateAddedDisplay(): String = "Added: ${getFormattedDateAdded()}"
-
-    /**
-     * Create a copy with updated modification date
-     */
-    fun copyWithUpdatedDate(): Prescription {
-        return this.copy(dateModified = LocalDateTime.now())
-    }
+/**
+ * Extension function to convert entity back to domain model
+ */
+fun PrescriptionEntity.toPrescription(): Prescription {
+    return Prescription(
+        id = id,
+        userId = userId,
+        imageUri = imageUri,
+        localImagePath = localImagePath,
+        doctorName = doctorName,
+        categoryId = categoryId,
+        notes = notes,
+        fileName = fileName,
+        mimeType = mimeType,
+        fileSize = fileSize,
+        imageWidth = imageWidth,
+        imageHeight = imageHeight,
+        dateAdded = dateAdded,
+        dateModified = dateModified
+    )
 }
