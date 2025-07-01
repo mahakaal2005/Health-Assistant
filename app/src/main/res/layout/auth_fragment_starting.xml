@@ -10,20 +10,39 @@
         android:id="@+id/title_text"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginStart="24dp"
+        android:layout_marginStart="20dp"
         android:layout_marginTop="64dp"
-        android:layout_marginEnd="24dp"
+        android:layout_marginEnd="20dp"
         android:fontFamily="sans-serif-rounded"
         android:text="@string/onboarding_title"
         android:textAlignment="center"
         android:textColor="@android:color/white"
-        android:textSize="28sp"
+        android:textSize="30sp"
         android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <ImageView
+    <!-- Subtitle below the main title -->
+    <TextView
+        android:id="@+id/subtitle_text"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="32dp"
+        android:layout_marginTop="12dp"
+        android:layout_marginEnd="32dp"
+        android:fontFamily="sans-serif"
+        android:text="From Medications to Milestones — Your Health, Fully Managed"
+        android:textAlignment="center"
+        android:textColor="#DEF0E164"
+        android:textSize="16sp"
+        android:alpha="0.9"
+        android:lineSpacingExtra="2dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/title_text" />
+
+    <com.airbnb.lottie.LottieAnimationView
         android:id="@+id/onboarding_image"
         android:layout_width="0dp"
         android:layout_height="0dp"
@@ -32,13 +51,15 @@
         android:layout_marginEnd="32dp"
         android:layout_marginBottom="32dp"
         android:contentDescription="@string/onboarding_image_description"
-        android:src="@drawable/onboarding_illustration"
         app:layout_constraintBottom_toTopOf="@+id/description_text"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/title_text"
-        app:layout_constraintVertical_bias="1.0" />
+        app:layout_constraintTop_toBottomOf="@+id/subtitle_text"
+        app:layout_constraintVertical_bias="0.0"
+        app:lottie_autoPlay="true"
+        app:lottie_rawRes="@raw/onboarding_illustration"
+        app:lottie_loop="true" />
 
     <TextView
         android:id="@+id/description_text"

@@ -1,30 +1,33 @@
 package com.example.health_assistant.features.onboarding
 
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.example.health_assistant.R
 import com.example.health_assistant.databinding.OnboardingPageBinding
 
 /**
- * Adapter for the onboarding ViewPager2 that displays onboarding content
+ * Adapter for the onboarding ViewPager2 that displays onboarding content with Lottie animations
  */
-class OnboardingPagerAdapter : RecyclerView.Adapter<OnboardingPagerAdapter.OnboardingPageViewHolder>() {
+class OnboardingPagerAdapter(
+    private val onGetStartedClick: () -> Unit
+) : RecyclerView.Adapter<OnboardingPagerAdapter.OnboardingPageViewHolder>() {
 
-    // Define onboarding page content
+    // Define onboarding page content with updated titles and Lottie animations
     private val pages = listOf(
         OnboardingPage(
-            imageResId = R.drawable.premium_gradient_background, // Replace with actual illustration
+            lottieRawRes = R.raw.end_to_end,
             titleResId = R.string.feature_monitoring_title,
             descriptionResId = R.string.feature_monitoring_desc
         ),
         OnboardingPage(
-            imageResId = R.drawable.premium_gradient_background, // Replace with actual illustration
+            lottieRawRes = R.raw.ai_chatbot,
             titleResId = R.string.feature_chatbot_title,
             descriptionResId = R.string.feature_chatbot_desc
         ),
         OnboardingPage(
-            imageResId = R.drawable.premium_gradient_background, // Replace with actual illustration
+            lottieRawRes = R.raw.emergency_alerts,
             titleResId = R.string.feature_emergency_title,
             descriptionResId = R.string.feature_emergency_desc
         )
@@ -50,18 +53,32 @@ class OnboardingPagerAdapter : RecyclerView.Adapter<OnboardingPagerAdapter.Onboa
 
         fun bind(page: OnboardingPage) {
             binding.apply {
-                illustrationImage.setImageResource(page.imageResId)
+                // Set Lottie animation instead of image
+                illustrationLottie.setAnimation(page.lottieRawRes)
+                illustrationLottie.playAnimation()
+
                 titleText.setText(page.titleResId)
                 descriptionText.setText(page.descriptionResId)
+
+                // Show "Get Started" button only on the last page
+                val isLastPage = adapterPosition == itemCount - 1
+                getStartedButton.visibility = if (isLastPage) View.VISIBLE else View.GONE
+
+                // Set click listener for Get Started button
+                if (isLastPage) {
+                    getStartedButton.setOnClickListener {
+                        onGetStartedClick()
+                    }
+                }
             }
         }
     }
 
     /**
-     * Data class representing content for a single onboarding page
+     * Data class representing content for a single onboarding page with Lottie animation
      */
     data class OnboardingPage(
-        val imageResId: Int,
+        val lottieRawRes: Int,
         val titleResId: Int,
         val descriptionResId: Int
     )

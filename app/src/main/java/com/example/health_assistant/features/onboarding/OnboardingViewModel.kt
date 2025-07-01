@@ -9,7 +9,7 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 /**
- * ViewModel for the Onboarding flow
+ * ViewModel for the Onboarding flow with swipe-only navigation
  */
 @HiltViewModel
 class OnboardingViewModel @Inject constructor(
@@ -33,12 +33,5 @@ class OnboardingViewModel @Inject constructor(
         viewModelScope.launch {
             onboardingPreferencesRepository.setOnboardingCompleted()
         }
-    }
-
-    /**
-     * Checks if this is the last page in the onboarding flow
-     */
-    fun isLastPage(position: Int, pageCount: Int): Boolean {
-        return position == pageCount - 1
     }
 }

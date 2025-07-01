@@ -16,7 +16,7 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
 /**
- * Fragment for the onboarding experience using ViewPager2
+ * Fragment for the onboarding experience using ViewPager2 with swipe-only navigation
  */
 @AndroidEntryPoint
 class OnboardingFragment : Fragment() {
@@ -29,8 +29,8 @@ class OnboardingFragment : Fragment() {
     // Store the callback as a property to properly remove it later
     private val pageChangeCallback = object : ViewPager2.OnPageChangeCallback() {
         override fun onPageSelected(position: Int) {
+            // Update ViewModel with current page for state management
             viewModel.setCurrentPage(position)
-            updateButtonsForPosition(position)
         }
     }
 
@@ -52,11 +52,13 @@ class OnboardingFragment : Fragment() {
     }
 
     private fun setupViewPager() {
-        pagerAdapter = OnboardingPagerAdapter()
+        pagerAdapter = OnboardingPagerAdapter {
+            // Handle Get Started button click - navigate to AccountDecisionFragment
+            navigateToAccountDecision()
+        }
 
         binding.onboardingViewPager.apply {
             adapter = pagerAdapter
-
             // Register page change callback to update the ViewModel
             registerOnPageChangeCallback(pageChangeCallback)
         }
@@ -66,69 +68,45 @@ class OnboardingFragment : Fragment() {
     }
 
     private fun setupObservers() {
+        // Observe current page changes for state management
         viewLifecycleOwner.lifecycleScope.launch {
             viewModel.currentPage.collectLatest { position ->
-                binding.onboardingViewPager.currentItem = position
-                updateButtonsForPosition(position)
+                // Sync ViewPager position if needed (for programmatic navigation)
+                if (binding.onboardingViewPager.currentItem != position) {
+                    binding.onboardingViewPager.setCurrentItem(position, true)
+                }
+
+                // Hide skip button on last page since we show Get Started button
+                updateSkipButtonVisibility(position)
             }
         }
     }
 
     private fun setupClickListeners() {
-        // Next button click handler
-        binding.nextButton.setOnClickListener {
-            val currentPosition = binding.onboardingViewPager.currentItem
-            val isLastPage = viewModel.isLastPage(currentPosition, pagerAdapter.itemCount)
-
-            if (isLastPage) {
-                completeOnboarding()
-            } else {
-                // Navigate to next page
-                binding.onboardingViewPager.currentItem = currentPosition + 1
-            }
-        }
-
-        // Back button click handler
-        binding.backButton.setOnClickListener {
-            val currentPosition = binding.onboardingViewPager.currentItem
-            if (currentPosition > 0) {
-                // Navigate to previous page
-                binding.onboardingViewPager.currentItem = currentPosition - 1
-            }
-        }
-
-        // Skip button click handler (now at top-right)
+        // Skip button click handler - navigate directly to AccountDecisionFragment
         binding.skipButton.setOnClickListener {
-            // Add debug logging to verify the click handler is being called
-            android.util.Log.d("OnboardingFragment", "Skip button clicked")
-            completeOnboarding()
+            navigateToAccountDecision()
         }
     }
 
-    private fun updateButtonsForPosition(position: Int) {
-        val isLastPage = viewModel.isLastPage(position, pagerAdapter.itemCount)
-        val isFirstPage = position == 0
-
-        // Change the text of the next button to "Get Started" on the last page
-        binding.nextButton.text = if (isLastPage) {
-            getString(R.string.get_started)
-        } else {
-            getString(R.string.next)
-        }
-
-        // Hide "Back" button on the first page, show on others
-        binding.backButton.visibility = if (isFirstPage) View.INVISIBLE else View.VISIBLE
-
-        // Hide "Skip" button on the last page
-        binding.skipButton.visibility = if (isLastPage) View.GONE else View.VISIBLE
-    }
-
-    private fun completeOnboarding() {
+    /**
+     * Navigate to AccountDecisionFragment and complete onboarding
+     */
+    private fun navigateToAccountDecision() {
         // Mark onboarding as completed
         viewModel.completeOnboarding()
 
-        // Navigate to the appropriate destination (auth or main flow)
+        // Navigate directly to AccountDecisionFragment
         findNavController().navigate(R.id.action_onboardingFragment_to_authFragment)
+    }
+
+    /**
+     * Update skip button visibility based on current page
+     */
+    private fun updateSkipButtonVisibility(position: Int) {
+        val isLastPage = position == pagerAdapter.itemCount - 1
+        // Hide skip button on last page to avoid confusion with Get Started button
+        binding.skipButton.visibility = if (isLastPage) View.GONE else View.VISIBLE
     }
 
     override fun onDestroyView() {
