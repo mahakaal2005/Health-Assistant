@@ -23,7 +23,7 @@ import kotlinx.coroutines.launch
         DiseaseCategoryEntity::class,
         ProfileImageEntity::class
     ],
-    version = 1,
+    version = 2, // Change from 1 to 2
     exportSchema = false
 )
 abstract class HealthAssistantDatabase : RoomDatabase() {
@@ -44,6 +44,7 @@ abstract class HealthAssistantDatabase : RoomDatabase() {
                     "health_assistant_database"
                 )
                 .addCallback(DatabaseCallback())
+                .fallbackToDestructiveMigration() // Add this line to handle migration issues
                 .build()
                 INSTANCE = instance
                 instance
@@ -65,6 +66,17 @@ abstract class HealthAssistantDatabase : RoomDatabase() {
                     }
                 }
             }
+
+            override fun onOpen(db: SupportSQLiteDatabase) {
+                super.onOpen(db)
+
+                // Ensure categories exist even for existing databases
+                INSTANCE?.let { database ->
+                    CoroutineScope(Dispatchers.IO).launch {
+                        ensureCategoriesExist(database.diseaseCategoryDao())
+                    }
+                }
+            }
         }
 
         /**
@@ -79,6 +91,22 @@ abstract class HealthAssistantDatabase : RoomDatabase() {
             } catch (e: Exception) {
                 // Log error but don't crash the app
                 android.util.Log.e("Database", "Error populating default categories", e)
+            }
+        }
+
+        /**
+         * Ensure categories exist in the database
+         * This method checks if categories are present and seeds them if missing
+         */
+        private suspend fun ensureCategoriesExist(diseaseCategoryDao: DiseaseCategoryDao) {
+            try {
+                val categoryCount = diseaseCategoryDao.getCategoryCount()
+                if (categoryCount == 0) {
+                    android.util.Log.d("Database", "No categories found, seeding default categories")
+                    populateDefaultCategories(diseaseCategoryDao)
+                }
+            } catch (e: Exception) {
+                android.util.Log.e("Database", "Error checking/seeding categories", e)
             }
         }
     }

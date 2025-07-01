@@ -3,113 +3,90 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:layout_margin="8dp"
+    android:layout_height="200dp"
+    android:layout_margin="4dp"
     app:cardCornerRadius="12dp"
-    app:cardElevation="4dp"
+    app:cardElevation="2dp"
     app:strokeWidth="0dp">
 
-    <LinearLayout
+    <!-- Background prescription image -->
+    <ImageView
+        android:id="@+id/backgroundImage"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="16dp">
+        android:layout_height="match_parent"
+        android:scaleType="centerCrop"
+        android:alpha="0.8"
+        tools:src="@drawable/ic_prescription_placeholder" />
 
-        <!-- Header with doctor name and category -->
+    <!-- Overlay gradient for better text readability -->
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@drawable/prescription_card_gradient" />
+
+    <!-- Content overlay -->
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:padding="12dp">
+
+        <!-- Category chip in top right corner -->
+        <com.google.android.material.chip.Chip
+            android:id="@+id/categoryChip"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentEnd="true"
+            android:textSize="10sp"
+            android:textStyle="bold"
+            android:textColor="@android:color/white"
+            app:chipBackgroundColor="@color/colorPrimary"
+            app:chipStrokeWidth="0dp"
+            style="@style/Widget.MaterialComponents.Chip.Action"
+            tools:text="Cardiology" />
+
+        <!-- Bottom content container -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center_vertical"
-            android:layout_marginBottom="8dp">
+            android:layout_alignParentBottom="true"
+            android:orientation="vertical"
+            android:background="@drawable/prescription_card_bottom_gradient"
+            android:padding="8dp">
 
+            <!-- Patient/Doctor name -->
             <TextView
                 android:id="@+id/doctorName"
-                android:layout_width="0dp"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:textAppearance="?attr/textAppearanceSubtitle1"
+                android:textAppearance="?attr/textAppearanceSubtitle2"
                 android:textStyle="bold"
-                android:textColor="?attr/colorOnSurface"
+                android:textColor="@android:color/white"
+                android:maxLines="1"
+                android:ellipsize="end"
+                android:layout_marginBottom="2dp"
+                android:shadowColor="@android:color/black"
+                android:shadowDx="1"
+                android:shadowDy="1"
+                android:shadowRadius="2"
                 tools:text="Dr. John Smith" />
 
-            <com.google.android.material.chip.Chip
-                android:id="@+id/categoryName"
-                android:layout_width="wrap_content"
+            <!-- Date -->
+            <TextView
+                android:id="@+id/dateAdded"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                style="@style/Widget.MaterialComponents.Chip.Action"
-                tools:text="Cardiology" />
+                android:textAppearance="?attr/textAppearanceCaption"
+                android:textColor="@android:color/white"
+                android:alpha="0.9"
+                android:shadowColor="@android:color/black"
+                android:shadowDx="1"
+                android:shadowDy="1"
+                android:shadowRadius="2"
+                tools:text="Dec 15, 2024" />
 
         </LinearLayout>
 
-        <!-- Date -->
-        <TextView
-            android:id="@+id/dateAdded"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textAppearance="?attr/textAppearanceCaption"
-            android:textColor="?attr/colorOnSurfaceVariant"
-            android:layout_marginBottom="8dp"
-            tools:text="Dec 15, 2024" />
-
-        <!-- Notes (optional) -->
-        <TextView
-            android:id="@+id/notes"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textAppearance="?attr/textAppearanceBody2"
-            android:textColor="?attr/colorOnSurfaceVariant"
-            android:layout_marginBottom="8dp"
-            android:visibility="gone"
-            tools:text="Take with food, monitor blood pressure"
-            tools:visibility="visible" />
-
-        <!-- Action buttons container -->
-        <LinearLayout
-            android:id="@+id/quickActionsLayout"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="end"
-            android:visibility="gone">
-
-            <Button
-                android:id="@+id/viewButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="View"
-                style="@style/Widget.MaterialComponents.Button.TextButton"
-                android:layout_marginEnd="8dp" />
-
-            <Button
-                android:id="@+id/editButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Edit"
-                style="@style/Widget.MaterialComponents.Button.TextButton"
-                android:layout_marginEnd="8dp" />
-
-            <Button
-                android:id="@+id/deleteButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Delete"
-                style="@style/Widget.MaterialComponents.Button.TextButton" />
-
-        </LinearLayout>
-
-        <!-- More actions button -->
-        <ImageButton
-            android:id="@+id/moreActionsButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="end"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:contentDescription="More actions"
-            android:padding="8dp"
-            android:src="@drawable/ic_more_vert" />
-
-    </LinearLayout>
+    </RelativeLayout>
 
 </com.google.android.material.card.MaterialCardView>

@@ -16,7 +16,7 @@ import androidx.room.Index
             entity = DiseaseCategoryEntity::class,
             parentColumns = ["id"],
             childColumns = ["categoryId"],
-            onDelete = ForeignKey.SET_DEFAULT
+            onDelete = ForeignKey.CASCADE // Changed from SET_DEFAULT to CASCADE
         )
     ],
     indices = [

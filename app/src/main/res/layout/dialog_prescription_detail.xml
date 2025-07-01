@@ -1,306 +1,387 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:background="@color/colorBackground">
+    android:background="@android:color/transparent">
 
-    <!-- Header with Close Button -->
-    <androidx.constraintlayout.widget.ConstraintLayout
+    <!-- Dynamic Gradient Background with Decorative Elements (matching your app theme) -->
+    <FrameLayout
+        android:id="@+id/dynamic_background"
         android:layout_width="match_parent"
-        android:layout_height="?attr/actionBarSize"
-        android:background="@color/colorBackground"
-        android:elevation="4dp">
+        android:layout_height="match_parent">
 
-        <ImageButton
-            android:id="@+id/close_button"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:layout_marginStart="8dp"
-            android:background="?android:attr/selectableItemBackgroundBorderless"
-            android:src="@drawable/ic_arrow_back"
-            android:contentDescription="@string/prescription_close_description"
-            app:tint="@color/textPrimary"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent" />
-
-        <TextView
-            android:id="@+id/detail_title"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginHorizontal="16dp"
-            android:text="@string/prescription_detail_title"
-            style="@style/TextAppearance.HealthAssistant.Title"
-            android:textSize="18sp"
-            android:gravity="center"
-            app:layout_constraintStart_toEndOf="@+id/close_button"
-            app:layout_constraintEnd_toStartOf="@+id/edit_button"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent" />
-
-        <ImageButton
-            android:id="@+id/edit_button"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:layout_marginEnd="8dp"
-            android:background="?android:attr/selectableItemBackgroundBorderless"
-            android:src="@drawable/ic_edit"
-            android:contentDescription="@string/prescription_edit_description"
-            app:tint="@color/colorPrimary"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent" />
-
-    </androidx.constraintlayout.widget.ConstraintLayout>
-
-    <!-- Scrollable Content -->
-    <androidx.core.widget.NestedScrollView
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        android:fillViewport="true">
-
-        <LinearLayout
+        <View
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:padding="24dp">
+            android:layout_height="match_parent"
+            android:background="@drawable/premium_gradient_background" />
 
-            <!-- Prescription Image -->
-            <androidx.cardview.widget.CardView
-                android:layout_width="match_parent"
-                android:layout_height="300dp"
-                android:layout_marginBottom="24dp"
-                app:cardCornerRadius="12dp"
-                app:cardElevation="4dp">
+        <!-- Decorative Shape 1 - Top Right -->
+        <View
+            android:layout_width="300dp"
+            android:layout_height="300dp"
+            android:layout_gravity="top|end"
+            android:layout_marginTop="-100dp"
+            android:layout_marginEnd="-100dp"
+            android:alpha="0.3"
+            android:background="@drawable/decorative_circle_shape" />
 
-                <ImageView
-                    android:id="@+id/prescription_image_detail"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:scaleType="centerCrop"
-                    android:contentDescription="@string/prescription_image_description"
-                    tools:src="@drawable/ic_prescription_placeholder" />
+        <!-- Decorative Shape 2 - Bottom Left -->
+        <View
+            android:layout_width="250dp"
+            android:layout_height="250dp"
+            android:layout_gravity="bottom|start"
+            android:layout_marginBottom="-100dp"
+            android:layout_marginStart="-100dp"
+            android:alpha="0.2"
+            android:background="@drawable/decorative_circle_shape" />
 
-                <!-- Zoom Hint -->
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="bottom|end"
-                    android:layout_margin="8dp"
-                    android:background="@drawable/prescription_zoom_hint_background"
-                    android:padding="8dp"
-                    android:text="@string/prescription_zoom_hint"
-                    android:textColor="@color/colorOnPrimary"
-                    android:textSize="12sp"
-                    android:alpha="0.9" />
+    </FrameLayout>
 
-            </androidx.cardview.widget.CardView>
-
-            <!-- Doctor Information -->
-            <androidx.cardview.widget.CardView
-                style="@style/CardView.HealthAssistant"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="16dp">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:padding="16dp">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/prescription_doctor_information"
-                        style="@style/TextAppearance.HealthAssistant.Subtitle"
-                        android:layout_marginBottom="8dp" />
-
-                    <TextView
-                        android:id="@+id/doctor_name_detail"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        style="@style/TextAppearance.HealthAssistant.Body"
-                        android:textSize="16sp"
-                        android:textStyle="bold"
-                        tools:text="Dr. John Smith" />
-
-                </LinearLayout>
-
-            </androidx.cardview.widget.CardView>
-
-            <!-- Category Information -->
-            <androidx.cardview.widget.CardView
-                style="@style/CardView.HealthAssistant"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="16dp">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:padding="16dp">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/prescription_category_information"
-                        style="@style/TextAppearance.HealthAssistant.Subtitle"
-                        android:layout_marginBottom="8dp" />
-
-                    <com.google.android.material.chip.Chip
-                        android:id="@+id/disease_category_detail_chip"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        app:chipBackgroundColor="@color/colorSecondary"
-                        app:chipStrokeWidth="0dp"
-                        app:chipCornerRadius="8dp"
-                        tools:text="Cardiology" />
-
-                </LinearLayout>
-
-            </androidx.cardview.widget.CardView>
-
-            <!-- Date Information -->
-            <androidx.cardview.widget.CardView
-                style="@style/CardView.HealthAssistant"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="16dp">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:padding="16dp">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/prescription_date_information"
-                        style="@style/TextAppearance.HealthAssistant.Subtitle"
-                        android:layout_marginBottom="8dp" />
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal">
-
-                        <TextView
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:text="@string/prescription_date_added"
-                            style="@style/TextAppearance.HealthAssistant.Caption" />
-
-                        <TextView
-                            android:id="@+id/date_added_detail"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            style="@style/TextAppearance.HealthAssistant.Body"
-                            tools:text="Jun 15, 2025" />
-
-                    </LinearLayout>
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:layout_marginTop="4dp">
-
-                        <TextView
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:text="@string/prescription_date_modified"
-                            style="@style/TextAppearance.HealthAssistant.Caption" />
-
-                        <TextView
-                            android:id="@+id/date_modified_detail"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            style="@style/TextAppearance.HealthAssistant.Body"
-                            tools:text="Jun 15, 2025" />
-
-                    </LinearLayout>
-
-                </LinearLayout>
-
-            </androidx.cardview.widget.CardView>
-
-            <!-- Notes Section -->
-            <androidx.cardview.widget.CardView
-                android:id="@+id/notes_card"
-                style="@style/CardView.HealthAssistant"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="16dp"
-                android:visibility="gone">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:padding="16dp">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/prescription_notes"
-                        style="@style/TextAppearance.HealthAssistant.Subtitle"
-                        android:layout_marginBottom="8dp" />
-
-                    <TextView
-                        android:id="@+id/notes_detail"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        style="@style/TextAppearance.HealthAssistant.Body"
-                        tools:text="Take with food. Monitor blood pressure." />
-
-                </LinearLayout>
-
-            </androidx.cardview.widget.CardView>
-
-        </LinearLayout>
-
-    </androidx.core.widget.NestedScrollView>
-
-    <!-- Bottom Action Buttons -->
+    <!-- Main Content -->
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:padding="16dp"
-        android:background="@color/colorBackground"
-        android:elevation="8dp">
+        android:layout_height="match_parent"
+        android:orientation="vertical">
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/delete_button"
-            style="@style/Widget.Material3.Button.TextButton"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:layout_marginEnd="8dp"
-            android:text="@string/prescription_action_delete"
-            android:textColor="@color/error"
-            app:icon="@drawable/ic_delete"
-            app:iconTint="@color/error" />
+        <!-- Header with Close and Actions -->
+        <com.google.android.material.appbar.MaterialToolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:background="@android:color/transparent"
+            app:title="Prescription Details"
+            app:titleTextColor="?attr/colorOnPrimary"
+            app:navigationIcon="@drawable/ic_arrow_back"
+            app:navigationIconTint="?attr/colorOnPrimary">
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/share_button"
-            style="@style/Widget.HealthAssistant.Button.Primary"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
+            <!-- Edit Mode Action Buttons -->
+            <LinearLayout
+                android:id="@+id/editActionButtons"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="end"
+                android:layout_marginEnd="8dp"
+                android:orientation="horizontal"
+                android:visibility="gone">
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/saveButton"
+                    style="@style/Widget.Material3.Button.TextButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Save"
+                    android:textColor="?attr/colorOnPrimary"
+                    android:layout_marginEnd="8dp" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/cancelButton"
+                    style="@style/Widget.Material3.Button.TextButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Cancel"
+                    android:textColor="?attr/colorOnPrimary" />
+
+            </LinearLayout>
+
+            <!-- View Mode More Options Button -->
+            <ImageButton
+                android:id="@+id/moreOptionsButton"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:layout_gravity="end"
+                android:layout_marginEnd="8dp"
+                android:background="?android:attr/selectableItemBackgroundBorderless"
+                android:src="@drawable/ic_more_vert"
+                android:contentDescription="More options"
+                app:tint="?attr/colorOnPrimary" />
+
+        </com.google.android.material.appbar.MaterialToolbar>
+
+        <!-- Scrollable Content -->
+        <androidx.core.widget.NestedScrollView
+            android:id="@+id/scrollView"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
             android:layout_weight="1"
-            android:layout_marginStart="8dp"
-            android:text="@string/prescription_action_share"
-            app:icon="@drawable/ic_share" />
+            android:padding="16dp"
+            android:paddingBottom="120dp"
+            android:clipToPadding="false"
+            android:fillViewport="true"
+            android:overScrollMode="ifContentScrolls"
+            android:scrollbars="vertical"
+            android:fadeScrollbars="true">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <!-- Prescription Image Card -->
+                <com.google.android.material.card.MaterialCardView
+                    android:layout_width="match_parent"
+                    android:layout_height="300dp"
+                    android:layout_marginBottom="24dp"
+                    app:cardCornerRadius="16dp"
+                    app:cardElevation="8dp">
+
+                    <ImageView
+                        android:id="@+id/prescriptionImageDetail"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:scaleType="centerCrop"
+                        android:background="@color/surfaceDark"
+                        tools:src="@drawable/ic_prescription_placeholder" />
+
+                </com.google.android.material.card.MaterialCardView>
+
+                <!-- Doctor Information Card -->
+                <com.google.android.material.card.MaterialCardView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="16dp"
+                    app:cardCornerRadius="12dp"
+                    app:cardElevation="4dp"
+                    app:cardBackgroundColor="@color/cardBackground">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="20dp">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Doctor Information"
+                            android:textSize="16sp"
+                            android:textStyle="bold"
+                            android:textColor="@color/textPrimary"
+                            android:layout_marginBottom="12dp" />
+
+                        <!-- View Mode: Doctor Name Display -->
+                        <LinearLayout
+                            android:id="@+id/viewGroup"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical">
+
+                            <TextView
+                                android:id="@+id/doctorNameDetail"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:textSize="18sp"
+                                android:textStyle="bold"
+                                android:textColor="@color/textPrimary"
+                                android:layout_marginBottom="8dp"
+                                tools:text="Dr. John Smith" />
+
+                            <com.google.android.material.chip.Chip
+                                android:id="@+id/diseaseCategoryDetailChip"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:textColor="@android:color/white"
+                                app:chipBackgroundColor="@color/colorPrimary"
+                                app:chipStrokeWidth="0dp"
+                                tools:text="Cardiology" />
+
+                        </LinearLayout>
+
+                        <!-- Edit Mode: Doctor Name Input -->
+                        <LinearLayout
+                            android:id="@+id/editGroup"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical"
+                            android:visibility="gone">
+
+                            <com.google.android.material.textfield.TextInputLayout
+                                android:id="@+id/doctorNameInputLayout"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginBottom="12dp"
+                                app:boxStrokeColor="@color/colorPrimary"
+                                app:hintTextColor="@color/colorPrimary">
+
+                                <com.google.android.material.textfield.TextInputEditText
+                                    android:id="@+id/doctorNameEditText"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:hint="Doctor Name"
+                                    android:inputType="textPersonName"
+                                    android:textColor="@color/textPrimary" />
+
+                            </com.google.android.material.textfield.TextInputLayout>
+
+                            <com.google.android.material.textfield.TextInputLayout
+                                android:id="@+id/categoryInputLayout"
+                                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:hint="Category"
+                                app:boxStrokeColor="@color/colorPrimary"
+                                app:hintTextColor="@color/colorPrimary">
+
+                                <AutoCompleteTextView
+                                    android:id="@+id/categoryDropdown"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:inputType="none"
+                                    android:textColor="@color/textPrimary" />
+
+                            </com.google.android.material.textfield.TextInputLayout>
+
+                        </LinearLayout>
+
+                    </LinearLayout>
+
+                </com.google.android.material.card.MaterialCardView>
+
+                <!-- Date Information Card -->
+                <com.google.android.material.card.MaterialCardView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="16dp"
+                    app:cardCornerRadius="12dp"
+                    app:cardElevation="4dp"
+                    app:cardBackgroundColor="@color/cardBackground">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="20dp">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Date Information"
+                            android:textSize="16sp"
+                            android:textStyle="bold"
+                            android:textColor="@color/textPrimary"
+                            android:layout_marginBottom="12dp" />
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:layout_marginBottom="8dp">
+
+                            <TextView
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:text="Added:"
+                                android:textSize="14sp"
+                                android:textColor="@color/textSecondary" />
+
+                            <TextView
+                                android:id="@+id/dateAddedDetail"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:textSize="14sp"
+                                android:textStyle="bold"
+                                android:textColor="@color/textPrimary"
+                                tools:text="Dec 15, 2024" />
+
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal">
+
+                            <TextView
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:text="Modified:"
+                                android:textSize="14sp"
+                                android:textColor="@color/textSecondary" />
+
+                            <TextView
+                                android:id="@+id/dateModifiedDetail"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:textSize="14sp"
+                                android:textStyle="bold"
+                                android:textColor="@color/textPrimary"
+                                tools:text="Dec 15, 2024" />
+
+                        </LinearLayout>
+
+                    </LinearLayout>
+
+                </com.google.android.material.card.MaterialCardView>
+
+                <!-- Notes Card -->
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/notesCard"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="24dp"
+                    app:cardCornerRadius="12dp"
+                    app:cardElevation="4dp"
+                    app:cardBackgroundColor="@color/cardBackground">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="20dp">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Notes"
+                            android:textSize="16sp"
+                            android:textStyle="bold"
+                            android:textColor="@color/textPrimary"
+                            android:layout_marginBottom="12dp" />
+
+                        <!-- View Mode: Notes Display -->
+                        <TextView
+                            android:id="@+id/notesDetail"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:textSize="14sp"
+                            android:textColor="@color/textPrimary"
+                            android:lineSpacingExtra="4dp"
+                            android:minHeight="48dp"
+                            tools:text="Take with food, monitor blood pressure regularly" />
+
+                        <!-- Edit Mode: Notes Input -->
+                        <com.google.android.material.textfield.TextInputLayout
+                            android:id="@+id/notesInputLayout"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:visibility="gone"
+                            app:boxStrokeColor="@color/colorPrimary"
+                            app:hintTextColor="@color/colorPrimary">
+
+                            <com.google.android.material.textfield.TextInputEditText
+                                android:id="@+id/notesEditText"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:hint="Notes (optional)"
+                                android:inputType="textMultiLine"
+                                android:minLines="3"
+                                android:maxLines="5"
+                                android:textColor="@color/textPrimary"
+                                android:gravity="top" />
+
+                        </com.google.android.material.textfield.TextInputLayout>
+
+                    </LinearLayout>
+
+                </com.google.android.material.card.MaterialCardView>
+
+            </LinearLayout>
+
+        </androidx.core.widget.NestedScrollView>
+
 
     </LinearLayout>
 
-</LinearLayout>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

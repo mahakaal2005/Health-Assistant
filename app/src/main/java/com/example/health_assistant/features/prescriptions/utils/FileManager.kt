@@ -173,7 +173,8 @@ class FileManager @Inject constructor(
         val file = File(prescriptionsDir, finalFileName)
 
         FileOutputStream(file).use { outputStream ->
-            bitmap.compress(Bitmap.CompressFormat.JPEG, COMPRESSION_QUALITY, outputStream)
+            // Save as PNG format for better quality and transparency support
+            bitmap.compress(Bitmap.CompressFormat.PNG, 100, outputStream)
         }
 
         return file.absolutePath
@@ -184,6 +185,6 @@ class FileManager @Inject constructor(
      */
     private fun generateFileName(): String {
         val timestamp = System.currentTimeMillis()
-        return "prescription_${timestamp}.jpg"
+        return "prescription_${timestamp}.png"
     }
 }

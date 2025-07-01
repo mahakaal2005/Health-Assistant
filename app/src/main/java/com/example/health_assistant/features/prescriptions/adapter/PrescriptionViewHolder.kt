@@ -1,110 +1,53 @@
 package com.example.health_assistant.features.prescriptions.adapter
 
 import androidx.recyclerview.widget.RecyclerView
+import coil3.load
+import coil3.request.crossfade
+import coil3.request.error
+import coil3.request.placeholder
+import com.example.health_assistant.R
 import com.example.health_assistant.databinding.ItemPrescriptionCardBinding
-import com.example.health_assistant.features.prescriptions.PrescriptionItem
+import com.example.health_assistant.data.model.Prescription
 import com.example.health_assistant.features.prescriptions.utils.PrescriptionUtils
 
 /**
- * ViewHolder for prescription card items in prescriptions list
- * Handles prescription display and user interactions
+ * ViewHolder for prescription card items in grid layout
+ * Handles prescription display with background image and overlay content
  */
 class PrescriptionViewHolder(
     private val binding: ItemPrescriptionCardBinding,
-    private val onPrescriptionClick: (String) -> Unit,
-    private val onPrescriptionEdit: (String) -> Unit,
-    private val onPrescriptionDelete: (String) -> Unit,
-    private val onPrescriptionView: (String) -> Unit
+    private val onPrescriptionClick: (Prescription) -> Unit
 ) : RecyclerView.ViewHolder(binding.root) {
 
-    private var currentPrescription: PrescriptionItem.PrescriptionCard? = null
-    private var isQuickActionsVisible = false
-
-    fun bind(item: PrescriptionItem.PrescriptionCard) {
-        currentPrescription = item
-        val prescription = item.prescription
-
+    fun bind(prescription: Prescription) {
         binding.apply {
-            // Set doctor name
-            doctorName.text = prescription.doctorName
+            // Load prescription image as background
+            backgroundImage.load(prescription.localImagePath) {
+                placeholder(R.drawable.ic_prescription_placeholder)
+                error(R.drawable.ic_prescription_placeholder)
+                crossfade(true)
+            }
 
-            // Fixed: Use 'categoryName' instead of 'diseaseCategoryChip' to match layout
+            // Set category chip
             val category = PrescriptionUtils.getCategoryById(prescription.categoryId)
-            categoryName.text = category?.displayName ?: "Unknown Category"
+            categoryChip.text = category?.displayName ?: "General"
 
-            // Fixed: Use PrescriptionUtils.formatDate() instead of non-existent getDateAddedDisplay()
+            // Set doctor name with Dr. prefix
+            val doctorNameText = prescription.doctorName
+            doctorName.text = if (doctorNameText.startsWith("Dr.")) {
+                doctorNameText
+            } else {
+                "Dr. $doctorNameText"
+            }
+
+            // Set date
             dateAdded.text = PrescriptionUtils.formatDate(prescription.dateAdded)
 
-            // Remove prescriptionImage reference since it doesn't exist in the layout
-            // The layout is focused on text information rather than images
 
-            // Set up click listeners
-            setupClickListeners(prescription.id)
-
-            // Initially hide quick actions
-            quickActionsLayout.visibility = android.view.View.GONE
-            isQuickActionsVisible = false
-        }
-    }
-
-    private fun setupClickListeners(prescriptionId: String) {
-        binding.apply {
-            // Card click - show prescription details
+            // Set up click listener for the entire card
             root.setOnClickListener {
-                onPrescriptionClick(prescriptionId)
-            }
-
-            // More actions button - toggle quick actions
-            moreActionsButton.setOnClickListener {
-                toggleQuickActions()
-            }
-
-            // Quick action buttons
-            viewButton.setOnClickListener {
-                onPrescriptionView(prescriptionId)
-                hideQuickActions()
-            }
-
-            editButton.setOnClickListener {
-                onPrescriptionEdit(prescriptionId)
-                hideQuickActions()
-            }
-
-            deleteButton.setOnClickListener {
-                onPrescriptionDelete(prescriptionId)
-                hideQuickActions()
+                onPrescriptionClick(prescription)
             }
         }
-    }
-
-    private fun toggleQuickActions() {
-        if (isQuickActionsVisible) {
-            hideQuickActions()
-        } else {
-            showQuickActions()
-        }
-    }
-
-    private fun showQuickActions() {
-        binding.quickActionsLayout.visibility = android.view.View.VISIBLE
-        isQuickActionsVisible = true
-
-        // Animate the appearance
-        binding.quickActionsLayout.alpha = 0f
-        binding.quickActionsLayout.animate()
-            .alpha(1f)
-            .setDuration(200)
-            .start()
-    }
-
-    private fun hideQuickActions() {
-        binding.quickActionsLayout.animate()
-            .alpha(0f)
-            .setDuration(200)
-            .withEndAction {
-                binding.quickActionsLayout.visibility = android.view.View.GONE
-                isQuickActionsVisible = false
-            }
-            .start()
     }
 }

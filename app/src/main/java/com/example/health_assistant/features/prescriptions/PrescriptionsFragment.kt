@@ -10,10 +10,11 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
-import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.GridLayoutManager
 import com.example.health_assistant.R
 import com.example.health_assistant.databinding.FragmentPrescriptionsBinding
 import com.example.health_assistant.features.prescriptions.adapter.PrescriptionsAdapter
+import com.example.health_assistant.features.prescriptions.adapter.GridSpacingItemDecoration
 import com.example.health_assistant.features.prescriptions.dialogs.AddPrescriptionBottomSheet
 import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
@@ -62,23 +63,16 @@ class PrescriptionsFragment : Fragment() {
     private fun setupRecyclerView() {
         prescriptionsAdapter = PrescriptionsAdapter(
             onPrescriptionClick = { prescription ->
-                navigateToPrescriptionDetail(prescription.prescription.id) // Fixed: Access prescription.id correctly
-            },
-            onPrescriptionEdit = { prescription -> // Fixed: Use correct parameter name
-                editPrescription(prescription.prescription)
-            },
-            onPrescriptionDelete = { prescription -> // Fixed: Use correct parameter name
-                deletePrescription(prescription.prescription)
-            },
-            onPrescriptionView = { prescription -> // Fixed: Use correct parameter name
-                navigateToPrescriptionDetail(prescription.prescription.id)
+                navigateToPrescriptionDetail(prescription.id)
             }
         )
 
         binding.recyclerViewPrescriptions.apply {
-            layoutManager = LinearLayoutManager(requireContext())
+            layoutManager = GridLayoutManager(requireContext(), 2)
             adapter = prescriptionsAdapter
             setHasFixedSize(true)
+            // Add spacing between grid items
+            addItemDecoration(GridSpacingItemDecoration(2, 8, true))
         }
     }
 
@@ -88,11 +82,8 @@ class PrescriptionsFragment : Fragment() {
             viewModel.updateSearchQuery(query)
         }
 
-        // Clear search functionality
-        binding.clearSearchButton.setOnClickListener {
-            binding.searchEditText.text?.clear()
-            viewModel.updateSearchQuery("")
-        }
+        // Note: Clear functionality is now handled automatically by TextInputLayout's endIconMode="clear_text"
+        // No need for manual clear button setup
     }
 
     private fun setupFab() {
@@ -170,32 +161,10 @@ class PrescriptionsFragment : Fragment() {
     }
 
     private fun navigateToPrescriptionDetail(prescriptionId: String) {
-        val bundle = bundleOf("prescription_id" to prescriptionId)
-        // TODO: Add navigation action in nav graph
-        // findNavController().navigate(R.id.action_prescriptionsFragment_to_prescriptionDetailFragment, bundle)
-        // For now, show a placeholder message
-        showMessage("Navigation to prescription detail - ID: $prescriptionId")
+        val dialog = com.example.health_assistant.features.prescriptions.dialogs.PrescriptionDetailDialog.newInstance(prescriptionId)
+        dialog.show(parentFragmentManager, "PrescriptionDetailDialog")
     }
 
-    private fun showPrescriptionOptions(prescription: PrescriptionItem.PrescriptionCard) {
-        // Create options dialog for prescription actions (view, edit, delete)
-        val options = arrayOf(
-            "View", // Fixed: Use hardcoded strings
-            "Edit",
-            "Delete"
-        )
-
-        androidx.appcompat.app.AlertDialog.Builder(requireContext())
-            .setTitle("Prescription Options") // Fixed: Use hardcoded string
-            .setItems(options) { _, which ->
-                when (which) {
-                    0 -> navigateToPrescriptionDetail(prescription.prescription.id)
-                    1 -> editPrescription(prescription.prescription)
-                    2 -> deletePrescription(prescription.prescription)
-                }
-            }
-            .show()
-    }
 
     private fun editPrescription(prescription: com.example.health_assistant.data.model.Prescription) {
         // TODO: Add navigation action in nav graph

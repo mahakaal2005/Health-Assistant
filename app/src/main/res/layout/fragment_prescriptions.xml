@@ -4,7 +4,43 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@android:color/transparent"
     tools:context=".features.prescriptions.PrescriptionsFragment">
+
+    <!-- Dynamic Gradient Background with Decorative Elements -->
+    <FrameLayout
+        android:id="@+id/dynamic_background"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@drawable/premium_gradient_background" />
+
+        <!-- Decorative Shape 1 - Top Right -->
+        <View
+            android:id="@+id/decorative_shape_1"
+            android:layout_width="300dp"
+            android:layout_height="300dp"
+            android:layout_gravity="top|end"
+            android:layout_marginTop="-100dp"
+            android:layout_marginEnd="-100dp"
+            android:alpha="0.3"
+            android:background="@drawable/decorative_circle_shape" />
+
+        <!-- Decorative Shape 2 - Bottom Left -->
+        <View
+            android:id="@+id/decorative_shape_2"
+            android:layout_width="250dp"
+            android:layout_height="250dp"
+            android:layout_gravity="bottom|start"
+            android:layout_marginBottom="-100dp"
+            android:layout_marginStart="-100dp"
+            android:alpha="0.2"
+            android:background="@drawable/decorative_circle_shape" />
+
+    </FrameLayout>
 
     <!-- Main Content -->
     <LinearLayout
@@ -17,10 +53,11 @@
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
-            android:background="?attr/colorPrimary"
+            android:background="@android:color/transparent"
             app:title="Prescriptions"
             app:titleTextColor="?attr/colorOnPrimary"
-            app:navigationIcon="@drawable/ic_arrow_back" />
+            app:navigationIcon="@drawable/ic_arrow_back"
+            app:navigationIconTint="?attr/colorOnPrimary" />
 
         <!-- Search Bar -->
         <com.google.android.material.card.MaterialCardView
@@ -41,19 +78,12 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:background="@null"
+                    android:background="@android:color/transparent"
                     android:hint="Search prescriptions..."
-                    android:inputType="text"
-                    android:padding="8dp" />
-
-                <ImageButton
-                    android:id="@+id/clearSearchButton"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:background="?attr/selectableItemBackgroundBorderless"
-                    android:contentDescription="Clear search"
                     android:padding="8dp"
-                    android:src="@drawable/ic_close" />
+                    android:drawableStart="@drawable/ic_search"
+                    android:drawablePadding="8dp"
+                    android:textSize="14sp" />
 
             </LinearLayout>
 
@@ -66,6 +96,8 @@
             android:layout_weight="1">
 
             <!-- Prescriptions RecyclerView -->
+
+            <!-- Empty State -->
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/recyclerViewPrescriptions"
                 android:layout_width="match_parent"
@@ -74,7 +106,6 @@
                 android:paddingBottom="80dp"
                 tools:listitem="@layout/item_prescription_card" />
 
-            <!-- Empty State -->
             <LinearLayout
                 android:id="@+id/emptyStateGroup"
                 android:layout_width="match_parent"
@@ -88,14 +119,16 @@
                     android:layout_width="120dp"
                     android:layout_height="120dp"
                     android:alpha="0.6"
-                    android:src="@drawable/ic_prescription_placeholder" />
+                    android:src="@drawable/ic_prescription_placeholder"
+                    app:tint="?attr/colorOnPrimary" />
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="16dp"
                     android:text="No prescriptions yet"
-                    android:textAppearance="?attr/textAppearanceHeadline6" />
+                    android:textAppearance="?attr/textAppearanceHeadline6"
+                    android:textColor="?attr/colorOnPrimary" />
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -104,7 +137,8 @@
                     android:gravity="center"
                     android:text="Add your first prescription using the + button"
                     android:textAppearance="?attr/textAppearanceBody2"
-                    android:textColor="?attr/colorOnSurfaceVariant" />
+                    android:textColor="?attr/colorOnPrimary"
+                    android:alpha="0.8" />
 
             </LinearLayout>
 
@@ -116,19 +150,20 @@
                 android:layout_gravity="center"
                 android:visibility="gone" />
 
+            <com.google.android.material.floatingactionbutton.FloatingActionButton
+                android:id="@+id/fabAddPrescription"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="bottom|end"
+                android:layout_margin="16dp"
+                android:src="@drawable/ic_add"
+                app:backgroundTint="@color/primary_color"
+                app:tint="?attr/colorOnSecondary" />
+
         </FrameLayout>
 
     </LinearLayout>
 
     <!-- Floating Action Button -->
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/fabAddPrescription"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom|end"
-        android:layout_margin="16dp"
-        android:contentDescription="Add prescription"
-        android:src="@drawable/ic_add"
-        app:tint="?attr/colorOnPrimary" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

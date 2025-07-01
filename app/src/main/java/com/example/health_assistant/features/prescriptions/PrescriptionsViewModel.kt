@@ -4,7 +4,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.health_assistant.auth.session.SessionManager
 import com.example.health_assistant.core.util.Result
-import com.example.health_assistant.data.model.DiseaseCategory
 import com.example.health_assistant.data.model.Prescription
 import com.example.health_assistant.data.repository.interfaces.PrescriptionRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -30,49 +29,86 @@ class PrescriptionsViewModel @Inject constructor(
     private val _uiState = MutableStateFlow(PrescriptionsUiState())
     val uiState: StateFlow<PrescriptionsUiState> = _uiState.asStateFlow()
 
+    // All prescriptions from repository
+    private val _allPrescriptions = MutableStateFlow<List<Prescription>>(emptyList())
+
     // Get current user ID
     private val currentUserId: String
         get() = sessionManager.getCurrentUserId() ?: ""
 
-    // Combined flow of prescriptions with search filtering
-    val prescriptions: StateFlow<List<PrescriptionItem>> = combine(
-        flow {
-            if (currentUserId.isNotEmpty()) {
-                prescriptionRepository.getAllPrescriptions(currentUserId).collect { result ->
-                    emit(result)
-                }
-            } else {
-                emit(Result.Success(emptyList<Prescription>()))
-            }
-        },
+    // Combined flow of prescriptions with search filtering - simplified for grid layout
+    val prescriptions: StateFlow<List<Prescription>> = combine(
+        _allPrescriptions,
         _searchQuery
-    ) { prescriptionResult, query ->
-        when (prescriptionResult) {
-            is Result.Success -> {
-                val prescriptions = prescriptionResult.data
-                val filteredPrescriptions = if (query.isBlank()) {
-                    prescriptions
-                } else {
-                    searchByDoctorName(prescriptions, query)
-                }
-
-                // Group prescriptions by category and create UI items
-                createPrescriptionItems(filteredPrescriptions)
-            }
-            is Result.Error -> {
-                updateUiState { copy(errorMessage = prescriptionResult.message) }
-                emptyList()
-            }
-            is Result.Loading -> {
-                updateUiState { copy(isLoading = true) }
-                emptyList()
-            }
+    ) { prescriptions, query ->
+        val filteredPrescriptions = if (query.isBlank()) {
+            prescriptions
+        } else {
+            searchByDoctorName(prescriptions, query)
         }
+
+        // Return prescriptions sorted by date (newest first) - no grouping needed for grid
+        filteredPrescriptions.sortedByDescending { it.dateAdded }
     }.stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(5000),
         initialValue = emptyList()
     )
+
+    init {
+        loadPrescriptions()
+    }
+
+    /**
+     * Load prescriptions for current user
+     */
+    private fun loadPrescriptions() {
+        viewModelScope.launch {
+            val userId = currentUserId
+            android.util.Log.d("PrescriptionsViewModel", "Loading prescriptions for user: $userId")
+
+            if (userId.isNotEmpty()) {
+                updateUiState { copy(isLoading = true) }
+
+                prescriptionRepository.getAllPrescriptions(userId).collect { result ->
+                    when (result) {
+                        is Result.Success -> {
+                            android.util.Log.d("PrescriptionsViewModel", "Loaded ${result.data.size} prescriptions")
+                            _allPrescriptions.value = result.data
+                            updateUiState {
+                                copy(
+                                    isLoading = false,
+                                    errorMessage = null,
+                                    isEmpty = result.data.isEmpty()
+                                )
+                            }
+                        }
+                        is Result.Error -> {
+                            android.util.Log.e("PrescriptionsViewModel", "Error loading prescriptions: ${result.message}")
+                            updateUiState {
+                                copy(
+                                    isLoading = false,
+                                    errorMessage = result.message
+                                )
+                            }
+                        }
+                        is Result.Loading -> {
+                            android.util.Log.d("PrescriptionsViewModel", "Loading prescriptions...")
+                            updateUiState { copy(isLoading = true) }
+                        }
+                    }
+                }
+            } else {
+                android.util.Log.w("PrescriptionsViewModel", "No user ID available")
+                updateUiState {
+                    copy(
+                        isLoading = false,
+                        errorMessage = "User not logged in"
+                    )
+                }
+            }
+        }
+    }
 
     /**
      * Update search query
@@ -117,42 +153,7 @@ class PrescriptionsViewModel @Inject constructor(
      * Refresh prescriptions
      */
     fun refreshPrescriptions() {
-        viewModelScope.launch {
-            updateUiState { copy(isLoading = true) }
-
-            if (currentUserId.isNotEmpty()) {
-                prescriptionRepository.getAllPrescriptions(currentUserId).collect { result ->
-                    when (result) {
-                        is Result.Success -> {
-                            updateUiState {
-                                copy(
-                                    isLoading = false,
-                                    errorMessage = null
-                                )
-                            }
-                        }
-                        is Result.Error -> {
-                            updateUiState {
-                                copy(
-                                    isLoading = false,
-                                    errorMessage = result.message
-                                )
-                            }
-                        }
-                        is Result.Loading -> {
-                            updateUiState { copy(isLoading = true) }
-                        }
-                    }
-                }
-            } else {
-                updateUiState {
-                    copy(
-                        isLoading = false,
-                        errorMessage = "User not logged in"
-                    )
-                }
-            }
-        }
+        loadPrescriptions()
     }
 
     /**
@@ -213,65 +214,12 @@ class PrescriptionsViewModel @Inject constructor(
     }
 
     /**
-     * Create prescription items from list for UI display
-     */
-    private fun createPrescriptionItems(prescriptions: List<Prescription>): List<PrescriptionItem> {
-        val grouped = groupAndSortPrescriptions(prescriptions)
-        val items = mutableListOf<PrescriptionItem>()
-
-        grouped.entries.forEach { (category, categoryPrescriptions) ->
-            // Add category header
-            items.add(
-                PrescriptionItem.CategoryHeader(
-                    category = category,
-                    count = categoryPrescriptions.size
-                )
-            )
-
-            // Add prescription cards
-            categoryPrescriptions.forEach { prescription ->
-                items.add(
-                    PrescriptionItem.PrescriptionCard(
-                        prescription = prescription,
-                        category = category
-                    )
-                )
-            }
-        }
-
-        return items
-    }
-
-    /**
      * Search prescriptions by doctor name
      */
     private fun searchByDoctorName(prescriptions: List<Prescription>, query: String): List<Prescription> {
         return prescriptions.filter { prescription ->
             prescription.doctorName.contains(query, ignoreCase = true)
         }
-    }
-
-    /**
-     * Group and sort prescriptions by category
-     */
-    private fun groupAndSortPrescriptions(prescriptions: List<Prescription>): Map<DiseaseCategory, List<Prescription>> {
-        // Get all categories for proper grouping
-        val allCategories = DiseaseCategory.getDefaultCategories()
-        val categoryMap = allCategories.associateBy { it.id }
-
-        return prescriptions
-            .groupBy { prescription ->
-                // Find the category object by ID
-                categoryMap[prescription.categoryId] ?: DiseaseCategory(
-                    id = prescription.categoryId,
-                    displayName = "Unknown Category"
-                )
-            }
-            .mapValues { (_, prescriptions) ->
-                // Sort prescriptions within each category by date (newest first)
-                prescriptions.sortedByDescending { it.dateAdded }
-            }
-            .toSortedMap(compareBy { it.displayName })
     }
 
     /**
@@ -291,18 +239,3 @@ data class PrescriptionsUiState(
     val successMessage: String? = null,
     val isEmpty: Boolean = false
 )
-
-/**
- * Sealed class for different types of items in prescription list
- */
-sealed class PrescriptionItem {
-    data class CategoryHeader(
-        val category: DiseaseCategory,
-        val count: Int
-    ) : PrescriptionItem()
-
-    data class PrescriptionCard(
-        val prescription: Prescription,
-        val category: DiseaseCategory
-    ) : PrescriptionItem()
-}

@@ -1,142 +1,162 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:orientation="vertical"
-    android:padding="24dp">
+    android:layout_height="match_parent"
+    android:fillViewport="true"
+    android:overScrollMode="ifContentScrolls"
+    android:scrollbars="vertical"
+    android:fadeScrollbars="true">
 
-    <!-- Header -->
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/prescription_add_title"
-        android:textSize="20sp"
-        android:textStyle="bold"
-        android:gravity="center"
-        android:layout_marginBottom="24dp" />
-
-    <!-- Photo Capture Section -->
-    <FrameLayout
-        android:id="@+id/capturePhotoPlaceholder"
-        android:layout_width="match_parent"
-        android:layout_height="200dp"
-        android:background="@drawable/prescription_image_background"
-        android:layout_marginBottom="16dp">
-
-        <ImageView
-            android:layout_width="64dp"
-            android:layout_height="64dp"
-            android:layout_gravity="center"
-            android:src="@drawable/ic_camera"
-            android:contentDescription="@string/prescription_capture_photo"
-            app:tint="@color/textSecondary" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:layout_marginTop="80dp"
-            android:text="@string/prescription_capture_photo_hint"
-            android:textColor="@color/textSecondary"
-            android:textSize="14sp" />
-
-    </FrameLayout>
-
-    <!-- Photo Preview -->
-    <ImageView
-        android:id="@+id/photoPreview"
-        android:layout_width="match_parent"
-        android:layout_height="200dp"
-        android:layout_marginBottom="16dp"
-        android:scaleType="centerCrop"
-        android:background="@drawable/prescription_image_background"
-        android:visibility="gone"
-        android:contentDescription="@string/prescription_photo_preview_description" />
-
-    <!-- Retake Photo Button -->
-    <Button
-        android:id="@+id/retakePhotoButton"
-        style="@style/Widget.Material3.Button.TextButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:text="@string/prescription_retake_photo"
-        android:visibility="gone"
-        android:layout_marginBottom="16dp" />
-
-    <!-- Doctor Name Input -->
-    <com.google.android.material.textfield.TextInputLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="@string/prescription_doctor_name_hint"
-        android:layout_marginBottom="16dp"
-        style="@style/Widget.Material3.TextInputLayout.OutlinedBox">
-
-        <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/doctorNameEditText"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:inputType="textPersonName|textCapWords" />
-
-    </com.google.android.material.textfield.TextInputLayout>
-
-    <!-- Disease Category Dropdown -->
-    <com.google.android.material.textfield.TextInputLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="@string/prescription_disease_category_hint"
-        android:layout_marginBottom="16dp"
-        style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu">
-
-        <AutoCompleteTextView
-            android:id="@+id/diseaseCategoryDropdown"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:inputType="none" />
-
-    </com.google.android.material.textfield.TextInputLayout>
-
-    <!-- Notes Input -->
-    <com.google.android.material.textfield.TextInputLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="@string/prescription_notes_hint"
-        android:layout_marginBottom="24dp"
-        style="@style/Widget.Material3.TextInputLayout.OutlinedBox">
-
-        <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/notesEditText"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:inputType="textMultiLine|textCapSentences"
-            android:minLines="3"
-            android:maxLines="5" />
-
-    </com.google.android.material.textfield.TextInputLayout>
-
-    <!-- Action Buttons -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:gravity="end">
+        android:orientation="vertical"
+        android:padding="24dp"
+        android:paddingBottom="120dp"
+        android:clipToPadding="false">
 
+        <!-- Header -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/prescription_add_title"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:gravity="center"
+            android:layout_marginBottom="24dp" />
+
+        <!-- Photo Capture Section -->
+        <FrameLayout
+            android:id="@+id/capturePhotoPlaceholder"
+            android:layout_width="match_parent"
+            android:layout_height="200dp"
+            android:background="@drawable/prescription_image_background"
+            android:layout_marginBottom="16dp">
+
+            <ImageView
+                android:layout_width="64dp"
+                android:layout_height="64dp"
+                android:layout_gravity="center"
+                android:src="@drawable/ic_camera"
+                android:contentDescription="@string/prescription_capture_photo"
+                app:tint="@color/textSecondary" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginTop="80dp"
+                android:text="@string/prescription_capture_photo_hint"
+                android:textColor="@color/textSecondary"
+                android:textSize="14sp" />
+
+        </FrameLayout>
+
+        <!-- Photo Preview -->
+        <ImageView
+            android:id="@+id/photoPreview"
+            android:layout_width="match_parent"
+            android:layout_height="200dp"
+            android:layout_marginBottom="16dp"
+            android:scaleType="centerCrop"
+            android:background="@drawable/prescription_image_background"
+            android:visibility="gone"
+            android:contentDescription="@string/prescription_photo_preview_description" />
+
+        <!-- Retake Photo Button -->
         <Button
-            android:id="@+id/cancelButton"
+            android:id="@+id/retakePhotoButton"
             style="@style/Widget.Material3.Button.TextButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/prescription_action_cancel"
-            android:layout_marginEnd="8dp" />
+            android:layout_gravity="center"
+            android:text="@string/prescription_retake_photo"
+            android:visibility="gone"
+            android:layout_marginBottom="16dp" />
 
-        <Button
-            android:id="@+id/saveButton"
-            android:layout_width="wrap_content"
+        <!-- Doctor Name Input -->
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/doctorNameInputLayout"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/prescription_action_save"
-            android:enabled="false" />
+            android:hint="@string/prescription_doctor_name_hint"
+            android:layout_marginBottom="16dp"
+            style="@style/Widget.Material3.TextInputLayout.OutlinedBox">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/doctorNameEditText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="textPersonName|textCapWords"
+                android:imeOptions="actionNext" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <!-- Disease Category Dropdown -->
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/categoryInputLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/prescription_disease_category_hint"
+            android:layout_marginBottom="16dp"
+            style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu">
+
+            <AutoCompleteTextView
+                android:id="@+id/diseaseCategoryDropdown"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="none" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <!-- Notes Input -->
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/notesInputLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/prescription_notes_hint"
+            android:layout_marginBottom="32dp"
+            style="@style/Widget.Material3.TextInputLayout.OutlinedBox">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/notesEditText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="textMultiLine|textCapSentences"
+                android:minLines="3"
+                android:maxLines="6"
+                android:gravity="top"
+                android:imeOptions="actionDone"
+                android:scrollbars="vertical" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <!-- Action Buttons -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="end"
+            android:layout_marginTop="16dp">
+
+            <Button
+                android:id="@+id/cancelButton"
+                style="@style/Widget.Material3.Button.TextButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/prescription_action_cancel"
+                android:layout_marginEnd="8dp" />
+
+            <Button
+                android:id="@+id/saveButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/prescription_action_save"
+                android:enabled="false" />
+
+        </LinearLayout>
 
     </LinearLayout>
 
-</LinearLayout>
+</androidx.core.widget.NestedScrollView>

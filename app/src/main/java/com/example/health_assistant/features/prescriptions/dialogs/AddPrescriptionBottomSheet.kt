@@ -7,9 +7,11 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.WindowManager
 import android.widget.ArrayAdapter
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
+import androidx.core.os.bundleOf
 import androidx.core.widget.addTextChangedListener
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
@@ -99,11 +101,87 @@ class AddPrescriptionBottomSheet : BottomSheetDialogFragment() {
 
         cameraManager = CameraManager(requireContext())
 
+        // Configure keyboard handling for better UX
+        setupKeyboardHandling()
+
         setupUI()
         setupCategoryDropdown()
         setupClickListeners()
         setupTextWatchers()
         setupFragmentResultListeners()
+    }
+
+    private fun setupKeyboardHandling() {
+        // Configure the bottom sheet dialog for proper keyboard adjustment
+        dialog?.window?.setSoftInputMode(
+            WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE or
+            WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE
+        )
+
+        // Enhanced scrolling behavior when keyboard appears
+        setupScrollingForKeyboard()
+    }
+
+    private fun setupScrollingForKeyboard() {
+        // Enhanced auto-scroll behavior with better timing and positioning
+        binding.notesEditText.setOnFocusChangeListener { _, hasFocus ->
+            if (hasFocus) {
+                // Use a longer delay to ensure keyboard is fully shown and layout adjusted
+                binding.root.postDelayed({
+                    // Calculate optimal scroll position to show notes field and buttons
+                    val notesLocation = IntArray(2)
+                    binding.notesEditText.getLocationOnScreen(notesLocation)
+
+                    // Scroll to ensure the notes field and save button are visible
+                    binding.root.smoothScrollTo(0, binding.notesInputLayout.top - 50)
+                }, 400)
+            }
+        }
+
+        // Improved doctor name field scrolling
+        binding.doctorNameEditText.setOnFocusChangeListener { _, hasFocus ->
+            if (hasFocus) {
+                binding.root.postDelayed({
+                    // Scroll to show doctor name field optimally
+                    binding.root.smoothScrollTo(0, binding.doctorNameInputLayout.top - 100)
+                }, 250)
+            }
+        }
+
+        // Add scroll behavior for category dropdown
+        binding.diseaseCategoryDropdown.setOnFocusChangeListener { _, hasFocus ->
+            if (hasFocus) {
+                binding.root.postDelayed({
+                    binding.root.smoothScrollTo(0, binding.categoryInputLayout.top - 80)
+                }, 200)
+            }
+        }
+
+        // Enhanced scrolling for better UX
+        setupAdvancedScrollBehavior()
+    }
+
+    private fun setupAdvancedScrollBehavior() {
+        // Enable smooth scrolling with better responsiveness
+        binding.root.apply {
+            isScrollContainer = true
+            isFocusableInTouchMode = true
+            descendantFocusability = ViewGroup.FOCUS_BEFORE_DESCENDANTS
+
+            // Add scroll listener to handle dynamic adjustments
+            setOnScrollChangeListener { _, _, scrollY, _, oldScrollY ->
+                // Optional: Add any dynamic behavior based on scroll position
+                val scrollDelta = scrollY - oldScrollY
+
+                // Ensure smooth scrolling performance
+                if (kotlin.math.abs(scrollDelta) > 50) {
+                    // Large scroll detected, ensure smooth animation
+                    post {
+                        smoothScrollBy(0, 0) // This helps with scroll momentum
+                    }
+                }
+            }
+        }
     }
 
     private fun setupUI() {
@@ -291,11 +369,27 @@ class AddPrescriptionBottomSheet : BottomSheetDialogFragment() {
                     return@launch
                 }
 
-                // Validate that the category exists in the database
+                // Check if category exists, if not, seed the default categories
                 val categoryExists = prescriptionRepository.categoryExists(category.id)
                 if (!categoryExists) {
-                    showError("Invalid category selected. Please select a valid category.")
-                    return@launch
+                    try {
+                        // Initialize default categories if they don't exist
+                        val initResult = prescriptionRepository.initializeDefaultCategories()
+                        if (initResult is Result.Error) {
+                            showError("Error initializing categories: ${initResult.message}")
+                            return@launch
+                        }
+
+                        // Verify the category exists now
+                        val categoryExistsNow = prescriptionRepository.categoryExists(category.id)
+                        if (!categoryExistsNow) {
+                            showError("Failed to initialize categories. Please try again.")
+                            return@launch
+                        }
+                    } catch (e: Exception) {
+                        showError("Error initializing categories: ${e.message}")
+                        return@launch
+                    }
                 }
 
                 // Save and compress image
@@ -316,6 +410,12 @@ class AddPrescriptionBottomSheet : BottomSheetDialogFragment() {
                     // Save to repository
                     val saveResult = prescriptionRepository.insertPrescription(prescription)
                     if (saveResult.isSuccess) {
+                        // Notify parent fragment about successful save
+                        parentFragmentManager.setFragmentResult(
+                            "prescription_added",
+                            bundleOf("success" to true)
+                        )
+
                         showSuccess(getString(R.string.prescription_saved_successfully))
                         dismiss()
                     } else {

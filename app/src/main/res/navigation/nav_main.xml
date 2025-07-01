@@ -44,29 +44,7 @@
         android:id="@+id/prescriptionsFragment"
         android:name="com.example.health_assistant.features.prescriptions.PrescriptionsFragment"
         android:label="@string/prescriptions_title"
-        tools:layout="@layout/fragment_prescriptions">
-
-        <!-- Navigation action to prescription detail fragment -->
-        <action
-            android:id="@+id/action_prescriptions_to_prescription_detail"
-            app:destination="@id/prescriptionDetailFragment"
-            app:enterAnim="@anim/slide_in_right"
-            app:exitAnim="@anim/slide_out_left"
-            app:popEnterAnim="@anim/slide_in_left"
-            app:popExitAnim="@anim/slide_out_right" />
-    </fragment>
-
-    <!-- Prescription Detail Fragment -->
-    <fragment
-        android:id="@+id/prescriptionDetailFragment"
-        android:name="com.example.health_assistant.features.prescriptions.dialogs.PrescriptionDetailFragment"
-        android:label="@string/prescription_detail_title"
-        tools:layout="@layout/fragment_prescription_detail">
-
-        <argument
-            android:name="prescription_id"
-            app:argType="string" />
-    </fragment>
+        tools:layout="@layout/fragment_prescriptions" />
 
     <fragment
         android:id="@+id/discoverFragment"
