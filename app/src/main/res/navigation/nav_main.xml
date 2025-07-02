@@ -18,69 +18,38 @@
         app:popUpTo="@id/nav_main"
         app:popUpToInclusive="true" />
 
+    <!-- HOME FRAGMENT - Central Hub -->
     <fragment
         android:id="@+id/homeFragment"
         android:name="com.example.health_assistant.features.home.HomeFragment"
         android:label="Home"
         tools:layout="@layout/fragment_home">
 
-        <!-- Navigation actions from Home to other fragments -->
-        <action
-            android:id="@+id/action_homeFragment_to_discoverFragment"
-            app:destination="@id/discoverFragment" />
-        <action
-            android:id="@+id/action_homeFragment_to_journalFragment"
-            app:destination="@id/journalFragment" />
-        <action
-            android:id="@+id/action_homeFragment_to_profileFragment"
-            app:destination="@id/profileFragment" />
+        <!-- Navigation to secondary screens from Home -->
         <action
             android:id="@+id/action_homeFragment_to_prescriptionsFragment"
-            app:destination="@id/prescriptionsFragment" />
+            app:destination="@id/prescriptionsFragment"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right" />
     </fragment>
 
-    <!-- Prescriptions Fragment -->
-    <fragment
-        android:id="@+id/prescriptionsFragment"
-        android:name="com.example.health_assistant.features.prescriptions.PrescriptionsFragment"
-        android:label="@string/prescriptions_title"
-        tools:layout="@layout/fragment_prescriptions" />
+    <!-- MAIN NAVIGATION FRAGMENTS -->
+    <!-- These fragments use MainActivity's custom navigation logic -->
+    <!-- No individual actions needed - handled by bottom navigation -->
 
     <fragment
         android:id="@+id/discoverFragment"
         android:name="com.example.health_assistant.features.discover.DiscoverFragment"
         android:label="Discover"
-        tools:layout="@layout/fragment_discover">
-
-        <!-- Navigation actions from Discover to other fragments -->
-        <action
-            android:id="@+id/action_discoverFragment_to_homeFragment"
-            app:destination="@id/homeFragment" />
-        <action
-            android:id="@+id/action_discoverFragment_to_journalFragment"
-            app:destination="@id/journalFragment" />
-        <action
-            android:id="@+id/action_discoverFragment_to_profileFragment"
-            app:destination="@id/profileFragment" />
-    </fragment>
+        tools:layout="@layout/fragment_discover" />
 
     <fragment
         android:id="@+id/journalFragment"
         android:name="com.example.health_assistant.features.journal.JournalFragment"
         android:label="Journal"
-        tools:layout="@layout/fragment_journal">
-
-        <!-- Navigation actions from Journal to other fragments -->
-        <action
-            android:id="@+id/action_journalFragment_to_homeFragment"
-            app:destination="@id/homeFragment" />
-        <action
-            android:id="@+id/action_journalFragment_to_discoverFragment"
-            app:destination="@id/discoverFragment" />
-        <action
-            android:id="@+id/action_journalFragment_to_profileFragment"
-            app:destination="@id/profileFragment" />
-    </fragment>
+        tools:layout="@layout/fragment_journal" />
 
     <fragment
         android:id="@+id/profileFragment"
@@ -88,19 +57,14 @@
         android:label="Profile"
         tools:layout="@layout/fragment_profile">
 
-        <!-- Navigation actions from Profile to other fragments -->
-        <action
-            android:id="@+id/action_profileFragment_to_homeFragment"
-            app:destination="@id/homeFragment" />
-        <action
-            android:id="@+id/action_profileFragment_to_discoverFragment"
-            app:destination="@id/discoverFragment" />
-        <action
-            android:id="@+id/action_profileFragment_to_journalFragment"
-            app:destination="@id/journalFragment" />
+        <!-- Navigation to profile-specific screens -->
         <action
             android:id="@+id/action_profileFragment_to_settingsFragment"
-            app:destination="@id/settingsFragment" />
+            app:destination="@id/settingsFragment"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right" />
         <action
             android:id="@+id/action_profileFragment_to_editProfileFragment"
             app:destination="@id/editProfileFragment"
@@ -108,43 +72,27 @@
             app:exitAnim="@anim/slide_out_left"
             app:popEnterAnim="@anim/slide_in_left"
             app:popExitAnim="@anim/slide_out_right" />
-        <action
-            android:id="@+id/action_profileFragment_to_authActivity"
-            app:destination="@id/authActivity" />
     </fragment>
+
+    <!-- SECONDARY SCREENS -->
+    <!-- These maintain normal back navigation to their parent fragments -->
+
+    <fragment
+        android:id="@+id/prescriptionsFragment"
+        android:name="com.example.health_assistant.features.prescriptions.PrescriptionsFragment"
+        android:label="@string/prescriptions_title"
+        tools:layout="@layout/fragment_prescriptions" />
 
     <fragment
         android:id="@+id/settingsFragment"
         android:name="com.example.health_assistant.features.settings.SettingsFragment"
         android:label="Settings"
-        tools:layout="@layout/fragment_settings" >
-        <action
-            android:id="@+id/action_settingsFragment_to_profileFragment"
-            app:destination="@id/profileFragment" />
-        <action
-            android:id="@+id/action_settingsFragment_to_authActivity"
-            app:destination="@id/authActivity" />
-    </fragment>
+        tools:layout="@layout/fragment_settings" />
 
-    <!-- Complete Profile Fragment -->
-    <fragment
-        android:id="@+id/completeProfileFragment"
-        android:name="com.example.health_assistant.features.completeprofile.CompleteProfileFragment"
-        android:label="Complete Profile"
-        tools:layout="@layout/fragment_complete_profile">
-
-        <action
-            android:id="@+id/action_completeProfile_to_home"
-            app:destination="@id/homeFragment"
-            app:popUpTo="@id/nav_main"
-            app:popUpToInclusive="false" />
-    </fragment>
-
-    <!-- Edit Profile Fragment -->
     <fragment
         android:id="@+id/editProfileFragment"
         android:name="com.example.health_assistant.features.profile.EditProfileFragment"
         android:label="Edit Profile"
-        tools:layout="@layout/fragment_edit_profile"/>
+        tools:layout="@layout/fragment_edit_profile" />
 
 </navigation>

@@ -5,18 +5,23 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.health_assistant.core.util.Result
+import com.example.health_assistant.data.fitness.GoogleFitManager
 import com.example.health_assistant.data.repository.interfaces.HealthRepository
 import com.example.health_assistant.features.health.model.HealthMetrics
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 import javax.inject.Inject
 
 /**
  * ViewModel for managing health metrics data for the Home screen
+ * Now includes Google Fit API integration for real-time health data
  */
 @HiltViewModel
 class HealthMetricsViewModel @Inject constructor(
-    private val healthRepository: HealthRepository
+    private val healthRepository: HealthRepository,
+    private val googleFitManager: GoogleFitManager
 ) : ViewModel() {
 
     private val _healthMetrics = MutableLiveData<HealthMetrics?>()
@@ -25,12 +30,23 @@ class HealthMetricsViewModel @Inject constructor(
     private val _error = MutableLiveData<String?>()
     val error: LiveData<String?> = _error
 
+    private val _syncStatus = MutableLiveData<SyncStatus>()
+    val syncStatus: LiveData<SyncStatus> = _syncStatus
+
+    private val _isLoading = MutableLiveData<Boolean>()
+    val isLoading: LiveData<Boolean> = _isLoading
+
     init {
         loadTodayMetrics()
+        // Auto-sync if Google Fit permissions are available
+        if (hasGoogleFitPermissions()) {
+            syncFromGoogleFit()
+        }
     }
 
     private fun loadTodayMetrics() {
         viewModelScope.launch {
+            _isLoading.value = true
             val currentDate = getCurrentDate()
             healthRepository.getDailyHealthMetrics(currentDate).collect { result ->
                 when (result) {
@@ -45,64 +61,111 @@ class HealthMetricsViewModel @Inject constructor(
                         // Handle loading state if needed
                     }
                 }
+                _isLoading.value = false
             }
         }
     }
 
     /**
-     * Update steps count
+     * NEW: Sync health metrics from Google Fit API
      */
-    fun updateSteps(steps: Int) {
+    fun syncFromGoogleFit() {
         viewModelScope.launch {
-            healthRepository.updateStepCount(steps).let { result ->
-                if (result is Result.Error) {
+            _syncStatus.value = SyncStatus.SYNCING
+            _isLoading.value = true
+
+            val result = healthRepository.syncTodayMetricsFromGoogleFit()
+
+            when (result) {
+                is Result.Success -> {
+                    _healthMetrics.value = result.data
+                    _syncStatus.value = SyncStatus.SUCCESS
+                    _error.value = null
+                }
+                is Result.Error -> {
+                    _syncStatus.value = SyncStatus.ERROR
                     _error.value = result.message
                 }
+                else -> {
+                    _syncStatus.value = SyncStatus.ERROR
+                    _error.value = "Unknown error occurred during sync"
+                }
             }
+            _isLoading.value = false
         }
     }
 
     /**
-     * Update water intake
+     * NEW: Sync health metrics from device sensors (works without Google Fit app!)
      */
-    fun updateWaterIntake(liters: Float) {
+    fun syncFromDeviceSensors() {
         viewModelScope.launch {
-            healthRepository.updateWaterIntake(liters).let { result ->
-                if (result is Result.Error) {
+            _syncStatus.value = SyncStatus.SYNCING
+            _isLoading.value = true
+
+            val result = healthRepository.syncTodayMetricsFromEnhancedTracker()
+
+            when (result) {
+                is Result.Success -> {
+                    _healthMetrics.value = result.data
+                    _syncStatus.value = SyncStatus.SUCCESS
+                    _error.value = null
+                }
+                is Result.Error -> {
+                    _syncStatus.value = SyncStatus.ERROR
                     _error.value = result.message
                 }
+                else -> {
+                    _syncStatus.value = SyncStatus.ERROR
+                    _error.value = "Unknown error occurred during sensor sync"
+                }
             }
+            _isLoading.value = false
         }
     }
 
     /**
-     * Update sleep duration
+     * NEW: Check if Google Fit permissions are granted
      */
-    fun updateSleepDuration(hours: Float) {
-        viewModelScope.launch {
-            healthRepository.updateSleepDuration(hours).let { result ->
-                if (result is Result.Error) {
-                    _error.value = result.message
-                }
-            }
-        }
+    fun hasGoogleFitPermissions(): Boolean {
+        return googleFitManager.hasPermissions()
     }
 
     /**
-     * Save current health metrics
+     * NEW: Handle Google Fit permission granted
      */
-    fun saveHealthMetrics(metrics: HealthMetrics) {
-        viewModelScope.launch {
-            healthRepository.saveDailyHealthMetrics(metrics).let { result ->
-                if (result is Result.Error) {
-                    _error.value = result.message
-                }
-            }
-        }
+    fun onGoogleFitPermissionGranted() {
+        syncFromGoogleFit()
     }
 
+    /**
+     * NEW: Clear error state
+     */
+    fun clearError() {
+        _error.value = null
+    }
+
+    /**
+     * NEW: Clear sync status
+     */
+    fun clearSyncStatus() {
+        _syncStatus.value = SyncStatus.IDLE
+    }
+
+    /**
+     * NEW: Get current date in required format
+     */
     private fun getCurrentDate(): String {
-        return java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.getDefault())
-            .format(java.util.Date())
+        return LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE)
+    }
+
+    /**
+     * NEW: Sync status enumeration
+     */
+    enum class SyncStatus {
+        IDLE,
+        SYNCING,
+        SUCCESS,
+        ERROR
     }
 }

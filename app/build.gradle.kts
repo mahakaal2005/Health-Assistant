@@ -185,4 +185,15 @@ dependencies {
     implementation(libs.androidx.camera.camera2)
     implementation(libs.androidx.camera.lifecycle)
     implementation(libs.androidx.camera.view)
+
+    // Google Fit API additional dependencies
+    implementation(libs.play.services.auth)
+
+    // WorkManager for background health data sync
+    implementation(libs.androidx.work.runtime.ktx)
+    implementation(libs.androidx.hilt.work)
+    ksp(libs.androidx.hilt.compiler)
+
+    // Charts for health data visualization (optional - for future use)
+    implementation(libs.mpandroidchart)
 }

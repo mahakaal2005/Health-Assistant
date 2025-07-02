@@ -2,14 +2,19 @@ package com.example.health_assistant.features.home
 
 import android.animation.ObjectAnimator
 import android.animation.ValueAnimator
+import android.app.Activity
 import android.content.Context
+import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.animation.AccelerateDecelerateInterpolator
 import android.view.animation.OvershootInterpolator
 import android.widget.Toast
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -19,7 +24,9 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.health_assistant.R
 import com.example.health_assistant.auth.session.SessionManager
+import com.example.health_assistant.core.performance.FragmentPerformanceManager
 import com.example.health_assistant.core.util.Result
+import com.example.health_assistant.data.fitness.GoogleFitManager
 import com.example.health_assistant.data.repository.interfaces.UserProfileRepository
 import com.example.health_assistant.databinding.FragmentHomeBinding
 import com.example.health_assistant.features.health.model.HealthMetrics
@@ -27,6 +34,8 @@ import com.example.health_assistant.features.health.viewmodel.HealthMetricsViewM
 import com.example.health_assistant.features.home.adapters.WellnessTipsAdapter
 import com.example.health_assistant.features.home.models.WellnessTip
 import com.example.health_assistant.utils.ProfilePhotoManager
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
@@ -39,6 +48,7 @@ import javax.inject.Inject
 /**
  * Premium Home Fragment featuring a modern interface with personalized greeting,
  * health summary, quick actions, and wellness insights.
+ * Now includes Google Fit API integration for real-time health data.
  * Follows premium UI/UX design principles from top health apps.
  */
 @AndroidEntryPoint
@@ -57,6 +67,14 @@ class HomeFragment : Fragment() {
     @Inject
     lateinit var userProfileRepository: UserProfileRepository
 
+    // NEW: Inject GoogleFitManager for permission handling
+    @Inject
+    lateinit var googleFitManager: GoogleFitManager
+
+    // NEW: Inject FragmentPerformanceManager for smooth transitions
+    @Inject
+    lateinit var performanceManager: FragmentPerformanceManager
+
     private lateinit var wellnessTipsAdapter: WellnessTipsAdapter
 
     // View model for health metrics
@@ -66,9 +84,74 @@ class HomeFragment : Fragment() {
     private val PREF_NAME = "HealthAssistantPrefs"
     private val KEY_FIRST_LAUNCH = "isFirstLaunch"
 
+    // NEW: Keys for Google Fit permission state management
+    private val KEY_GOOGLE_FIT_PERMISSION_ASKED = "googleFitPermissionAsked"
+    private val KEY_GOOGLE_FIT_PERMISSION_DENIED = "googleFitPermissionDenied"
+    private val KEY_GOOGLE_FIT_MAYBE_LATER = "googleFitMaybeLater"
+
     // Animation properties
     private val animDuration = 1000L
     private val animDelay = 100L
+
+    // NEW: Activity Result Launcher for Google Fit permissions
+    private lateinit var googleFitPermissionLauncher: ActivityResultLauncher<Intent>
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
+        // Initialize the Activity Result Launcher for Google Fit permissions
+        googleFitPermissionLauncher = registerForActivityResult(
+            ActivityResultContracts.StartActivityForResult()
+        ) { result ->
+            handleGoogleFitPermissionResult(result.resultCode)
+        }
+    }
+
+    // NEW: Handle Google Fit permission result
+    private fun handleGoogleFitPermissionResult(resultCode: Int) {
+        val sharedPrefs = requireActivity().getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
+
+        if (resultCode == Activity.RESULT_OK) {
+            // Permission granted - start sync immediately
+            Log.d("HomeFragment", "Google Fit permissions granted")
+            showSuccess("🎉 Health tracking enabled! Syncing your data...")
+
+            // Mark permission as granted
+            sharedPrefs.edit()
+                .putBoolean(KEY_GOOGLE_FIT_PERMISSION_ASKED, true)
+                .putBoolean(KEY_GOOGLE_FIT_PERMISSION_DENIED, false)
+                .putBoolean(KEY_GOOGLE_FIT_MAYBE_LATER, false)
+                .apply()
+
+            // Immediate sync
+            healthMetricsViewModel.syncFromGoogleFit()
+
+            // Set up periodic refresh
+            setupPeriodicHealthDataRefresh()
+
+        } else {
+            // Permission denied
+            Log.d("HomeFragment", "Google Fit permissions denied")
+            val sharedPrefs = requireActivity().getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
+            sharedPrefs.edit()
+                .putBoolean(KEY_GOOGLE_FIT_PERMISSION_ASKED, true)
+                .putBoolean(KEY_GOOGLE_FIT_PERMISSION_DENIED, true)
+                .apply()
+
+            showManualEntryOption()
+        }
+    }
+
+    // NEW: Set up periodic health data refresh
+    private fun setupPeriodicHealthDataRefresh() {
+        // Refresh health data every 30 seconds to show real-time updates
+        view?.postDelayed({
+            if (isAdded && googleFitManager.hasPermissions()) {
+                healthMetricsViewModel.syncFromGoogleFit()
+                setupPeriodicHealthDataRefresh() // Schedule next refresh
+            }
+        }, 30000) // 30 seconds
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -82,54 +165,278 @@ class HomeFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // Initialize UI elements with animation sequence
-        setupGreetingSection()
-        setupBackgroundEffects()
-        setupContextualCard()
-        setupHealthSummary()
-        setupQuickActions()
-        setupWellnessInsights()
-        loadProfilePhoto()
+        // OPTIMIZED: Use performance manager for smooth transitions
+        performanceManager.lazyLoadUI(
+            fragment = this,
+            criticalViews = {
+                // Load only essential UI elements immediately for fast transition
+                setupGreetingSection()
+                setupHealthSummary()
+                setupQuickActions()
+            },
+            nonCriticalViews = {
+                // Defer heavy operations to improve transition speed
+                setupBackgroundEffects()
+                setupContextualCard()
+                setupWellnessInsights()
+                loadProfilePhoto()
+                setupGoogleFitIntegration()
+                loadUserProfileAndUpdateGreeting()
+                observeHealthMetrics()
+                observeSyncStatus()
+            },
+            delayMs = 150L // Load non-critical views after transition completes
+        )
+    }
 
-        // Load user profile and update greeting in real-time
-        loadUserProfileAndUpdateGreeting()
+    // NEW: Setup Google Fit integration and permission handling
+    private fun setupGoogleFitIntegration() {
+        // NEW APPROACH: Use device sensors as PRIMARY, Google Fit as OPTIONAL enhancement
+        Log.d("HomeFragment", "Setting up sensor-based health tracking (no Google Fit app required)")
 
-        // Observe health metrics data
+        // Start with device sensors immediately - works without Google Fit!
+        healthMetricsViewModel.syncFromDeviceSensors()
+
+        // Only show Google Fit dialog if user wants ENHANCED accuracy
+        val sharedPrefs = requireActivity().getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
+        val enhancementAsked = sharedPrefs.getBoolean("enhancement_asked", false)
+
+        if (!enhancementAsked) {
+            // Show optional enhancement dialog after user sees the app working
+            view?.postDelayed({
+                if (isAdded && view != null) {
+                    showOptionalEnhancementPrompt()
+                }
+            }, 5000) // Wait 5 seconds so user sees app working first
+        }
+    }
+
+    // NEW: Show optional enhancement prompt (not required for basic functionality)
+    private fun showOptionalEnhancementPrompt() {
+        MaterialAlertDialogBuilder(requireContext())
+            .setTitle("🚀 Enhance Accuracy (Optional)")
+            .setMessage("Your app is already tracking steps using device sensors! Would you like to enhance accuracy with Google Fit data? This is completely optional - your app works great without it.")
+            .setPositiveButton("Enhance") { _, _ ->
+                requestGoogleFitPermissions()
+                val sharedPrefs = requireActivity().getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
+                sharedPrefs.edit().putBoolean("enhancement_asked", true).apply()
+            }
+            .setNegativeButton("Keep Current Setup") { dialog, _ ->
+                dialog.dismiss()
+                val sharedPrefs = requireActivity().getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
+                sharedPrefs.edit().putBoolean("enhancement_asked", true).apply()
+                showSuccess("✅ Your app is working perfectly with device sensors!")
+            }
+            .setCancelable(true)
+            .show()
+    }
+
+    // NEW: Show Google Fit permission dialog with premium design
+    private fun showGoogleFitPermissionPrompt() {
+        // Check if we already asked for permission and the user denied it
+        val sharedPrefs = requireActivity().getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
+        val permissionAsked = sharedPrefs.getBoolean(KEY_GOOGLE_FIT_PERMISSION_ASKED, false)
+        val permissionDenied = sharedPrefs.getBoolean(KEY_GOOGLE_FIT_PERMISSION_DENIED, false)
+        val maybeLater = sharedPrefs.getBoolean(KEY_GOOGLE_FIT_MAYBE_LATER, false)
+
+        // If we already asked and the user denied, just show manual entry option
+        if (permissionAsked && permissionDenied) {
+            showManualEntryOption()
+            return
+        }
+
+        // Show the permission prompt dialog
+        MaterialAlertDialogBuilder(requireContext())
+            .setTitle("🏃‍♂️ Enable Automatic Health Tracking")
+            .setMessage("Connect to Google Fit to automatically track your steps, calories, and heart points. No additional apps needed - just one-time permission!")
+            .setPositiveButton("Connect Now") { _, _ ->
+                requestGoogleFitPermissions()
+                // Remember that we asked for permission
+                sharedPrefs.edit().putBoolean(KEY_GOOGLE_FIT_PERMISSION_ASKED, true).apply()
+            }
+            .setNegativeButton("Maybe Later") { dialog, _ ->
+                dialog.dismiss()
+                // Remember that the user chose maybe later
+                sharedPrefs.edit().putBoolean(KEY_GOOGLE_FIT_MAYBE_LATER, true).apply()
+                showManualEntryOption()
+            }
+            .setNeutralButton("Learn More") { _, _ ->
+                showGoogleFitInfoDialog()
+            }
+            .setCancelable(false)
+            .show()
+    }
+
+    // NEW: Show additional info about Google Fit integration
+    private fun showGoogleFitInfoDialog() {
+        MaterialAlertDialogBuilder(requireContext())
+            .setTitle("About Automatic Health Tracking")
+            .setMessage("""
+                ✅ No additional apps required
+                ✅ Uses your phone's built-in sensors
+                ✅ More accurate than manual entry
+                ✅ Works in background without draining battery
+                ✅ Your data stays secure and private
+                
+                You can always switch to manual entry later in Settings.
+            """.trimIndent())
+            .setPositiveButton("Connect") { _, _ ->
+                requestGoogleFitPermissions()
+            }
+            .setNegativeButton("Manual Entry") { _, _ ->
+                showManualEntryOption()
+            }
+            .show()
+    }
+
+    // NEW: Request Google Fit permissions using the modern approach
+    private fun requestGoogleFitPermissions() {
+        try {
+            Log.d("HomeFragment", "Requesting Google Fit permissions...")
+
+            // Add debug info
+            showDebugInfo("Requesting Google Fit permissions...")
+
+            // Use the GoogleFitManager to request permissions
+            googleFitManager.requestPermissions(requireActivity())
+
+            // Note: The result will be handled by onActivityResult or the ActivityResultLauncher
+
+        } catch (e: Exception) {
+            Log.e("HomeFragment", "Error requesting Google Fit permissions", e)
+            showError("Failed to connect to Google Fit: ${e.message}")
+        }
+    }
+
+    // NEW: Debug helper to see what's happening
+    private fun showDebugInfo(message: String) {
+        Log.d("HomeFragment", "DEBUG: $message")
+        Toast.makeText(requireContext(), "DEBUG: $message", Toast.LENGTH_SHORT).show()
+    }
+
+    // NEW: Handle manual entry option with debugging
+    private fun showManualEntryOption() {
+        Log.d("HomeFragment", "Showing manual entry option")
+        Snackbar.make(
+            binding.root,
+            "Manual entry mode - Tap the + buttons to add data manually",
+            Snackbar.LENGTH_LONG
+        ).setAction("Test Update") {
+            // Add test data to see if UI updates work
+            testHealthDataUpdate()
+        }.show()
+    }
+
+    // NEW: Test method to verify UI updates work
+    private fun testHealthDataUpdate() {
+        Log.d("HomeFragment", "Testing health data update with dummy data")
+
+        // Create test data to verify the UI is working
+        val testMetrics = HealthMetrics(
+            steps = com.example.health_assistant.features.health.model.HealthMetric(2500, 9000),
+            calories = com.example.health_assistant.features.health.model.HealthMetric(150, 300),
+            heartPoints = com.example.health_assistant.features.health.model.HealthMetric(12, 50)
+        )
+
+        // Directly update the UI to test if the update mechanism works
+        updateHealthMetrics(testMetrics)
+
+        showSuccess("✅ Test data loaded! Your UI update mechanism is working.")
+    }
+
+
+    // NEW: Observe health metrics with enhanced UI updates
+    private fun observeHealthMetrics() {
         healthMetricsViewModel.healthMetrics.observe(viewLifecycleOwner, Observer { metrics ->
-            // Update UI with health metrics - handle nullable metrics
             metrics?.let {
                 updateHealthMetrics(it)
             }
         })
 
-        // Check SharedPreferences to determine if animations should run
-        val sharedPreferences = requireContext().getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
-        val isFirstLaunch = sharedPreferences.getBoolean(KEY_FIRST_LAUNCH, true)
+        healthMetricsViewModel.error.observe(viewLifecycleOwner, Observer { error ->
+            error?.let {
+                showError(it)
+                healthMetricsViewModel.clearError()
+            }
+        })
+    }
 
-        if (isFirstLaunch) {
-            // Run entrance animations for first launch only
-            runEntranceAnimations()
-
-            // Update SharedPreferences to indicate that the app has been launched at least once
-            sharedPreferences.edit().putBoolean(KEY_FIRST_LAUNCH, false).apply()
-        } else {
-            // Skip entrance animations on subsequent launches
-            binding.greetingText.alpha = 1f
-            binding.dateText.alpha = 1f
-            binding.userAvatar.alpha = 1f
-            binding.contextualCard.alpha = 1f
-            binding.healthSummaryCard.alpha = 1f
-            binding.quickActionsTitle.alpha = 1f
-            binding.quickActionsScroll.alpha = 1f
-            binding.insightsTitle.alpha = 1f
-            binding.insightsRecycler.alpha = 1f
-
-            // Still animate the health score progress bar for visual appeal
-            // We do this separately from entrance animations for subsequent visits
-            view.post {
-                animateHealthScore(85) // Using 85 as the value, replace with actual data source
+    // NEW: Observe sync status for UI feedback
+    private fun observeSyncStatus() {
+        healthMetricsViewModel.syncStatus.observe(viewLifecycleOwner) { status ->
+            when (status) {
+                HealthMetricsViewModel.SyncStatus.SYNCING -> {
+                    showSyncInProgress()
+                }
+                HealthMetricsViewModel.SyncStatus.SUCCESS -> {
+                    showSyncSuccess()
+                    healthMetricsViewModel.clearSyncStatus()
+                }
+                HealthMetricsViewModel.SyncStatus.ERROR -> {
+                    showSyncError()
+                    healthMetricsViewModel.clearSyncStatus()
+                }
+                HealthMetricsViewModel.SyncStatus.IDLE -> {
+                    hideSyncIndicators()
+                }
             }
         }
+
+        healthMetricsViewModel.isLoading.observe(viewLifecycleOwner) { isLoading ->
+            // TODO: Show/hide loading indicators if you have them in your layout
+            // binding.progressBar?.visibility = if (isLoading) View.VISIBLE else View.GONE
+        }
+    }
+
+    // NEW: Show sync in progress
+    private fun showSyncInProgress() {
+        // You can add a subtle progress indicator to your existing UI
+        Snackbar.make(
+            binding.root,
+            "📊 Syncing health data...",
+            Snackbar.LENGTH_SHORT
+        ).show()
+    }
+
+    // NEW: Show sync success
+    private fun showSyncSuccess() {
+        Snackbar.make(
+            binding.root,
+            "✅ Health data updated!",
+            Snackbar.LENGTH_SHORT
+        ).show()
+    }
+
+    // NEW: Show sync error
+    private fun showSyncError() {
+        Snackbar.make(
+            binding.root,
+            "⚠️ Sync failed. Tap to retry.",
+            Snackbar.LENGTH_LONG
+        ).setAction("Retry") {
+            healthMetricsViewModel.syncFromGoogleFit()
+        }.show()
+    }
+
+    // NEW: Hide sync indicators
+    private fun hideSyncIndicators() {
+        // Hide any persistent sync UI elements
+    }
+
+    // NEW: Enhanced error display
+    private fun showError(message: String) {
+        Snackbar.make(binding.root, message, Snackbar.LENGTH_LONG)
+            .setBackgroundTint(ContextCompat.getColor(requireContext(), R.color.error))
+            .setTextColor(ContextCompat.getColor(requireContext(), android.R.color.white))
+            .show()
+    }
+
+    // NEW: Enhanced success display
+    private fun showSuccess(message: String) {
+        Snackbar.make(binding.root, message, Snackbar.LENGTH_LONG)
+            .setBackgroundTint(ContextCompat.getColor(requireContext(), R.color.success))
+            .setTextColor(ContextCompat.getColor(requireContext(), android.R.color.white))
+            .show()
     }
 
     override fun onResume() {
