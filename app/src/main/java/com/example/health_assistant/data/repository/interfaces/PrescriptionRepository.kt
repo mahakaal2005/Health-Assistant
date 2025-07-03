@@ -15,14 +15,14 @@ interface PrescriptionRepository {
     suspend fun insertPrescription(prescription: Prescription): Result<Unit>
 
     /**
-     * Get all prescriptions for a user
+     * Get all prescriptions
      */
-    suspend fun getAllPrescriptions(userId: String): Flow<Result<List<Prescription>>>
+    suspend fun getAllPrescriptions(): Flow<Result<List<Prescription>>>
 
     /**
      * Get prescription by ID
      */
-    suspend fun getPrescriptionById(id: String): Result<Prescription?>
+    suspend fun getPrescriptionById(id: Long): Result<Prescription?>
 
     /**
      * Update an existing prescription
@@ -32,13 +32,13 @@ interface PrescriptionRepository {
     /**
      * Delete a prescription by ID
      */
-    suspend fun deletePrescription(id: String): Result<Unit>
+    suspend fun deletePrescription(id: Long): Result<Unit>
 
     /**
      * Check if a category exists in the database
      * This is crucial for foreign key constraint validation
      */
-    suspend fun categoryExists(categoryId: String): Boolean
+    suspend fun categoryExists(categoryId: Long): Boolean
 
     /**
      * Get all available disease categories

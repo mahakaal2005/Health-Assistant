@@ -16,7 +16,7 @@ dependencyResolutionManagement {
     repositories {
         google()
         mavenCentral()
-        // Add JitPack repository for GitHub-hosted libraries like MPAndroidChart
+        // CRITICAL: Add JitPack repository for MPAndroidChart dependency
         maven { url = uri("https://jitpack.io") }
     }
 }

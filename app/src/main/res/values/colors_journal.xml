@@ -1,0 +1,14 @@
+<resources>
+    <!-- Journal entry type accent colors -->
+    <color name="colorWorkout">#FF7043</color> <!-- Deep Orange -->
+    <color name="colorNote">#42A5F5</color>    <!-- Blue -->
+    <color name="colorGoal">#66BB6A</color>    <!-- Green -->
+    <color name="colorMeasurement">#AB47BC</color> <!-- Purple -->
+
+    <!-- Card and text colors for consistency -->
+    <color name="cardStroke">#E0E0E0</color>
+    <color name="onCard">#212121</color>
+    <color name="background">#FAFAFA</color>
+    <color name="onBackground">#212121</color>
+    <!-- Removed duplicate error color - using the one from colors.xml instead -->
+</resources>

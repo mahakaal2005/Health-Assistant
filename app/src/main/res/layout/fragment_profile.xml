@@ -76,7 +76,7 @@
                     android:layout_height="wrap_content"
                     android:text="Welcome Buddy!!"
                     android:textSize="30sp"
-                    android:textColor="@color/text_primary"
+                    android:textColor="@color/textPrimary"
                     android:textStyle="bold|italic"
                     android:fontFamily="serif"
                     android:alpha="0.95"
@@ -120,7 +120,7 @@
                     android:text="Alex Johnson"
                     android:textSize="24sp"
                     android:textStyle="bold"
-                    android:textColor="@color/text_primary"
+                    android:textColor="@color/textPrimary"
                     android:elevation="2dp"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
@@ -137,7 +137,7 @@
                     android:gravity="center"
                     android:text="Add your bio in Edit Profile"
                     android:textSize="14sp"
-                    android:textColor="@color/text_primary"
+                    android:textColor="@color/textPrimary"
                     android:alpha="0.9"
                     android:minHeight="40dp"
                     app:layout_constraintEnd_toEndOf="parent"
@@ -202,14 +202,14 @@
                                 android:text="68kg"
                                 android:textSize="18sp"
                                 android:textStyle="bold"
-                                android:textColor="@color/text_primary" />
+                                android:textColor="@color/textPrimary" />
 
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="Weight"
                                 android:textSize="14sp"
-                                android:textColor="@color/text_secondary" />
+                                android:textColor="@color/textSecondary" />
                         </LinearLayout>
 
                         <!-- Exercise Stat -->
@@ -228,14 +228,14 @@
                                 android:text="24"
                                 android:textSize="18sp"
                                 android:textStyle="bold"
-                                android:textColor="@color/text_primary" />
+                                android:textColor="@color/textPrimary" />
 
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="Workouts"
                                 android:textSize="14sp"
-                                android:textColor="@color/text_secondary" />
+                                android:textColor="@color/textSecondary" />
                         </LinearLayout>
 
                         <!-- Streak Stat -->
@@ -254,14 +254,14 @@
                                 android:text="12"
                                 android:textSize="18sp"
                                 android:textStyle="bold"
-                                android:textColor="@color/text_primary" />
+                                android:textColor="@color/textPrimary" />
 
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="Day Streak"
                                 android:textSize="14sp"
-                                android:textColor="@color/text_secondary" />
+                                android:textColor="@color/textSecondary" />
                         </LinearLayout>
 
                         <!-- Health Score Stat -->
@@ -280,14 +280,14 @@
                                 android:text="85"
                                 android:textSize="18sp"
                                 android:textStyle="bold"
-                                android:textColor="@color/text_primary" />
+                                android:textColor="@color/textPrimary" />
 
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="Score"
                                 android:textSize="14sp"
-                                android:textColor="@color/text_secondary" />
+                                android:textColor="@color/textSecondary" />
                         </LinearLayout>
                     </LinearLayout>
                 </FrameLayout>
@@ -337,7 +337,7 @@
                             android:text="Steps This Week"
                             android:textSize="16sp"
                             android:textStyle="bold"
-                            android:textColor="@color/text_primary"
+                            android:textColor="@color/textPrimary"
                             app:layout_constraintStart_toStartOf="parent"
                             app:layout_constraintTop_toTopOf="parent" />
 
@@ -356,7 +356,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="Bar Chart Placeholder"
-                            android:textColor="@color/text_secondary"
+                            android:textColor="@color/textSecondary"
                             app:layout_constraintBottom_toBottomOf="@+id/chart_placeholder"
                             app:layout_constraintEnd_toEndOf="@+id/chart_placeholder"
                             app:layout_constraintStart_toStartOf="@+id/chart_placeholder"
@@ -457,7 +457,7 @@
                                     android:layout_marginTop="4dp"
                                     android:text="5K Steps"
                                     android:textSize="12sp"
-                                    android:textColor="@color/text_primary" />
+                                    android:textColor="@color/textPrimary" />
                             </LinearLayout>
                         </FrameLayout>
 
@@ -486,7 +486,7 @@
                                     android:layout_marginTop="4dp"
                                     android:text="10K Steps"
                                     android:textSize="12sp"
-                                    android:textColor="@color/text_primary" />
+                                    android:textColor="@color/textPrimary" />
                             </LinearLayout>
                         </FrameLayout>
 
@@ -515,7 +515,7 @@
                                     android:layout_marginTop="4dp"
                                     android:text="20K Steps"
                                     android:textSize="12sp"
-                                    android:textColor="@color/text_secondary" />
+                                    android:textColor="@color/textSecondary" />
                             </LinearLayout>
                         </FrameLayout>
 
@@ -544,7 +544,7 @@
                                     android:layout_marginTop="4dp"
                                     android:text="3 Day Streak"
                                     android:textSize="12sp"
-                                    android:textColor="@color/text_primary" />
+                                    android:textColor="@color/textPrimary" />
                             </LinearLayout>
                         </FrameLayout>
 
@@ -573,7 +573,7 @@
                                     android:layout_marginTop="4dp"
                                     android:text="7 Day Streak"
                                     android:textSize="12sp"
-                                    android:textColor="@color/text_primary" />
+                                    android:textColor="@color/textPrimary" />
                             </LinearLayout>
                         </FrameLayout>
 
@@ -602,7 +602,7 @@
                                     android:layout_marginTop="4dp"
                                     android:text="30 Day Streak"
                                     android:textSize="12sp"
-                                    android:textColor="@color/text_secondary" />
+                                    android:textColor="@color/textSecondary" />
                             </LinearLayout>
                         </FrameLayout>
                     </GridLayout>

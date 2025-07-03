@@ -51,17 +51,29 @@
         <item name="cardElevation">4dp</item>
     </style>
 
+
+    <!-- Window Animation Styles -->
+    <style name="WindowAnimation.FullScreen" parent="@android:style/Animation.Activity">
+        <item name="android:windowEnterAnimation">@android:anim/fade_in</item>
+        <item name="android:windowExitAnimation">@android:anim/fade_out</item>
+    </style>
+
     <!-- Widget Styles -->
     <!-- Primary Button Style -->
     <style name="Widget.HealthAssistant.Button.Primary" parent="Widget.Material3.Button">
-        <!-- Use custom gradient background -->
+        <!-- Custom background drawable -->
         <item name="android:background">@drawable/modern_button_background</item>
+        <!-- No background tint -->
         <item name="backgroundTint">@null</item>
         <!-- Padding: 12dp top/bottom, 24dp left/right -->
         <item name="android:paddingTop">12dp</item>
         <item name="android:paddingBottom">12dp</item>
         <item name="android:paddingLeft">24dp</item>
         <item name="android:paddingRight">24dp</item>
+        <!-- Elevation: 4dp -->
+        <item name="android:elevation">4dp</item>
+        <!-- StateListAnimator -->
+        <item name="android:stateListAnimator">@xml/button_state_list_animator</item>
         <!-- Minimum height: 56dp -->
         <item name="android:minHeight">56dp</item>
         <!-- Drawable padding: 10dp -->
@@ -79,10 +91,14 @@
     </style>
 
     <style name="Widget.HealthAssistant.TextInputLayout" parent="Widget.Material3.TextInputLayout.OutlinedBox">
-        <item name="boxStrokeColor">@color/colorPrimary</item>
+        <item name="boxBackgroundColor">@color/text_input_background</item>
+        <item name="boxStrokeColor">@color/text_input_box_stroke</item>
         <item name="boxStrokeWidth">1dp</item>
         <item name="boxStrokeWidthFocused">2dp</item>
         <item name="hintTextColor">@color/textSecondary</item>
+        <item name="android:textColorHint">@color/text_input_box_stroke_default</item>
+        <item name="errorTextColor">@color/colorError</item>
+        <item name="errorIconTint">@color/colorError</item>
         <item name="boxCornerRadiusTopStart">8dp</item>
         <item name="boxCornerRadiusTopEnd">8dp</item>
         <item name="boxCornerRadiusBottomStart">8dp</item>
@@ -122,18 +138,6 @@
         <item name="android:textSize">14sp</item>
         <item name="android:fontFamily">sans-serif</item>
         <item name="android:lineSpacingExtra">2dp</item>
-    </style>
-
-    <!-- Window Animation Styles -->
-    <style name="WindowAnimation.FullScreen" parent="@android:style/Animation.Activity">
-        <item name="android:activityOpenEnterAnimation">@android:anim/fade_in</item>
-        <item name="android:activityOpenExitAnimation">@android:anim/fade_out</item>
-        <item name="android:activityCloseEnterAnimation">@android:anim/fade_in</item>
-        <item name="android:activityCloseExitAnimation">@android:anim/fade_out</item>
-        <item name="android:taskOpenEnterAnimation">@android:anim/slide_in_left</item>
-        <item name="android:taskOpenExitAnimation">@android:anim/slide_out_right</item>
-        <item name="android:taskCloseEnterAnimation">@android:anim/slide_in_left</item>
-        <item name="android:taskCloseExitAnimation">@android:anim/slide_out_right</item>
     </style>
 
 </resources>

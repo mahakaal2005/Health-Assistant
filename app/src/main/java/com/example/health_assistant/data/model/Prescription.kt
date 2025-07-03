@@ -1,70 +1,69 @@
 package com.example.health_assistant.data.model
 
-import com.example.health_assistant.data.local.entity.PrescriptionEntity
-import java.util.UUID
+import androidx.room.Entity
+import androidx.room.PrimaryKey
+import java.util.Date
 
-/**
- * Domain model for prescriptions
- */
+@Entity(tableName = "prescriptions")
+data class PrescriptionEntity(
+    @PrimaryKey(autoGenerate = true)
+    val id: Long = 0,
+    val medicationName: String,
+    val dosage: String,
+    val frequency: String,
+    val startDate: Date,
+    val endDate: Date?,
+    val instructions: String?,
+    val doctorName: String?,
+    val isActive: Boolean = true,
+    val createdAt: Date = Date(),
+    val updatedAt: Date = Date()
+)
+
+// Domain model
 data class Prescription(
-    val id: String = UUID.randomUUID().toString(),
-    val userId: String,
-    val imageUri: String,
-    val localImagePath: String,
-    val doctorName: String,
-    val categoryId: String,
-    val notes: String? = null,
-    val fileName: String,
-    val mimeType: String?,
-    val fileSize: Long,
-    val imageWidth: Int? = null,
-    val imageHeight: Int? = null,
-    val dateAdded: Long = System.currentTimeMillis(),
-    val dateModified: Long = System.currentTimeMillis()
-) {
-    /**
-     * Convert to database entity
-     */
-    fun toEntity(): PrescriptionEntity {
-        return PrescriptionEntity(
-            id = id,
-            userId = userId,
-            imageUri = imageUri,
-            localImagePath = localImagePath,
-            doctorName = doctorName,
-            categoryId = categoryId,
-            notes = notes,
-            fileName = fileName,
-            mimeType = mimeType,
-            fileSize = fileSize,
-            imageWidth = imageWidth,
-            imageHeight = imageHeight,
-            dateAdded = dateAdded,
-            dateModified = dateModified,
-            createdAt = dateAdded,
-            updatedAt = dateModified
-        )
-    }
-}
+    val id: Long = 0,
+    val medicationName: String,
+    val dosage: String,
+    val frequency: String,
+    val startDate: Date,
+    val endDate: Date?,
+    val instructions: String?,
+    val doctorName: String?,
+    val isActive: Boolean = true,
+    val createdAt: Date = Date(),
+    val updatedAt: Date = Date()
+)
 
-/**
- * Extension function to convert entity back to domain model
- */
+// Extension functions for mapping
 fun PrescriptionEntity.toPrescription(): Prescription {
     return Prescription(
         id = id,
-        userId = userId,
-        imageUri = imageUri,
-        localImagePath = localImagePath,
+        medicationName = medicationName,
+        dosage = dosage,
+        frequency = frequency,
+        startDate = startDate,
+        endDate = endDate,
+        instructions = instructions,
         doctorName = doctorName,
-        categoryId = categoryId,
-        notes = notes,
-        fileName = fileName,
-        mimeType = mimeType,
-        fileSize = fileSize,
-        imageWidth = imageWidth,
-        imageHeight = imageHeight,
-        dateAdded = dateAdded,
-        dateModified = dateModified
+        isActive = isActive,
+        createdAt = createdAt,
+        updatedAt = updatedAt
+    )
+}
+
+fun Prescription.toPrescriptionEntity(): PrescriptionEntity {
+    return PrescriptionEntity(
+        id = id,
+        medicationName = medicationName,
+        dosage = dosage,
+        frequency = frequency,
+        startDate = startDate,
+        endDate = endDate,
+        instructions = instructions,
+        doctorName = doctorName,
+        isActive = isActive,
+        createdAt = createdAt,
+        updatedAt = updatedAt
     )
 }

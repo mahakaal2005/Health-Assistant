@@ -1,26 +1,33 @@
 package com.example.health_assistant.data.local.dao
 
 import androidx.room.*
-import com.example.health_assistant.data.local.entity.PrescriptionEntity
+import com.example.health_assistant.data.model.PrescriptionEntity
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface PrescriptionDao {
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertPrescription(prescription: PrescriptionEntity)
+    @Query("SELECT * FROM prescriptions WHERE isActive = 1 ORDER BY createdAt DESC")
+    fun getAllActivePrescriptions(): Flow<List<PrescriptionEntity>>
 
-    @Query("SELECT * FROM prescriptions WHERE userId = :userId ORDER BY dateAdded DESC")
-    suspend fun getAllPrescriptionsForUser(userId: String): List<PrescriptionEntity>
+    @Query("SELECT * FROM prescriptions ORDER BY createdAt DESC")
+    fun getAllPrescriptions(): Flow<List<PrescriptionEntity>>
 
     @Query("SELECT * FROM prescriptions WHERE id = :id")
-    suspend fun getPrescriptionById(id: String): PrescriptionEntity?
+    suspend fun getPrescriptionById(id: Long): PrescriptionEntity?
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertPrescription(prescription: PrescriptionEntity): Long
 
     @Update
     suspend fun updatePrescription(prescription: PrescriptionEntity)
 
-    @Query("DELETE FROM prescriptions WHERE id = :id")
-    suspend fun deletePrescriptionById(id: String)
+    @Delete
+    suspend fun deletePrescription(prescription: PrescriptionEntity)
 
-    @Query("SELECT COUNT(*) FROM prescriptions WHERE userId = :userId")
-    suspend fun getPrescriptionCount(userId: String): Int
+    @Query("UPDATE prescriptions SET isActive = 0 WHERE id = :id")
+    suspend fun deactivatePrescription(id: Long)
+
+    @Query("SELECT * FROM prescriptions WHERE medicationName LIKE '%' || :query || '%'")
+    fun searchPrescriptions(query: String): Flow<List<PrescriptionEntity>>
 }

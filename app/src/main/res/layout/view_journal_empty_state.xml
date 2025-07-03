@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/emptyState"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:gravity="center"
+    android:padding="32dp"
+    android:background="@color/background">
+
+    <ImageView
+        android:layout_width="96dp"
+        android:layout_height="96dp"
+        android:src="@drawable/ic_journal_empty"
+        android:contentDescription="@string/journal_empty_icon"
+        app:tint="@color/colorPrimary"/>
+
+    <TextView
+        android:id="@+id/emptyStateTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/journal_empty_title"
+        android:textAppearance="@style/TextAppearance.MaterialComponents.Headline6"
+        android:textColor="@color/onBackground"
+        android:layout_marginTop="16dp"/>
+
+    <TextView
+        android:id="@+id/emptyStateDescription"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/journal_empty_desc"
+        android:textAppearance="@style/TextAppearance.MaterialComponents.Body2"
+        android:textColor="@color/onBackground"
+        android:layout_marginTop="8dp"/>
+
+    <Button
+        android:id="@+id/btnAddFirstEntry"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/journal_empty_action"
+        style="@style/Widget.MaterialComponents.Button"
+        android:layout_marginTop="24dp"/>
+
+</LinearLayout>

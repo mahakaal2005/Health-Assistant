@@ -1,26 +1,33 @@
 package com.example.health_assistant.data.local.dao
 
 import androidx.room.*
-import com.example.health_assistant.data.local.entity.DiseaseCategoryEntity
+import com.example.health_assistant.data.model.DiseaseCategoryEntity
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface DiseaseCategoryDao {
 
-    @Insert(onConflict = OnConflictStrategy.IGNORE)
-    suspend fun insertCategories(categories: List<DiseaseCategoryEntity>)
+    @Query("SELECT * FROM disease_categories WHERE isActive = 1 ORDER BY name ASC")
+    fun getAllActiveCategories(): Flow<List<DiseaseCategoryEntity>>
 
-    @Insert(onConflict = OnConflictStrategy.IGNORE)
-    suspend fun insertCategory(category: DiseaseCategoryEntity)
+    @Query("SELECT * FROM disease_categories ORDER BY name ASC")
+    fun getAllCategories(): Flow<List<DiseaseCategoryEntity>>
 
-    @Query("SELECT * FROM disease_categories ORDER BY displayName ASC")
-    suspend fun getAllCategories(): List<DiseaseCategoryEntity>
+    @Query("SELECT * FROM disease_categories WHERE id = :id")
+    suspend fun getCategoryById(id: Long): DiseaseCategoryEntity?
 
-    @Query("SELECT * FROM disease_categories WHERE id = :categoryId")
-    suspend fun getCategoryById(categoryId: String): DiseaseCategoryEntity?
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertCategory(category: DiseaseCategoryEntity): Long
 
-    @Query("SELECT COUNT(*) > 0 FROM disease_categories WHERE id = :categoryId")
-    suspend fun categoryExists(categoryId: String): Boolean
+    @Update
+    suspend fun updateCategory(category: DiseaseCategoryEntity)
 
-    @Query("SELECT COUNT(*) FROM disease_categories")
-    suspend fun getCategoryCount(): Int
+    @Delete
+    suspend fun deleteCategory(category: DiseaseCategoryEntity)
+
+    @Query("UPDATE disease_categories SET isActive = 0 WHERE id = :id")
+    suspend fun deactivateCategory(id: Long)
+
+    @Query("SELECT * FROM disease_categories WHERE name LIKE '%' || :query || '%'")
+    fun searchCategories(query: String): Flow<List<DiseaseCategoryEntity>>
 }

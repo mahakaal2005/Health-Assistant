@@ -38,9 +38,25 @@
     <dimen name="content_padding_large">24dp</dimen>
     <dimen name="content_padding_extra_large">32dp</dimen>
 
-    <!-- Prescription-related dimensions -->
-    <dimen name="prescription_card_spacing">8dp</dimen>
-    <dimen name="prescription_image_size">80dp</dimen>
-    <dimen name="prescription_category_icon_size">24dp</dimen>
+    <!-- Badge Chip dimensions -->
+    <dimen name="chip_badge_text_size">10sp</dimen>
+    <dimen name="chip_badge_radius">8dp</dimen>
+    <dimen name="chip_badge_margin">4dp</dimen>
 
+    <!-- Fast Scroll RecyclerView dimensions -->
+    <dimen name="fast_scroller_width">6dp</dimen>
+    <dimen name="fast_scroller_min_height">48dp</dimen>
+    <dimen name="fast_scroller_margin">8dp</dimen>
+    <dimen name="fast_scroller_radius">3dp</dimen>
+    <dimen name="fast_scroller_bubble_height">32dp</dimen>
+    <dimen name="fast_scroller_bubble_width">48dp</dimen>
+    <dimen name="fast_scroller_bubble_radius">16dp</dimen>
+    <dimen name="fast_scroller_bubble_margin">8dp</dimen>
+    <dimen name="fast_scroller_text_size">12sp</dimen>
+
+    <!-- Journal Item Decoration dimensions -->
+    <dimen name="header_text_size">14sp</dimen>
+    <dimen name="divider_height">1dp</dimen>
+    <dimen name="header_height">40dp</dimen>
+    <dimen name="header_padding">16dp</dimen>
 </resources>

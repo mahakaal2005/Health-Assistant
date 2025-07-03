@@ -2,12 +2,11 @@ package com.example.health_assistant.di
 
 import android.content.Context
 import androidx.room.Room
-import androidx.room.RoomDatabase
-import androidx.sqlite.db.SupportSQLiteDatabase
 import com.example.health_assistant.data.local.dao.DiseaseCategoryDao
-import com.example.health_assistant.data.local.dao.ProfileImageDao
 import com.example.health_assistant.data.local.dao.PrescriptionDao
+import com.example.health_assistant.data.local.dao.ProfileImageDao
 import com.example.health_assistant.data.local.database.HealthAssistantDatabase
+import com.example.health_assistant.features.journal.data.JournalEntryDao
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -30,21 +29,10 @@ object DatabaseModule {
         return Room.databaseBuilder(
             context.applicationContext,
             HealthAssistantDatabase::class.java,
-            "health_assistant_database"
+            HealthAssistantDatabase.DATABASE_NAME
         )
-        .addCallback(object : RoomDatabase.Callback() {
-            override fun onCreate(db: SupportSQLiteDatabase) {
-                super.onCreate(db)
-                // Initialize default categories when database is first created
-                // This will be handled by the repository when first accessed
-            }
-        })
+        .fallbackToDestructiveMigration(dropAllTables = true)
         .build()
-    }
-
-    @Provides
-    fun provideProfileImageDao(database: HealthAssistantDatabase): ProfileImageDao {
-        return database.profileImageDao()
     }
 
     @Provides
@@ -55,5 +43,15 @@ object DatabaseModule {
     @Provides
     fun provideDiseaseCategoryDao(database: HealthAssistantDatabase): DiseaseCategoryDao {
         return database.diseaseCategoryDao()
+    }
+
+    @Provides
+    fun provideJournalEntryDao(database: HealthAssistantDatabase): JournalEntryDao {
+        return database.journalEntryDao()
+    }
+
+    @Provides
+    fun provideProfileImageDao(database: HealthAssistantDatabase): ProfileImageDao {
+        return database.profileImageDao()
     }
 }

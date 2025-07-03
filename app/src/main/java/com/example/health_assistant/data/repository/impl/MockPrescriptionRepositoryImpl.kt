@@ -6,6 +6,7 @@ import com.example.health_assistant.data.model.Prescription
 import com.example.health_assistant.data.repository.interfaces.PrescriptionRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
+import java.util.Date
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -27,45 +28,43 @@ class MockPrescriptionRepositoryImpl @Inject constructor() : PrescriptionReposit
         val currentTime = System.currentTimeMillis()
         val samplePrescriptions = listOf(
             Prescription(
-                id = "1",
-                userId = "current_user",
-                imageUri = "sample_prescription_1",
-                localImagePath = "/sample/path/1.jpg",
+                id = 1L,
+                medicationName = "Lisinopril 10mg",
+                dosage = "10mg",
+                frequency = "Once daily",
+                startDate = Date(currentTime - (5 * 24 * 60 * 60 * 1000L)), // 5 days ago
+                endDate = Date(currentTime + (25 * 24 * 60 * 60 * 1000L)), // 25 days from now
+                instructions = "Take with food, monitor blood pressure",
                 doctorName = "Dr. John Smith",
-                categoryId = "cardiology", // Use categoryId instead of diseaseCategory
-                notes = "Take with food, monitor blood pressure",
-                fileName = "prescription_1.jpg",
-                mimeType = "image/jpeg",
-                fileSize = 1024L,
-                dateAdded = currentTime - (5 * 24 * 60 * 60 * 1000L), // 5 days ago
-                dateModified = currentTime - (5 * 24 * 60 * 60 * 1000L)
+                isActive = true,
+                createdAt = Date(currentTime - (5 * 24 * 60 * 60 * 1000L)),
+                updatedAt = Date(currentTime - (5 * 24 * 60 * 60 * 1000L))
             ),
             Prescription(
-                id = "2",
-                userId = "current_user",
-                imageUri = "sample_prescription_2",
-                localImagePath = "/sample/path/2.jpg",
+                id = 2L,
+                medicationName = "Metformin 500mg",
+                dosage = "500mg",
+                frequency = "Twice daily",
+                startDate = Date(currentTime - (2 * 24 * 60 * 60 * 1000L)), // 2 days ago
+                endDate = Date(currentTime + (28 * 24 * 60 * 60 * 1000L)), // 28 days from now
+                instructions = "Take with meals, check blood sugar levels twice daily",
                 doctorName = "Dr. Sarah Johnson",
-                categoryId = "endocrinology", // Use valid category ID
-                notes = "Check blood sugar levels twice daily",
-                fileName = "prescription_2.jpg",
-                mimeType = "image/jpeg",
-                fileSize = 2048L,
-                dateAdded = currentTime - (2 * 24 * 60 * 60 * 1000L), // 2 days ago
-                dateModified = currentTime - (2 * 24 * 60 * 60 * 1000L)
+                isActive = true,
+                createdAt = Date(currentTime - (2 * 24 * 60 * 60 * 1000L)),
+                updatedAt = Date(currentTime - (2 * 24 * 60 * 60 * 1000L))
             ),
             Prescription(
-                id = "3",
-                userId = "current_user",
-                imageUri = "sample_prescription_3",
-                localImagePath = "/sample/path/3.jpg",
+                id = 3L,
+                medicationName = "Ibuprofen 400mg",
+                dosage = "400mg",
+                frequency = "As needed",
+                startDate = Date(currentTime - (1 * 24 * 60 * 60 * 1000L)), // 1 day ago
+                endDate = Date(currentTime + (7 * 24 * 60 * 60 * 1000L)), // 7 days from now
+                instructions = "Take with food for pain relief",
                 doctorName = "Dr. Michael Chen",
-                categoryId = "general", // Use valid category ID
-                fileName = "prescription_3.jpg",
-                mimeType = "image/jpeg",
-                fileSize = 1536L,
-                dateAdded = currentTime - (1 * 24 * 60 * 60 * 1000L), // 1 day ago
-                dateModified = currentTime - (1 * 24 * 60 * 60 * 1000L)
+                isActive = true,
+                createdAt = Date(currentTime - (1 * 24 * 60 * 60 * 1000L)),
+                updatedAt = Date(currentTime - (1 * 24 * 60 * 60 * 1000L))
             )
         )
 
@@ -81,11 +80,11 @@ class MockPrescriptionRepositoryImpl @Inject constructor() : PrescriptionReposit
         }
     }
 
-    override suspend fun getAllPrescriptions(userId: String): Flow<Result<List<Prescription>>> {
-        return flowOf(Result.Success(mockPrescriptions.filter { it.userId == userId }))
+    override suspend fun getAllPrescriptions(): Flow<Result<List<Prescription>>> {
+        return flowOf(Result.Success(mockPrescriptions.toList()))
     }
 
-    override suspend fun getPrescriptionById(id: String): Result<Prescription?> {
+    override suspend fun getPrescriptionById(id: Long): Result<Prescription?> {
         val prescription = mockPrescriptions.find { it.id == id }
         return Result.Success(prescription)
     }
@@ -94,8 +93,8 @@ class MockPrescriptionRepositoryImpl @Inject constructor() : PrescriptionReposit
         return try {
             val index = mockPrescriptions.indexOfFirst { it.id == prescription.id }
             if (index >= 0) {
-                // Update with current timestamp for dateModified
-                val updatedPrescription = prescription.copy(dateModified = System.currentTimeMillis())
+                // Update with current timestamp for updatedAt
+                val updatedPrescription = prescription.copy(updatedAt = Date())
                 mockPrescriptions[index] = updatedPrescription
             }
             Result.Success(Unit)
@@ -104,7 +103,7 @@ class MockPrescriptionRepositoryImpl @Inject constructor() : PrescriptionReposit
         }
     }
 
-    override suspend fun deletePrescription(id: String): Result<Unit> {
+    override suspend fun deletePrescription(id: Long): Result<Unit> {
         return try {
             mockPrescriptions.removeAll { it.id == id }
             Result.Success(Unit)
@@ -113,8 +112,7 @@ class MockPrescriptionRepositoryImpl @Inject constructor() : PrescriptionReposit
         }
     }
 
-
-    override suspend fun categoryExists(categoryId: String): Boolean {
+    override suspend fun categoryExists(categoryId: Long): Boolean {
         // For mock implementation, assume all default categories exist
         val defaultCategories = DiseaseCategory.getDefaultCategories()
         return defaultCategories.any { it.id == categoryId }

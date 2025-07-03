@@ -1,8 +1,8 @@
 package com.example.health_assistant.data.local.dao
 
 import androidx.room.*
-import com.example.health_assistant.data.local.entity.ProfileImageEntity
 import kotlinx.coroutines.flow.Flow
+import com.example.health_assistant.data.local.entity.ProfileImageEntity
 
 /**
  * Data Access Object for profile images

@@ -14,34 +14,30 @@
     <color name="colorPrimaryVariant">#0D47A1</color>
     <color name="colorSecondary">#03DAC6</color>
     <color name="colorSecondaryVariant">#018786</color>
-    <color name="colorOnPrimary">#FFFFFF</color>
+    <color name="colorOnPrimary">@color/white</color>
     <color name="colorOnSecondary">#000000</color>
-    <color name="colorSurface">#FFFFFF</color>
+    <color name="colorSurface">@color/white</color>
     <color name="colorOnSurface">#000000</color>
     <color name="colorBackground">#FAFAFA</color>
     <color name="colorOnBackground">#000000</color>
     <color name="colorError">#B00020</color>
-    <color name="colorOnError">#FFFFFF</color>
+    <color name="colorOnError">@color/white</color>
 
     <!-- Text Colors -->
     <color name="textPrimary">#212121</color>
     <color name="textSecondary">#757575</color>
     <color name="textTertiary">#9E9E9E</color>
     <color name="textDisabled">#BDBDBD</color>
-    <color name="text_primary">#212121</color>
-    <color name="text_secondary">#757575</color>
 
     <!-- Complete Profile Screen Colors -->
     <color name="orange_primary">#FFA726</color>
     <color name="orange_primary_disabled">#FFCC80</color>
-    <color name="divider_color">#E0E0E0</color>
 
     <!-- Surface Colors -->
-    <color name="surfaceLight">#FFFFFF</color>
+    <color name="surfaceLight">@color/white</color>
     <color name="surfaceDark">#F5F5F5</color>
-    <color name="cardBackground">#FFFFFF</color>
-    <color name="card_background">#FFFFFF</color>
-    <color name="card_background_elevated">#FFFFFF</color>
+    <color name="cardBackground">@color/white</color>
+    <color name="card_background_elevated">@color/white</color>
     <color name="card_background_alt">#F8F9FA</color>
     <color name="divider">#E0E0E0</color>
 
@@ -84,12 +80,10 @@
     <color name="bottom_nav_item_color_inactive">#9E9E9E</color>
 
     <!-- Input Field Colors -->
-    <color name="text_input_background">#FFFFFF</color>
+    <color name="text_input_background">@color/white</color>
     <color name="text_input_box_stroke">#E0E0E0</color>
     <color name="text_input_box_stroke_default">#BDBDBD</color>
 
-    <!-- Error Colors -->
-    <color name="error_color">#F44336</color>
 
     <!-- Dashboard Colors -->
     <color name="dashboard_background">#F5F5F5</color>
@@ -121,4 +115,21 @@
 
     <!-- Additional Ripple Colors -->
     <color name="rippleColorDark">#40000000</color>
+
+    <!-- Missing Color Resources -->
+    <!-- Chip Colors -->
+    <color name="colorChip">#E1F5FE</color>
+
+    <!-- Progress Colors for Activity Summary -->
+    <color name="colorProgressBackground">#E0E0E0</color>
+    <color name="colorProgressSteps">@color/stepBlue</color>
+    <color name="colorProgressCalories">#FF5722</color>
+    <color name="colorProgressActive">@color/success</color>
+
+    <!-- Card Colors -->
+    <color name="colorCard">@color/cardBackground</color>
+    <color name="colorChipSelected">#1976D2</color>
+
+    <!-- Error Color for TextInputLayout -->
+    <color name="error_color">@color/colorError</color>
 </resources>

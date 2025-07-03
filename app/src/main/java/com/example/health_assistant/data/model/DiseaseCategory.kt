@@ -1,57 +1,86 @@
 package com.example.health_assistant.data.model
 
-import com.example.health_assistant.data.local.entity.DiseaseCategoryEntity
+import androidx.room.Entity
+import androidx.room.PrimaryKey
 
-/**
- * Domain model for disease categories
- */
+@Entity(tableName = "disease_categories")
+data class DiseaseCategoryEntity(
+    @PrimaryKey(autoGenerate = true)
+    val id: Long = 0,
+    val name: String,
+    val description: String?,
+    val iconResId: Int?,
+    val isActive: Boolean = true
+)
+
+// Domain model
 data class DiseaseCategory(
-    val id: String,
-    val displayName: String,
-    val description: String? = null,
-    val iconRes: Int? = null
+    val id: Long = 0,
+    val name: String,
+    val description: String?,
+    val iconResId: Int?,
+    val isActive: Boolean = true
 ) {
     companion object {
-        /**
-         * Get the default disease categories
-         */
         fun getDefaultCategories(): List<DiseaseCategory> {
             return listOf(
-                DiseaseCategory("general", "General"),
-                DiseaseCategory("cardiology", "Cardiology"),
-                DiseaseCategory("dermatology", "Dermatology"),
-                DiseaseCategory("endocrinology", "Endocrinology"),
-                DiseaseCategory("gastroenterology", "Gastroenterology"),
-                DiseaseCategory("neurology", "Neurology"),
-                DiseaseCategory("orthopedics", "Orthopedics"),
-                DiseaseCategory("pediatrics", "Pediatrics"),
-                DiseaseCategory("psychiatry", "Psychiatry"),
-                DiseaseCategory("radiology", "Radiology")
+                DiseaseCategory(
+                    id = 1L,
+                    name = "Cardiology",
+                    description = "Heart and cardiovascular conditions",
+                    iconResId = null,
+                    isActive = true
+                ),
+                DiseaseCategory(
+                    id = 2L,
+                    name = "Endocrinology",
+                    description = "Diabetes and hormonal disorders",
+                    iconResId = null,
+                    isActive = true
+                ),
+                DiseaseCategory(
+                    id = 3L,
+                    name = "General",
+                    description = "General medical conditions",
+                    iconResId = null,
+                    isActive = true
+                ),
+                DiseaseCategory(
+                    id = 4L,
+                    name = "Neurology",
+                    description = "Brain and nervous system conditions",
+                    iconResId = null,
+                    isActive = true
+                ),
+                DiseaseCategory(
+                    id = 5L,
+                    name = "Orthopedics",
+                    description = "Bone and joint conditions",
+                    iconResId = null,
+                    isActive = true
+                )
             )
         }
     }
-
-    /**
-     * Convert to database entity
-     */
-    fun toEntity(): DiseaseCategoryEntity {
-        return DiseaseCategoryEntity(
-            id = id,
-            displayName = displayName,
-            description = description,
-            iconRes = iconRes
-        )
-    }
 }
 
-/**
- * Extension function to convert entity back to domain model
- */
+// Extension functions for mapping
 fun DiseaseCategoryEntity.toDiseaseCategory(): DiseaseCategory {
     return DiseaseCategory(
         id = id,
-        displayName = displayName,
+        name = name,
         description = description,
-        iconRes = iconRes
+        iconResId = iconResId,
+        isActive = isActive
+    )
+}
+
+fun DiseaseCategory.toDiseaseCategoryEntity(): DiseaseCategoryEntity {
+    return DiseaseCategoryEntity(
+        id = id,
+        name = name,
+        description = description,
+        iconResId = iconResId,
+        isActive = isActive
     )
 }

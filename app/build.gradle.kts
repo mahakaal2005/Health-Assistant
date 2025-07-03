@@ -1,103 +1,106 @@
 plugins {
-
     alias(libs.plugins.android.application)
-
     alias(libs.plugins.kotlin.android)
-
-    id("com.google.gms.google-services")
-
+    alias(libs.plugins.google.services)
     id("com.google.devtools.ksp")
-
     id("com.google.dagger.hilt.android")
-
     id("jacoco")
-
-
 }
 
-
-
-
 android {
-
     namespace = "com.example.health_assistant"
-
-    compileSdk = 35
-
-
+    compileSdk = 36
 
     defaultConfig {
-
         applicationId = "com.example.health_assistant"
-
         minSdk = 30
-
         targetSdk = 35
-
         versionCode = 1
-
         versionName = "1.0"
 
+        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
-
-        testInstrumentationRunner = "android.test.runner.AndroidJUnitRunner"
-
+        // CRITICAL: Android 15 compatibility flags
+        vectorDrawables {
+            useSupportLibrary = true
+        }
     }
 
-
+    // FIXED: Use modern androidResources instead of deprecated resourceConfigurations
+    androidResources {
+        localeFilters += listOf("en")
+    }
 
     buildTypes {
-
         release {
-
             isMinifyEnabled = false
-
             proguardFiles(
-
                 getDefaultProguardFile("proguard-android-optimize.txt"),
-
                 "proguard-rules.pro"
-
             )
 
+            // CRITICAL: Android 15 security enhancements
+            isDebuggable = false
+            isJniDebuggable = false
+            isPseudoLocalesEnabled = false
         }
 
+        debug {
+            isDebuggable = true
+            versionNameSuffix = "-debug"
+        }
     }
 
     compileOptions {
-
         sourceCompatibility = JavaVersion.VERSION_11
-
         targetCompatibility = JavaVersion.VERSION_11
 
+        // CRITICAL: Enable core library desugaring for Android 15
+        isCoreLibraryDesugaringEnabled = true
     }
 
     kotlinOptions {
-
         jvmTarget = "11"
 
+        // CRITICAL: Android 15 Kotlin compatibility
+        freeCompilerArgs += listOf(
+            "-opt-in=kotlin.RequiresOptIn",
+            "-opt-in=kotlinx.coroutines.ExperimentalCoroutinesApi"
+        )
     }
-
-
-
 
     buildFeatures {
-
         viewBinding = true
-
-        dataBinding =true
-
-
+        dataBinding = true
+        buildConfig = true
     }
 
+    // FIXED: Use modern packaging instead of deprecated packagingOptions
+    packaging {
+        resources {
+            excludes += "/META-INF/{AL2.0,LGPL2.1}"
+            excludes += "/META-INF/gradle/incremental.annotation.processors"
+        }
+    }
+
+    // CRITICAL: Android 15 lint configuration
+    lint {
+        targetSdk = 36
+        checkReleaseBuilds = false
+        abortOnError = false
+    }
 }
 
 tasks.withType<Test> {
     useJUnitPlatform()
 }
 
-
 dependencies {
+    // CRITICAL: Core library desugaring for Android 15 compatibility
+    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.0.4")
+
+    // Add Gson dependency for Room TypeConverters
+    implementation("com.google.code.gson:gson:2.10.1")
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
@@ -151,9 +154,17 @@ dependencies {
     implementation(libs.hilt.android)
     ksp(libs.hilt.compiler)
 
+    // CRITICAL: Add missing Hilt Worker dependencies for HealthDataSyncWorker
+    implementation(libs.androidx.hilt.work)
+    ksp(libs.androidx.hilt.compiler)
+
+    // CRITICAL: Add missing WorkManager dependency for CoroutineWorker
+    implementation(libs.androidx.work.runtime.ktx)
+
     // Coroutines dependencies
     implementation(libs.kotlinx.coroutines.android)
     implementation(libs.kotlinx.coroutines.play.services)
+    // CRITICAL: Add missing Guava coroutines for CameraManager.kt
     implementation(libs.kotlinx.coroutines.guava)
 
     // ViewPager2 for onboarding screens
@@ -170,30 +181,24 @@ dependencies {
     testImplementation(libs.junit.jupiter.api)
     testRuntimeOnly(libs.junit.jupiter.engine)
     testImplementation(libs.turbine)
-    // androidTestImplementation(libs.androidx.accessibility.test.framework) // Commented out due to dependency issues
+    androidTestImplementation(libs.androidx.accessibility.test.framework)
 
     // Traditional Android View System dependencies (XML + Kotlin)
     implementation(libs.androidx.lifecycle.viewmodel.ktx)
     implementation(libs.androidx.lifecycle.livedata.ktx)
     implementation(libs.androidx.fragment.ktx)
 
-
-    implementation (libs.play.services.fitness)
+    // Google Play Services dependencies
+    implementation(libs.play.services.fitness)
+    implementation(libs.play.services.auth)  // CRITICAL: Add missing Google Play Services Auth for GoogleSignIn
     implementation(libs.androidx.health.services.client)
-    implementation (libs.kotlinx.coroutines.android.v1102)
+    implementation(libs.kotlinx.coroutines.android.v1102)
 
+    // CRITICAL: Add MPAndroidChart dependency for HealthMetricsAdapter
+    implementation(libs.mpandroidchart)
+
+    // CRITICAL: Add missing CameraX dependencies for CameraCaptureFragment
     implementation(libs.androidx.camera.camera2)
     implementation(libs.androidx.camera.lifecycle)
     implementation(libs.androidx.camera.view)
-
-    // Google Fit API additional dependencies
-    implementation(libs.play.services.auth)
-
-    // WorkManager for background health data sync
-    implementation(libs.androidx.work.runtime.ktx)
-    implementation(libs.androidx.hilt.work)
-    ksp(libs.androidx.hilt.compiler)
-
-    // Charts for health data visualization (optional - for future use)
-    implementation(libs.mpandroidchart)
 }

@@ -135,7 +135,7 @@
                                 android:layout_height="24dp"
                                 android:contentDescription="@string/expand"
                                 android:src="@drawable/ic_chevron_right"
-                                app:tint="@color/text_secondary" />
+                                app:tint="@color/textSecondary" />
                         </LinearLayout>
 
                         <!-- Divider -->
@@ -144,7 +144,7 @@
                             android:layout_height="1dp"
                             android:layout_marginStart="16dp"
                             android:layout_marginEnd="16dp"
-                            android:background="@color/divider_color" />
+                            android:background="@color/divider" />
 
                         <!-- Height Field -->
                         <LinearLayout
@@ -177,7 +177,7 @@
                                 android:layout_height="24dp"
                                 android:contentDescription="@string/expand"
                                 android:src="@drawable/ic_chevron_right"
-                                app:tint="@color/text_secondary" />
+                                app:tint="@color/textSecondary" />
                         </LinearLayout>
 
                         <!-- Divider -->
@@ -186,7 +186,7 @@
                             android:layout_height="1dp"
                             android:layout_marginStart="16dp"
                             android:layout_marginEnd="16dp"
-                            android:background="@color/divider_color" />
+                            android:background="@color/divider" />
 
                         <!-- Weight Field -->
                         <LinearLayout
@@ -219,7 +219,7 @@
                                 android:layout_height="24dp"
                                 android:contentDescription="@string/expand"
                                 android:src="@drawable/ic_chevron_right"
-                                app:tint="@color/text_secondary" />
+                                app:tint="@color/textSecondary" />
                         </LinearLayout>
 
                         <!-- Divider -->
@@ -228,7 +228,7 @@
                             android:layout_height="1dp"
                             android:layout_marginStart="16dp"
                             android:layout_marginEnd="16dp"
-                            android:background="@color/divider_color" />
+                            android:background="@color/divider" />
 
                         <!-- Birthday Field -->
                         <LinearLayout
@@ -261,7 +261,7 @@
                                 android:layout_height="24dp"
                                 android:contentDescription="@string/expand"
                                 android:src="@drawable/ic_chevron_right"
-                                app:tint="@color/text_secondary" />
+                                app:tint="@color/textSecondary" />
                         </LinearLayout>
 
                     </LinearLayout>

@@ -21,14 +21,11 @@
     <color name="textSecondary">#B3FFFFFF</color>
     <color name="textTertiary">#80FFFFFF</color>
     <color name="textDisabled">#61FFFFFF</color>
-    <color name="text_primary">#FFFFFF</color>
-    <color name="text_secondary">#B3FFFFFF</color>
 
     <!-- Surface Colors (Dark) -->
     <color name="surfaceLight">#1E1E1E</color>
     <color name="surfaceDark">#000000</color>
     <color name="cardBackground">#1F1F1F</color>
-    <color name="card_background">#1F1F1F</color>
     <color name="card_background_elevated">#2A2A2A</color>
     <color name="card_background_alt">#252525</color>
     <color name="divider">#2A2A2A</color>
