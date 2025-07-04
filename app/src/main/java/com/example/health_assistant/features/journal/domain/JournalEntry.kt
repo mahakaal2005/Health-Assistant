@@ -1,96 +1,73 @@
 package com.example.health_assistant.features.journal.domain
 
-import java.util.Date
+/**
+ * Domain models for journal entries
+ * Sealed class to represent different types of journal entries
+ */
+sealed class JournalEntry {
+    abstract val id: Long
+    abstract val timestamp: Long
+    abstract val type: String
 
-// Domain model representing a journal entry
-data class JournalEntry(
-    val id: Long = 0,
-    val type: String = "journal",
-    val timestamp: Long = System.currentTimeMillis(),
-    val content: String = "",
-    val moodLevel: Int = 0,
-    val emoji: String = "",
-    val description: String = "",
-    val activityType: String? = null,
-    val duration: Int? = null,
-    val summary: String? = null,
-    val goalTitle: String? = null,
-    val progress: Float? = null,
-    val measurementType: String? = null,
-    val value: Float? = null,
-    val unit: String? = null,
-    val previousValue: Float? = null,
-    val state: String? = null,
-    val systolic: Int? = null,
-    val diastolic: Int? = null,
-    val steps: Int? = null,
-    val stepGoal: Int? = null,
-    val activeMinutes: Int? = null,
-    val activeMinutesGoal: Int? = null,
-    val calories: Int? = null,
-    val caloriesGoal: Int? = null,
-    val distance: Float? = null
-)
+    data class Generic(
+        override val id: Long,
+        override val timestamp: Long,
+        override val type: String = "note",
+        val content: String
+    ) : JournalEntry()
 
-// Extension functions for mapping between domain and data models
-fun com.example.health_assistant.features.journal.data.JournalEntryEntity.toJournalEntry(): JournalEntry {
-    return JournalEntry(
-        id = id,
-        type = type,
-        timestamp = timestamp,
-        content = content,
-        moodLevel = moodLevel,
-        emoji = emoji,
-        description = description,
-        activityType = activityType,
-        duration = duration,
-        summary = summary,
-        goalTitle = goalTitle,
-        progress = progress,
-        measurementType = measurementType,
-        value = value,
-        unit = unit,
-        previousValue = previousValue,
-        state = state,
-        systolic = systolic,
-        diastolic = diastolic,
-        steps = steps,
-        stepGoal = stepGoal,
-        activeMinutes = activeMinutes,
-        activeMinutesGoal = activeMinutesGoal,
-        calories = calories,
-        caloriesGoal = caloriesGoal,
-        distance = distance
-    )
-}
+    data class Mood(
+        override val id: Long,
+        override val timestamp: Long,
+        override val type: String = "mood",
+        val moodLevel: Int, // 1-5 scale
+        val emoji: String,
+        val description: String,
+        val note: String = ""
+    ) : JournalEntry()
 
-fun JournalEntry.toJournalEntryEntity(): com.example.health_assistant.features.journal.data.JournalEntryEntity {
-    return com.example.health_assistant.features.journal.data.JournalEntryEntity(
-        id = id,
-        type = type,
-        timestamp = timestamp,
-        content = content,
-        moodLevel = moodLevel,
-        emoji = emoji,
-        description = description,
-        activityType = activityType,
-        duration = duration,
-        summary = summary,
-        goalTitle = goalTitle,
-        progress = progress,
-        measurementType = measurementType,
-        value = value,
-        unit = unit,
-        previousValue = previousValue,
-        state = state,
-        systolic = systolic,
-        diastolic = diastolic,
-        steps = steps,
-        stepGoal = stepGoal,
-        activeMinutes = activeMinutes,
-        activeMinutesGoal = activeMinutesGoal,
-        calories = calories,
-        caloriesGoal = caloriesGoal,
-        distance = distance
-    )
+    data class HeartRate(
+        override val id: Long,
+        override val timestamp: Long,
+        override val type: String = "heart_rate",
+        val bpm: Int,
+        val state: String, // "resting", "active", "exercise"
+        val note: String = ""
+    ) : JournalEntry()
+
+    data class BloodPressure(
+        override val id: Long,
+        override val timestamp: Long,
+        override val type: String = "blood_pressure",
+        val systolic: Int,
+        val diastolic: Int,
+        val note: String = ""
+    ) : JournalEntry()
+
+    data class Workout(
+        override val id: Long,
+        override val timestamp: Long,
+        override val type: String = "workout",
+        val activityType: String,
+        val duration: Int, // in minutes
+        val summary: String = ""
+    ) : JournalEntry()
+
+    data class Weight(
+        override val id: Long,
+        override val timestamp: Long,
+        override val type: String = "weight",
+        val weight: Double, // in kg
+        val unit: String = "kg",
+        val note: String = ""
+    ) : JournalEntry()
+
+    data class Sleep(
+        override val id: Long,
+        override val timestamp: Long,
+        override val type: String = "sleep",
+        val duration: Int, // in minutes
+        val quality: Int, // 1-5 scale
+        val note: String = ""
+    ) : JournalEntry()
 }

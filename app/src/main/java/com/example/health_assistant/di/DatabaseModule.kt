@@ -15,7 +15,8 @@ import dagger.hilt.components.SingletonComponent
 import javax.inject.Singleton
 
 /**
- * Hilt module for providing Room database dependencies
+ * Dependency injection module for database components
+ * Provides Room database and all DAO instances
  */
 @Module
 @InstallIn(SingletonComponent::class)
@@ -31,7 +32,7 @@ object DatabaseModule {
             HealthAssistantDatabase::class.java,
             HealthAssistantDatabase.DATABASE_NAME
         )
-        .fallbackToDestructiveMigration(dropAllTables = true)
+        .fallbackToDestructiveMigration() // For development - remove in production
         .build()
     }
 

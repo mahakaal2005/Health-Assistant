@@ -102,7 +102,7 @@ class EditProfileViewModel @Inject constructor(
                         originalProfile = profileData
 
                         // Load local photo if available
-                        val localPhotoPath = profileImageManager.getProfileImagePath(result.data.userId)
+                        val localPhotoPath = profileImageManager.getProfileImagePath()
                         val updatedProfileData = if (localPhotoPath != null) {
                             profileData.copy(photoUrl = localPhotoPath)
                         } else {
@@ -206,7 +206,7 @@ class EditProfileViewModel @Inject constructor(
                 }
 
                 // Save image using ProfileImageManager
-                when (val result = profileImageManager.saveProfileImage(currentProfileState.profile.userId, uri)) {
+                when (val result = profileImageManager.saveProfileImage(uri)) {
                     is ProfileImageManager.Result.Success -> {
                         _currentPhotoUrl.value = result.data
                         _photoUploadState.value = PhotoUploadState.Success(result.data)

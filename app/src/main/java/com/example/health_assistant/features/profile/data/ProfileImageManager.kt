@@ -3,16 +3,17 @@ package com.example.health_assistant.features.profile.data
 import android.content.Context
 import android.graphics.BitmapFactory
 import android.net.Uri
-import androidx.documentfile.provider.DocumentFile
 import com.example.health_assistant.data.local.dao.ProfileImageDao
 import com.example.health_assistant.data.local.entity.ProfileImageEntity
+import com.example.health_assistant.features.profile.domain.ProfileImageRepository
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.FileOutputStream
-import java.io.InputStream
 import java.util.*
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -24,7 +25,8 @@ import javax.inject.Singleton
 @Singleton
 class ProfileImageManager @Inject constructor(
     @ApplicationContext private val context: Context,
-    private val profileImageDao: ProfileImageDao
+    private val profileImageDao: ProfileImageDao,
+    private val profileImageRepository: ProfileImageRepository
 ) {
 
     private val imageDirectory: File by lazy {
@@ -36,10 +38,10 @@ class ProfileImageManager @Inject constructor(
     /**
      * Save profile image to local storage and database
      */
-    suspend fun saveProfileImage(userId: String, imageUri: Uri): Result<String> = withContext(Dispatchers.IO) {
+    suspend fun saveProfileImage(imageUri: Uri): Result<String> = withContext(Dispatchers.IO) {
         try {
             // Delete existing image first
-            deleteProfileImage(userId)
+            deleteProfileImage()
 
             // Copy image to app storage
             val localFile = copyImageToLocalStorage(imageUri)
@@ -49,18 +51,25 @@ class ProfileImageManager @Inject constructor(
 
             // Create database entity
             val profileImageEntity = ProfileImageEntity(
-                userId = userId,
-                originalUri = imageUri.toString(),
-                localFilePath = localFile.absolutePath,
+                imagePath = localFile.absolutePath,
                 fileName = localFile.name,
-                mimeType = imageMetadata.mimeType,
                 fileSize = localFile.length(),
+                mimeType = imageMetadata.mimeType ?: "image/jpeg",
                 width = imageMetadata.width,
                 height = imageMetadata.height
             )
 
             // Save to database
-            profileImageDao.insertOrUpdateProfileImage(profileImageEntity)
+            profileImageRepository.insertProfileImage(
+                com.example.health_assistant.features.profile.domain.ProfileImage(
+                    imagePath = profileImageEntity.imagePath,
+                    fileName = profileImageEntity.fileName,
+                    fileSize = profileImageEntity.fileSize,
+                    mimeType = profileImageEntity.mimeType,
+                    width = profileImageEntity.width,
+                    height = profileImageEntity.height
+                )
+            )
 
             Result.Success(localFile.absolutePath)
         } catch (e: Exception) {
@@ -71,10 +80,10 @@ class ProfileImageManager @Inject constructor(
     /**
      * Get profile image file path for user
      */
-    suspend fun getProfileImagePath(userId: String): String? = withContext(Dispatchers.IO) {
+    suspend fun getProfileImagePath(): String? = withContext(Dispatchers.IO) {
         try {
-            val profileImage = profileImageDao.getProfileImage(userId)
-            profileImage?.localFilePath?.let { path ->
+            val profileImage = profileImageRepository.getCurrentProfileImageSync()
+            profileImage?.imagePath?.let { path ->
                 val file = File(path)
                 if (file.exists()) path else null
             }
@@ -86,20 +95,37 @@ class ProfileImageManager @Inject constructor(
     /**
      * Get profile image as Flow for reactive updates
      */
-    fun getProfileImageFlow(userId: String): Flow<ProfileImageEntity?> {
-        return profileImageDao.getProfileImageFlow(userId)
+    fun getProfileImageFlow(): Flow<ProfileImageEntity?> {
+        return profileImageRepository.getCurrentProfileImage().map { profileImage ->
+            profileImage?.let {
+                ProfileImageEntity(
+                    id = it.id,
+                    imagePath = it.imagePath,
+                    fileName = it.fileName,
+                    fileSize = it.fileSize,
+                    mimeType = it.mimeType,
+                    dateCreated = it.dateCreated,
+                    dateModified = it.dateModified,
+                    isActive = it.isActive,
+                    width = it.width,
+                    height = it.height,
+                    description = it.description,
+                    compressionQuality = it.compressionQuality
+                )
+            }
+        }
     }
 
     /**
      * Delete profile image for user
      */
-    suspend fun deleteProfileImage(userId: String): Boolean = withContext(Dispatchers.IO) {
+    suspend fun deleteProfileImage(): Boolean = withContext(Dispatchers.IO) {
         try {
             // Get existing image info
-            val existingImage = profileImageDao.getProfileImage(userId)
+            val existingImage = profileImageRepository.getCurrentProfileImageSync()
 
             // Delete physical file
-            existingImage?.localFilePath?.let { path ->
+            existingImage?.imagePath?.let { path ->
                 val file = File(path)
                 if (file.exists()) {
                     file.delete()
@@ -107,7 +133,7 @@ class ProfileImageManager @Inject constructor(
             }
 
             // Delete from database
-            profileImageDao.deleteProfileImage(userId)
+            existingImage?.let { profileImageRepository.deleteProfileImage(it) }
             true
         } catch (e: Exception) {
             false
@@ -117,10 +143,10 @@ class ProfileImageManager @Inject constructor(
     /**
      * Check if user has a profile image
      */
-    suspend fun hasProfileImage(userId: String): Boolean = withContext(Dispatchers.IO) {
+    suspend fun hasProfileImage(): Boolean = withContext(Dispatchers.IO) {
         try {
-            val profileImage = profileImageDao.getProfileImage(userId)
-            profileImage?.localFilePath?.let { path ->
+            val profileImage = profileImageRepository.getCurrentProfileImageSync()
+            profileImage?.imagePath?.let { path ->
                 File(path).exists()
             } ?: false
         } catch (e: Exception) {
@@ -129,12 +155,13 @@ class ProfileImageManager @Inject constructor(
     }
 
     /**
-     * Get storage usage statistics
+     * FIXED: Get storage usage statistics - remove references to non-existent methods
      */
     suspend fun getStorageStats(): StorageStats = withContext(Dispatchers.IO) {
         try {
-            val totalSize = profileImageDao.getTotalStorageUsed() ?: 0L
-            val imageCount = profileImageDao.getAllProfileImages().size
+            val allImages = profileImageRepository.getAllProfileImages().first()
+            val totalSize = allImages.sumOf { it.fileSize }
+            val imageCount = allImages.size
             StorageStats(
                 totalSizeBytes = totalSize,
                 imageCount = imageCount,
@@ -146,32 +173,31 @@ class ProfileImageManager @Inject constructor(
     }
 
     /**
-     * Clean up old or orphaned images
+     * FIXED: Clean up old or orphaned images - remove references to non-existent properties
      */
     suspend fun cleanupStorage(maxAgeMillis: Long = 30L * 24 * 60 * 60 * 1000): CleanupResult = withContext(Dispatchers.IO) {
         try {
             val cutoffTime = System.currentTimeMillis() - maxAgeMillis
 
-            // Get images to be deleted for stats
-            val allImages = profileImageDao.getAllProfileImages()
-            val imagesToDelete = allImages.filter { it.updatedAt < cutoffTime }
+            // Get all images from repository instead of DAO
+            val allImages = profileImageRepository.getAllProfileImages().first()
+            val imagesToDelete = allImages.filter { it.dateCreated < cutoffTime }
 
             // Delete old files
             var deletedFiles = 0
             var freedSpace = 0L
 
             imagesToDelete.forEach { image ->
-                val file = File(image.localFilePath)
+                val file = File(image.imagePath)
                 if (file.exists()) {
                     freedSpace += file.length()
                     if (file.delete()) {
                         deletedFiles++
                     }
+                    // Delete from repository
+                    profileImageRepository.deleteProfileImage(image)
                 }
             }
-
-            // Delete from database
-            profileImageDao.deleteOldProfileImages(cutoffTime)
 
             // Clean up orphaned files
             val orphanedFiles = cleanupOrphanedFiles()
@@ -240,8 +266,8 @@ class ProfileImageManager @Inject constructor(
      */
     private suspend fun cleanupOrphanedFiles(): Int = withContext(Dispatchers.IO) {
         try {
-            val databaseFiles = profileImageDao.getAllProfileImages()
-                .mapNotNull { it.localFilePath }
+            val databaseFiles = profileImageDao.getAllProfileImages().first()
+                .map { it.imagePath }
                 .map { File(it).name }
                 .toSet()
 

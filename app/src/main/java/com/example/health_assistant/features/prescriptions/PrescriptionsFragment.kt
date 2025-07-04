@@ -4,21 +4,21 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.core.os.bundleOf
 import androidx.core.widget.addTextChangedListener
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
-import com.example.health_assistant.R
 import com.example.health_assistant.databinding.FragmentPrescriptionsBinding
 import com.example.health_assistant.features.prescriptions.adapter.PrescriptionsAdapter
 import com.example.health_assistant.features.prescriptions.adapter.GridSpacingItemDecoration
 import com.example.health_assistant.features.prescriptions.dialogs.AddPrescriptionBottomSheet
+import com.example.health_assistant.features.prescriptions.viewmodel.PrescriptionsViewModel
 import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 /**
  * Main fragment for displaying and managing prescriptions
@@ -32,6 +32,9 @@ class PrescriptionsFragment : Fragment() {
 
     private val viewModel: PrescriptionsViewModel by viewModels()
     private lateinit var prescriptionsAdapter: PrescriptionsAdapter
+
+    @Inject
+    lateinit var categoryManager: com.example.health_assistant.data.manager.CategoryManager
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -51,6 +54,7 @@ class PrescriptionsFragment : Fragment() {
         setupFab()
         setupFragmentResultListeners()
         observeViewModel()
+        observeSelectedCategories()
     }
 
     private fun setupToolbar() {
@@ -63,7 +67,7 @@ class PrescriptionsFragment : Fragment() {
     private fun setupRecyclerView() {
         prescriptionsAdapter = PrescriptionsAdapter(
             onPrescriptionClick = { prescription ->
-                navigateToPrescriptionDetail(prescription.id)
+                navigateToPrescriptionDetail(prescription.id.toString())
             }
         )
 
@@ -82,8 +86,10 @@ class PrescriptionsFragment : Fragment() {
             viewModel.updateSearchQuery(query)
         }
 
-        // Note: Clear functionality is now handled automatically by TextInputLayout's endIconMode="clear_text"
-        // No need for manual clear button setup
+        // Simple category filter button - just shows a popup menu
+        binding.categoryFilterButton.setOnClickListener {
+            showSimpleCategoryFilter()
+        }
     }
 
     private fun setupFab() {
@@ -178,10 +184,57 @@ class PrescriptionsFragment : Fragment() {
             .setTitle("Delete Prescription") // Fixed: Use hardcoded string
             .setMessage("Are you sure you want to delete the prescription from ${prescription.doctorName}?") // Fixed: Use hardcoded string
             .setPositiveButton("Delete") { _, _ -> // Fixed: Use hardcoded string
-                viewModel.deletePrescription(prescription.id)
+                viewModel.deletePrescription(prescription.id.toString())
             }
             .setNegativeButton("Cancel", null) // Fixed: Use hardcoded string
             .show()
+    }
+
+    /**
+     * Enhanced category filter using dynamic categories from CategoryManager
+     */
+    private fun showSimpleCategoryFilter() {
+        val popupMenu = androidx.appcompat.widget.PopupMenu(requireContext(), binding.categoryFilterButton)
+
+        // Get dynamic categories from CategoryManager (includes both predefined and user-created)
+        val categories = categoryManager.getCategoriesForFilter()
+
+        categories.forEachIndexed { index, category ->
+            popupMenu.menu.add(0, index, 0, category)
+        }
+
+        popupMenu.setOnMenuItemClickListener { menuItem ->
+            val selectedCategory = categories[menuItem.itemId]
+            viewModel.updateCategoryFilter(selectedCategory)
+            updateFilterIndicator(selectedCategory)
+            true
+        }
+
+        popupMenu.show()
+    }
+
+    /**
+     * Simple filter indicator update
+     */
+    private fun updateFilterIndicator(selectedCategory: String) {
+        if (selectedCategory == "All Categories") {
+            binding.activeFilterIndicator.visibility = View.GONE
+        } else {
+            binding.activeFilterIndicator.visibility = View.VISIBLE
+            binding.filterCountText.text = "1"
+        }
+    }
+
+    /**
+     * Remove complex category observation - keep it simple
+     */
+    private fun observeSelectedCategories() {
+        // Simple implementation - just observe the current filter
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewModel.currentCategoryFilter.collect { filter ->
+                updateFilterIndicator(filter)
+            }
+        }
     }
 
     // Fixed: Use explicit String type to resolve Snackbar overload ambiguity

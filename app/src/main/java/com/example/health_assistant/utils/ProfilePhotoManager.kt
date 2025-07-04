@@ -40,7 +40,7 @@ class ProfilePhotoManager @Inject constructor(
                     val profile = profileResult.data
                     if (profile != null) {
                         // Try to get local photo first
-                        val localPhotoPath = profileImageManager.getProfileImagePath(profile.userId)
+                        val localPhotoPath = profileImageManager.getProfileImagePath()
 
                         if (localPhotoPath != null) {
                             // Load from local storage

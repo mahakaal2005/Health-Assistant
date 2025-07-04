@@ -46,11 +46,6 @@ interface HealthRepository {
     suspend fun syncHealthData(): Result<Unit>
 
     /**
-     * NEW: Sync today's health metrics from Google Fit API
-     */
-    suspend fun syncTodayMetricsFromGoogleFit(): Result<HealthMetrics>
-
-    /**
      * NEW: Sync today's health metrics from Enhanced Health Tracker (device sensors)
      */
     suspend fun syncTodayMetricsFromEnhancedTracker(): Result<HealthMetrics>
@@ -58,7 +53,7 @@ interface HealthRepository {
     /**
      * Get today's health metrics (convenience method)
      */
-    suspend fun getTodayMetrics(): HealthMetrics?
+    suspend fun getTodayMetrics(): Result<HealthMetrics>
 
     /**
      * Get weekly health trends

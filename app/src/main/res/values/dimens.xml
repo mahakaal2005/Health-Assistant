@@ -54,6 +54,11 @@
     <dimen name="fast_scroller_bubble_margin">8dp</dimen>
     <dimen name="fast_scroller_text_size">12sp</dimen>
 
+    <!-- Chip dimensions -->
+    <dimen name="chip_stroke_width">1dp</dimen>
+    <dimen name="chip_corner_radius">16dp</dimen>
+    <dimen name="chip_spacing">8dp</dimen>
+
     <!-- Journal Item Decoration dimensions -->
     <dimen name="header_text_size">14sp</dimen>
     <dimen name="divider_height">1dp</dimen>

@@ -30,18 +30,28 @@ object PrescriptionUtils {
         val mimeType = getMimeTypeFromPath(localImagePath)
 
         return Prescription(
-            id = UUID.randomUUID().toString(),
+            id = 0L, // Use 0 for auto-generated ID
+            medicationName = "Unknown Medication", // Required field - should be extracted from OCR or user input
+            dosage = "As prescribed", // Required field - default value
+            frequency = "As needed", // Required field - default value
+            startDate = java.util.Date(), // Required field - default to current date
+            endDate = null, // Optional field
+            instructions = notes, // Map notes to instructions
+            doctorName = doctorName,
+            isActive = true,
+            createdAt = java.util.Date(),
+            updatedAt = java.util.Date(),
             userId = userId,
+            categoryId = diseaseCategory.id,
+            displayName = doctorName, // Use doctor name as display name
+            notes = notes,
             imageUri = imageUri,
             localImagePath = localImagePath,
-            doctorName = doctorName,
-            categoryId = diseaseCategory.id, // Use the category ID for foreign key
-            notes = notes,
             fileName = fileName,
             mimeType = mimeType,
             fileSize = fileSize,
-            dateAdded = System.currentTimeMillis(),
-            dateModified = System.currentTimeMillis()
+            dateAdded = java.util.Date(),
+            dateModified = java.util.Date()
         )
     }
 
@@ -91,8 +101,20 @@ object PrescriptionUtils {
     /**
      * Get category by ID from default categories
      */
-    fun getCategoryById(categoryId: String): DiseaseCategory? {
-        return DiseaseCategory.getDefaultCategories().find { it.id == categoryId }
+    fun getCategoryById(categoryId: Long?): DiseaseCategory? {
+        return if (categoryId != null) {
+            DiseaseCategory.getDefaultCategories().find { it.id == categoryId }
+        } else {
+            null
+        }
+    }
+
+    /**
+     * Get category by String ID (for backward compatibility)
+     */
+    fun getCategoryById(categoryId: String?): DiseaseCategory? {
+        val longId = categoryId?.toLongOrNull()
+        return getCategoryById(longId)
     }
 
     /**

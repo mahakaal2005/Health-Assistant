@@ -81,24 +81,12 @@ class HealthMetricsAdapter(
             icon.setImageResource(R.drawable.ic_weight)
             title.text = "Weight"
             date.text = SimpleDateFormat("MMM d, yyyy", Locale.getDefault()).format(Date(entry.timestamp))
-            currentValue.text = String.format("%.1f", entry.value)
+            currentValue.text = String.format("%.1f", entry.weight)
             unit.text = entry.unit
 
-            // Display change if previous value exists
-            if (entry.previousValue != null) {
-                val diff = entry.value - entry.previousValue
-                val sign = if (diff >= 0) "+" else ""
-                change.text = "$sign${String.format("%.1f", diff)} from last time"
-                change.visibility = View.VISIBLE
-
-                // Set color based on whether weight loss is the goal
-                val color = itemView.context.getColor(
-                    if (diff < 0) R.color.progress_green else R.color.progress_orange
-                )
-                change.setTextColor(color)
-            } else {
-                change.visibility = View.GONE
-            }
+            // For now, hide change display since we don't have previous value tracking
+            // This could be enhanced by calculating from previous entries
+            change.visibility = View.GONE
 
             // Show note if available
             if (!entry.note.isNullOrEmpty()) {

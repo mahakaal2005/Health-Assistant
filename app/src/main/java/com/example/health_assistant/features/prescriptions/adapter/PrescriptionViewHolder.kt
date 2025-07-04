@@ -28,12 +28,17 @@ class PrescriptionViewHolder(
                 crossfade(true)
             }
 
-            // Set category chip
-            val category = PrescriptionUtils.getCategoryById(prescription.categoryId)
-            categoryChip.text = category?.displayName ?: "General"
+            // Set category chip - use displayName if available (stores category name), fallback to ID lookup
+            val categoryText = if (!prescription.displayName.isNullOrBlank()) {
+                prescription.displayName
+            } else {
+                val category = PrescriptionUtils.getCategoryById(prescription.categoryId?.toString() ?: "1")
+                category?.name ?: "General"
+            }
+            categoryChip.text = categoryText
 
             // Set doctor name with Dr. prefix
-            val doctorNameText = prescription.doctorName
+            val doctorNameText = prescription.doctorName ?: "Unknown Doctor"
             doctorName.text = if (doctorNameText.startsWith("Dr.")) {
                 doctorNameText
             } else {
@@ -41,7 +46,7 @@ class PrescriptionViewHolder(
             }
 
             // Set date
-            dateAdded.text = PrescriptionUtils.formatDate(prescription.dateAdded)
+            dateAdded.text = PrescriptionUtils.formatDate(prescription.dateAdded.time)
 
 
             // Set up click listener for the entire card

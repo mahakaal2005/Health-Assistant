@@ -5,7 +5,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.health_assistant.core.util.Result
-import com.example.health_assistant.data.fitness.GoogleFitManager
+import com.example.health_assistant.data.health.EnhancedHealthTracker
 import com.example.health_assistant.data.repository.interfaces.HealthRepository
 import com.example.health_assistant.features.health.model.HealthMetrics
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -16,12 +16,12 @@ import javax.inject.Inject
 
 /**
  * ViewModel for managing health metrics data for the Home screen
- * Now includes Google Fit API integration for real-time health data
+ * Uses device sensors only via EnhancedHealthTracker - no Google Fit required
  */
 @HiltViewModel
 class HealthMetricsViewModel @Inject constructor(
     private val healthRepository: HealthRepository,
-    private val googleFitManager: GoogleFitManager
+    private val enhancedHealthTracker: EnhancedHealthTracker
 ) : ViewModel() {
 
     private val _healthMetrics = MutableLiveData<HealthMetrics?>()
@@ -37,10 +37,24 @@ class HealthMetricsViewModel @Inject constructor(
     val isLoading: LiveData<Boolean> = _isLoading
 
     init {
+        // Initialize device sensor tracking
+        initializeDeviceSensors()
         loadTodayMetrics()
-        // Auto-sync if Google Fit permissions are available
-        if (hasGoogleFitPermissions()) {
-            syncFromGoogleFit()
+    }
+
+    private fun initializeDeviceSensors() {
+        viewModelScope.launch {
+            try {
+                val initialized = enhancedHealthTracker.initialize()
+                if (initialized) {
+                    _syncStatus.value = SyncStatus.SENSOR_TRACKING
+                } else {
+                    _syncStatus.value = SyncStatus.MANUAL_ONLY
+                }
+            } catch (e: Exception) {
+                _error.value = "Failed to initialize device sensors: ${e.message}"
+                _syncStatus.value = SyncStatus.MANUAL_ONLY
+            }
         }
     }
 
@@ -50,92 +64,54 @@ class HealthMetricsViewModel @Inject constructor(
             val currentDate = getCurrentDate()
             healthRepository.getDailyHealthMetrics(currentDate).collect { result ->
                 when (result) {
+                    is Result.Loading -> {
+                        _isLoading.value = true
+                    }
                     is Result.Success -> {
+                        _isLoading.value = false
                         _healthMetrics.value = result.data
                         _error.value = null
                     }
                     is Result.Error -> {
+                        _isLoading.value = false
                         _error.value = result.message
                     }
+                }
+            }
+        }
+    }
+
+    /**
+     * Refresh health metrics from device sensors
+     */
+    fun refreshMetrics() {
+        viewModelScope.launch {
+            _isLoading.value = true
+            try {
+                // Get current metrics from device sensors
+                val result = enhancedHealthTracker.getCurrentHealthMetrics()
+                when (result) {
                     is Result.Loading -> {
-                        // Handle loading state if needed
+                        _isLoading.value = true
+                        _syncStatus.value = SyncStatus.SYNCING
+                    }
+                    is Result.Success -> {
+                        _healthMetrics.value = result.data
+                        _error.value = null
+                        _syncStatus.value = SyncStatus.SENSOR_TRACKING
+                    }
+                    is Result.Error -> {
+                        _error.value = result.message
+                        _syncStatus.value = SyncStatus.ERROR
                     }
                 }
+            } catch (e: Exception) {
+                _error.value = "Failed to refresh metrics: ${e.message}"
+                _syncStatus.value = SyncStatus.ERROR
+            } finally {
                 _isLoading.value = false
             }
         }
-    }
-
-    /**
-     * NEW: Sync health metrics from Google Fit API
-     */
-    fun syncFromGoogleFit() {
-        viewModelScope.launch {
-            _syncStatus.value = SyncStatus.SYNCING
-            _isLoading.value = true
-
-            val result = healthRepository.syncTodayMetricsFromGoogleFit()
-
-            when (result) {
-                is Result.Success -> {
-                    _healthMetrics.value = result.data
-                    _syncStatus.value = SyncStatus.SUCCESS
-                    _error.value = null
-                }
-                is Result.Error -> {
-                    _syncStatus.value = SyncStatus.ERROR
-                    _error.value = result.message
-                }
-                else -> {
-                    _syncStatus.value = SyncStatus.ERROR
-                    _error.value = "Unknown error occurred during sync"
-                }
-            }
-            _isLoading.value = false
-        }
-    }
-
-    /**
-     * NEW: Sync health metrics from device sensors (works without Google Fit app!)
-     */
-    fun syncFromDeviceSensors() {
-        viewModelScope.launch {
-            _syncStatus.value = SyncStatus.SYNCING
-            _isLoading.value = true
-
-            val result = healthRepository.syncTodayMetricsFromEnhancedTracker()
-
-            when (result) {
-                is Result.Success -> {
-                    _healthMetrics.value = result.data
-                    _syncStatus.value = SyncStatus.SUCCESS
-                    _error.value = null
-                }
-                is Result.Error -> {
-                    _syncStatus.value = SyncStatus.ERROR
-                    _error.value = result.message
-                }
-                else -> {
-                    _syncStatus.value = SyncStatus.ERROR
-                    _error.value = "Unknown error occurred during sensor sync"
-                }
-            }
-            _isLoading.value = false
-        }
-    }
-
-    /**
-     * NEW: Check if Google Fit permissions are granted
-     */
-    fun hasGoogleFitPermissions(): Boolean {
-        return googleFitManager.hasPermissions()
-    }
-
-    /**
-     * NEW: Handle Google Fit permission granted
-     */
-    fun onGoogleFitPermissionGranted() {
-        syncFromGoogleFit()
     }
 
     /**
@@ -166,6 +142,8 @@ class HealthMetricsViewModel @Inject constructor(
         IDLE,
         SYNCING,
         SUCCESS,
-        ERROR
+        ERROR,
+        SENSOR_TRACKING,
+        MANUAL_ONLY
     }
 }

@@ -1,4 +1,4 @@
-package com.example.health_assistant.features.prescriptions
+package com.example.health_assistant.features.prescriptions.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -18,12 +18,17 @@ import javax.inject.Inject
 @HiltViewModel
 class PrescriptionsViewModel @Inject constructor(
     private val prescriptionRepository: PrescriptionRepository,
-    private val sessionManager: SessionManager
+    private val sessionManager: SessionManager,
+    private val categoryManager: com.example.health_assistant.data.manager.CategoryManager
 ) : ViewModel() {
 
     // Search query for filtering prescriptions
     private val _searchQuery = MutableStateFlow("")
     val searchQuery: StateFlow<String> = _searchQuery.asStateFlow()
+
+    // Simple category filter - just a string, not complex sets
+    private val _currentCategoryFilter = MutableStateFlow("All Categories")
+    val currentCategoryFilter: StateFlow<String> = _currentCategoryFilter.asStateFlow()
 
     // UI state for loading, empty states, etc.
     private val _uiState = MutableStateFlow(PrescriptionsUiState())
@@ -36,18 +41,16 @@ class PrescriptionsViewModel @Inject constructor(
     private val currentUserId: String
         get() = sessionManager.getCurrentUserId() ?: ""
 
-    // Combined flow of prescriptions with search filtering - simplified for grid layout
+    // Simple combined flow - much easier to understand
     val prescriptions: StateFlow<List<Prescription>> = combine(
         _allPrescriptions,
-        _searchQuery
-    ) { prescriptions, query ->
-        val filteredPrescriptions = if (query.isBlank()) {
-            prescriptions
-        } else {
-            searchByDoctorName(prescriptions, query)
-        }
+        _searchQuery,
+        _currentCategoryFilter
+    ) { prescriptions, query, categoryFilter ->
+        // Simple filtering logic that extends your existing search
+        val filteredPrescriptions = searchPrescriptions(prescriptions, query, categoryFilter)
 
-        // Return prescriptions sorted by date (newest first) - no grouping needed for grid
+        // Return prescriptions sorted by date (newest first)
         filteredPrescriptions.sortedByDescending { it.dateAdded }
     }.stateIn(
         scope = viewModelScope,
@@ -70,16 +73,22 @@ class PrescriptionsViewModel @Inject constructor(
             if (userId.isNotEmpty()) {
                 updateUiState { copy(isLoading = true) }
 
-                prescriptionRepository.getAllPrescriptions(userId).collect { result ->
+                prescriptionRepository.getAllPrescriptions().collect { result ->
                     when (result) {
                         is Result.Success -> {
                             android.util.Log.d("PrescriptionsViewModel", "Loaded ${result.data.size} prescriptions")
-                            _allPrescriptions.value = result.data
+                            // Filter prescriptions by current user if userId is set in prescription
+                            val userPrescriptions = if (userId.isNotEmpty()) {
+                                result.data.filter { it.userId == userId || it.userId.isNullOrEmpty() }
+                            } else {
+                                result.data
+                            }
+                            _allPrescriptions.value = userPrescriptions
                             updateUiState {
                                 copy(
                                     isLoading = false,
                                     errorMessage = null,
-                                    isEmpty = result.data.isEmpty()
+                                    isEmpty = userPrescriptions.isEmpty()
                                 )
                             }
                         }
@@ -124,7 +133,7 @@ class PrescriptionsViewModel @Inject constructor(
         viewModelScope.launch {
             updateUiState { copy(isLoading = true) }
 
-            val result = prescriptionRepository.deletePrescription(prescriptionId)
+            val result = prescriptionRepository.deletePrescription(prescriptionId.toLong())
             when (result) {
                 is Result.Success -> {
                     updateUiState {
@@ -160,7 +169,7 @@ class PrescriptionsViewModel @Inject constructor(
      * Get prescription by ID - Fixed return type and error handling
      */
     suspend fun getPrescriptionById(prescriptionId: String): Prescription? {
-        return when (val result = prescriptionRepository.getPrescriptionById(prescriptionId)) {
+        return when (val result = prescriptionRepository.getPrescriptionById(prescriptionId.toLong())) {
             is Result.Success -> result.data
             is Result.Error -> null
             is Result.Loading -> null
@@ -200,6 +209,52 @@ class PrescriptionsViewModel @Inject constructor(
     }
 
     /**
+     * Update current category filter
+     */
+    fun updateCategoryFilter(category: String) {
+        _currentCategoryFilter.value = category
+    }
+
+    /**
+     * Clear category filter
+     */
+    fun clearCategoryFilter() {
+        _currentCategoryFilter.value = "All Categories"
+    }
+
+    /**
+     * Simplified search function - just filters by query and category
+     */
+    private fun searchPrescriptions(
+        prescriptions: List<Prescription>,
+        query: String,
+        categoryFilter: String
+    ): List<Prescription> {
+        return prescriptions.filter { prescription ->
+            // Text search across multiple fields
+            val matchesQuery = query.isBlank() ||
+                prescription.medicationName.contains(query, ignoreCase = true) ||
+                prescription.doctorName?.contains(query, ignoreCase = true) == true ||
+                prescription.instructions?.contains(query, ignoreCase = true) == true ||
+                prescription.notes?.contains(query, ignoreCase = true) == true ||
+                prescription.frequency.contains(query, ignoreCase = true)
+
+            // Simple category filter - matches if category is "All Categories" or if it matches the prescription's category
+            val matchesCategory = categoryFilter == "All Categories" ||
+                prescription.categoryId?.toString() == categoryFilter
+
+            matchesQuery && matchesCategory
+        }
+    }
+
+    /**
+     * Helper function to update UI state
+     */
+    private fun updateUiState(update: PrescriptionsUiState.() -> PrescriptionsUiState) {
+        _uiState.value = _uiState.value.update()
+    }
+
+    /**
      * Clear error message
      */
     fun clearErrorMessage() {
@@ -211,22 +266,6 @@ class PrescriptionsViewModel @Inject constructor(
      */
     fun clearSuccessMessage() {
         updateUiState { copy(successMessage = null) }
-    }
-
-    /**
-     * Search prescriptions by doctor name
-     */
-    private fun searchByDoctorName(prescriptions: List<Prescription>, query: String): List<Prescription> {
-        return prescriptions.filter { prescription ->
-            prescription.doctorName.contains(query, ignoreCase = true)
-        }
-    }
-
-    /**
-     * Helper function to update UI state
-     */
-    private fun updateUiState(update: PrescriptionsUiState.() -> PrescriptionsUiState) {
-        _uiState.value = _uiState.value.update()
     }
 }
 

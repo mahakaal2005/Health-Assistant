@@ -2,7 +2,6 @@ package com.example.health_assistant.data.repository.impl
 
 import android.util.Log
 import com.example.health_assistant.core.util.Result
-import com.example.health_assistant.data.fitness.GoogleFitManager
 import com.example.health_assistant.data.health.EnhancedHealthTracker
 import com.example.health_assistant.data.repository.interfaces.HealthRepository
 import com.example.health_assistant.features.health.model.HealthMetrics
@@ -21,12 +20,11 @@ import javax.inject.Singleton
 
 /**
  * Implementation of HealthRepository that manages health metrics data
- * Now integrated with Google Fit API for real health data
+ * Uses local device sensors for health data tracking
  */
 @Singleton
 class HealthRepositoryImpl @Inject constructor(
-    private val googleFitManager: GoogleFitManager,
-    private val enhancedHealthTracker: EnhancedHealthTracker // NEW: Enhanced tracker that works without Google Fit app
+    private val enhancedHealthTracker: EnhancedHealthTracker
 ) : HealthRepository {
 
     // Define getCurrentDate() method first to avoid initialization order issues
@@ -140,7 +138,8 @@ class HealthRepositoryImpl @Inject constructor(
 
     override suspend fun syncHealthData(): Result<Unit> {
         return try {
-            val syncResult = syncTodayMetricsFromGoogleFit()
+            // Use enhanced tracker instead of Google Fit
+            val syncResult = syncTodayMetricsFromEnhancedTracker()
             when (syncResult) {
                 is Result.Success -> Result.Success(Unit)
                 is Result.Error -> Result.Error(syncResult.exception, "Failed to sync health data: ${syncResult.message}")
@@ -148,50 +147,6 @@ class HealthRepositoryImpl @Inject constructor(
             }
         } catch (e: Exception) {
             Result.Error(e, "Failed to sync health data")
-        }
-    }
-
-    override suspend fun syncTodayMetricsFromGoogleFit(): Result<HealthMetrics> {
-        return try {
-            Log.d("HealthRepository", "Starting Google Fit sync...")
-
-            // Check if Google Fit permissions are available
-            if (!googleFitManager.hasPermissions()) {
-                return Result.Error(null, "Google Fit permissions not granted")
-            }
-
-            // Fetch data from Google Fit
-            val steps = googleFitManager.getTodaySteps()
-            val calories = googleFitManager.getTodayCalories()
-            val heartPoints = googleFitManager.getTodayHeartPoints()
-
-            Log.d("HealthRepository", "Google Fit data - Steps: $steps, Calories: $calories, Heart Points: $heartPoints")
-
-            // Create updated health metrics
-            val currentDate = getCurrentDate()
-            val existingMetrics = _healthMetricsMap.value[currentDate] ?: HealthMetrics()
-
-            val updatedMetrics = HealthMetrics(
-                steps = HealthMetric(steps, existingMetrics.steps.target),
-                calories = HealthMetric(calories, existingMetrics.calories.target),
-                heartPoints = HealthMetric(heartPoints, existingMetrics.heartPoints.target)
-            )
-
-            // Save the updated metrics
-            val saveResult = saveDailyHealthMetrics(updatedMetrics)
-
-            when (saveResult) {
-                is Result.Success -> {
-                    Log.d("HealthRepository", "Successfully synced and saved Google Fit data")
-                    Result.Success(updatedMetrics)
-                }
-                is Result.Error -> Result.Error(saveResult.exception, "Failed to save synced data: ${saveResult.message}")
-                is Result.Loading -> Result.Success(updatedMetrics)
-            }
-
-        } catch (e: Exception) {
-            Log.e("HealthRepository", "Error syncing from Google Fit", e)
-            Result.Error(e, "Failed to sync from Google Fit: ${e.message}")
         }
     }
 
@@ -227,14 +182,32 @@ class HealthRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun getTodayMetrics(): HealthMetrics? {
-        return _healthMetricsMap.value[getCurrentDate()]
+    override suspend fun getTodayMetrics(): Result<HealthMetrics> {
+        return try {
+            val metrics = _healthMetricsMap.value[getCurrentDate()]
+            if (metrics != null) {
+                Result.Success(metrics)
+            } else {
+                // If no metrics exist, try to get from enhanced tracker
+                syncTodayMetricsFromEnhancedTracker()
+            }
+        } catch (e: Exception) {
+            Result.Error(e, "Failed to get today's metrics")
+        }
     }
 
     override suspend fun getWeeklyTrends(): List<HealthMetrics> {
         // For now, return current day's metrics
         // TODO: Implement when Room database is integrated for historical data
-        val todayMetrics = getTodayMetrics()
-        return if (todayMetrics != null) listOf(todayMetrics) else emptyList()
+        return try {
+            val todayResult = getTodayMetrics()
+            when (todayResult) {
+                is Result.Success -> listOf(todayResult.data)
+                is Result.Error -> emptyList()
+                is Result.Loading -> emptyList()
+            }
+        } catch (e: Exception) {
+            emptyList()
+        }
     }
 }

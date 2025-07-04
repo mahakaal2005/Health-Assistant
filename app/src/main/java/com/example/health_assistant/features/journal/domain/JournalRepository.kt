@@ -1,20 +1,32 @@
 package com.example.health_assistant.features.journal.domain
 
-import com.example.health_assistant.features.journal.data.JournalEntryDao
-import com.example.health_assistant.features.journal.data.JournalEntryEntity
 import kotlinx.coroutines.flow.Flow
-import javax.inject.Inject
 
-class JournalRepository @Inject constructor(
-    private val dao: JournalEntryDao
-) {
-    fun getAllEntries(): Flow<List<JournalEntryEntity>> = dao.getAllEntries()
-    fun getEntriesByType(type: String): Flow<List<JournalEntryEntity>> = dao.getEntriesByType(type)
-    fun getEntriesByTypes(types: List<String>): Flow<List<JournalEntryEntity>> = dao.getEntriesByTypes(types)
-    fun getEntriesByDateRange(start: Long, end: Long): Flow<List<JournalEntryEntity>> = dao.getEntriesByDateRange(start, end)
-    fun searchEntries(query: String): Flow<List<JournalEntryEntity>> = dao.searchEntries(query)
-    suspend fun insert(entry: JournalEntryEntity) = dao.insert(entry)
-    suspend fun update(entry: JournalEntryEntity) = dao.update(entry)
-    suspend fun delete(entry: JournalEntryEntity) = dao.delete(entry)
-    suspend fun clearAll() = dao.clearAll()
+/**
+ * Repository interface for journal entries
+ * Defines the contract for journal data operations
+ */
+interface JournalRepository {
+
+    fun getAllEntries(): Flow<List<JournalEntry>>
+
+    fun getEntriesByType(type: String): Flow<List<JournalEntry>>
+
+    fun getEntriesByDateRange(startTime: Long, endTime: Long): Flow<List<JournalEntry>>
+
+    fun getRecentEntries(limit: Int): Flow<List<JournalEntry>>
+
+    suspend fun getEntryById(id: Long): JournalEntry?
+
+    suspend fun insertEntry(entry: JournalEntry): Long
+
+    suspend fun updateEntry(entry: JournalEntry)
+
+    suspend fun deleteEntry(entry: JournalEntry)
+
+    suspend fun deleteEntryById(id: Long)
+
+    suspend fun getAllTypes(): List<String>
+
+    suspend fun getEntryCount(): Int
 }

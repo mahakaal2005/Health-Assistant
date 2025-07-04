@@ -2,37 +2,28 @@ package com.example.health_assistant.features.journal.data
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import androidx.room.TypeConverters
-import com.example.health_assistant.data.local.database.Converters
 
+/**
+ * Entity class for journal entries in the database
+ * Uses a flexible structure to store different types of journal entries
+ */
 @Entity(tableName = "journal_entries")
-@TypeConverters(Converters::class)
 data class JournalEntryEntity(
     @PrimaryKey(autoGenerate = true)
     val id: Long = 0,
-    val type: String = "journal",
-    val timestamp: Long = System.currentTimeMillis(),
-    val content: String = "",
-    val moodLevel: Int = 0,
-    val emoji: String = "",
-    val description: String = "",
-    val activityType: String? = null,
-    val duration: Int? = null,
-    val summary: String? = null,
-    val goalTitle: String? = null,
-    val progress: Float? = null,
-    val measurementType: String? = null,
-    val value: Float? = null,
-    val unit: String? = null,
-    val previousValue: Float? = null,
-    val state: String? = null,
-    val systolic: Int? = null,
-    val diastolic: Int? = null,
-    val steps: Int? = null,
-    val stepGoal: Int? = null,
-    val activeMinutes: Int? = null,
-    val activeMinutesGoal: Int? = null,
-    val calories: Int? = null,
-    val caloriesGoal: Int? = null,
-    val distance: Float? = null
+    val timestamp: Long,
+    val type: String, // "mood", "heart_rate", "blood_pressure", "workout", "weight", "sleep", "note"
+
+    // Flexible fields that can be used for different entry types
+    val title: String? = null,        // Used for descriptions, activity types, etc.
+    val content: String? = null,      // Used for notes, measurements, etc.
+    val description: String? = null,  // Used for additional details
+
+    // Numeric fields for health measurements
+    val moodLevel: Int? = null,       // 1-5 for mood entries
+    val numericValue1: Double? = null, // Used for weight, bpm, systolic pressure, duration
+    val numericValue2: Double? = null, // Used for diastolic pressure, sleep quality
+    val unit: String? = null,         // Unit of measurement
+    val emoji: String? = null,        // For mood entries
+    val state: String? = null         // For context like "resting", "active"
 )

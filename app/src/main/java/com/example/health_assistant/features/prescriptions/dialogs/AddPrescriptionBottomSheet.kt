@@ -54,9 +54,12 @@ class AddPrescriptionBottomSheet : BottomSheetDialogFragment() {
     @Inject
     lateinit var sessionManager: SessionManager
 
+    @Inject
+    lateinit var categoryManager: com.example.health_assistant.data.manager.CategoryManager
+
     private lateinit var cameraManager: CameraManager
     private var capturedImageUri: Uri? = null
-    private var selectedCategory: DiseaseCategory? = null
+    private var selectedCategory: String? = null
 
     // Camera permission launcher
     private val cameraPermissionLauncher = registerForActivityResult(
@@ -194,18 +197,63 @@ class AddPrescriptionBottomSheet : BottomSheetDialogFragment() {
     }
 
     private fun setupCategoryDropdown() {
-        val categories = DiseaseCategory.getDefaultCategories()
-        val adapter = ArrayAdapter(
+        // Get categories from the dynamic CategoryManager
+        val categories = categoryManager.getCategoriesForDropdown()
+
+        val adapter = ArrayAdapter<String>(
             requireContext(),
             android.R.layout.simple_dropdown_item_1line,
-            categories.map { it.displayName }
+            categories
         )
 
         binding.diseaseCategoryDropdown.setAdapter(adapter)
         binding.diseaseCategoryDropdown.setOnItemClickListener { _, _, position, _ ->
-            selectedCategory = categories[position]
-            validateForm()
+            val selectedCategoryName = categories[position]
+
+            if (selectedCategoryName == "➕ Add Custom Category...") {
+                // Show custom category input dialog
+                showCustomCategoryDialog()
+            } else {
+                // Regular category selection
+                selectedCategory = selectedCategoryName
+                validateForm()
+            }
         }
+    }
+
+    /**
+     * Show dialog for adding custom category
+     */
+    private fun showCustomCategoryDialog() {
+        val editText = android.widget.EditText(requireContext())
+        editText.hint = "Enter category name"
+
+        androidx.appcompat.app.AlertDialog.Builder(requireContext())
+            .setTitle("Add Custom Category")
+            .setMessage("Enter a new category name for your prescription:")
+            .setView(editText)
+            .setPositiveButton("Add") { _, _ ->
+                val customCategory = editText.text.toString().trim()
+                if (customCategory.isNotBlank()) {
+                    val added = categoryManager.addCustomCategory(customCategory)
+                    if (added) {
+                        selectedCategory = customCategory
+                        binding.diseaseCategoryDropdown.setText(customCategory, false)
+
+                        // Refresh the dropdown with new category
+                        setupCategoryDropdown()
+                        validateForm()
+
+                        showSuccess("Category '$customCategory' added successfully!")
+                    } else {
+                        showError("Category already exists or invalid name")
+                    }
+                } else {
+                    showError("Please enter a valid category name")
+                }
+            }
+            .setNegativeButton("Cancel", null)
+            .show()
     }
 
     private fun setupClickListeners() {
@@ -345,20 +393,15 @@ class AddPrescriptionBottomSheet : BottomSheetDialogFragment() {
         val hasPhoto = capturedImageUri != null
         val hasCategory = selectedCategory != null
 
-        val validationResult = PrescriptionUtils.validatePrescription(
-            doctorName = doctorName,
-            diseaseCategory = selectedCategory,
-            imageUri = capturedImageUri?.toString()
-        )
-
-        binding.saveButton.isEnabled = validationResult is PrescriptionValidationResult.Valid
+        // Simple validation - just check if required fields are filled
+        binding.saveButton.isEnabled = doctorName.isNotBlank() && hasPhoto && hasCategory
     }
 
     private fun savePrescription() {
         val doctorName = binding.doctorNameEditText.text?.toString()?.trim() ?: ""
         val notes = binding.notesEditText.text?.toString()?.trim()
         val imageUri = capturedImageUri ?: return
-        val category = selectedCategory ?: return
+        val categoryName = selectedCategory ?: return
 
         lifecycleScope.launch {
             try {
@@ -369,42 +412,28 @@ class AddPrescriptionBottomSheet : BottomSheetDialogFragment() {
                     return@launch
                 }
 
-                // Check if category exists, if not, seed the default categories
-                val categoryExists = prescriptionRepository.categoryExists(category.id)
-                if (!categoryExists) {
-                    try {
-                        // Initialize default categories if they don't exist
-                        val initResult = prescriptionRepository.initializeDefaultCategories()
-                        if (initResult is Result.Error) {
-                            showError("Error initializing categories: ${initResult.message}")
-                            return@launch
-                        }
-
-                        // Verify the category exists now
-                        val categoryExistsNow = prescriptionRepository.categoryExists(category.id)
-                        if (!categoryExistsNow) {
-                            showError("Failed to initialize categories. Please try again.")
-                            return@launch
-                        }
-                    } catch (e: Exception) {
-                        showError("Error initializing categories: ${e.message}")
-                        return@launch
-                    }
-                }
-
                 // Save and compress image
                 val result = fileManager.saveAndCompressImage(imageUri)
 
                 if (result.isSuccess) {
                     val savedPath = result.getOrNull() ?: ""
-                    // Create prescription object with valid user ID and category ID
-                    val prescription = PrescriptionUtils.createPrescription(
-                        imageUri = imageUri.toString(),
-                        localImagePath = savedPath,
+
+                    // Create prescription object using simplified approach
+                    val prescription = com.example.health_assistant.data.model.Prescription(
+                        medicationName = "Medication", // Default or prompt user for this
+                        dosage = "As prescribed", // Default or prompt user for this
+                        frequency = "Daily", // Default or prompt user for this
+                        startDate = java.util.Date(),
+                        endDate = null,
+                        instructions = notes,
                         doctorName = doctorName,
-                        diseaseCategory = category,
-                        notes = notes?.takeIf { it.isNotBlank() },
-                        userId = currentUserId // Use actual user ID from session
+                        isActive = true,
+                        userId = currentUserId,
+                        categoryId = categoryName.hashCode().toLong(), // Keep for backwards compatibility
+                        displayName = categoryName, // Store the actual category name in displayName field
+                        notes = notes,
+                        imageUri = imageUri.toString(),
+                        localImagePath = savedPath
                     )
 
                     // Save to repository
@@ -416,7 +445,7 @@ class AddPrescriptionBottomSheet : BottomSheetDialogFragment() {
                             bundleOf("success" to true)
                         )
 
-                        showSuccess(getString(R.string.prescription_saved_successfully))
+                        showSuccess("Prescription saved successfully")
                         dismiss()
                     } else {
                         val errorMessage = if (saveResult is Result.Error) {

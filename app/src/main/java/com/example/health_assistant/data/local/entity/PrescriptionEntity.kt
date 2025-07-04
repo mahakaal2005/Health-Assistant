@@ -2,46 +2,31 @@ package com.example.health_assistant.data.local.entity
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import androidx.room.ForeignKey
-import androidx.room.Index
 
 /**
- * Room entity for storing prescriptions locally
- * Ensures prescriptions persist across app sessions with full metadata
+ * Entity for prescription data in the database
+ * Stores prescription information including images and metadata
  */
-@Entity(
-    tableName = "prescriptions",
-    foreignKeys = [
-        ForeignKey(
-            entity = DiseaseCategoryEntity::class,
-            parentColumns = ["id"],
-            childColumns = ["categoryId"],
-            onDelete = ForeignKey.CASCADE // Changed from SET_DEFAULT to CASCADE
-        )
-    ],
-    indices = [
-        Index(value = ["categoryId"]),
-        Index(value = ["userId"]),
-        Index(value = ["doctorName"]),
-        Index(value = ["dateAdded"])
-    ]
-)
+@Entity(tableName = "prescriptions")
 data class PrescriptionEntity(
-    @PrimaryKey
-    val id: String,
-    val userId: String,                    // User who owns this prescription
-    val imageUri: String,                  // Original image URI from camera/gallery
-    val localImagePath: String,            // Local file path in app storage
-    val doctorName: String,                // Prescribing doctor's name
-    val categoryId: String,                // Foreign key to disease category
-    val notes: String? = null,             // Optional user notes
-    val fileName: String,                  // Generated image filename
-    val mimeType: String?,                 // Image MIME type
-    val fileSize: Long,                    // Image file size in bytes
-    val imageWidth: Int? = null,           // Image width in pixels
-    val imageHeight: Int? = null,          // Image height in pixels
-    val dateAdded: Long,                   // When prescription was added (timestamp)
-    val dateModified: Long,                // When prescription was last modified (timestamp)
-    val createdAt: Long = System.currentTimeMillis(),
-    val updatedAt: Long = System.currentTimeMillis()
+    @PrimaryKey(autoGenerate = true)
+    val id: Long = 0,
+    val name: String,
+    val doctorName: String = "",
+    val dosage: String = "",
+    val frequency: String = "", // e.g., "2 times daily"
+    val duration: String = "", // e.g., "7 days"
+    val instructions: String = "",
+    val imagePath: String? = null, // Path to prescription image
+    val dateCreated: Long = System.currentTimeMillis(),
+    val dateModified: Long = System.currentTimeMillis(),
+    val isActive: Boolean = true, // Whether prescription is currently active
+    val reminderEnabled: Boolean = false,
+    val reminderTimes: String = "", // JSON string of reminder times
+    val notes: String = "",
+    val diseaseCategory: String = "", // Related disease category
+    val startDate: Long? = null, // When to start taking medication
+    val endDate: Long? = null, // When to stop taking medication
+    val pillCount: Int? = null, // Number of pills remaining
+    val refillReminder: Boolean = false
 )

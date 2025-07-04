@@ -79,10 +79,18 @@
     <color name="bottom_nav_item_color">@color/colorPrimary</color>
     <color name="bottom_nav_item_color_inactive">#9E9E9E</color>
 
-    <!-- Input Field Colors -->
-    <color name="text_input_background">@color/white</color>
-    <color name="text_input_box_stroke">#E0E0E0</color>
-    <color name="text_input_box_stroke_default">#BDBDBD</color>
+    <!-- Journal Fragment Specific Colors -->
+    <color name="card_background_translucent">#40FFFFFF</color>
+    <color name="fab_background_gradient">@color/colorPrimary</color>
+
+    <!-- Chip Background Selector Colors -->
+    <color name="chip_background_selected">#80FFFFFF</color>
+    <color name="chip_background_unselected">#20FFFFFF</color>
+
+    <!-- Text Input Colors -->
+    <color name="text_input_background">#F5F5F5</color>
+    <color name="text_input_box_stroke">@color/colorPrimary</color>
+    <color name="text_input_box_stroke_default">#E0E0E0</color>
 
 
     <!-- Dashboard Colors -->

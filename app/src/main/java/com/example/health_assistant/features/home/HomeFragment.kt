@@ -26,7 +26,6 @@ import com.example.health_assistant.R
 import com.example.health_assistant.auth.session.SessionManager
 import com.example.health_assistant.core.performance.FragmentPerformanceManager
 import com.example.health_assistant.core.util.Result
-import com.example.health_assistant.data.fitness.GoogleFitManager
 import com.example.health_assistant.data.repository.interfaces.UserProfileRepository
 import com.example.health_assistant.databinding.FragmentHomeBinding
 import com.example.health_assistant.features.health.model.HealthMetrics
@@ -48,7 +47,7 @@ import javax.inject.Inject
 /**
  * Premium Home Fragment featuring a modern interface with personalized greeting,
  * health summary, quick actions, and wellness insights.
- * Now includes Google Fit API integration for real-time health data.
+ * Uses local device sensors for health data tracking.
  * Follows premium UI/UX design principles from top health apps.
  */
 @AndroidEntryPoint
@@ -67,9 +66,6 @@ class HomeFragment : Fragment() {
     @Inject
     lateinit var userProfileRepository: UserProfileRepository
 
-    // NEW: Inject GoogleFitManager for permission handling
-    @Inject
-    lateinit var googleFitManager: GoogleFitManager
 
     // NEW: Inject FragmentPerformanceManager for smooth transitions
     @Inject
@@ -123,8 +119,8 @@ class HomeFragment : Fragment() {
                 .putBoolean(KEY_GOOGLE_FIT_MAYBE_LATER, false)
                 .apply()
 
-            // Immediate sync
-            healthMetricsViewModel.syncFromGoogleFit()
+            // Immediate sync using device sensors only
+            healthMetricsViewModel.refreshMetrics()
 
             // Set up periodic refresh
             setupPeriodicHealthDataRefresh()
@@ -144,10 +140,10 @@ class HomeFragment : Fragment() {
 
     // NEW: Set up periodic health data refresh
     private fun setupPeriodicHealthDataRefresh() {
-        // Refresh health data every 30 seconds to show real-time updates
+        // Refresh health data every 30 seconds using device sensors only
         view?.postDelayed({
-            if (isAdded && googleFitManager.hasPermissions()) {
-                healthMetricsViewModel.syncFromGoogleFit()
+            if (isAdded) {
+                healthMetricsViewModel.refreshMetrics()
                 setupPeriodicHealthDataRefresh() // Schedule next refresh
             }
         }, 30000) // 30 seconds
@@ -195,7 +191,7 @@ class HomeFragment : Fragment() {
         Log.d("HomeFragment", "Setting up sensor-based health tracking (no Google Fit app required)")
 
         // Start with device sensors immediately - works without Google Fit!
-        healthMetricsViewModel.syncFromDeviceSensors()
+        healthMetricsViewModel.refreshMetrics()
 
         // Only show Google Fit dialog if user wants ENHANCED accuracy
         val sharedPrefs = requireActivity().getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
@@ -272,7 +268,7 @@ class HomeFragment : Fragment() {
         MaterialAlertDialogBuilder(requireContext())
             .setTitle("About Automatic Health Tracking")
             .setMessage("""
-                ✅ No additional apps required
+                ��� No additional apps required
                 ✅ Uses your phone's built-in sensors
                 ✅ More accurate than manual entry
                 ✅ Works in background without draining battery
@@ -292,19 +288,20 @@ class HomeFragment : Fragment() {
     // NEW: Request Google Fit permissions using the modern approach
     private fun requestGoogleFitPermissions() {
         try {
-            Log.d("HomeFragment", "Requesting Google Fit permissions...")
+            Log.d("HomeFragment", "Starting device sensor tracking...")
 
             // Add debug info
-            showDebugInfo("Requesting Google Fit permissions...")
+            showDebugInfo("Starting device sensor tracking...")
 
-            // Use the GoogleFitManager to request permissions
-            googleFitManager.requestPermissions(requireActivity())
+            // Use device sensors instead of Google Fit
+            healthMetricsViewModel.refreshMetrics()
 
-            // Note: The result will be handled by onActivityResult or the ActivityResultLauncher
+            // Show success message
+            showSuccess("✅ Device sensor tracking enabled!")
 
         } catch (e: Exception) {
-            Log.e("HomeFragment", "Error requesting Google Fit permissions", e)
-            showError("Failed to connect to Google Fit: ${e.message}")
+            Log.e("HomeFragment", "Error starting device sensor tracking", e)
+            showError("Failed to start health tracking: ${e.message}")
         }
     }
 
@@ -379,6 +376,14 @@ class HomeFragment : Fragment() {
                 HealthMetricsViewModel.SyncStatus.IDLE -> {
                     hideSyncIndicators()
                 }
+                HealthMetricsViewModel.SyncStatus.SENSOR_TRACKING -> {
+                    // Device sensors are actively tracking - show status
+                    showSuccess("📱 Device sensors tracking enabled")
+                }
+                HealthMetricsViewModel.SyncStatus.MANUAL_ONLY -> {
+                    // Only manual entry available - show guidance
+                    showManualEntryOption()
+                }
             }
         }
 
@@ -414,7 +419,7 @@ class HomeFragment : Fragment() {
             "⚠️ Sync failed. Tap to retry.",
             Snackbar.LENGTH_LONG
         ).setAction("Retry") {
-            healthMetricsViewModel.syncFromGoogleFit()
+            healthMetricsViewModel.refreshMetrics()
         }.show()
     }
 

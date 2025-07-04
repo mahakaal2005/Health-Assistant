@@ -7,7 +7,7 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.example.health_assistant.R
-import com.example.health_assistant.features.journal.data.JournalEntryEntity
+import com.example.health_assistant.features.journal.domain.JournalEntry
 import com.example.health_assistant.databinding.ItemJournalEntryBinding
 import java.text.SimpleDateFormat
 import java.util.*
@@ -17,9 +17,9 @@ import java.util.*
  * Handles the rendering of different entry types.
  */
 class JournalAdapter(
-    private val onEdit: (JournalEntryEntity) -> Unit,
-    private val onDelete: (JournalEntryEntity) -> Unit
-) : ListAdapter<JournalEntryEntity, JournalAdapter.JournalViewHolder>(DiffCallback) {
+    private val onEdit: (JournalEntry) -> Unit,
+    private val onDelete: (JournalEntry) -> Unit
+) : ListAdapter<JournalEntry, JournalAdapter.JournalViewHolder>(DiffCallback) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): JournalViewHolder {
         val binding = ItemJournalEntryBinding.inflate(LayoutInflater.from(parent.context), parent, false)
@@ -50,96 +50,105 @@ class JournalAdapter(
             }
         }
 
-        fun bind(entry: JournalEntryEntity) {
+        fun bind(entry: JournalEntry) {
             val context = binding.root.context
 
             // Format date with locale
-            val dateFormat = SimpleDateFormat("MMM dd, yyyy", Locale.getDefault())
+            val dateFormat = SimpleDateFormat("MMM dd, yyyy HH:mm", Locale.getDefault())
             binding.entryDate.text = dateFormat.format(Date(entry.timestamp))
 
-            when (entry.type) {
-                "workout" -> {
-                    binding.entryIcon.setImageResource(R.drawable.ic_workout)
-                    binding.entryIcon.setColorFilter(context.getColor(R.color.colorWorkout))
-                    binding.entryTitle.text = context.getString(R.string.journal_entry_workout_title, entry.activityType)
-                    binding.entrySummary.text = entry.summary
-                    binding.entrySummary.visibility = View.VISIBLE
+            // CRITICAL FIX: Ensure all views are visible and properly bound
+            binding.entryTitle.visibility = View.VISIBLE
+            binding.entryDescription.visibility = View.VISIBLE
+            binding.entryType.visibility = View.VISIBLE
+            binding.entryIcon.visibility = View.VISIBLE
+
+            when (entry) {
+                is JournalEntry.Workout -> {
+                    // Use built-in Android icons as fallback
+                    binding.entryIcon.setImageResource(android.R.drawable.ic_menu_mylocation)
+                    binding.entryIcon.setColorFilter(context.getColor(android.R.color.holo_orange_dark))
+                    binding.entryTitle.text = "Workout: ${entry.activityType}"
+                    binding.entryDescription.text = entry.summary
+                    binding.entryType.text = "ACTIVITY"
+                    binding.entrySummary.visibility = View.GONE
                 }
-                "note" -> {
-                    binding.entryIcon.setImageResource(R.drawable.ic_note)
-                    binding.entryIcon.setColorFilter(context.getColor(R.color.colorNote))
-                    binding.entryTitle.text = context.getString(R.string.journal_entry_note_title)
-                    binding.entrySummary.text = entry.content
-                    binding.entrySummary.visibility = View.VISIBLE
+                is JournalEntry.Generic -> {
+                    // CRITICAL FIX: Use built-in Android icon for notes
+                    binding.entryIcon.setImageResource(android.R.drawable.ic_menu_edit)
+                    binding.entryIcon.setColorFilter(context.getColor(android.R.color.holo_blue_dark))
+                    binding.entryTitle.text = "Personal Note"
+                    binding.entryDescription.text = entry.content
+                    binding.entryType.text = "NOTE"
+                    binding.entrySummary.visibility = View.GONE
                 }
-                "goal" -> {
-                    binding.entryIcon.setImageResource(R.drawable.ic_goal)
-                    binding.entryIcon.setColorFilter(context.getColor(R.color.colorGoal))
-                    binding.entryTitle.text = context.getString(R.string.journal_entry_goal_title, entry.goalTitle)
-                    binding.entrySummary.text = context.getString(R.string.journal_entry_goal_progress, entry.progress)
-                    binding.entrySummary.visibility = View.VISIBLE
+                is JournalEntry.Weight -> {
+                    binding.entryIcon.setImageResource(android.R.drawable.ic_menu_compass)
+                    binding.entryIcon.setColorFilter(context.getColor(android.R.color.holo_green_dark))
+                    binding.entryTitle.text = "Weight Measurement"
+                    binding.entryDescription.text = "${entry.weight} ${entry.unit}"
+                    binding.entryType.text = "HEALTH"
+                    if (entry.note.isNotEmpty()) {
+                        binding.entrySummary.text = entry.note
+                        binding.entrySummary.visibility = View.VISIBLE
+                    } else {
+                        binding.entrySummary.visibility = View.GONE
+                    }
                 }
-                "measurement" -> {
-                    binding.entryIcon.setImageResource(R.drawable.ic_measurement)
-                    binding.entryIcon.setColorFilter(context.getColor(R.color.colorMeasurement))
-                    binding.entryTitle.text = entry.measurementType
-                    binding.entrySummary.text = context.getString(R.string.journal_entry_measurement_summary, entry.value, entry.unit)
-                    binding.entrySummary.visibility = View.VISIBLE
-                }
-                "weight" -> {
-                    binding.entryIcon.setImageResource(R.drawable.ic_weight)
-                    binding.entryIcon.setColorFilter(context.getColor(R.color.progress_green))
-                    binding.entryTitle.text = "Weight"
-                    val changeText = if (entry.previousValue != null) {
-                        val change = entry.value?.minus(entry.previousValue!!) ?: 0f
-                        val changeSymbol = if (change >= 0) "+" else ""
-                        " ($changeSymbol${String.format("%.1f", change)} ${entry.unit})"
-                    } else ""
-                    binding.entrySummary.text = "${entry.value} ${entry.unit}$changeText"
-                    binding.entrySummary.visibility = View.VISIBLE
-                }
-                "heart_rate" -> {
-                    binding.entryIcon.setImageResource(R.drawable.ic_heart_rate)
-                    binding.entryIcon.setColorFilter(context.getColor(R.color.colorError))
-                    binding.entryTitle.text = "Heart Rate"
-                    val stateText = entry.state?.let { " ($it)" } ?: ""
-                    binding.entrySummary.text = "${entry.value?.toInt()} BPM$stateText"
-                    binding.entrySummary.visibility = View.VISIBLE
-                }
-                "blood_pressure" -> {
-                    binding.entryIcon.setImageResource(R.drawable.ic_blood_pressure)
-                    binding.entryIcon.setColorFilter(context.getColor(R.color.colorError))
-                    binding.entryTitle.text = "Blood Pressure"
-                    binding.entrySummary.text = "${entry.systolic}/${entry.diastolic} mmHg"
-                    binding.entrySummary.visibility = View.VISIBLE
-                }
-                "activity_summary" -> {
-                    binding.entryIcon.setImageResource(R.drawable.ic_activity)
-                    binding.entryIcon.setColorFilter(context.getColor(R.color.progress_blue))
-                    binding.entryTitle.text = "Activity Summary"
-                    binding.entrySummary.text = "${entry.steps} steps, ${entry.activeMinutes} active min, ${entry.calories} cal"
-                    binding.entrySummary.visibility = View.VISIBLE
-                }
-                "mood" -> {
-                    binding.entryIcon.setImageResource(R.drawable.ic_mood)
-                    binding.entryIcon.setColorFilter(context.getColor(R.color.progress_orange))
+                is JournalEntry.Mood -> {
+                    binding.entryIcon.setImageResource(android.R.drawable.ic_menu_preferences)
+                    binding.entryIcon.setColorFilter(context.getColor(android.R.color.holo_blue_bright))
                     binding.entryTitle.text = "Mood: ${entry.emoji}"
-                    binding.entrySummary.text = entry.description ?: getMoodDescription(entry.moodLevel ?: 3)
-                    binding.entrySummary.visibility = View.VISIBLE
+                    binding.entryDescription.text = entry.description
+                    binding.entryType.text = "MOOD"
+                    if (entry.note.isNotEmpty()) {
+                        binding.entrySummary.text = entry.note
+                        binding.entrySummary.visibility = View.VISIBLE
+                    } else {
+                        binding.entrySummary.visibility = View.GONE
+                    }
+                }
+                is JournalEntry.HeartRate -> {
+                    binding.entryIcon.setImageResource(android.R.drawable.ic_menu_close_clear_cancel)
+                    binding.entryIcon.setColorFilter(context.getColor(android.R.color.holo_red_dark))
+                    binding.entryTitle.text = "Heart Rate"
+                    binding.entryDescription.text = "${entry.bpm} BPM (${entry.state})"
+                    binding.entryType.text = "HEALTH"
+                    if (entry.note.isNotEmpty()) {
+                        binding.entrySummary.text = entry.note
+                        binding.entrySummary.visibility = View.VISIBLE
+                    } else {
+                        binding.entrySummary.visibility = View.GONE
+                    }
+                }
+                is JournalEntry.BloodPressure -> {
+                    binding.entryIcon.setImageResource(android.R.drawable.ic_menu_info_details)
+                    binding.entryIcon.setColorFilter(context.getColor(android.R.color.holo_red_light))
+                    binding.entryTitle.text = "Blood Pressure"
+                    binding.entryDescription.text = "${entry.systolic}/${entry.diastolic} mmHg"
+                    binding.entryType.text = "HEALTH"
+                    if (entry.note.isNotEmpty()) {
+                        binding.entrySummary.text = entry.note
+                        binding.entrySummary.visibility = View.VISIBLE
+                    } else {
+                        binding.entrySummary.visibility = View.GONE
+                    }
                 }
                 else -> {
-                    binding.entryIcon.setImageResource(R.drawable.ic_note)
-                    binding.entryTitle.text = entry.type.replaceFirstChar { it.uppercase() }
-                    binding.entrySummary.text = entry.content ?: ""
-                    binding.entrySummary.visibility = if (entry.content.isNullOrBlank()) View.GONE else View.VISIBLE
+                    // CRITICAL FIX: Add fallback case for unknown entry types
+                    binding.entryIcon.setImageResource(android.R.drawable.ic_menu_agenda)
+                    binding.entryIcon.setColorFilter(context.getColor(android.R.color.darker_gray))
+                    binding.entryTitle.text = "Journal Entry"
+                    binding.entryDescription.text = "Unknown entry type"
+                    binding.entryType.text = "OTHER"
+                    binding.entrySummary.visibility = View.GONE
                 }
             }
 
-            // Set type label for accessibility
-            binding.entryType.text = entry.type.replaceFirstChar { it.uppercase() }
-
-            // Accessibility
-            binding.root.contentDescription = "${binding.entryTitle.text}, ${entry.type}, ${binding.entryDate.text}"
+            // Debug logging to verify data binding
+            android.util.Log.d("JournalAdapter", "Binding entry: ${entry.javaClass.simpleName}")
+            android.util.Log.d("JournalAdapter", "Title: ${binding.entryTitle.text}")
+            android.util.Log.d("JournalAdapter", "Description: ${binding.entryDescription.text}")
         }
 
         /**
@@ -157,11 +166,11 @@ class JournalAdapter(
         }
     }
 
-    companion object DiffCallback : DiffUtil.ItemCallback<JournalEntryEntity>() {
-        override fun areItemsTheSame(oldItem: JournalEntryEntity, newItem: JournalEntryEntity): Boolean =
+    companion object DiffCallback : DiffUtil.ItemCallback<JournalEntry>() {
+        override fun areItemsTheSame(oldItem: JournalEntry, newItem: JournalEntry): Boolean =
             oldItem.id == newItem.id
 
-        override fun areContentsTheSame(oldItem: JournalEntryEntity, newItem: JournalEntryEntity): Boolean =
+        override fun areContentsTheSame(oldItem: JournalEntry, newItem: JournalEntry): Boolean =
             oldItem == newItem
     }
 }

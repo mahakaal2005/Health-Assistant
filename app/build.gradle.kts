@@ -81,6 +81,11 @@ android {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
             excludes += "/META-INF/gradle/incremental.annotation.processors"
         }
+
+        // CRITICAL: 16 KB page size alignment for native libraries (modern approach)
+        jniLibs {
+            useLegacyPackaging = false
+        }
     }
 
     // CRITICAL: Android 15 lint configuration
@@ -89,6 +94,23 @@ android {
         checkReleaseBuilds = false
         abortOnError = false
     }
+
+    // CRITICAL: 16 KB page size support configuration using splits only
+    splits {
+        abi {
+            isEnable = true
+            reset()
+            include("arm64-v8a", "armeabi-v7a", "x86", "x86_64")
+            isUniversalApk = true  // Generate universal APK for compatibility
+        }
+    }
+
+    // CRITICAL: Force 16 KB page size alignment for all native libraries
+    androidComponents {
+        onVariants(selector().all()) { variant ->
+            variant.packaging.jniLibs.excludes.add("**/libimage_processing_util_jni.so")
+        }
+    }
 }
 
 tasks.withType<Test> {
@@ -96,6 +118,9 @@ tasks.withType<Test> {
 }
 
 dependencies {
+    implementation(libs.androidx.swiperefreshlayout)
+    // FIXED: Remove duplicate paging dependencies - only use Android version
+    implementation(libs.androidx.paging.common.android)
     // CRITICAL: Core library desugaring for Android 15 compatibility
     coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.0.4")
 
@@ -181,7 +206,6 @@ dependencies {
     testImplementation(libs.junit.jupiter.api)
     testRuntimeOnly(libs.junit.jupiter.engine)
     testImplementation(libs.turbine)
-    androidTestImplementation(libs.androidx.accessibility.test.framework)
 
     // Traditional Android View System dependencies (XML + Kotlin)
     implementation(libs.androidx.lifecycle.viewmodel.ktx)

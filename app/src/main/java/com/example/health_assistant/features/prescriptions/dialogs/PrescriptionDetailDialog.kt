@@ -20,7 +20,7 @@ import com.example.health_assistant.R
 import com.example.health_assistant.data.model.DiseaseCategory
 import com.example.health_assistant.data.model.Prescription
 import com.example.health_assistant.databinding.DialogPrescriptionDetailBinding
-import com.example.health_assistant.features.prescriptions.PrescriptionsViewModel
+import com.example.health_assistant.features.prescriptions.viewmodel.PrescriptionsViewModel
 import com.example.health_assistant.features.prescriptions.utils.PrescriptionUtils
 import com.example.health_assistant.utils.ImageZoomManager
 import com.google.android.material.snackbar.Snackbar
@@ -130,10 +130,10 @@ class PrescriptionDetailDialog : DialogFragment() {
     }
 
     private fun setupCategoryDropdown() {
-        val adapter = ArrayAdapter(
+        val adapter = ArrayAdapter<String>(
             requireContext(),
             android.R.layout.simple_dropdown_item_1line,
-            categories.map { it.displayName }
+            categories.map { it.name }
         )
         binding.categoryDropdown.setAdapter(adapter)
         binding.categoryDropdown.setOnItemClickListener { _, _, position, _ ->
@@ -487,7 +487,7 @@ class PrescriptionDetailDialog : DialogFragment() {
             // Set category dropdown selection
             val categoryIndex = categories.indexOfFirst { it.id == prescription.categoryId }
             if (categoryIndex >= 0) {
-                categoryDropdown.setText(categories[categoryIndex].displayName, false)
+                categoryDropdown.setText(categories[categoryIndex].name, false)
                 selectedCategory = categories[categoryIndex]
             }
         }
@@ -511,7 +511,7 @@ class PrescriptionDetailDialog : DialogFragment() {
                     doctorName = doctorName,
                     categoryId = category!!.id,
                     notes = notes?.takeIf { it.isNotBlank() },
-                    dateModified = System.currentTimeMillis()
+                    dateModified = java.util.Date(System.currentTimeMillis())
                 )
 
                 // Update prescription
@@ -578,8 +578,9 @@ class PrescriptionDetailDialog : DialogFragment() {
     private fun observeViewModel() {
         lifecycleScope.launch {
             viewModel.prescriptions.collect { prescriptions ->
-                // Find prescription by ID directly from the list
-                val prescription = prescriptions.find { it.id == prescriptionId }
+                // Find prescription by ID directly from the list - convert String to Long for comparison
+                val prescriptionIdLong = prescriptionId.toLongOrNull()
+                val prescription = prescriptions.find { it.id == prescriptionIdLong }
                 prescription?.let {
                     this@PrescriptionDetailDialog.prescription = it
                     displayPrescriptionDetails(it)
@@ -595,7 +596,7 @@ class PrescriptionDetailDialog : DialogFragment() {
     private fun displayPrescriptionDetails(prescription: Prescription) {
         binding.apply {
             // Load prescription image with error handling and make it clickable
-            prescriptionImageDetail.load(prescription.localImagePath) {
+            prescriptionImageDetail.load(prescription.localImagePath ?: "") {
                 placeholder(R.drawable.ic_prescription_placeholder)
                 error(R.drawable.ic_prescription_placeholder)
                 crossfade(true)
@@ -603,21 +604,21 @@ class PrescriptionDetailDialog : DialogFragment() {
 
             // Make image clickable to open zoom view
             prescriptionImageDetail.setOnClickListener {
-                openZoomableImage(prescription.localImagePath)
+                openZoomableImage(prescription.localImagePath ?: "")
             }
 
             // Set prescription details
             doctorNameDetail.text = prescription.doctorName
 
             // Get category by ID
-            val category = PrescriptionUtils.getCategoryById(prescription.categoryId)
-            diseaseCategoryDetailChip.text = category?.displayName ?: "Unknown Category"
+            val category = PrescriptionUtils.getCategoryById(prescription.categoryId?.toString() ?: "1")
+            diseaseCategoryDetailChip.text = category?.name ?: "Unknown Category"
 
-            dateAddedDetail.text = PrescriptionUtils.formatDate(prescription.dateAdded)
+            dateAddedDetail.text = PrescriptionUtils.formatDate(prescription.dateAdded.time)
 
             // Handle modified date
             if (prescription.dateModified != prescription.dateAdded) {
-                dateModifiedDetail.text = PrescriptionUtils.formatDate(prescription.dateModified)
+                dateModifiedDetail.text = PrescriptionUtils.formatDate(prescription.dateModified.time)
                 dateModifiedDetail.visibility = View.VISIBLE
             } else {
                 dateModifiedDetail.visibility = View.GONE
@@ -685,15 +686,16 @@ class PrescriptionDetailDialog : DialogFragment() {
     private fun sharePrescription() {
         lifecycleScope.launch {
             try {
-                // Find the current prescription
-                val prescription = viewModel.prescriptions.value.find { it.id == prescriptionId }
+                // Find the current prescription - convert String to Long for comparison
+                val prescriptionIdLong = prescriptionId.toLongOrNull()
+                val prescription = viewModel.prescriptions.value.find { it.id == prescriptionIdLong }
                 prescription?.let {
                     val shareText = buildString {
                         append("Prescription Details\n")
                         append("Doctor: ${it.doctorName}\n")
-                        append("Date: ${PrescriptionUtils.formatDate(it.dateAdded)}\n")
-                        val category = PrescriptionUtils.getCategoryById(it.categoryId)
-                        append("Category: ${category?.displayName ?: "General"}\n")
+                        append("Date: ${PrescriptionUtils.formatDate(it.dateAdded.time)}\n")
+                        val category = PrescriptionUtils.getCategoryById(it.categoryId?.toString() ?: "1")
+                        append("Category: ${category?.name ?: "General"}\n")
                         if (!it.notes.isNullOrBlank()) {
                             append("Notes: ${it.notes}\n")
                         }

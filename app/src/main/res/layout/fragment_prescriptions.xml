@@ -79,12 +79,47 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:background="@android:color/transparent"
-                    android:hint="Search prescriptions..."
+                    android:hint="Search medications, doctors..."
                     android:padding="8dp"
                     android:drawableStart="@drawable/ic_search"
                     android:drawablePadding="8dp"
                     android:textSize="14sp" />
 
+                <!-- Category Filter Button -->
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/categoryFilterButton"
+                    style="@style/Widget.Material3.Button.IconButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    app:icon="@drawable/ic_filter_list"
+                    app:iconSize="20dp"
+                    app:iconTint="?attr/colorOnSurface"
+                    android:contentDescription="Filter by category" />
+
+                <!-- Active Filter Indicator -->
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/activeFilterIndicator"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="4dp"
+                    android:visibility="gone"
+                    app:cardCornerRadius="12dp"
+                    app:cardBackgroundColor="?attr/colorPrimary"
+                    app:cardElevation="0dp">
+
+                    <TextView
+                        android:id="@+id/filterCountText"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:paddingHorizontal="8dp"
+                        android:paddingVertical="4dp"
+                        android:textColor="?attr/colorOnPrimary"
+                        android:textSize="12sp"
+                        android:text="2"
+                        android:fontFamily="sans-serif-medium" />
+
+                </com.google.android.material.card.MaterialCardView>
             </LinearLayout>
 
         </com.google.android.material.card.MaterialCardView>

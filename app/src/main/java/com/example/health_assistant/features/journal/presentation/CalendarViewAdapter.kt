@@ -58,10 +58,10 @@ class CalendarViewAdapter(
             val timestamp = dateFormat.parse(dateStr)?.time ?: System.currentTimeMillis()
             val hasHealthMetrics = entriesList.any {
                 it is JournalEntry.Weight || it is JournalEntry.HeartRate ||
-                it is JournalEntry.BloodPressure || it is JournalEntry.Measurement
+                it is JournalEntry.BloodPressure || it is JournalEntry.Sleep
             }
             val hasActivity = entriesList.any {
-                it is JournalEntry.Workout || it is JournalEntry.ActivitySummary
+                it is JournalEntry.Workout
             }
             val hasMood = entriesList.any { it is JournalEntry.Mood }
 

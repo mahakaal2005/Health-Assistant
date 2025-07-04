@@ -5,36 +5,28 @@ import android.util.Log
 import androidx.hilt.work.HiltWorker
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
-import com.example.health_assistant.data.fitness.GoogleFitManager
 import com.example.health_assistant.data.repository.interfaces.HealthRepository
 import com.example.health_assistant.features.health.model.HealthMetrics
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 
 /**
- * Background worker for syncing health data from Google Fit
+ * Background worker for syncing health data from local sensors
  * Runs periodically to keep health metrics up to date
  */
 @HiltWorker
 class HealthDataSyncWorker @AssistedInject constructor(
     @Assisted context: Context,
     @Assisted params: WorkerParameters,
-    private val healthRepository: HealthRepository,
-    private val googleFitManager: GoogleFitManager
+    private val healthRepository: HealthRepository
 ) : CoroutineWorker(context, params) {
 
     override suspend fun doWork(): Result {
         return try {
             Log.d(TAG, "Starting health data sync...")
 
-            // Check if Google Fit permissions are available
-            if (!googleFitManager.hasPermissions()) {
-                Log.d(TAG, "No Google Fit permissions, skipping sync")
-                return Result.success()
-            }
-
-            // Sync today's metrics from Google Fit
-            val syncResult = healthRepository.syncTodayMetricsFromGoogleFit()
+            // Sync today's metrics from local sensors only
+            val syncResult = healthRepository.getTodayMetrics()
 
             if (syncResult.isSuccess) {
                 Log.d(TAG, "Health data sync completed successfully")
@@ -50,9 +42,8 @@ class HealthDataSyncWorker @AssistedInject constructor(
                 Log.w(TAG, "Health data sync failed, will retry")
                 Result.retry()
             }
-
         } catch (e: Exception) {
-            Log.e(TAG, "Health data sync failed with exception", e)
+            Log.e(TAG, "Health data sync worker failed", e)
             Result.failure()
         }
     }
