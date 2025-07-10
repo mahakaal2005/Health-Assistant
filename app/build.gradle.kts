@@ -213,7 +213,6 @@ dependencies {
     implementation(libs.androidx.fragment.ktx)
 
     // Google Play Services dependencies
-    implementation(libs.play.services.fitness)
     implementation(libs.play.services.auth)  // CRITICAL: Add missing Google Play Services Auth for GoogleSignIn
     implementation(libs.androidx.health.services.client)
     implementation(libs.kotlinx.coroutines.android.v1102)

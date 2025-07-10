@@ -43,7 +43,6 @@ navigationUiKtx = "2.9.0"
 firebase-bom = "32.8.0"
 photoview = "2.3.0"
 playServicesAuth = "21.3.0"
-playServicesFitness = "21.2.0"
 roomCompiler = "2.7.2"
 runtimeLivedata = "1.8.3"
 securityCrypto = "1.1.0-beta01"
@@ -123,7 +122,6 @@ mockk = { module = "io.mockk:mockk", version.ref = "mockk" }
 mpandroidchart = { module = "com.github.PhilJay:MPAndroidChart", version.ref = "mpandroidchart" }
 photoview = { module = "com.github.chrisbanes:PhotoView", version.ref = "photoview" }
 play-services-auth = { module = "com.google.android.gms:play-services-auth", version.ref = "playServicesAuth" }
-play-services-fitness = { module = "com.google.android.gms:play-services-fitness", version.ref = "playServicesFitness" }
 storage-kt = { module = "io.github.jan-tennert.supabase:storage-kt", version.ref = "storageKt" }
 turbine = { module = "app.cash.turbine:turbine", version.ref = "turbine" }
 androidx-swiperefreshlayout = { group = "androidx.swiperefreshlayout", name = "swiperefreshlayout", version.ref = "swiperefreshlayout" }

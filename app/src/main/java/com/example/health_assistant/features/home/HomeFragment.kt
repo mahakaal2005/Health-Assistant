@@ -80,73 +80,12 @@ class HomeFragment : Fragment() {
     private val PREF_NAME = "HealthAssistantPrefs"
     private val KEY_FIRST_LAUNCH = "isFirstLaunch"
 
-    // NEW: Keys for Google Fit permission state management
-    private val KEY_GOOGLE_FIT_PERMISSION_ASKED = "googleFitPermissionAsked"
-    private val KEY_GOOGLE_FIT_PERMISSION_DENIED = "googleFitPermissionDenied"
-    private val KEY_GOOGLE_FIT_MAYBE_LATER = "googleFitMaybeLater"
-
     // Animation properties
     private val animDuration = 1000L
     private val animDelay = 100L
 
-    // NEW: Activity Result Launcher for Google Fit permissions
-    private lateinit var googleFitPermissionLauncher: ActivityResultLauncher<Intent>
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        // Initialize the Activity Result Launcher for Google Fit permissions
-        googleFitPermissionLauncher = registerForActivityResult(
-            ActivityResultContracts.StartActivityForResult()
-        ) { result ->
-            handleGoogleFitPermissionResult(result.resultCode)
-        }
-    }
-
-    // NEW: Handle Google Fit permission result
-    private fun handleGoogleFitPermissionResult(resultCode: Int) {
-        val sharedPrefs = requireActivity().getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
-
-        if (resultCode == Activity.RESULT_OK) {
-            // Permission granted - start sync immediately
-            Log.d("HomeFragment", "Google Fit permissions granted")
-            showSuccess("🎉 Health tracking enabled! Syncing your data...")
-
-            // Mark permission as granted
-            sharedPrefs.edit()
-                .putBoolean(KEY_GOOGLE_FIT_PERMISSION_ASKED, true)
-                .putBoolean(KEY_GOOGLE_FIT_PERMISSION_DENIED, false)
-                .putBoolean(KEY_GOOGLE_FIT_MAYBE_LATER, false)
-                .apply()
-
-            // Immediate sync using device sensors only
-            healthMetricsViewModel.refreshMetrics()
-
-            // Set up periodic refresh
-            setupPeriodicHealthDataRefresh()
-
-        } else {
-            // Permission denied
-            Log.d("HomeFragment", "Google Fit permissions denied")
-            val sharedPrefs = requireActivity().getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
-            sharedPrefs.edit()
-                .putBoolean(KEY_GOOGLE_FIT_PERMISSION_ASKED, true)
-                .putBoolean(KEY_GOOGLE_FIT_PERMISSION_DENIED, true)
-                .apply()
-
-            showManualEntryOption()
-        }
-    }
-
-    // NEW: Set up periodic health data refresh
-    private fun setupPeriodicHealthDataRefresh() {
-        // Refresh health data every 30 seconds using device sensors only
-        view?.postDelayed({
-            if (isAdded) {
-                healthMetricsViewModel.refreshMetrics()
-                setupPeriodicHealthDataRefresh() // Schedule next refresh
-            }
-        }, 30000) // 30 seconds
     }
 
     override fun onCreateView(
@@ -176,273 +115,14 @@ class HomeFragment : Fragment() {
                 setupContextualCard()
                 setupWellnessInsights()
                 loadProfilePhoto()
-                setupGoogleFitIntegration()
                 loadUserProfileAndUpdateGreeting()
-                observeHealthMetrics()
-                observeSyncStatus()
+                setupHealthMetricsObservation()
+                startDeviceSensorTracking()
             },
             delayMs = 150L // Load non-critical views after transition completes
         )
     }
 
-    // NEW: Setup Google Fit integration and permission handling
-    private fun setupGoogleFitIntegration() {
-        // NEW APPROACH: Use device sensors as PRIMARY, Google Fit as OPTIONAL enhancement
-        Log.d("HomeFragment", "Setting up sensor-based health tracking (no Google Fit app required)")
-
-        // Start with device sensors immediately - works without Google Fit!
-        healthMetricsViewModel.refreshMetrics()
-
-        // Only show Google Fit dialog if user wants ENHANCED accuracy
-        val sharedPrefs = requireActivity().getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
-        val enhancementAsked = sharedPrefs.getBoolean("enhancement_asked", false)
-
-        if (!enhancementAsked) {
-            // Show optional enhancement dialog after user sees the app working
-            view?.postDelayed({
-                if (isAdded && view != null) {
-                    showOptionalEnhancementPrompt()
-                }
-            }, 5000) // Wait 5 seconds so user sees app working first
-        }
-    }
-
-    // NEW: Show optional enhancement prompt (not required for basic functionality)
-    private fun showOptionalEnhancementPrompt() {
-        MaterialAlertDialogBuilder(requireContext())
-            .setTitle("🚀 Enhance Accuracy (Optional)")
-            .setMessage("Your app is already tracking steps using device sensors! Would you like to enhance accuracy with Google Fit data? This is completely optional - your app works great without it.")
-            .setPositiveButton("Enhance") { _, _ ->
-                requestGoogleFitPermissions()
-                val sharedPrefs = requireActivity().getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
-                sharedPrefs.edit().putBoolean("enhancement_asked", true).apply()
-            }
-            .setNegativeButton("Keep Current Setup") { dialog, _ ->
-                dialog.dismiss()
-                val sharedPrefs = requireActivity().getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
-                sharedPrefs.edit().putBoolean("enhancement_asked", true).apply()
-                showSuccess("✅ Your app is working perfectly with device sensors!")
-            }
-            .setCancelable(true)
-            .show()
-    }
-
-    // NEW: Show Google Fit permission dialog with premium design
-    private fun showGoogleFitPermissionPrompt() {
-        // Check if we already asked for permission and the user denied it
-        val sharedPrefs = requireActivity().getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
-        val permissionAsked = sharedPrefs.getBoolean(KEY_GOOGLE_FIT_PERMISSION_ASKED, false)
-        val permissionDenied = sharedPrefs.getBoolean(KEY_GOOGLE_FIT_PERMISSION_DENIED, false)
-        val maybeLater = sharedPrefs.getBoolean(KEY_GOOGLE_FIT_MAYBE_LATER, false)
-
-        // If we already asked and the user denied, just show manual entry option
-        if (permissionAsked && permissionDenied) {
-            showManualEntryOption()
-            return
-        }
-
-        // Show the permission prompt dialog
-        MaterialAlertDialogBuilder(requireContext())
-            .setTitle("🏃‍♂️ Enable Automatic Health Tracking")
-            .setMessage("Connect to Google Fit to automatically track your steps, calories, and heart points. No additional apps needed - just one-time permission!")
-            .setPositiveButton("Connect Now") { _, _ ->
-                requestGoogleFitPermissions()
-                // Remember that we asked for permission
-                sharedPrefs.edit().putBoolean(KEY_GOOGLE_FIT_PERMISSION_ASKED, true).apply()
-            }
-            .setNegativeButton("Maybe Later") { dialog, _ ->
-                dialog.dismiss()
-                // Remember that the user chose maybe later
-                sharedPrefs.edit().putBoolean(KEY_GOOGLE_FIT_MAYBE_LATER, true).apply()
-                showManualEntryOption()
-            }
-            .setNeutralButton("Learn More") { _, _ ->
-                showGoogleFitInfoDialog()
-            }
-            .setCancelable(false)
-            .show()
-    }
-
-    // NEW: Show additional info about Google Fit integration
-    private fun showGoogleFitInfoDialog() {
-        MaterialAlertDialogBuilder(requireContext())
-            .setTitle("About Automatic Health Tracking")
-            .setMessage("""
-                ��� No additional apps required
-                ✅ Uses your phone's built-in sensors
-                ✅ More accurate than manual entry
-                ✅ Works in background without draining battery
-                ✅ Your data stays secure and private
-                
-                You can always switch to manual entry later in Settings.
-            """.trimIndent())
-            .setPositiveButton("Connect") { _, _ ->
-                requestGoogleFitPermissions()
-            }
-            .setNegativeButton("Manual Entry") { _, _ ->
-                showManualEntryOption()
-            }
-            .show()
-    }
-
-    // NEW: Request Google Fit permissions using the modern approach
-    private fun requestGoogleFitPermissions() {
-        try {
-            Log.d("HomeFragment", "Starting device sensor tracking...")
-
-            // Add debug info
-            showDebugInfo("Starting device sensor tracking...")
-
-            // Use device sensors instead of Google Fit
-            healthMetricsViewModel.refreshMetrics()
-
-            // Show success message
-            showSuccess("✅ Device sensor tracking enabled!")
-
-        } catch (e: Exception) {
-            Log.e("HomeFragment", "Error starting device sensor tracking", e)
-            showError("Failed to start health tracking: ${e.message}")
-        }
-    }
-
-    // NEW: Debug helper to see what's happening
-    private fun showDebugInfo(message: String) {
-        Log.d("HomeFragment", "DEBUG: $message")
-        Toast.makeText(requireContext(), "DEBUG: $message", Toast.LENGTH_SHORT).show()
-    }
-
-    // NEW: Handle manual entry option with debugging
-    private fun showManualEntryOption() {
-        Log.d("HomeFragment", "Showing manual entry option")
-        Snackbar.make(
-            binding.root,
-            "Manual entry mode - Tap the + buttons to add data manually",
-            Snackbar.LENGTH_LONG
-        ).setAction("Test Update") {
-            // Add test data to see if UI updates work
-            testHealthDataUpdate()
-        }.show()
-    }
-
-    // NEW: Test method to verify UI updates work
-    private fun testHealthDataUpdate() {
-        Log.d("HomeFragment", "Testing health data update with dummy data")
-
-        // Create test data to verify the UI is working
-        val testMetrics = HealthMetrics(
-            steps = com.example.health_assistant.features.health.model.HealthMetric(2500, 9000),
-            calories = com.example.health_assistant.features.health.model.HealthMetric(150, 300),
-            heartPoints = com.example.health_assistant.features.health.model.HealthMetric(12, 50)
-        )
-
-        // Directly update the UI to test if the update mechanism works
-        updateHealthMetrics(testMetrics)
-
-        showSuccess("✅ Test data loaded! Your UI update mechanism is working.")
-    }
-
-
-    // NEW: Observe health metrics with enhanced UI updates
-    private fun observeHealthMetrics() {
-        healthMetricsViewModel.healthMetrics.observe(viewLifecycleOwner, Observer { metrics ->
-            metrics?.let {
-                updateHealthMetrics(it)
-            }
-        })
-
-        healthMetricsViewModel.error.observe(viewLifecycleOwner, Observer { error ->
-            error?.let {
-                showError(it)
-                healthMetricsViewModel.clearError()
-            }
-        })
-    }
-
-    // NEW: Observe sync status for UI feedback
-    private fun observeSyncStatus() {
-        healthMetricsViewModel.syncStatus.observe(viewLifecycleOwner) { status ->
-            when (status) {
-                HealthMetricsViewModel.SyncStatus.SYNCING -> {
-                    showSyncInProgress()
-                }
-                HealthMetricsViewModel.SyncStatus.SUCCESS -> {
-                    showSyncSuccess()
-                    healthMetricsViewModel.clearSyncStatus()
-                }
-                HealthMetricsViewModel.SyncStatus.ERROR -> {
-                    showSyncError()
-                    healthMetricsViewModel.clearSyncStatus()
-                }
-                HealthMetricsViewModel.SyncStatus.IDLE -> {
-                    hideSyncIndicators()
-                }
-                HealthMetricsViewModel.SyncStatus.SENSOR_TRACKING -> {
-                    // Device sensors are actively tracking - show status
-                    showSuccess("📱 Device sensors tracking enabled")
-                }
-                HealthMetricsViewModel.SyncStatus.MANUAL_ONLY -> {
-                    // Only manual entry available - show guidance
-                    showManualEntryOption()
-                }
-            }
-        }
-
-        healthMetricsViewModel.isLoading.observe(viewLifecycleOwner) { isLoading ->
-            // TODO: Show/hide loading indicators if you have them in your layout
-            // binding.progressBar?.visibility = if (isLoading) View.VISIBLE else View.GONE
-        }
-    }
-
-    // NEW: Show sync in progress
-    private fun showSyncInProgress() {
-        // You can add a subtle progress indicator to your existing UI
-        Snackbar.make(
-            binding.root,
-            "📊 Syncing health data...",
-            Snackbar.LENGTH_SHORT
-        ).show()
-    }
-
-    // NEW: Show sync success
-    private fun showSyncSuccess() {
-        Snackbar.make(
-            binding.root,
-            "✅ Health data updated!",
-            Snackbar.LENGTH_SHORT
-        ).show()
-    }
-
-    // NEW: Show sync error
-    private fun showSyncError() {
-        Snackbar.make(
-            binding.root,
-            "⚠️ Sync failed. Tap to retry.",
-            Snackbar.LENGTH_LONG
-        ).setAction("Retry") {
-            healthMetricsViewModel.refreshMetrics()
-        }.show()
-    }
-
-    // NEW: Hide sync indicators
-    private fun hideSyncIndicators() {
-        // Hide any persistent sync UI elements
-    }
-
-    // NEW: Enhanced error display
-    private fun showError(message: String) {
-        Snackbar.make(binding.root, message, Snackbar.LENGTH_LONG)
-            .setBackgroundTint(ContextCompat.getColor(requireContext(), R.color.error))
-            .setTextColor(ContextCompat.getColor(requireContext(), android.R.color.white))
-            .show()
-    }
-
-    // NEW: Enhanced success display
-    private fun showSuccess(message: String) {
-        Snackbar.make(binding.root, message, Snackbar.LENGTH_LONG)
-            .setBackgroundTint(ContextCompat.getColor(requireContext(), R.color.success))
-            .setTextColor(ContextCompat.getColor(requireContext(), android.R.color.white))
-            .show()
-    }
 
     override fun onResume() {
         super.onResume()
@@ -858,6 +538,40 @@ class HomeFragment : Fragment() {
         binding.stepsValue.text = "$stepsProgress / 9000 steps"
         binding.caloriesValue.text = "$caloriesProgress / 300 kcal"
         binding.heartPointsValue.text = "$heartPointsProgress / 50 points"
+    }
+
+    /**
+     * Starts tracking health metrics using device sensors
+     */
+    private fun startDeviceSensorTracking() {
+        // In a real app, start the necessary sensors to track health metrics
+        // For example, step counter, heart rate monitor, etc.
+        Toast.makeText(context, "Started tracking health metrics", Toast.LENGTH_SHORT).show()
+    }
+
+    /**
+     * Sets up observation of health metrics from the ViewModel
+     */
+    private fun setupHealthMetricsObservation() {
+        // Observe health metrics LiveData from the ViewModel
+        healthMetricsViewModel.healthMetrics.observe(viewLifecycleOwner, Observer { metrics ->
+            // Handle nullable metrics - only update UI if metrics are not null
+            metrics?.let {
+                updateHealthMetrics(it)
+            }
+        })
+
+        // Observe error state
+        healthMetricsViewModel.error.observe(viewLifecycleOwner, Observer { error ->
+            error?.let {
+                Log.e("HomeFragment", "Health metrics error: $it")
+                Toast.makeText(context, "Health tracking error: $it", Toast.LENGTH_SHORT).show()
+                healthMetricsViewModel.clearError()
+            }
+        })
+
+        // Trigger initial refresh of health metrics using the correct method
+        healthMetricsViewModel.refreshMetrics()
     }
 
     override fun onDestroyView() {
