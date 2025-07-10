@@ -101,83 +101,63 @@
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
-        <!-- Tag Filter Row -->
-        <HorizontalScrollView
-            android:id="@+id/scroll_view_filters"
+        <!-- Search and Filter Section -->
+        <LinearLayout
+            android:id="@+id/search_filter_container"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
             android:layout_marginStart="24dp"
             android:layout_marginEnd="24dp"
             android:layout_marginBottom="16dp"
-            android:scrollbars="none">
+            android:orientation="vertical">
 
-            <com.google.android.material.chip.ChipGroup
-                android:id="@+id/chip_group_filters"
-                android:layout_width="wrap_content"
+            <!-- Search Bar -->
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                app:singleSelection="true"
-                app:selectionRequired="true"
-                app:chipSpacingHorizontal="12dp">
+                android:layout_marginBottom="12dp"
+                app:cardCornerRadius="8dp"
+                app:cardElevation="2dp">
 
-                <com.google.android.material.chip.Chip
-                    android:id="@+id/chip_all"
-                    style="@style/Widget.Material3.Chip.Filter"
-                    android:layout_width="wrap_content"
+                <LinearLayout
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="All"
-                    android:checked="true"
-                    android:textColor="@android:color/white"
-                    app:chipBackgroundColor="@color/chip_background_selector"
-                    app:chipStrokeColor="@android:color/white"
-                    app:chipStrokeWidth="1dp" />
+                    android:orientation="horizontal"
+                    android:padding="8dp">
 
-                <com.google.android.material.chip.Chip
-                    android:id="@+id/chip_notes"
-                    style="@style/Widget.Material3.Chip.Filter"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Notes"
-                    android:textColor="@android:color/white"
-                    app:chipBackgroundColor="@color/chip_background_selector"
-                    app:chipStrokeColor="@android:color/white"
-                    app:chipStrokeWidth="1dp" />
+                    <EditText
+                        android:id="@+id/search_edit_text"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:background="@android:color/transparent"
+                        android:hint="Search journal entries..."
+                        android:padding="8dp"
+                        android:drawableStart="@drawable/ic_search"
+                        android:drawablePadding="8dp"
+                        android:textSize="14sp"
+                        android:inputType="text"
+                        android:maxLines="1" />
 
-                <com.google.android.material.chip.Chip
-                    android:id="@+id/chip_health"
-                    style="@style/Widget.Material3.Chip.Filter"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Health"
-                    android:textColor="@android:color/white"
-                    app:chipBackgroundColor="@color/chip_background_selector"
-                    app:chipStrokeColor="@android:color/white"
-                    app:chipStrokeWidth="1dp" />
+                    <!-- Filter Button -->
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/filter_button"
+                        style="@style/Widget.Material3.Button.IconButton"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp"
+                        app:icon="@drawable/ic_filter_list"
+                        app:iconSize="20dp"
+                        app:iconTint="?attr/colorOnSurface"
+                        android:contentDescription="Filter entries" />
 
-                <com.google.android.material.chip.Chip
-                    android:id="@+id/chip_activity"
-                    style="@style/Widget.Material3.Chip.Filter"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Activity"
-                    android:textColor="@android:color/white"
-                    app:chipBackgroundColor="@color/chip_background_selector"
-                    app:chipStrokeColor="@android:color/white"
-                    app:chipStrokeWidth="1dp" />
+                </LinearLayout>
 
-                <com.google.android.material.chip.Chip
-                    android:id="@+id/chip_mood"
-                    style="@style/Widget.Material3.Chip.Filter"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Mood"
-                    android:textColor="@android:color/white"
-                    app:chipBackgroundColor="@color/chip_background_selector"
-                    app:chipStrokeColor="@android:color/white"
-                    app:chipStrokeWidth="1dp" />
+            </com.google.android.material.card.MaterialCardView>
 
-            </com.google.android.material.chip.ChipGroup>
-        </HorizontalScrollView>
+
+        </LinearLayout>
 
     </LinearLayout>
 
@@ -198,59 +178,6 @@
             android:layout_height="wrap_content"
             android:paddingBottom="100dp">
 
-            <!-- Your Health Journal Info Card -->
-            <androidx.cardview.widget.CardView
-                android:id="@+id/card_your_health_journal"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="24dp"
-                android:layout_marginTop="20dp"
-                android:layout_marginEnd="24dp"
-                app:cardBackgroundColor="@android:color/transparent"
-                app:cardCornerRadius="@dimen/corner_radius_large"
-                app:cardElevation="@dimen/card_elevation_small"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent">
-
-                <FrameLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:background="@drawable/glassmorphism_card_background">
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="vertical"
-                        android:padding="24dp">
-
-                        <TextView
-                            android:id="@+id/text_card_title"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:text="Your Health Journal"
-                            android:textSize="20sp"
-                            android:textStyle="bold"
-                            android:textColor="@color/textPrimary"
-                            android:fontFamily="sans-serif-medium" />
-
-                        <TextView
-                            android:id="@+id/text_card_subtitle"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="8dp"
-                            android:text="Track your health journey with personalized insights and progress tracking"
-                            android:textSize="15sp"
-                            android:textColor="@color/textSecondary"
-                            android:fontFamily="sans-serif"
-                            android:lineSpacingExtra="2dp" />
-
-                    </LinearLayout>
-
-                </FrameLayout>
-
-            </androidx.cardview.widget.CardView>
-
             <!-- Content Container for Journal Entries -->
             <FrameLayout
                 android:id="@+id/container_content"
@@ -260,7 +187,7 @@
                 android:minHeight="400dp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/card_your_health_journal"
+                app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintBottom_toBottomOf="parent">
 
                 <!-- RecyclerView for Journal Entries -->
@@ -278,12 +205,41 @@
 
 
                 <!-- Empty State View -->
-                <include
-                    android:id="@+id/empty_state_view"
-                    layout="@layout/view_journal_empty_state"
+                <LinearLayout
+                    android:id="@+id/emptyStateGroup"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:visibility="gone" />
+                    android:gravity="center"
+                    android:orientation="vertical"
+                    android:padding="32dp"
+                    android:visibility="gone">
+
+                    <ImageView
+                        android:layout_width="120dp"
+                        android:layout_height="120dp"
+                        android:alpha="0.6"
+                        android:src="@drawable/ic_journal_empty"
+                        app:tint="?attr/colorOnPrimary" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="16dp"
+                        android:text="No journal entries yet"
+                        android:textAppearance="?attr/textAppearanceHeadline6"
+                        android:textColor="?attr/colorOnPrimary" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:gravity="center"
+                        android:text="Start your health journey by adding your first entry using the + button"
+                        android:textAppearance="?attr/textAppearanceBody2"
+                        android:textColor="?attr/colorOnPrimary"
+                        android:alpha="0.8" />
+
+                </LinearLayout>
 
                 <!-- Loading State -->
                 <ProgressBar

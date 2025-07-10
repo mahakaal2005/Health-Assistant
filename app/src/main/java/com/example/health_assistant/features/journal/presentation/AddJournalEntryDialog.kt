@@ -94,11 +94,11 @@ class AddJournalEntryDialog : DialogFragment() {
     }
 
     private fun setupButtons() {
-        binding.btnCancelEntry.setOnClickListener {
+         binding.cancelButton.setOnClickListener {
             dismiss()
         }
 
-        binding.btnSaveEntry.setOnClickListener {
+        binding.saveButton.setOnClickListener {
             saveJournalEntry()
         }
     }

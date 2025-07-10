@@ -232,27 +232,38 @@
             </com.google.android.material.textfield.TextInputLayout>
         </LinearLayout>
 
-        <!-- Buttons -->
+        <!-- Button Container -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:orientation="horizontal">
+            android:layout_marginTop="24dp"
+            android:orientation="horizontal"
+            android:gravity="end">
 
-            <Button
-                android:id="@+id/btnCancelEntry"
-                style="@style/Widget.MaterialComponents.Button.TextButton"
-                android:layout_width="0dp"
+            <!-- Cancel Button -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/cancelButton"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Cancel" />
+                android:layout_marginEnd="12dp"
+                android:text="Cancel"
+                android:textColor="@color/primary_color"
+                app:strokeColor="@color/primary_color"
+                app:strokeWidth="1dp" />
 
-            <Button
-                android:id="@+id/btnSaveEntry"
-                android:layout_width="0dp"
+            <!-- Save Button -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/saveButton"
+                style="@style/Widget.MaterialComponents.Button"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Save" />
+                android:text="Save"
+                android:textColor="@android:color/white"
+                app:backgroundTint="@color/primary_color" />
+
         </LinearLayout>
+
     </LinearLayout>
+
 </androidx.core.widget.NestedScrollView>

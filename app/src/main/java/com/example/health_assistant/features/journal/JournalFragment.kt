@@ -1,6 +1,8 @@
 package com.example.health_assistant.features.journal
 
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -25,6 +27,9 @@ class JournalFragment : Fragment() {
 
     private val viewModel: JournalViewModel by viewModels()
     private lateinit var journalAdapter: JournalAdapter
+
+    private var allEntries: List<JournalEntry> = emptyList()
+    private var filteredEntries: List<JournalEntry> = emptyList()
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -59,38 +64,92 @@ class JournalFragment : Fragment() {
             layoutManager = LinearLayoutManager(requireContext())
             setHasFixedSize(false) // Important for NestedScrollView
             isNestedScrollingEnabled = false // Disable nested scrolling
-
-            // Add item decoration for spacing - remove if JournalItemDecoration has issues
-            // if (itemDecorationCount == 0) {
-            //     addItemDecoration(JournalItemDecoration())
-            // }
         }
 
-        // Setup FAB
+        // Setup FAB to show dialog instead of navigation
         binding.fabAddEntry.setOnClickListener {
             showAddJournalEntryDialog()
         }
 
-        // Setup filter chips
-        setupFilterChips()
+        // Setup search functionality
+        setupSearchBar()
     }
 
-    private fun setupFilterChips() {
-        // Setup chip click listeners
-        binding.chipAll.setOnClickListener {
-            viewModel.selectFilter(JournalFilterType.ALL)
+    private fun setupSearchBar() {
+        binding.searchEditText.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                val searchQuery = s.toString().trim()
+                performSearch(searchQuery)
+            }
+
+            override fun afterTextChanged(s: Editable?) {}
+        })
+
+        // Setup filter button like prescriptions fragment
+        binding.filterButton.setOnClickListener {
+            showSimpleJournalFilter()
         }
-        binding.chipNotes.setOnClickListener {
-            viewModel.selectFilter(JournalFilterType.NOTES)
+    }
+
+    private fun showSimpleJournalFilter() {
+        val popupMenu = androidx.appcompat.widget.PopupMenu(requireContext(), binding.filterButton)
+
+        // Add journal filter options
+        val filterOptions = listOf("All", "Activity", "Note", "Diary")
+
+        filterOptions.forEachIndexed { index, option ->
+            popupMenu.menu.add(0, index, 0, option)
         }
-        binding.chipHealth.setOnClickListener {
-            viewModel.selectFilter(JournalFilterType.HEALTH)
+
+        popupMenu.setOnMenuItemClickListener { menuItem ->
+            val selectedFilter = filterOptions[menuItem.itemId]
+            applyJournalFilter(selectedFilter)
+            true
         }
-        binding.chipActivity.setOnClickListener {
-            viewModel.selectFilter(JournalFilterType.ACTIVITY)
+
+        popupMenu.show()
+    }
+
+    private fun applyJournalFilter(selectedFilter: String) {
+        val newFilteredEntries = when (selectedFilter) {
+            "All" -> allEntries
+            "Activity" -> allEntries.filter { entry ->
+                entry is JournalEntry.Workout || entry.type.contains("activity", ignoreCase = true)
+            }
+            "Note" -> allEntries.filter { entry ->
+                entry is JournalEntry.Generic && entry.type.contains("note", ignoreCase = true)
+            }
+            "Diary" -> allEntries.filter { entry ->
+                entry is JournalEntry.Generic && entry.type.contains("diary", ignoreCase = true)
+            }
+            else -> allEntries
         }
-        binding.chipMood.setOnClickListener {
-            viewModel.selectFilter(JournalFilterType.MOOD)
+
+        filteredEntries = newFilteredEntries
+        journalAdapter.submitList(newFilteredEntries)
+
+        // Clear search when filter changes
+        binding.searchEditText.setText("")
+    }
+
+    private fun performSearch(query: String) {
+        if (query.isEmpty()) {
+            // Show filtered entries when search is empty (respects current filter)
+            journalAdapter.submitList(filteredEntries)
+        } else {
+            // Search within currently filtered entries, not all entries
+            val searchResults = filteredEntries.filter { entry ->
+                when (entry) {
+                    is JournalEntry.Generic -> entry.content.contains(query, ignoreCase = true)
+                    is JournalEntry.Weight -> entry.note?.contains(query, ignoreCase = true) == true
+                    is JournalEntry.Workout -> entry.activityType.contains(query, ignoreCase = true) ||
+                                              entry.summary.contains(query, ignoreCase = true)
+                    else -> false
+                }
+            }
+            journalAdapter.submitList(searchResults)
         }
     }
 
@@ -100,13 +159,8 @@ class JournalFragment : Fragment() {
             viewModel.entries.collectLatest { entries ->
                 journalAdapter.submitList(entries)
                 updateEmptyState(entries.isEmpty())
-            }
-        }
-
-        // Observe filter changes to update chip selection
-        viewLifecycleOwner.lifecycleScope.launch {
-            viewModel.selectedFilterType.collectLatest { filterType ->
-                updateChipSelection(filterType)
+                allEntries = entries // Cache all entries
+                filteredEntries = entries // Initialize filtered entries
             }
         }
 
@@ -118,41 +172,10 @@ class JournalFragment : Fragment() {
         }
     }
 
-    private fun updateChipSelection(filterType: JournalFilterType) {
-        // Reset all chips
-        binding.chipAll.isChecked = false
-        binding.chipNotes.isChecked = false
-        binding.chipHealth.isChecked = false
-        binding.chipActivity.isChecked = false
-        binding.chipMood.isChecked = false
-
-        // Select the active chip
-        when (filterType) {
-            JournalFilterType.ALL -> binding.chipAll.isChecked = true
-            JournalFilterType.NOTES -> binding.chipNotes.isChecked = true
-            JournalFilterType.HEALTH -> binding.chipHealth.isChecked = true
-            JournalFilterType.ACTIVITY -> binding.chipActivity.isChecked = true
-            JournalFilterType.MOOD -> binding.chipMood.isChecked = true
-        }
-    }
 
     private fun updateEmptyState(isEmpty: Boolean) {
-        if (isEmpty) {
-            binding.recyclerJournalEntries.visibility = View.GONE
-            try {
-                binding.emptyStateView.root.visibility = View.VISIBLE
-            } catch (e: Exception) {
-                // If empty state view doesn't exist, show message
-                showSuccessMessage("No journal entries found. Tap + to add one!")
-            }
-        } else {
-            binding.recyclerJournalEntries.visibility = View.VISIBLE
-            try {
-                binding.emptyStateView.root.visibility = View.GONE
-            } catch (e: Exception) {
-                // Empty state view doesn't exist, no action needed
-            }
-        }
+        binding.emptyStateGroup.visibility = if (isEmpty) View.VISIBLE else View.GONE
+        binding.recyclerJournalEntries.visibility = if (isEmpty) View.GONE else View.VISIBLE
     }
 
     private fun showDeleteConfirmation(entry: JournalEntry) {
@@ -168,25 +191,8 @@ class JournalFragment : Fragment() {
     }
 
     private fun showAddJournalEntryDialog() {
-        val dialogOptions = arrayOf(
-            "Add Note",
-            "Add Mood Entry",
-            "Add Health Measurement",
-            "Add Activity Log"
-        )
-
-        androidx.appcompat.app.AlertDialog.Builder(requireContext())
-            .setTitle("Add Journal Entry")
-            .setItems(dialogOptions) { _, which ->
-                when (which) {
-                    0 -> addSampleNote()
-                    1 -> addSampleMood()
-                    2 -> addSampleHealth()
-                    3 -> addSampleActivity()
-                }
-            }
-            .setNegativeButton("Cancel", null)
-            .show()
+        val dialog = AddJournalEntryDialogFragment.newInstance()
+        dialog.show(parentFragmentManager, "AddJournalEntryDialog")
     }
 
     private fun addSampleNote() {
@@ -201,19 +207,6 @@ class JournalFragment : Fragment() {
         showSuccessMessage("Note added successfully!")
     }
 
-    private fun addSampleMood() {
-        val timestamp = System.currentTimeMillis()
-        val entry = JournalEntry.Mood(
-            id = 0L,
-            timestamp = timestamp,
-            moodLevel = 4,
-            emoji = "😊",
-            description = "Feeling good today!",
-            note = "Added via journal FAB"
-        )
-        viewModel.addEntry(entry)
-        showSuccessMessage("Mood entry added successfully!")
-    }
 
     private fun addSampleHealth() {
         val timestamp = System.currentTimeMillis()
