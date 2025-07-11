@@ -49,7 +49,31 @@
         android:id="@+id/journalFragment"
         android:name="com.example.health_assistant.features.journal.JournalFragment"
         android:label="Journal"
-        tools:layout="@layout/fragment_journal" />
+        tools:layout="@layout/fragment_journal">
+
+        <!-- Navigation to journal detail fragments -->
+        <action
+            android:id="@+id/action_journalFragment_to_noteDetailFragment"
+            app:destination="@id/noteDetailFragment"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right" />
+        <action
+            android:id="@+id/action_journalFragment_to_activityDetailFragment"
+            app:destination="@id/activityDetailFragment"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right" />
+        <action
+            android:id="@+id/action_journalFragment_to_diaryDetailFragment"
+            app:destination="@id/diaryDetailFragment"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right" />
+    </fragment>
 
     <fragment
         android:id="@+id/profileFragment"
@@ -94,5 +118,24 @@
         android:name="com.example.health_assistant.features.profile.EditProfileFragment"
         android:label="Edit Profile"
         tools:layout="@layout/fragment_edit_profile" />
+
+    <!-- JOURNAL DETAIL FRAGMENTS -->
+    <fragment
+        android:id="@+id/noteDetailFragment"
+        android:name="com.example.health_assistant.features.journal.presentation.NoteDetailFragment"
+        android:label="Note Details"
+        tools:layout="@layout/fragment_note_detail" />
+
+    <fragment
+        android:id="@+id/activityDetailFragment"
+        android:name="com.example.health_assistant.features.journal.presentation.ActivityDetailFragment"
+        android:label="Activity Details"
+        tools:layout="@layout/fragment_activity_detail" />
+
+    <fragment
+        android:id="@+id/diaryDetailFragment"
+        android:name="com.example.health_assistant.features.journal.presentation.DiaryDetailFragment"
+        android:label="Diary Details"
+        tools:layout="@layout/fragment_diary_detail" />
 
 </navigation>

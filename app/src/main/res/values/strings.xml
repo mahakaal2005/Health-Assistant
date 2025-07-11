@@ -144,4 +144,7 @@
 
     <!-- Navigation Titles -->
     <string name="prescriptions_title">Prescriptions</string>
+
+    <!-- Journal Entry UI -->
+    <string name="arrow_icon_description">View entry details</string>
 </resources>

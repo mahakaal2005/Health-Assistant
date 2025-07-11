@@ -109,14 +109,14 @@
             android:layout_marginTop="16dp"
             android:layout_marginStart="24dp"
             android:layout_marginEnd="24dp"
-            android:layout_marginBottom="16dp"
+            android:layout_marginBottom="4dp"
             android:orientation="vertical">
 
             <!-- Search Bar -->
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="12dp"
+                android:layout_marginBottom="0dp"
                 app:cardCornerRadius="8dp"
                 app:cardElevation="2dp">
 
@@ -183,7 +183,7 @@
                 android:id="@+id/container_content"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="20dp"
+                android:layout_marginTop="8dp"
                 android:minHeight="400dp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
@@ -197,9 +197,9 @@
                     android:layout_height="wrap_content"
                     android:clipToPadding="false"
                     android:clipChildren="false"
-                    android:paddingStart="24dp"
-                    android:paddingTop="8dp"
-                    android:paddingEnd="24dp"
+                    android:paddingStart="0dp"
+                    android:paddingTop="4dp"
+                    android:paddingEnd="0dp"
                     android:nestedScrollingEnabled="false"
                     tools:listitem="@layout/item_journal_entry" />
 

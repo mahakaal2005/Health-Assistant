@@ -9,7 +9,9 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.health_assistant.R
 import com.example.health_assistant.databinding.FragmentJournalBinding
 import com.example.health_assistant.features.journal.presentation.JournalAdapter
 import com.example.health_assistant.features.journal.domain.JournalEntry
@@ -50,8 +52,8 @@ class JournalFragment : Fragment() {
         // Initialize adapter
         journalAdapter = JournalAdapter(
             onEdit = { journalEntry ->
-                // Handle edit journal entry
-                showSuccessMessage("Edit functionality coming soon")
+                // Navigate to appropriate detail fragment based on entry type
+                navigateToDetailFragment(journalEntry)
             },
             onDelete = { journalEntry ->
                 showDeleteConfirmation(journalEntry)
@@ -236,6 +238,30 @@ class JournalFragment : Fragment() {
 
     private fun showSuccessMessage(message: String) {
         Snackbar.make(binding.root, message, Snackbar.LENGTH_SHORT).show()
+    }
+
+    private fun navigateToDetailFragment(journalEntry: JournalEntry) {
+        try {
+            when {
+                // Check for activity-related entries
+                journalEntry is JournalEntry.Workout ||
+                journalEntry.type.contains("activity", ignoreCase = true) -> {
+                    findNavController().navigate(R.id.action_journalFragment_to_activityDetailFragment)
+                }
+                // Check for diary-related entries
+                journalEntry is JournalEntry.Generic &&
+                journalEntry.type.contains("diary", ignoreCase = true) -> {
+                    findNavController().navigate(R.id.action_journalFragment_to_diaryDetailFragment)
+                }
+                // Default to note detail for notes and other types
+                else -> {
+                    findNavController().navigate(R.id.action_journalFragment_to_noteDetailFragment)
+                }
+            }
+        } catch (e: Exception) {
+            // Fallback if navigation fails
+            showSuccessMessage("Opening ${journalEntry.type} details...")
+        }
     }
 
     override fun onDestroyView() {
