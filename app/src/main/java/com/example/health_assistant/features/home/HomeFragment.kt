@@ -1,10 +1,13 @@
 package com.example.health_assistant.features.home
 
+import android.Manifest
 import android.animation.ObjectAnimator
 import android.animation.ValueAnimator
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -15,6 +18,7 @@ import android.view.animation.OvershootInterpolator
 import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -32,6 +36,7 @@ import com.example.health_assistant.features.health.model.HealthMetrics
 import com.example.health_assistant.features.health.viewmodel.HealthMetricsViewModel
 import com.example.health_assistant.features.home.adapters.WellnessTipsAdapter
 import com.example.health_assistant.features.home.models.WellnessTip
+import com.example.health_assistant.utils.HealthNotificationManager
 import com.example.health_assistant.utils.ProfilePhotoManager
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
@@ -71,6 +76,10 @@ class HomeFragment : Fragment() {
     @Inject
     lateinit var performanceManager: FragmentPerformanceManager
 
+    // NEW: Inject HealthNotificationManager for step notifications
+    @Inject
+    lateinit var notificationManager: HealthNotificationManager
+
     private lateinit var wellnessTipsAdapter: WellnessTipsAdapter
 
     // View model for health metrics
@@ -83,6 +92,9 @@ class HomeFragment : Fragment() {
     // Animation properties
     private val animDuration = 1000L
     private val animDelay = 100L
+
+    // Notification permission request code
+    private val NOTIFICATION_PERMISSION_REQUEST_CODE = 1001
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -99,6 +111,9 @@ class HomeFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        // Check and request notification permissions
+        checkNotificationPermissions()
 
         // OPTIMIZED: Use performance manager for smooth transitions
         performanceManager.lazyLoadUI(
@@ -118,6 +133,7 @@ class HomeFragment : Fragment() {
                 loadUserProfileAndUpdateGreeting()
                 setupHealthMetricsObservation()
                 startDeviceSensorTracking()
+                setupNotificationTestButtons() // Add test buttons for notifications
             },
             delayMs = 150L // Load non-critical views after transition completes
         )
@@ -572,6 +588,85 @@ class HomeFragment : Fragment() {
 
         // Trigger initial refresh of health metrics using the correct method
         healthMetricsViewModel.refreshMetrics()
+    }
+
+    /**
+     * Check and request notification permissions for Android 13+
+     */
+    private fun checkNotificationPermissions() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            when {
+                ContextCompat.checkSelfPermission(
+                    requireContext(),
+                    Manifest.permission.POST_NOTIFICATIONS
+                ) == PackageManager.PERMISSION_GRANTED -> {
+                    // Permission already granted
+                }
+                shouldShowRequestPermissionRationale(Manifest.permission.POST_NOTIFICATIONS) -> {
+                    // Show explanation to user
+                    showNotificationPermissionRationale()
+                }
+                else -> {
+                    // Request permission
+                    requestPermissions(
+                        arrayOf(Manifest.permission.POST_NOTIFICATIONS),
+                        NOTIFICATION_PERMISSION_REQUEST_CODE
+                    )
+                }
+            }
+        }
+    }
+
+    /**
+     * Show rationale for notification permission
+     */
+    private fun showNotificationPermissionRationale() {
+        MaterialAlertDialogBuilder(requireContext())
+            .setTitle("Enable Notifications")
+            .setMessage("Get notified about your step progress and health achievements to stay motivated!")
+            .setPositiveButton("Enable") { _, _ ->
+                requestPermissions(
+                    arrayOf(Manifest.permission.POST_NOTIFICATIONS),
+                    NOTIFICATION_PERMISSION_REQUEST_CODE
+                )
+            }
+            .setNegativeButton("Maybe Later") { dialog, _ ->
+                dialog.dismiss()
+            }
+            .show()
+    }
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        when (requestCode) {
+            NOTIFICATION_PERMISSION_REQUEST_CODE -> {
+                if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    Toast.makeText(context, "Notifications enabled! You'll get step progress updates.", Toast.LENGTH_SHORT).show()
+                } else {
+                    Toast.makeText(context, "Notifications disabled. You can enable them later in settings.", Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
+    }
+
+    /**
+     * Setup test buttons for notification functionality (for testing purposes)
+     */
+    private fun setupNotificationTestButtons() {
+        // Remove all debug test buttons - notification system is now working
+        // The health ring and cards will now function normally without test notifications
+
+        // Optional: Keep a simple tap for testing if needed, but without debug messages
+        binding.tripleRingProgress.setOnClickListener {
+            // Normal health ring interaction - could navigate to detailed health stats
+            // For now, just a subtle feedback without debug messages
+        }
+
+        // Remove all debug mode activation messages
     }
 
     override fun onDestroyView() {
