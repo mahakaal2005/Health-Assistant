@@ -225,7 +225,42 @@ class HomeFragment : Fragment() {
             }
         } ?: "User"
 
-        binding.greetingText.text = "${getTimeBasedGreeting()}, $userName"
+        // Create styled greeting with username formatting
+        setStyledGreeting(getTimeBasedGreeting(), userName)
+    }
+
+    /**
+     * Sets styled greeting text with regular greeting and bold/colored username
+     */
+    private fun setStyledGreeting(greeting: String, userName: String) {
+        val fullText = "$greeting, $userName"
+        val spannable = android.text.SpannableString(fullText)
+
+        // Find the start index of the username
+        val userNameStart = fullText.indexOf(userName)
+        val userNameEnd = userNameStart + userName.length
+
+        if (userNameStart >= 0) {
+            // Apply bold style to username
+            spannable.setSpan(
+                android.text.style.StyleSpan(android.graphics.Typeface.BOLD),
+                userNameStart,
+                userNameEnd,
+                android.text.Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+            )
+
+            // Apply black color to username for consistency
+            spannable.setSpan(
+                android.text.style.ForegroundColorSpan(
+                    ContextCompat.getColor(requireContext(), android.R.color.black)
+                ),
+                userNameStart,
+                userNameEnd,
+                android.text.Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+            )
+        }
+
+        binding.greetingText.text = spannable
     }
 
     /**
@@ -657,7 +692,7 @@ class HomeFragment : Fragment() {
      * Setup test buttons for notification functionality (for testing purposes)
      */
     private fun setupNotificationTestButtons() {
-        // Remove all debug test buttons - notification system is now working
+         // Remove all debug test buttons - notification system is now working
         // The health ring and cards will now function normally without test notifications
 
         // Optional: Keep a simple tap for testing if needed, but without debug messages

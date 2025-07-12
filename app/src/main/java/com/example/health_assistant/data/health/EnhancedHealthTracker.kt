@@ -29,7 +29,8 @@ class EnhancedHealthTracker @Inject constructor(
         Log.d(TAG, "Initializing enhanced health tracking using device sensors only...")
 
         // Start device sensor tracking
-        val sensorInitialized = deviceSensorManager.startTracking()
+        deviceSensorManager.startTracking()
+        val sensorInitialized = deviceSensorManager.sensorAvailable.value
 
         if (sensorInitialized) {
             Log.d(TAG, "Device sensors initialized successfully")
@@ -46,9 +47,9 @@ class EnhancedHealthTracker @Inject constructor(
     fun getCurrentHealthMetrics(): Result<HealthMetrics> {
         return try {
             // Always use device sensors as primary source
-            val sensorSteps = deviceSensorManager.getDailySteps()
-            val sensorCalories = deviceSensorManager.getEstimatedCalories()
-            val sensorHeartPoints = deviceSensorManager.getEstimatedHeartPoints()
+            val sensorSteps = deviceSensorManager.stepCount.value
+            val sensorCalories = estimateCaloriesFromSteps(sensorSteps)
+            val sensorHeartPoints = estimateHeartPointsFromSteps(sensorSteps)
 
             Log.d(TAG, "Device sensor data - Steps: $sensorSteps, Calories: $sensorCalories, Heart Points: $sensorHeartPoints")
 
@@ -74,7 +75,7 @@ class EnhancedHealthTracker @Inject constructor(
      * Check if any health tracking is available
      */
     fun isHealthTrackingAvailable(): Boolean {
-        val hasSensors = deviceSensorManager.hasSensorsAvailable()
+        val hasSensors = deviceSensorManager.sensorAvailable.value
 
         Log.d(TAG, "Health tracking availability - Sensors: $hasSensors")
         return hasSensors
@@ -84,7 +85,7 @@ class EnhancedHealthTracker @Inject constructor(
      * Get tracking status and capabilities
      */
     fun getTrackingStatus(): TrackingStatus {
-        val sensorAvailable = deviceSensorManager.hasSensorsAvailable()
+        val sensorAvailable = deviceSensorManager.sensorAvailable.value
         val sensorTracking = deviceSensorManager.isTracking.value
 
         return TrackingStatus(
@@ -121,9 +122,9 @@ class EnhancedHealthTracker @Inject constructor(
             $sensorInfo
             
             Current Metrics:
-            - Steps: ${deviceSensorManager.getDailySteps()}
-            - Estimated Calories: ${deviceSensorManager.getEstimatedCalories()}
-            - Estimated Heart Points: ${deviceSensorManager.getEstimatedHeartPoints()}
+            - Steps: ${deviceSensorManager.stepCount.value}
+            - Estimated Calories: ${estimateCaloriesFromSteps(deviceSensorManager.stepCount.value)}
+            - Estimated Heart Points: ${estimateHeartPointsFromSteps(deviceSensorManager.stepCount.value)}
         """.trimIndent()
     }
 
@@ -133,6 +134,22 @@ class EnhancedHealthTracker @Inject constructor(
             calories = HealthMetric(calories, 300),
             heartPoints = HealthMetric(heartPoints, 50)
         )
+    }
+
+    /**
+     * Estimate calories burned from step count
+     * Basic formula: steps * 0.04 (average calories per step)
+     */
+    private fun estimateCaloriesFromSteps(steps: Int): Int {
+        return (steps * 0.04).toInt()
+    }
+
+    /**
+     * Estimate heart points from step count
+     * Basic formula: 1 heart point per 100 steps of moderate activity
+     */
+    private fun estimateHeartPointsFromSteps(steps: Int): Int {
+        return (steps / 100).coerceAtMost(50) // Cap at 50 heart points per day
     }
 
     data class TrackingStatus(

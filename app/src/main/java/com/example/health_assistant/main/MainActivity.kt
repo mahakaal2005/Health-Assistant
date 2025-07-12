@@ -236,8 +236,11 @@ class MainActivity : AppCompatActivity() {
         return navController.navigateUp(appBarConfiguration) || super.onSupportNavigateUp()
     }
 
-    // Setup full screen mode by hiding the status bar
+    // Setup full screen mode by hiding the status bar AND action bar
     private fun setupFullScreen() {
+        // CRITICAL FIX: Hide the action bar completely
+        supportActionBar?.hide()
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             // For Android 11 and above - modern WindowInsetsController approach
             val controller: WindowInsetsController = window.insetsController ?: return
