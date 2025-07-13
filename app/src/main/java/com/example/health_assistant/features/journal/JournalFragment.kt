@@ -21,6 +21,8 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.flow.collectLatest
 import java.text.SimpleDateFormat
 import java.util.*
+import com.google.android.material.floatingactionbutton.FloatingActionButton
+import android.widget.LinearLayout
 
 @AndroidEntryPoint
 class JournalFragment : Fragment() {
@@ -32,6 +34,13 @@ class JournalFragment : Fragment() {
 
     private var allEntries: List<JournalEntry> = emptyList()
     private var filteredEntries: List<JournalEntry> = emptyList()
+
+    // Expanding FAB Menu state and animation variables
+    private var isFabMenuOpen = false
+    private lateinit var fabMain: FloatingActionButton
+    private lateinit var fabAddNoteContainer: LinearLayout
+    private lateinit var fabAddDiaryContainer: LinearLayout
+    private lateinit var fabOverlay: View
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -68,10 +77,8 @@ class JournalFragment : Fragment() {
             isNestedScrollingEnabled = false // Disable nested scrolling
         }
 
-        // Setup FAB to show dialog instead of navigation
-        binding.fabAddEntry.setOnClickListener {
-            showAddJournalEntryDialog()
-        }
+        // Setup Expanding FAB Menu
+        setupExpandingFabMenu()
 
         // Setup search functionality
         setupSearchBar()
@@ -192,48 +199,24 @@ class JournalFragment : Fragment() {
             .show()
     }
 
-    private fun showAddJournalEntryDialog() {
-        val dialog = AddJournalEntryDialogFragment.newInstance()
-        dialog.show(parentFragmentManager, "AddJournalEntryDialog")
+
+    private fun navigateToCreateNote() {
+        val bundle = Bundle().apply {
+            putBoolean("isCreateMode", true)
+            putString("noteContent", "")
+            putLong("noteId", 0L)
+        }
+        findNavController().navigate(R.id.action_journalFragment_to_noteDetailFragment, bundle)
     }
 
-    private fun addSampleNote() {
-        val timestamp = System.currentTimeMillis()
-        val entry = JournalEntry.Generic(
-            id = 0L,
-            timestamp = timestamp,
-            type = "note",
-            content = "New journal note created at ${SimpleDateFormat("HH:mm", Locale.getDefault()).format(timestamp)}"
-        )
-        viewModel.addEntry(entry)
-        showSuccessMessage("Note added successfully!")
-    }
-
-
-    private fun addSampleHealth() {
-        val timestamp = System.currentTimeMillis()
-        val entry = JournalEntry.Weight(
-            id = 0L,
-            timestamp = timestamp,
-            weight = 70.0, // Changed from 70.0f to 70.0 (Double instead of Float)
-            unit = "kg",
-            note = "Sample weight measurement"
-        )
-        viewModel.addEntry(entry)
-        showSuccessMessage("Health measurement added successfully!")
-    }
-
-    private fun addSampleActivity() {
-        val timestamp = System.currentTimeMillis()
-        val entry = JournalEntry.Workout(
-            id = 0L,
-            timestamp = timestamp,
-            activityType = "Walking",
-            duration = 30,
-            summary = "30-minute walk added via journal"
-        )
-        viewModel.addEntry(entry)
-        showSuccessMessage("Activity log added successfully!")
+    private fun navigateToCreateDiary() {
+        val bundle = Bundle().apply {
+            putBoolean("isCreateMode", true)
+            putString("diaryTitle", "")
+            putString("diaryContent", "")
+            putLong("diaryId", 0L)
+        }
+        findNavController().navigate(R.id.action_journalFragment_to_diaryDetailFragment, bundle)
     }
 
     private fun showSuccessMessage(message: String) {
@@ -284,6 +267,135 @@ class JournalFragment : Fragment() {
             // Fallback if navigation fails
             showSuccessMessage("Opening ${journalEntry.type} details...")
         }
+    }
+
+    // New function to setup expanding FAB menu
+    private fun setupExpandingFabMenu() {
+        // Initialize view references with correct IDs from layout
+        fabMain = binding.fabMain
+        fabAddNoteContainer = binding.fabAddNoteContainer
+        fabAddDiaryContainer = binding.fabAddDiaryContainer
+        fabOverlay = binding.fabOverlay
+
+        // Initially hide the expanded FABs and overlay
+        fabAddNoteContainer.visibility = View.GONE
+        fabAddDiaryContainer.visibility = View.GONE
+        fabOverlay.visibility = View.GONE
+
+        // Set initial states for animation
+        fabAddNoteContainer.alpha = 0f
+        fabAddDiaryContainer.alpha = 0f
+        fabAddNoteContainer.translationY = 100f
+        fabAddDiaryContainer.translationY = 100f
+
+        // Toggle FAB menu on main FAB click
+        fabMain.setOnClickListener {
+            if (isFabMenuOpen) {
+                closeFabMenu()
+            } else {
+                openFabMenu()
+            }
+        }
+
+        // Hide menu when overlay is clicked
+        fabOverlay.setOnClickListener {
+            closeFabMenu()
+        }
+
+        // Navigate to create note/diary on FAB clicks
+        fabAddNoteContainer.setOnClickListener {
+            navigateToCreateNote()
+            closeFabMenu()
+        }
+
+        fabAddDiaryContainer.setOnClickListener {
+            navigateToCreateDiary()
+            closeFabMenu()
+        }
+    }
+
+    private fun openFabMenu() {
+        isFabMenuOpen = true
+
+        // Show containers
+        fabAddNoteContainer.visibility = View.VISIBLE
+        fabAddDiaryContainer.visibility = View.VISIBLE
+        fabOverlay.visibility = View.VISIBLE
+
+        // Animate main FAB rotation (180 degrees) and change icon to cross
+        fabMain.animate()
+            .rotation(180f)
+            .setDuration(300)
+            .withStartAction {
+                // Change icon to cross during rotation
+                fabMain.setImageResource(R.drawable.ic_close)
+            }
+            .start()
+
+        // Animate sub FABs with staggered timing (Google Fit style)
+        fabAddDiaryContainer.animate()
+            .alpha(1f)
+            .translationY(0f)
+            .setDuration(300)
+            .setStartDelay(0)
+            .start()
+
+        fabAddNoteContainer.animate()
+            .alpha(1f)
+            .translationY(0f)
+            .setDuration(300)
+            .setStartDelay(50) // Slight delay for staggered effect
+            .start()
+
+        // Animate overlay fade in with stronger dimming effect
+        fabOverlay.animate()
+            .alpha(0.6f) // Increased from 0.3f to 0.6f for more dimming
+            .setDuration(300)
+            .start()
+    }
+
+    private fun closeFabMenu() {
+        isFabMenuOpen = false
+
+        // Animate main FAB rotation back (0 degrees) and change icon back to plus
+        fabMain.animate()
+            .rotation(0f)
+            .setDuration(300)
+            .withStartAction {
+                // Change icon back to plus during rotation
+                fabMain.setImageResource(R.drawable.ic_add)
+            }
+            .start()
+
+        // Animate sub FABs out with staggered timing
+        fabAddNoteContainer.animate()
+            .alpha(0f)
+            .translationY(100f)
+            .setDuration(250)
+            .setStartDelay(0)
+            .withEndAction {
+                fabAddNoteContainer.visibility = View.GONE
+            }
+            .start()
+
+        fabAddDiaryContainer.animate()
+            .alpha(0f)
+            .translationY(100f)
+            .setDuration(250)
+            .setStartDelay(30) // Slight delay for staggered effect
+            .withEndAction {
+                fabAddDiaryContainer.visibility = View.GONE
+            }
+            .start()
+
+        // Animate overlay fade out
+        fabOverlay.animate()
+            .alpha(0f)
+            .setDuration(250)
+            .withEndAction {
+                fabOverlay.visibility = View.GONE
+            }
+            .start()
     }
 
     override fun onDestroyView() {

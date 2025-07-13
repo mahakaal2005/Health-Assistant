@@ -19,6 +19,7 @@ class NoteDetailFragment : Fragment() {
 
     // Edit mode state
     private var isEditMode = false
+    private var isCreateMode = false // Add creation mode flag
     private var noteId: Long = 0L
     private var originalTimestamp: Long = 0L // Add original timestamp
     private var originalContent: String = ""
@@ -128,15 +129,26 @@ class NoteDetailFragment : Fragment() {
     private fun loadNoteData() {
         // Get data from arguments
         arguments?.let { bundle ->
+            isCreateMode = bundle.getBoolean("isCreateMode", false)
             val content = bundle.getString("noteContent", "")
             noteId = bundle.getLong("noteId", 0L)
-            originalTimestamp = bundle.getLong("noteTimestamp", System.currentTimeMillis()) // Get original timestamp
+            originalTimestamp = bundle.getLong("noteTimestamp", System.currentTimeMillis())
 
-            // Store original content for comparison
-            originalContent = content
+            if (isCreateMode) {
+                // Setup for creation mode
+                setEditMode(true)
+                binding.toolbar.title = "Create Note"
+                binding.etNoteContent.setText("") // Start with empty content
+                originalContent = ""
 
-            // Load the passed note data
-            binding.etNoteContent.setText(content)
+                // Request focus for immediate typing
+                binding.etNoteContent.requestFocus()
+            } else {
+                // Setup for edit mode of existing note
+                originalContent = content
+                binding.etNoteContent.setText(content)
+                setEditMode(false) // Start in view mode for existing notes
+            }
         }
     }
 
@@ -220,32 +232,50 @@ class NoteDetailFragment : Fragment() {
             return
         }
 
-        // Create updated journal entry - PRESERVE ORIGINAL TIMESTAMP
-        val updatedEntry = JournalEntry.Generic(
-            id = noteId,
-            timestamp = originalTimestamp, // Use original timestamp, don't create new one
-            type = "note",
-            content = content
-        )
+        val entry = if (isCreateMode) {
+            // Create new entry
+            JournalEntry.Generic(
+                id = 0L, // Database will assign ID
+                timestamp = System.currentTimeMillis(),
+                type = "note",
+                content = content
+            )
+        } else {
+            // Update existing entry - preserve original timestamp
+            JournalEntry.Generic(
+                id = noteId,
+                timestamp = originalTimestamp,
+                type = "note",
+                content = content
+            )
+        }
 
-        // Update the entry in database via ViewModel
-        journalViewModel.updateEntry(updatedEntry)
+        // Save the entry via ViewModel
+        if (isCreateMode) {
+            journalViewModel.addEntry(entry)
+        } else {
+            journalViewModel.updateEntry(entry)
+        }
 
-        // Update original content to reflect saved state
+        // Update state and UI
         originalContent = content
 
-        // Exit edit mode and show success
-        setEditMode(false)
+        if (isCreateMode) {
+            // For creation, navigate back to journal
+            requireActivity().setResult(android.app.Activity.RESULT_OK)
+            requireActivity().onBackPressed()
+        } else {
+            // For editing, exit edit mode
+            setEditMode(false)
+        }
 
         // Show success message
+        val message = if (isCreateMode) "Note created successfully" else "Note saved successfully"
         com.google.android.material.snackbar.Snackbar.make(
             binding.root,
-            "Note saved successfully",
+            message,
             com.google.android.material.snackbar.Snackbar.LENGTH_SHORT
         ).show()
-
-        // Set result to indicate data was changed - this will help refresh the journal list
-        requireActivity().setResult(android.app.Activity.RESULT_OK)
     }
 
     private fun deleteNote() {

@@ -57,20 +57,15 @@ class JournalAdapter(
             val dateFormat = SimpleDateFormat("MMM dd, yyyy HH:mm", Locale.getDefault())
             binding.entryDate.text = dateFormat.format(Date(entry.timestamp))
 
-            // CRITICAL FIX: Ensure all views are visible and properly bound
+            // Ensure all remaining views are visible and properly bound
             binding.entryTitle.visibility = View.VISIBLE
             binding.entryDescription.visibility = View.VISIBLE
             binding.entryType.visibility = View.VISIBLE
-            binding.entryIcon.visibility = View.VISIBLE
-            binding.arrowIcon.visibility = View.VISIBLE
 
             when (entry) {
                 is JournalEntry.Workout -> {
                     // Activity/Workout styling
                     binding.cardView.setCardBackgroundColor(context.getColor(android.R.color.white))
-                    binding.entryIcon.setImageResource(android.R.drawable.ic_menu_mylocation)
-                    binding.entryIcon.setColorFilter(context.getColor(android.R.color.holo_orange_dark))
-                    binding.arrowIcon.setColorFilter(context.getColor(android.R.color.holo_orange_dark))
                     binding.entryTitle.text = "Workout: ${entry.activityType}"
                     binding.entryTitle.setTextColor(context.getColor(android.R.color.black))
                     binding.entryDescription.text = entry.summary
@@ -86,9 +81,6 @@ class JournalAdapter(
                         "diary" -> {
                             // Diary Entry styling - Beige background (#F5EFE6)
                             binding.cardView.setCardBackgroundColor(android.graphics.Color.parseColor("#F5EFE6"))
-                            binding.entryIcon.setImageResource(android.R.drawable.ic_menu_today)
-                            binding.entryIcon.setColorFilter(android.graphics.Color.parseColor("#8D6E63"))
-                            binding.arrowIcon.setColorFilter(android.graphics.Color.parseColor("#8D6E63"))
                             binding.entryTitle.text = "Diary Entry"
                             binding.entryTitle.setTextColor(android.graphics.Color.parseColor("#3E2723"))
                             binding.entryDescription.text = entry.content
@@ -101,9 +93,6 @@ class JournalAdapter(
                         "note" -> {
                             // Personal Note styling - Light purple background (#E6E0F8)
                             binding.cardView.setCardBackgroundColor(android.graphics.Color.parseColor("#E6E0F8"))
-                            binding.entryIcon.setImageResource(android.R.drawable.ic_menu_edit)
-                            binding.entryIcon.setColorFilter(android.graphics.Color.parseColor("#7B1FA2"))
-                            binding.arrowIcon.setColorFilter(android.graphics.Color.parseColor("#7B1FA2"))
                             binding.entryTitle.text = "Personal Note"
                             binding.entryTitle.setTextColor(android.graphics.Color.parseColor("#4A148C"))
                             binding.entryDescription.text = entry.content
@@ -116,9 +105,6 @@ class JournalAdapter(
                         else -> {
                             // Fallback for other generic types - default white background
                             binding.cardView.setCardBackgroundColor(context.getColor(android.R.color.white))
-                            binding.entryIcon.setImageResource(android.R.drawable.ic_menu_edit)
-                            binding.entryIcon.setColorFilter(context.getColor(android.R.color.holo_blue_dark))
-                            binding.arrowIcon.setColorFilter(context.getColor(android.R.color.holo_blue_dark))
                             binding.entryTitle.text = "Journal Entry"
                             binding.entryTitle.setTextColor(context.getColor(android.R.color.black))
                             binding.entryDescription.text = entry.content
@@ -134,9 +120,6 @@ class JournalAdapter(
                 is JournalEntry.Weight -> {
                     // Health measurement styling
                     binding.cardView.setCardBackgroundColor(context.getColor(android.R.color.white))
-                    binding.entryIcon.setImageResource(android.R.drawable.ic_menu_compass)
-                    binding.entryIcon.setColorFilter(context.getColor(android.R.color.holo_green_dark))
-                    binding.arrowIcon.setColorFilter(context.getColor(android.R.color.holo_green_dark))
                     binding.entryTitle.text = "Weight Measurement"
                     binding.entryTitle.setTextColor(context.getColor(android.R.color.black))
                     binding.entryDescription.text = "${entry.weight} ${entry.unit}"
@@ -156,9 +139,6 @@ class JournalAdapter(
                 is JournalEntry.Mood -> {
                     // Mood entry styling
                     binding.cardView.setCardBackgroundColor(context.getColor(android.R.color.white))
-                    binding.entryIcon.setImageResource(android.R.drawable.ic_menu_preferences)
-                    binding.entryIcon.setColorFilter(context.getColor(android.R.color.holo_blue_bright))
-                    binding.arrowIcon.setColorFilter(context.getColor(android.R.color.holo_blue_bright))
                     binding.entryTitle.text = "Mood: ${entry.emoji}"
                     binding.entryTitle.setTextColor(context.getColor(android.R.color.black))
                     binding.entryDescription.text = entry.description
@@ -178,9 +158,6 @@ class JournalAdapter(
                 is JournalEntry.HeartRate -> {
                     // Heart rate styling
                     binding.cardView.setCardBackgroundColor(context.getColor(android.R.color.white))
-                    binding.entryIcon.setImageResource(android.R.drawable.ic_menu_close_clear_cancel)
-                    binding.entryIcon.setColorFilter(context.getColor(android.R.color.holo_red_dark))
-                    binding.arrowIcon.setColorFilter(context.getColor(android.R.color.holo_red_dark))
                     binding.entryTitle.text = "Heart Rate"
                     binding.entryTitle.setTextColor(context.getColor(android.R.color.black))
                     binding.entryDescription.text = "${entry.bpm} BPM (${entry.state})"
@@ -200,9 +177,6 @@ class JournalAdapter(
                 is JournalEntry.BloodPressure -> {
                     // Blood pressure styling
                     binding.cardView.setCardBackgroundColor(context.getColor(android.R.color.white))
-                    binding.entryIcon.setImageResource(android.R.drawable.ic_menu_info_details)
-                    binding.entryIcon.setColorFilter(context.getColor(android.R.color.holo_red_light))
-                    binding.arrowIcon.setColorFilter(context.getColor(android.R.color.holo_red_light))
                     binding.entryTitle.text = "Blood Pressure"
                     binding.entryTitle.setTextColor(context.getColor(android.R.color.black))
                     binding.entryDescription.text = "${entry.systolic}/${entry.diastolic} mmHg"
@@ -220,11 +194,8 @@ class JournalAdapter(
                     }
                 }
                 else -> {
-                    // CRITICAL FIX: Add fallback case for unknown entry types
+                    // Fallback case for unknown entry types
                     binding.cardView.setCardBackgroundColor(context.getColor(android.R.color.white))
-                    binding.entryIcon.setImageResource(android.R.drawable.ic_menu_agenda)
-                    binding.entryIcon.setColorFilter(context.getColor(android.R.color.darker_gray))
-                    binding.arrowIcon.setColorFilter(context.getColor(android.R.color.darker_gray))
                     binding.entryTitle.text = "Journal Entry"
                     binding.entryTitle.setTextColor(context.getColor(android.R.color.black))
                     binding.entryDescription.text = "Unknown entry type"

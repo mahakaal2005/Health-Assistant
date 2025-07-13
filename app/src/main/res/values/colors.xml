@@ -49,6 +49,17 @@
     <!-- Primary color alias for consistency -->
     <color name="primary_color">@color/colorPrimary</color>
 
+    <!-- FAB Colors for Expanding Menu -->
+    <color name="fab_background_gradient">#FF4285F4</color>
+    <color name="fab_note_color">#FF34A853</color>
+    <color name="fab_diary_color">#FFEA4335</color>
+    <color name="text_primary">#212121</color>
+
+    <!-- Additional colors for the expanding FAB menu -->
+    <color name="fab_overlay_color">#80000000</color>
+    <color name="fab_label_background">#FFFFFF</color>
+    <color name="fab_label_text">#424242</color>
+
     <!-- Additional needed colors -->
     <color name="accent_color">@color/colorSecondary</color>
     <color name="surface_color">@color/colorSurface</color>
@@ -81,7 +92,6 @@
 
     <!-- Journal Fragment Specific Colors -->
     <color name="card_background_translucent">#40FFFFFF</color>
-    <color name="fab_background_gradient">@color/colorPrimary</color>
 
     <!-- Chip Background Selector Colors -->
     <color name="chip_background_selected">#80FFFFFF</color>

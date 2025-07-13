@@ -256,18 +256,104 @@
 
     </androidx.core.widget.NestedScrollView>
 
-    <!-- Add Journal Entry FAB -->
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/fab_add_entry"
+    <!-- Expanding FAB Menu Container -->
+    <FrameLayout
+        android:id="@+id/fab_menu_container"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_margin="24dp"
-        android:src="@drawable/ic_add"
-        android:contentDescription="Add journal entry"
-        app:tint="@android:color/white"
-        app:backgroundTint="@color/fab_background_gradient"
-        app:elevation="12dp"
         app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <!-- Main FAB (always visible) -->
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/fabMain"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom|end"
+            android:src="@drawable/ic_add"
+            android:contentDescription="Add journal entry"
+            app:tint="@android:color/white"
+            app:backgroundTint="@color/fab_background_gradient"
+            app:elevation="12dp" />
+
+    </FrameLayout>
+
+    <!-- Full Screen Overlay for dimming background (separate from FAB container) -->
+    <View
+        android:id="@+id/fab_overlay"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:background="@color/fab_overlay_color"
+        android:visibility="gone"
+        android:clickable="true"
+        android:focusable="true"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
+    <!-- Sub FAB 2: Add Note (appears first, positioned higher) -->
+    <LinearLayout
+        android:id="@+id/fab_add_note_container"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="164dp"
+        android:layout_marginEnd="32dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:visibility="gone"
+        android:alpha="0"
+        android:clickable="true"
+        android:focusable="true"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <TextView
+            android:id="@+id/label_add_note"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/fab_label_background"
+            android:elevation="8dp"
+            android:paddingHorizontal="16dp"
+            android:paddingVertical="12dp"
+            android:text="📒 Add Note"
+            android:textColor="@color/text_primary"
+            android:textSize="16sp"
+            android:textStyle="bold" />
+
+    </LinearLayout>
+
+    <!-- Sub FAB 1: Add Diary (appears second, positioned lower) -->
+    <LinearLayout
+        android:id="@+id/fab_add_diary_container"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="104dp"
+        android:layout_marginEnd="32dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:visibility="gone"
+        android:alpha="0"
+        android:clickable="true"
+        android:focusable="true"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <TextView
+            android:id="@+id/label_add_diary"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/fab_label_background"
+            android:elevation="8dp"
+            android:paddingHorizontal="16dp"
+            android:paddingVertical="12dp"
+            android:text="📝 Add Diary"
+            android:textColor="@color/text_primary"
+            android:textSize="16sp"
+            android:textStyle="bold" />
+
+    </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

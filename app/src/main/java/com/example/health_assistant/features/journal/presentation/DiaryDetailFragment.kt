@@ -19,6 +19,7 @@ class DiaryDetailFragment : Fragment() {
 
     // Edit mode state
     private var isEditMode = false
+    private var isCreateMode = false // Add creation mode flag
     private var diaryId: Long = 0L
     private var originalTimestamp: Long = 0L // Add original timestamp
     private var originalTitle: String = ""
@@ -129,18 +130,31 @@ class DiaryDetailFragment : Fragment() {
     private fun loadDiaryData() {
         // Get data from arguments
         arguments?.let { bundle ->
+            isCreateMode = bundle.getBoolean("isCreateMode", false)
             val title = bundle.getString("diaryTitle", "")
             val content = bundle.getString("diaryContent", "")
             diaryId = bundle.getLong("diaryId", 0L)
-            originalTimestamp = bundle.getLong("diaryTimestamp", System.currentTimeMillis()) // Get original timestamp
+            originalTimestamp = bundle.getLong("diaryTimestamp", System.currentTimeMillis())
 
-            // Store original data for comparison
-            originalTitle = title
-            originalContent = content
+            if (isCreateMode) {
+                // Setup for creation mode
+                setEditMode(true)
+                binding.toolbar.title = "Create Diary"
+                binding.etDiaryTitle.setText("") // Start with empty content
+                binding.etDiaryContent.setText("")
+                originalTitle = ""
+                originalContent = ""
 
-            // Load the passed diary data
-            binding.etDiaryTitle.setText(title)
-            binding.etDiaryContent.setText(content)
+                // Request focus for immediate typing
+                binding.etDiaryTitle.requestFocus()
+            } else {
+                // Setup for edit mode of existing diary
+                originalTitle = title
+                originalContent = content
+                binding.etDiaryTitle.setText(title)
+                binding.etDiaryContent.setText(content)
+                setEditMode(false) // Start in view mode for existing entries
+            }
         }
     }
 
@@ -238,40 +252,58 @@ class DiaryDetailFragment : Fragment() {
             return
         }
 
-        // Combine title and content for diary storage (similar to how it was parsed)
+        // Combine title and content for diary storage
         val combinedContent = if (title.isNotEmpty()) {
             "$title\n\n$content"
         } else {
             content
         }
 
-        // Create updated journal entry - PRESERVE ORIGINAL TIMESTAMP
-        val updatedEntry = JournalEntry.Generic(
-            id = diaryId,
-            timestamp = originalTimestamp, // Use original timestamp, don't create new one
-            type = "diary",
-            content = combinedContent
-        )
+        val entry = if (isCreateMode) {
+            // Create new entry
+            JournalEntry.Generic(
+                id = 0L, // Database will assign ID
+                timestamp = System.currentTimeMillis(),
+                type = "diary",
+                content = combinedContent
+            )
+        } else {
+            // Update existing entry - preserve original timestamp
+            JournalEntry.Generic(
+                id = diaryId,
+                timestamp = originalTimestamp,
+                type = "diary",
+                content = combinedContent
+            )
+        }
 
-        // Update the entry in database via ViewModel
-        journalViewModel.updateEntry(updatedEntry)
+        // Save the entry via ViewModel
+        if (isCreateMode) {
+            journalViewModel.addEntry(entry)
+        } else {
+            journalViewModel.updateEntry(entry)
+        }
 
-        // Update original data to reflect saved state
+        // Update state and UI
         originalTitle = title
         originalContent = content
 
-        // Exit edit mode and show success
-        setEditMode(false)
+        if (isCreateMode) {
+            // For creation, navigate back to journal
+            requireActivity().setResult(android.app.Activity.RESULT_OK)
+            requireActivity().onBackPressed()
+        } else {
+            // For editing, exit edit mode
+            setEditMode(false)
+        }
 
         // Show success message
+        val message = if (isCreateMode) "Diary created successfully" else "Diary saved successfully"
         com.google.android.material.snackbar.Snackbar.make(
             binding.root,
-            "Diary saved successfully",
+            message,
             com.google.android.material.snackbar.Snackbar.LENGTH_SHORT
         ).show()
-
-        // Set result to indicate data was changed - this will help refresh the journal list
-        requireActivity().setResult(android.app.Activity.RESULT_OK)
     }
 
     private fun deleteDiary() {
