@@ -251,11 +251,33 @@ class JournalFragment : Fragment() {
                 // Check for diary-related entries
                 journalEntry is JournalEntry.Generic &&
                 journalEntry.type.contains("diary", ignoreCase = true) -> {
-                    findNavController().navigate(R.id.action_journalFragment_to_diaryDetailFragment)
+                    val bundle = Bundle().apply {
+                        // Extract title from content (first line) or use content if short
+                        val content = journalEntry.content
+                        val title = if (content.length > 50) {
+                            content.lines().firstOrNull()?.take(50) ?: "Untitled"
+                        } else {
+                            content.ifEmpty { "Untitled" }
+                        }
+                        putString("diaryTitle", title)
+                        putString("diaryContent", content)
+                        putLong("diaryId", journalEntry.id)
+                        putLong("diaryTimestamp", journalEntry.timestamp) // Add original timestamp
+                    }
+                    findNavController().navigate(R.id.action_journalFragment_to_diaryDetailFragment, bundle)
                 }
                 // Default to note detail for notes and other types
                 else -> {
-                    findNavController().navigate(R.id.action_journalFragment_to_noteDetailFragment)
+                    val bundle = Bundle().apply {
+                        val content = when (journalEntry) {
+                            is JournalEntry.Generic -> journalEntry.content
+                            else -> ""
+                        }
+                        putString("noteContent", content)
+                        putLong("noteId", journalEntry.id)
+                        putLong("noteTimestamp", journalEntry.timestamp) // Add original timestamp
+                    }
+                    findNavController().navigate(R.id.action_journalFragment_to_noteDetailFragment, bundle)
                 }
             }
         } catch (e: Exception) {

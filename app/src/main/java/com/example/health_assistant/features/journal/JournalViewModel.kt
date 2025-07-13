@@ -30,8 +30,14 @@ class JournalViewModel @Inject constructor(
     private val _isLoading = MutableStateFlow(false)
     val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
 
+    // Add a manual refresh trigger
+    private val _refreshTrigger = MutableStateFlow(0L)
+
     // Journal entries based on selected filter
-    private val recentEntries = _selectedFilterType.flatMapLatest { filterType ->
+    private val recentEntries = combine(
+        _selectedFilterType,
+        _refreshTrigger
+    ) { filterType, _ ->
         when (filterType) {
             JournalFilterType.ALL -> {
                 useCases.getAllEntries()
@@ -48,7 +54,7 @@ class JournalViewModel @Inject constructor(
                 }
             }
         }
-    }.flowOn(Dispatchers.IO)
+    }.flatMapLatest { it }.flowOn(Dispatchers.IO)
 
     val entries: StateFlow<List<JournalEntry>> = recentEntries
         .onStart { _isLoading.value = true }
@@ -98,15 +104,40 @@ class JournalViewModel @Inject constructor(
     }
 
     /**
+     * Update an existing journal entry
+     */
+    fun updateEntry(entry: JournalEntry) {
+        viewModelScope.launch {
+            try {
+                useCases.updateEntry(entry)
+                // Force refresh the entries list after successful update
+                refreshEntries()
+            } catch (e: Exception) {
+                // Handle error
+            }
+        }
+    }
+
+    /**
      * Delete a journal entry
      */
     fun deleteEntry(entry: JournalEntry) {
         viewModelScope.launch {
             try {
                 useCases.deleteEntry(entry)
+                // Force refresh the entries list after successful deletion
+                refreshEntries()
             } catch (e: Exception) {
                 // Handle error
             }
         }
+    }
+
+    /**
+     * Force refresh the entries list - this ensures immediate UI updates
+     */
+    private fun refreshEntries() {
+        // Trigger a manual refresh by updating the refresh trigger
+        _refreshTrigger.value = System.currentTimeMillis()
     }
 }

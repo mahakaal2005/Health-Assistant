@@ -136,6 +136,19 @@
         android:id="@+id/diaryDetailFragment"
         android:name="com.example.health_assistant.features.journal.presentation.DiaryDetailFragment"
         android:label="Diary Details"
-        tools:layout="@layout/fragment_diary_detail" />
+        tools:layout="@layout/fragment_diary_detail">
+        <argument
+            android:name="diaryTitle"
+            app:argType="string"
+            android:defaultValue="" />
+        <argument
+            android:name="diaryContent"
+            app:argType="string"
+            android:defaultValue="" />
+        <argument
+            android:name="diaryId"
+            app:argType="long"
+            android:defaultValue="0L" />
+    </fragment>
 
 </navigation>
