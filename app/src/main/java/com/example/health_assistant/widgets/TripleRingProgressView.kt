@@ -19,6 +19,7 @@ import com.example.health_assistant.R
  * - Inner ring (blue): Heart Points
  *
  * Each ring shows progress towards a goal.
+ *
  */
 class TripleRingProgressView @JvmOverloads constructor(
     context: Context,
