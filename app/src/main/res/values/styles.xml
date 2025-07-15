@@ -16,6 +16,15 @@
         <item name="colorOnError">@color/colorOnError</item>
     </style>
 
+    <!-- Theme for Splash and Auth Activities (No Action Bar) -->
+    <style name="Theme.HealthAssistant.NoActionBar" parent="Theme.HealthAssistant">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
+        <item name="android:windowFullscreen">true</item>
+    </style>
+
     <!-- Text Appearance Styles -->
     <style name="TextAppearance.HealthAssistant" parent="TextAppearance.Material3.BodyMedium">
         <item name="android:textColor">@color/textPrimary</item>

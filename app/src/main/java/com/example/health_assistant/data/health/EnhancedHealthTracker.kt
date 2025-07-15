@@ -46,6 +46,9 @@ class EnhancedHealthTracker @Inject constructor(
      */
     fun getCurrentHealthMetrics(): Result<HealthMetrics> {
         return try {
+            // Refresh step data from service to ensure latest count
+            deviceSensorManager.refreshStepCount()
+
             // Always use device sensors as primary source
             val sensorSteps = deviceSensorManager.stepCount.value
             val sensorCalories = estimateCaloriesFromSteps(sensorSteps)

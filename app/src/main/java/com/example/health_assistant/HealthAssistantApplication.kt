@@ -7,15 +7,18 @@ import androidx.work.NetworkType
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import com.example.health_assistant.workers.HealthDataSyncWorker
+import com.example.health_assistant.features.journal.workers.ActivityCardScheduler
 import com.google.firebase.FirebaseApp
 import dagger.hilt.android.HiltAndroidApp
 import java.util.concurrent.TimeUnit
+import javax.inject.Inject
 
 /**
  * Application class for initializing Firebase and setting up background health sync
  */
 @HiltAndroidApp
 class HealthAssistantApplication : Application() {
+
     override fun onCreate() {
         super.onCreate()
 
@@ -24,6 +27,9 @@ class HealthAssistantApplication : Application() {
 
         // Setup periodic health data sync
         setupPeriodicHealthSync()
+
+        // Setup activity card generation using manual instantiation
+        setupActivityCardGeneration()
     }
 
     /**
@@ -46,5 +52,14 @@ class HealthAssistantApplication : Application() {
             ExistingPeriodicWorkPolicy.KEEP, // Keep existing work if already scheduled
             syncRequest
         )
+    }
+
+    /**
+     * Setup automatic daily activity card generation at midnight
+     */
+    private fun setupActivityCardGeneration() {
+        // Create scheduler manually and initialize
+        val activityCardScheduler = ActivityCardScheduler(this)
+        activityCardScheduler.scheduleDailyGeneration()
     }
 }

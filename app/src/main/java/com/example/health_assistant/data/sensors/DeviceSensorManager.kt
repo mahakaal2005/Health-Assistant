@@ -23,8 +23,8 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 /**
- * Manager for device sensors - works with background service for continuous tracking
- * Ensures step counting works 24/7 even when app is closed
+ * Manager for device sensors - syncs with StepTrackingService for consistent step counting
+ * Ensures step counting works 24/7 and resets properly at midnight
  */
 @Singleton
 class DeviceSensorManager @Inject constructor(
@@ -33,10 +33,11 @@ class DeviceSensorManager @Inject constructor(
 
     companion object {
         private const val TAG = "DeviceSensorManager"
-        private const val PREFS_NAME = "step_counter_prefs"
-        private const val KEY_DAILY_STEPS = "daily_steps"
-        private const val KEY_LAST_DATE = "last_date"
-        private const val KEY_INITIAL_STEP_COUNT = "initial_step_count"
+        // Use same SharedPreferences as StepTrackingService for consistency
+        private const val PREFS_NAME = "step_service_prefs"
+        private const val KEY_DAILY_STEPS = "service_daily_steps"
+        private const val KEY_LAST_DATE = "service_last_date"
+        private const val KEY_INITIAL_STEP_COUNT = "service_initial_step_count"
         private const val KEY_SERVICE_ENABLED = "service_enabled"
     }
 
@@ -57,13 +58,12 @@ class DeviceSensorManager @Inject constructor(
     val sensorAvailable: StateFlow<Boolean> = _sensorAvailable.asStateFlow()
 
     // Internal tracking variables
-    private var initialStepCount = 0L
     private var currentDate: String = getCurrentDateString()
     private var isListenerRegistered = false
 
     init {
         checkSensorAvailability()
-        loadSavedData()
+        loadStepDataFromService()
         checkForDateChange()
     }
 
@@ -78,11 +78,11 @@ class DeviceSensorManager @Inject constructor(
             return
         }
 
-        // Register sensor listeners
-        registerSensorListeners()
-
-        // Start background service for 24/7 tracking
+        // Start background service for continuous tracking
         startBackgroundService()
+
+        // Load current step data from service
+        loadStepDataFromService()
 
         _isTracking.value = true
         saveServiceState(true)
@@ -213,14 +213,7 @@ class DeviceSensorManager @Inject constructor(
         coroutineScope.launch {
             checkForDateChange()
 
-            if (initialStepCount == 0L) {
-                // First reading - establish baseline
-                initialStepCount = totalSteps - getCurrentDailySteps()
-                saveInitialStepCount(initialStepCount)
-                Log.d(TAG, "Initial step count set: $initialStepCount")
-            }
-
-            val dailySteps = (totalSteps - initialStepCount).toInt()
+            val dailySteps = (totalSteps).toInt()
             updateDailySteps(dailySteps)
         }
     }
@@ -252,20 +245,42 @@ class DeviceSensorManager @Inject constructor(
      */
     private fun checkForDateChange() {
         val today = getCurrentDateString()
+        val serviceDate = sharedPrefs.getString(KEY_LAST_DATE, today) ?: today
 
-        if (currentDate != today) {
-            Log.d(TAG, "Date changed from $currentDate to $today - resetting daily steps")
-
-            // Reset for new day
-            resetDailySteps()
-            currentDate = today
-
-            // Reset initial step count for step counter sensor
-            if (stepCounterSensor != null) {
-                initialStepCount = 0L
-                saveInitialStepCount(initialStepCount)
-            }
+        if (currentDate != serviceDate) {
+            Log.d(TAG, "Date changed detected - syncing with service data")
+            currentDate = serviceDate
+            loadStepDataFromService()
         }
+    }
+
+    /**
+     * Load step data from StepTrackingService SharedPreferences
+     */
+    private fun loadStepDataFromService() {
+        val savedSteps = sharedPrefs.getInt(KEY_DAILY_STEPS, 0)
+        val savedDate = sharedPrefs.getString(KEY_LAST_DATE, getCurrentDateString()) ?: getCurrentDateString()
+        val serviceEnabled = sharedPrefs.getBoolean(KEY_SERVICE_ENABLED, false)
+
+        _stepCount.value = savedSteps
+        currentDate = savedDate
+        _isTracking.value = serviceEnabled
+
+        Log.d(TAG, "Loaded step data from service - Steps: $savedSteps, Date: $savedDate, Service: $serviceEnabled")
+
+        // Auto-start if service was previously enabled
+        if (serviceEnabled && _sensorAvailable.value) {
+            startBackgroundService()
+        }
+    }
+
+    /**
+     * Refresh step count from service data
+     */
+    fun refreshStepCount() {
+        val currentSteps = sharedPrefs.getInt(KEY_DAILY_STEPS, 0)
+        _stepCount.value = currentSteps
+        Log.d(TAG, "Refreshed step count from service: $currentSteps")
     }
 
     /**
@@ -285,19 +300,17 @@ class DeviceSensorManager @Inject constructor(
     private fun loadSavedData() {
         val savedSteps = sharedPrefs.getInt(KEY_DAILY_STEPS, 0)
         val savedDate = sharedPrefs.getString(KEY_LAST_DATE, getCurrentDateString()) ?: getCurrentDateString()
-        val savedInitialCount = sharedPrefs.getLong(KEY_INITIAL_STEP_COUNT, 0L)
         val serviceEnabled = sharedPrefs.getBoolean(KEY_SERVICE_ENABLED, false)
 
         _stepCount.value = savedSteps
         currentDate = savedDate
-        initialStepCount = savedInitialCount
         _isTracking.value = serviceEnabled
 
         Log.d(TAG, "Loaded saved data - Steps: $savedSteps, Date: $savedDate, Service: $serviceEnabled")
 
         // Auto-start if service was previously enabled
         if (serviceEnabled && _sensorAvailable.value) {
-            registerSensorListeners()
+            startBackgroundService()
         }
     }
 
@@ -313,13 +326,6 @@ class DeviceSensorManager @Inject constructor(
      */
     private fun saveCurrentDate(date: String) {
         sharedPrefs.edit { putString(KEY_LAST_DATE, date) }
-    }
-
-    /**
-     * Save initial step count to SharedPreferences
-     */
-    private fun saveInitialStepCount(count: Long) {
-        sharedPrefs.edit { putLong(KEY_INITIAL_STEP_COUNT, count) }
     }
 
     /**
@@ -356,12 +362,6 @@ class DeviceSensorManager @Inject constructor(
     fun resetStepCount() {
         Log.d(TAG, "Manual step count reset requested")
         resetDailySteps()
-
-        // Reset initial count for step counter sensor
-        if (stepCounterSensor != null) {
-            initialStepCount = 0L
-            saveInitialStepCount(initialStepCount)
-        }
     }
 
     /**
@@ -373,8 +373,7 @@ class DeviceSensorManager @Inject constructor(
             "stepDetectorAvailable" to (stepDetectorSensor != null),
             "isTracking" to _isTracking.value,
             "currentSteps" to _stepCount.value,
-            "currentDate" to currentDate,
-            "initialStepCount" to initialStepCount
+            "currentDate" to currentDate
         )
     }
 }

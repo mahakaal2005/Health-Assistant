@@ -34,16 +34,28 @@
         android:theme="@style/Theme.HealthAssistant"
         tools:targetApi="31">
 
-        <!-- Your existing MainActivity (preserving structure) -->
+        <!-- Splash Activity - Main Launcher -->
         <activity
-            android:name=".main.MainActivity"
+            android:name=".splash.SplashActivity"
             android:exported="true"
-            android:theme="@style/Theme.HealthAssistant">
+            android:theme="@style/Theme.HealthAssistant.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <!-- Auth Activity -->
+        <activity
+            android:name=".auth.AuthActivity"
+            android:exported="false"
+            android:theme="@style/Theme.HealthAssistant.NoActionBar" />
+
+        <!-- Main Activity (remove launcher intent-filter) -->
+        <activity
+            android:name=".main.MainActivity"
+            android:exported="false"
+            android:theme="@style/Theme.HealthAssistant" />
 
         <!-- Only adding essential step tracking service -->
         <service

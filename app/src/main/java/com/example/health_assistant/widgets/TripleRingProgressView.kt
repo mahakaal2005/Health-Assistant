@@ -70,8 +70,8 @@ class TripleRingProgressView @JvmOverloads constructor(
     private val middleRingBounds = RectF()
     private val innerRingBounds = RectF()
 
-    // Animation duration in milliseconds
-    private val animationDuration = 1000L
+    // Animation duration in milliseconds - optimized for smooth, visible animation
+    private val animationDuration = 500L
 
     // Animation objects
     private var outerRingAnimator: ValueAnimator? = null
@@ -204,12 +204,15 @@ class TripleRingProgressView @JvmOverloads constructor(
 
     /**
      * Animate the progress change for a specified ring
+     * Allows all rings to start simultaneously but prevents sequence restarts
      */
     private fun animateProgress(newProgress: Float, oldProgress: Float, ringType: Int) {
+        // Check if this specific ring is already animating to prevent individual restarts
         when (ringType) {
             RING_TYPE_OUTER -> {
+                if (outerRingAnimator?.isRunning == true) return
                 outerRingAnimator?.cancel()
-                outerRingAnimator = ValueAnimator.ofFloat(oldProgress, newProgress).apply {
+                outerRingAnimator = ValueAnimator.ofFloat(0f, newProgress).apply {
                     duration = animationDuration
                     interpolator = DecelerateInterpolator()
                     addUpdateListener { valueAnimator ->
@@ -220,8 +223,9 @@ class TripleRingProgressView @JvmOverloads constructor(
                 }
             }
             RING_TYPE_MIDDLE -> {
+                if (middleRingAnimator?.isRunning == true) return
                 middleRingAnimator?.cancel()
-                middleRingAnimator = ValueAnimator.ofFloat(oldProgress, newProgress).apply {
+                middleRingAnimator = ValueAnimator.ofFloat(0f, newProgress).apply {
                     duration = animationDuration
                     interpolator = DecelerateInterpolator()
                     addUpdateListener { valueAnimator ->
@@ -232,8 +236,9 @@ class TripleRingProgressView @JvmOverloads constructor(
                 }
             }
             RING_TYPE_INNER -> {
+                if (innerRingAnimator?.isRunning == true) return
                 innerRingAnimator?.cancel()
-                innerRingAnimator = ValueAnimator.ofFloat(oldProgress, newProgress).apply {
+                innerRingAnimator = ValueAnimator.ofFloat(0f, newProgress).apply {
                     duration = animationDuration
                     interpolator = DecelerateInterpolator()
                     addUpdateListener { valueAnimator ->
