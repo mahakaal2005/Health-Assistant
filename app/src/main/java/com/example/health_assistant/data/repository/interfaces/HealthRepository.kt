@@ -3,6 +3,7 @@ package com.example.health_assistant.data.repository.interfaces
 import com.example.health_assistant.core.util.Result
 import com.example.health_assistant.features.health.model.HealthMetrics
 import com.example.health_assistant.data.models.DailyStepData
+import com.example.health_assistant.data.models.WeeklyHealthSummary
 import kotlinx.coroutines.flow.Flow
 import java.time.LocalDate
 
@@ -73,7 +74,37 @@ interface HealthRepository {
     suspend fun getWeeklyStepData(startDate: LocalDate): Result<List<DailyStepData>>
 
     /**
+     * NEW: Get weekly calories data for chart display
+     */
+    suspend fun getWeeklyCaloriesData(startDate: java.util.Date): List<DailyStepData>
+
+    /**
+     * NEW: Get weekly heart points data for chart display
+     */
+    suspend fun getWeeklyHeartPointsData(startDate: java.util.Date): List<DailyStepData>
+
+    /**
      * NEW: Save daily step data
      */
     suspend fun saveDailyStepData(stepData: DailyStepData): Result<Unit>
+
+    /**
+     * NEW: Weekly data lifecycle management - saves weekly summary and cleans old data
+     */
+    suspend fun saveWeeklyHealthSummary(userId: String, weekStartDate: LocalDate): Result<Unit>
+
+    /**
+     * NEW: Clean up old weekly data (keeps current week + 1 day buffer)
+     */
+    suspend fun cleanupOldWeeklyData(userId: String): Result<Unit>
+
+    /**
+     * NEW: Get user's weekly health history
+     */
+    suspend fun getUserWeeklyHistory(userId: String, weeksCount: Int = 4): Result<List<WeeklyHealthSummary>>
+
+    /**
+     * NEW: Auto-cleanup trigger for daily data maintenance
+     */
+    suspend fun performDailyDataMaintenance(userId: String): Result<Unit>
 }

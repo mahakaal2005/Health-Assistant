@@ -147,4 +147,12 @@
 
     <!-- Journal Entry UI -->
     <string name="arrow_icon_description">View entry details</string>
+
+    <!-- Chart Summary Strings -->
+    <string name="total_steps_format">%d steps</string>
+    <string name="daily_average_steps_format">%d/day</string>
+    <string name="total_calories_format">%d kcal</string>
+    <string name="daily_average_calories_format">%d kcal</string>
+    <string name="total_heart_points_format">%d points</string>
+    <string name="daily_average_heart_points_format">%d points</string>
 </resources>

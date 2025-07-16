@@ -40,7 +40,7 @@ import com.example.health_assistant.features.home.models.WellnessTip
 import com.example.health_assistant.features.journal.workers.ActivityCardScheduler
 import com.example.health_assistant.utils.HealthNotificationManager
 import com.example.health_assistant.utils.ProfilePhotoManager
-import com.example.health_assistant.utils.StepsChartManager
+import com.example.health_assistant.utils.ChartManager
 import com.example.health_assistant.data.models.DailyStepData
 import com.example.health_assistant.data.models.WeeklyStepSummary
 import com.github.mikephil.charting.data.BarEntry
@@ -131,6 +131,9 @@ class HomeFragment : Fragment() {
         // Check and request notification permissions
         checkNotificationPermissions()
 
+        // NEW: Trigger daily data maintenance for weekly health management
+        triggerDailyDataMaintenance()
+
         // OPTIMIZED: Use performance manager for smooth transitions
         performanceManager.lazyLoadUI(
             fragment = this,
@@ -145,7 +148,7 @@ class HomeFragment : Fragment() {
                 setupBackgroundEffects()
                 setupContextualCard()
                 setupWellnessInsights()
-                setupStepsChart() // Add steps chart setup
+                setupCharts()
                 loadProfilePhoto()
                 loadUserProfileAndUpdateGreeting()
                 setupHealthMetricsObservation()
@@ -565,299 +568,128 @@ class HomeFragment : Fragment() {
         binding.insightsRecycler.adapter = wellnessTipsAdapter
     }
 
+    private fun setupCharts() {
+        setupStepsChart()
+        setupCaloriesChart()
+        setupHeartPointsChart()
+    }
+
     /**
      * Sets up the steps chart with real data from HealthMetricsViewModel
      */
     private fun setupStepsChart() {
         try {
-            Log.d("HomeFragment", "Setting up steps chart with improved integration...")
-
-            // Show loading state initially
-            showChartLoadingState()
-
-            // Set up real-time observers for chart updates
-            setupStepsChartObservers()
-
-            // Load weekly data using the new simplified approach
-            loadWeeklyStepDataSimplified()
-
+            Log.d("HomeFragment", "Setting up steps chart...")
+            lifecycleScope.launch {
+                val startOfWeek = getStartOfWeek()
+                val weeklyDataResult = healthRepository.getWeeklyStepData(startOfWeek.toInstant().atZone(java.time.ZoneId.systemDefault()).toLocalDate())
+                if (weeklyDataResult is Result.Success) {
+                    ChartManager.setupChart(binding.stepsBarChart, weeklyDataResult.data, "steps")
+                    updateStepsChartSummary(weeklyDataResult.data) // FIXED: Add weekly goal progress update
+                }
+            }
         } catch (e: Exception) {
             Log.e("HomeFragment", "Error setting up steps chart", e)
-            setupChartWithSampleData()
         }
     }
 
-    /**
-     * IMPROVED: Simplified weekly step data loading
-     */
-    private fun loadWeeklyStepDataSimplified() {
-        lifecycleScope.launch {
-            try {
-                Log.d("HomeFragment", "Loading weekly step data (simplified approach)...")
+    // FIXED: Add missing method to update steps weekly goal progress
+    private fun updateStepsChartSummary(weeklyData: List<DailyStepData>) {
+        val total = weeklyData.sumOf { it.steps }
+        val avg = if (weeklyData.isNotEmpty()) total / weeklyData.size else 0
+        binding.totalStepsValue.text = getString(R.string.total_steps_format, total)
+        binding.dailyAverageValue.text = getString(R.string.daily_average_steps_format, avg)
 
-                val today = java.time.LocalDate.now()
-                val startOfWeek = today.minusDays(today.dayOfWeek.value.toLong() - 1) // Monday
-
-                // Use the new repository method for getting weekly data
-                when (val result = healthRepository.getWeeklyStepData(startOfWeek)) {
-                    is Result.Success -> {
-                        val weeklyData = result.data
-                        Log.d("HomeFragment", "Successfully loaded weekly step data: ${weeklyData.size} days")
-                        updateStepsChart(weeklyData)
-                    }
-                    is Result.Error -> {
-                        Log.w("HomeFragment", "Failed to load weekly step data: ${result.message}")
-                        setupChartWithSampleData()
-                    }
-                    is Result.Loading -> {
-                        // Keep showing loading state
-                        showChartLoadingState()
-                    }
-                }
-
-            } catch (e: Exception) {
-                Log.e("HomeFragment", "Error in simplified weekly data loading", e)
-                setupChartWithSampleData()
-            }
-        }
+        // FIXED: Update weekly goal progress for steps
+        val weeklyGoal = 63000 // 7 days * 9000 steps per day
+        val progressPercentage = if (weeklyGoal > 0) ((total.toFloat() / weeklyGoal) * 100).toInt() else 0
+        binding.weeklyGoalProgress.progress = progressPercentage.coerceAtMost(100)
+        binding.weeklyGoalText.text = "$total / $weeklyGoal steps (${progressPercentage}%)"
     }
 
     /**
-     * Set up observers for health data changes
+     * Sets up the calories chart.
      */
-    private fun setupStepsChartObservers() {
-        // Observe current day health metrics for real-time updates
-        healthMetricsViewModel.healthMetrics.observe(viewLifecycleOwner) { metrics ->
-            metrics?.let {
-                // Update today's data in the chart if it's already loaded
-                updateTodayDataInChart(it.steps.current, it.steps.target)
-            }
-        }
-
-        // Observe loading state
-        healthMetricsViewModel.isLoading.observe(viewLifecycleOwner) { isLoading ->
-            if (isLoading) {
-                showChartLoadingState()
-            }
-        }
-
-        // Observe errors
-        healthMetricsViewModel.error.observe(viewLifecycleOwner) { error ->
-            error?.let {
-                Log.w("HomeFragment", "Health metrics error: $it")
-                // Don't immediately fall back to sample data, keep trying
-            }
-        }
-    }
-
-    /**
-     * Show chart in loading state
-     */
-    private fun showChartLoadingState() {
-        // You can add a loading indicator here if needed
-        Log.d("HomeFragment", "Chart in loading state...")
-    }
-
-    /**
-     * Update today's data in an already loaded chart
-     */
-    private fun updateTodayDataInChart(steps: Int, goal: Int) {
+    private fun setupCaloriesChart() {
         try {
-            // Find today's entry in current chart data and update it
-            val chartData = binding.stepsBarChart.data
-            if (chartData != null && chartData.dataSetCount > 0) {
-                val dataSet = chartData.getDataSetByIndex(0) as? BarDataSet
-                val today = java.time.LocalDate.now()
-                val dayOfWeek = today.dayOfWeek.value - 1 // Monday = 0
-
-                // Update the entry for today
-                dataSet?.let { set ->
-                    if (set.entryCount > dayOfWeek) {
-                        set.removeEntry(dayOfWeek)
-                        set.addEntry(BarEntry(dayOfWeek.toFloat(), steps.toFloat()))
-
-                        // Update chart
-                        binding.stepsBarChart.data.notifyDataChanged()
-                        binding.stepsBarChart.notifyDataSetChanged()
-                        binding.stepsBarChart.invalidate()
-
-                        Log.d("HomeFragment", "Updated today's steps in chart: $steps")
-                    }
-                }
+            Log.d("HomeFragment", "Setting up calories chart...")
+            lifecycleScope.launch {
+                val startOfWeek = getStartOfWeek()
+                val weeklyCaloriesData = healthRepository.getWeeklyCaloriesData(startOfWeek)
+                ChartManager.setupChart(binding.caloriesChart, weeklyCaloriesData, "calories")
+                updateCaloriesChartSummary(weeklyCaloriesData)
             }
         } catch (e: Exception) {
-            Log.e("HomeFragment", "Error updating today's data in chart", e)
+            Log.e("HomeFragment", "Error setting up calories chart", e)
         }
     }
 
+    private fun updateCaloriesChartSummary(weeklyData: List<DailyStepData>) {
+        val total = weeklyData.sumOf { it.calories }
+        val avg = if (weeklyData.isNotEmpty()) total / weeklyData.size else 0
+        binding.totalCaloriesValue.text = getString(R.string.total_calories_format, total)
+        binding.dailyCaloriesAverageValue.text = getString(R.string.daily_average_calories_format, avg)
+
+        // FIXED: Update weekly goal progress for calories
+        val weeklyGoal = 2100 // 7 days * 300 calories per day
+        val progressPercentage = if (weeklyGoal > 0) ((total.toFloat() / weeklyGoal) * 100).toInt() else 0
+        binding.caloriesWeeklyGoalProgress.progress = progressPercentage.coerceAtMost(100)
+        binding.caloriesWeeklyGoalText.text = "$total / $weeklyGoal kcal (${progressPercentage}%)"
+    }
+
     /**
-     * Load real weekly step data from health repository - IMPROVED VERSION
+     * Sets up the heart points chart.
      */
-    private fun loadWeeklyStepData() {
+    private fun setupHeartPointsChart() {
+        try {
+            Log.d("HomeFragment", "Setting up heart points chart...")
+            lifecycleScope.launch {
+                val startOfWeek = getStartOfWeek()
+                val weeklyHeartPointsData = healthRepository.getWeeklyHeartPointsData(startOfWeek)
+                ChartManager.setupChart(binding.heartPointsChart, weeklyHeartPointsData, "heartPoints")
+                updateHeartPointsChartSummary(weeklyHeartPointsData)
+            }
+        } catch (e: Exception) {
+            Log.e("HomeFragment", "Error setting up heart points chart", e)
+        }
+    }
+
+    private fun updateHeartPointsChartSummary(weeklyData: List<DailyStepData>) {
+        val total = weeklyData.sumOf { it.heartPoints }
+        val avg = if (weeklyData.isNotEmpty()) total / weeklyData.size else 0
+        binding.totalHeartPointsValue.text = getString(R.string.total_heart_points_format, total)
+        binding.dailyHeartPointsAverageValue.text = getString(R.string.daily_average_heart_points_format, avg)
+
+        // FIXED: Update weekly goal progress for heart points
+        val weeklyGoal = 350 // 7 days * 50 heart points per day
+        val progressPercentage = if (weeklyGoal > 0) ((total.toFloat() / weeklyGoal) * 100).toInt() else 0
+        binding.heartPointsWeeklyGoalProgress.progress = progressPercentage.coerceAtMost(100)
+        binding.heartPointsWeeklyGoalText.text = "$total / $weeklyGoal points (${progressPercentage}%)"
+    }
+
+    /**
+     * Observe real-time step data updates to refresh chart automatically
+     */
+    private fun observeRealTimeStepUpdates() {
         lifecycleScope.launch {
-            try {
-                Log.d("HomeFragment", "Loading weekly step data...")
+            // Observe health metrics changes in real-time
+            healthMetricsViewModel.healthMetrics.observe(viewLifecycleOwner) { metrics ->
+                metrics?.let { currentMetrics ->
+                    // Update today's step data in the repository and refresh chart
+                    val today = java.time.LocalDate.now()
+                    val todayStepData = DailyStepData(
+                        date = today,
+                        steps = currentMetrics.steps.current,
+                        goal = currentMetrics.steps.target
+                    )
 
-                val today = java.time.LocalDate.now()
-                val startOfWeek = today.minusDays(today.dayOfWeek.value.toLong() - 1)
-
-                val weeklyStepData = mutableListOf<DailyStepData>()
-                var loadedDays = 0
-                val totalDays = 7
-
-                // Load data for each day of the week - IMPROVED APPROACH
-                for (dayOffset in 0..6) {
-                    val date = startOfWeek.plusDays(dayOffset.toLong())
-
-                    // Launch each day's data loading in parallel
-                    launch {
-                        try {
-                            // For future dates, set steps to 0
-                            if (date.isAfter(today)) {
-                                synchronized(weeklyStepData) {
-                                    weeklyStepData.add(
-                                        DailyStepData(
-                                            date = date,
-                                            steps = 0,
-                                            goal = 10000
-                                        )
-                                    )
-                                    loadedDays++
-
-                                    // Check if all days are loaded
-                                    if (loadedDays == totalDays) {
-                                        updateStepsChart(weeklyStepData.sortedBy { it.date })
-                                    }
-                                }
-                                return@launch
-                            }
-
-                            // For today and past dates, try to get real data
-                            var dataLoaded = false
-
-                            healthRepository.getDailyHealthMetrics(date.toString()).collect { result ->
-                                when (result) {
-                                    is Result.Success -> {
-                                        if (!dataLoaded) {
-                                            val metrics = result.data
-                                            val steps = metrics?.steps?.current ?: 0
-                                            val goal = metrics?.steps?.target ?: 10000
-
-                                            synchronized(weeklyStepData) {
-                                                weeklyStepData.add(
-                                                    DailyStepData(
-                                                        date = date,
-                                                        steps = steps,
-                                                        goal = goal
-                                                    )
-                                                )
-                                                loadedDays++
-                                                dataLoaded = true
-
-                                                Log.d("HomeFragment", "Loaded data for $date: $steps steps")
-
-                                                // Check if all days are loaded
-                                                if (loadedDays == totalDays) {
-                                                    updateStepsChart(weeklyStepData.sortedBy { it.date })
-                                                }
-                                            }
-                                        }
-                                    }
-                                    is Result.Error -> {
-                                        if (!dataLoaded) {
-                                            Log.w("HomeFragment", "Failed to load step data for $date: ${result.message}")
-
-                                            // Add reasonable fallback data
-                                            val fallbackSteps = if (date == today) {
-                                                // For today, try to get current metrics from ViewModel
-                                                healthMetricsViewModel.healthMetrics.value?.steps?.current ?: 0
-                                            } else {
-                                                // For past days, generate reasonable random data
-                                                (3000..12000).random()
-                                            }
-
-                                            synchronized(weeklyStepData) {
-                                                weeklyStepData.add(
-                                                    DailyStepData(
-                                                        date = date,
-                                                        steps = fallbackSteps,
-                                                        goal = 10000
-                                                    )
-                                                )
-                                                loadedDays++
-                                                dataLoaded = true
-
-                                                // Check if all days are loaded
-                                                if (loadedDays == totalDays) {
-                                                    updateStepsChart(weeklyStepData.sortedBy { it.date })
-                                                }
-                                            }
-                                        }
-                                    }
-                                    is Result.Loading -> {
-                                        // Continue waiting
-                                    }
-                                }
-                            }
-
-                            // Timeout fallback - if no data after 3 seconds, add fallback data
-                            kotlinx.coroutines.delay(3000)
-                            if (!dataLoaded) {
-                                Log.w("HomeFragment", "Timeout loading data for $date, using fallback")
-
-                                val fallbackSteps = if (date == today) {
-                                    healthMetricsViewModel.healthMetrics.value?.steps?.current ?: 0
-                                } else {
-                                    (3000..12000).random()
-                                }
-
-                                synchronized(weeklyStepData) {
-                                    weeklyStepData.add(
-                                        DailyStepData(
-                                            date = date,
-                                            steps = fallbackSteps,
-                                            goal = 10000
-                                        )
-                                    )
-                                    loadedDays++
-
-                                    if (loadedDays == totalDays) {
-                                        updateStepsChart(weeklyStepData.sortedBy { it.date })
-                                    }
-                                }
-                            }
-
-                        } catch (e: Exception) {
-                            Log.w("HomeFragment", "Exception loading data for $date", e)
-
-                            synchronized(weeklyStepData) {
-                                weeklyStepData.add(
-                                    DailyStepData(
-                                        date = date,
-                                        steps = if (date == today) 0 else (3000..12000).random(),
-                                        goal = 10000
-                                    )
-                                )
-                                loadedDays++
-
-                                if (loadedDays == totalDays) {
-                                    updateStepsChart(weeklyStepData.sortedBy { it.date })
-                                }
-                            }
-                        }
+                    // Save updated step data and refresh chart
+                    lifecycleScope.launch {
+                        healthRepository.saveDailyStepData(todayStepData)
+                        // Refresh the chart with updated data
+                        setupStepsChart()
                     }
                 }
-
-                // Final timeout fallback - if no chart update after 5 seconds, use sample data
-                kotlinx.coroutines.delay(5000)
-                if (loadedDays < totalDays || weeklyStepData.size < totalDays) {
-                    Log.w("HomeFragment", "Final timeout, using sample data. Loaded: $loadedDays/$totalDays")
-                    setupChartWithSampleData()
-                }
-
-            } catch (e: Exception) {
-                Log.e("HomeFragment", "Error loading weekly step data", e)
-                setupChartWithSampleData()
             }
         }
     }
@@ -868,7 +700,7 @@ class HomeFragment : Fragment() {
     private fun updateStepsChart(weeklyData: List<DailyStepData>) {
         try {
             // Setup the chart using our StepsChartManager with real data
-            StepsChartManager.setupStepsChart(binding.stepsBarChart, weeklyData)
+            ChartManager.setupChart(binding.stepsBarChart, weeklyData, "steps")
 
             // Update the summary data in the UI
             updateStepsSummaryUI(WeeklyStepSummary(weeklyData))
@@ -877,7 +709,6 @@ class HomeFragment : Fragment() {
 
         } catch (e: Exception) {
             Log.e("HomeFragment", "Error updating steps chart", e)
-            setupChartWithSampleData()
         }
     }
 
@@ -889,10 +720,10 @@ class HomeFragment : Fragment() {
             Log.w("HomeFragment", "Using sample data for steps chart")
 
             // Generate sample weekly data for demonstration
-            val weeklyData = StepsChartManager.generateSampleWeeklyData()
+            val weeklyData = ChartManager.generateSampleWeeklyData()
 
             // Setup the chart using our StepsChartManager
-            StepsChartManager.setupStepsChart(binding.stepsBarChart, weeklyData)
+            ChartManager.setupChart(binding.stepsBarChart, weeklyData, "steps")
 
             // Update the summary data in the UI
             updateStepsSummaryUI(WeeklyStepSummary(weeklyData))
@@ -1129,32 +960,6 @@ class HomeFragment : Fragment() {
         observeRealTimeStepUpdates()
     }
 
-    /**
-     * Add observer for real-time step data updates to refresh chart automatically
-     */
-    private fun observeRealTimeStepUpdates() {
-        lifecycleScope.launch {
-            // Observe health metrics changes in real-time
-            healthMetricsViewModel.healthMetrics.observe(viewLifecycleOwner) { metrics ->
-                metrics?.let { currentMetrics ->
-                    // Update today's step data in the repository and refresh chart
-                    val today = java.time.LocalDate.now()
-                    val todayStepData = DailyStepData(
-                        date = today,
-                        steps = currentMetrics.steps.current,
-                        goal = currentMetrics.steps.target
-                    )
-
-                    // Save updated step data and refresh chart
-                    lifecycleScope.launch {
-                        healthRepository.saveDailyStepData(todayStepData)
-                        // Refresh the chart with updated data
-                        loadWeeklyStepDataSimplified()
-                    }
-                }
-            }
-        }
-    }
 
     /**
      * Check and request notification permissions for Android 13+
@@ -1260,6 +1065,60 @@ class HomeFragment : Fragment() {
      */
     private fun testGenerateActivityCard() {
         triggerActivityCardGeneration()
+    }
+
+    // NEW: Setup and update methods for calories and heart points charts
+
+    private fun getStartOfWeek(): Date {
+        val calendar = Calendar.getInstance()
+        calendar.set(Calendar.DAY_OF_WEEK, calendar.firstDayOfWeek)
+        calendar.set(Calendar.HOUR_OF_DAY, 0)
+        calendar.set(Calendar.MINUTE, 0)
+        calendar.set(Calendar.SECOND, 0)
+        calendar.set(Calendar.MILLISECOND, 0)
+        return calendar.time
+    }
+
+    /**
+     * Trigger daily data maintenance for weekly health management
+     */
+    private fun triggerDailyDataMaintenance() {
+        lifecycleScope.launch {
+            try {
+                Log.d("HomeFragment", "🛠️ TRIGGERING DAILY DATA MAINTENANCE")
+
+                // Get current user ID from session
+                val userId = sessionManager.getCurrentUserEmail() ?: "default_user"
+
+                // Perform daily data maintenance through HealthRepository
+                val maintenanceResult = healthRepository.performDailyDataMaintenance(userId)
+
+                when (maintenanceResult) {
+                    is Result.Success -> {
+                        Log.d("HomeFragment", "✅ Daily data maintenance completed successfully")
+
+                        // Refresh health metrics after maintenance
+                        healthMetricsViewModel.refreshMetrics()
+
+                        // Optionally show a subtle notification to user
+                        // Toast.makeText(context, "Health data updated", Toast.LENGTH_SHORT).show()
+                    }
+                    is Result.Error -> {
+                        Log.w("HomeFragment", "⚠️ Daily data maintenance encountered issues: ${maintenanceResult.message}")
+                        // Don't show error to user as this is background maintenance
+                    }
+                    else -> {
+                        Log.d("HomeFragment", "🔄 Daily data maintenance in progress")
+                    }
+                }
+
+                Log.d("HomeFragment", "🏁 Daily data maintenance process completed")
+
+            } catch (e: Exception) {
+                Log.e("HomeFragment", "❌ Error triggering daily data maintenance", e)
+                // Fail silently for background maintenance
+            }
+        }
     }
 
     override fun onDestroyView() {

@@ -9,6 +9,10 @@ data class DailyStepData(
     val date: LocalDate,
     val steps: Int,
     val goal: Int = 10000, // Default daily goal
+    val calories: Int = 0, // Daily calories burned
+    val caloriesGoal: Int = 300, // Default daily calories goal
+    val heartPoints: Int = 0, // Daily heart points earned
+    val heartPointsGoal: Int = 50, // Default daily heart points goal
     val dayOfWeek: String = date.dayOfWeek.name
 ) {
     /**
