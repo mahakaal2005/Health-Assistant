@@ -102,6 +102,25 @@ class JournalAdapter(
                             binding.entryType.setBackgroundColor(android.graphics.Color.parseColor("#D1C4E9"))
                             binding.entryDate.setTextColor(android.graphics.Color.parseColor("#7B1FA2"))
                         }
+                        "activity_card" -> {
+                            // Activity Card styling - Light green background (#E8F5E8) with health theme
+                            binding.cardView.setCardBackgroundColor(android.graphics.Color.parseColor("#E8F5E8"))
+                            binding.entryTitle.text = "Daily Activity Summary"
+                            binding.entryTitle.setTextColor(android.graphics.Color.parseColor("#1B5E20"))
+
+                            // Parse the activity data from content and create a nice display
+                            val content = entry.content ?: ""
+                            val steps = content.substringAfter("steps:").substringBefore(",").trim().toIntOrNull() ?: 0
+                            val calories = content.substringAfter("calories:").substringBefore(",").trim().toIntOrNull() ?: 0
+                            val heartPoints = content.substringAfter("heartPoints:").trim().toIntOrNull() ?: 0
+
+                            binding.entryDescription.text = "🚶 $steps steps  •  🔥 $calories kcal  •  ❤️ $heartPoints points"
+                            binding.entryDescription.setTextColor(android.graphics.Color.parseColor("#2E7D32"))
+                            binding.entryType.text = "Activity"
+                            binding.entryType.setTextColor(android.graphics.Color.parseColor("#388E3C"))
+                            binding.entryType.setBackgroundColor(android.graphics.Color.parseColor("#C8E6C9"))
+                            binding.entryDate.setTextColor(android.graphics.Color.parseColor("#388E3C"))
+                        }
                         else -> {
                             // Fallback for other generic types - default white background
                             binding.cardView.setCardBackgroundColor(context.getColor(android.R.color.white))

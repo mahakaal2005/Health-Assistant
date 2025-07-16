@@ -166,7 +166,7 @@ class TripleRingProgressView @JvmOverloads constructor(
      */
     fun setStepsProgress(current: Int, target: Int) {
         val progress = if (target > 0) (current.toFloat() / target).coerceIn(0f, 1f) else 0f
-        animateProgress(progress, outerRingProgress, RING_TYPE_OUTER)
+        updateProgress(progress, RING_TYPE_OUTER)
         outerRingProgress = progress
     }
 
@@ -177,7 +177,7 @@ class TripleRingProgressView @JvmOverloads constructor(
      */
     fun setCaloriesProgress(current: Int, target: Int) {
         val progress = if (target > 0) (current.toFloat() / target).coerceIn(0f, 1f) else 0f
-        animateProgress(progress, middleRingProgress, RING_TYPE_MIDDLE)
+        updateProgress(progress, RING_TYPE_MIDDLE)
         middleRingProgress = progress
     }
 
@@ -188,7 +188,7 @@ class TripleRingProgressView @JvmOverloads constructor(
      */
     fun setHeartPointsProgress(current: Int, target: Int) {
         val progress = if (target > 0) (current.toFloat() / target).coerceIn(0f, 1f) else 0f
-        animateProgress(progress, innerRingProgress, RING_TYPE_INNER)
+        updateProgress(progress, RING_TYPE_INNER)
         innerRingProgress = progress
     }
 
@@ -204,52 +204,85 @@ class TripleRingProgressView @JvmOverloads constructor(
     }
 
     /**
-     * Animate the progress change for a specified ring
-     * Allows all rings to start simultaneously but prevents sequence restarts
+     * Update progress with improved animation logic
      */
-    private fun animateProgress(newProgress: Float, oldProgress: Float, ringType: Int) {
-        // Check if this specific ring is already animating to prevent individual restarts
+    private fun updateProgress(newProgress: Float, ringType: Int) {
         when (ringType) {
             RING_TYPE_OUTER -> {
-                if (outerRingAnimator?.isRunning == true) return
+                val currentProgress = animatedOuterRingProgress
                 outerRingAnimator?.cancel()
-                outerRingAnimator = ValueAnimator.ofFloat(0f, newProgress).apply {
-                    duration = animationDuration
-                    interpolator = DecelerateInterpolator()
-                    addUpdateListener { valueAnimator ->
-                        animatedOuterRingProgress = valueAnimator.animatedValue as Float
-                        invalidate()
+                if (newProgress != currentProgress) {
+                    outerRingAnimator = ValueAnimator.ofFloat(currentProgress, newProgress).apply {
+                        duration = if (currentProgress == 0f) animationDuration else (animationDuration * 0.6).toLong()
+                        interpolator = DecelerateInterpolator()
+                        addUpdateListener { valueAnimator ->
+                            animatedOuterRingProgress = valueAnimator.animatedValue as Float
+                            invalidate()
+                        }
+                        start()
                     }
-                    start()
+                } else {
+                    // If progress is the same, just ensure it's displayed
+                    animatedOuterRingProgress = newProgress
+                    invalidate()
                 }
             }
             RING_TYPE_MIDDLE -> {
-                if (middleRingAnimator?.isRunning == true) return
+                val currentProgress = animatedMiddleRingProgress
                 middleRingAnimator?.cancel()
-                middleRingAnimator = ValueAnimator.ofFloat(0f, newProgress).apply {
-                    duration = animationDuration
-                    interpolator = DecelerateInterpolator()
-                    addUpdateListener { valueAnimator ->
-                        animatedMiddleRingProgress = valueAnimator.animatedValue as Float
-                        invalidate()
+                if (newProgress != currentProgress) {
+                    middleRingAnimator = ValueAnimator.ofFloat(currentProgress, newProgress).apply {
+                        duration = if (currentProgress == 0f) animationDuration else (animationDuration * 0.6).toLong()
+                        interpolator = DecelerateInterpolator()
+                        addUpdateListener { valueAnimator ->
+                            animatedMiddleRingProgress = valueAnimator.animatedValue as Float
+                            invalidate()
+                        }
+                        start()
                     }
-                    start()
+                } else {
+                    animatedMiddleRingProgress = newProgress
+                    invalidate()
                 }
             }
             RING_TYPE_INNER -> {
-                if (innerRingAnimator?.isRunning == true) return
+                val currentProgress = animatedInnerRingProgress
                 innerRingAnimator?.cancel()
-                innerRingAnimator = ValueAnimator.ofFloat(0f, newProgress).apply {
-                    duration = animationDuration
-                    interpolator = DecelerateInterpolator()
-                    addUpdateListener { valueAnimator ->
-                        animatedInnerRingProgress = valueAnimator.animatedValue as Float
-                        invalidate()
+                if (newProgress != currentProgress) {
+                    innerRingAnimator = ValueAnimator.ofFloat(currentProgress, newProgress).apply {
+                        duration = if (currentProgress == 0f) animationDuration else (animationDuration * 0.6).toLong()
+                        interpolator = DecelerateInterpolator()
+                        addUpdateListener { valueAnimator ->
+                            animatedInnerRingProgress = valueAnimator.animatedValue as Float
+                            invalidate()
+                        }
+                        start()
                     }
-                    start()
+                } else {
+                    animatedInnerRingProgress = newProgress
+                    invalidate()
                 }
             }
         }
+    }
+
+    /**
+     * Set progress immediately without animation (for testing or instant updates)
+     */
+    fun setProgressInstant(stepsProgress: Float, caloriesProgress: Float, heartPointsProgress: Float) {
+        outerRingAnimator?.cancel()
+        middleRingAnimator?.cancel()
+        innerRingAnimator?.cancel()
+
+        animatedOuterRingProgress = stepsProgress.coerceIn(0f, 1f)
+        animatedMiddleRingProgress = caloriesProgress.coerceIn(0f, 1f)
+        animatedInnerRingProgress = heartPointsProgress.coerceIn(0f, 1f)
+
+        outerRingProgress = animatedOuterRingProgress
+        middleRingProgress = animatedMiddleRingProgress
+        innerRingProgress = animatedInnerRingProgress
+
+        invalidate()
     }
 
     /**
