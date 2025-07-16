@@ -293,78 +293,6 @@
                 </FrameLayout>
             </androidx.cardview.widget.CardView>
 
-            <!-- Progress Section -->
-            <TextView
-                android:id="@+id/progress_section_title"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="24dp"
-                android:layout_marginTop="24dp"
-                android:text="My Progress"
-                style="@style/TextAppearance.HealthAssistant.SectionTitle"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/health_stats_card" />
-
-            <!-- Weekly Progress Card -->
-            <androidx.cardview.widget.CardView
-                android:id="@+id/weekly_progress_card"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
-                android:layout_marginTop="16dp"
-                android:layout_marginEnd="16dp"
-                app:cardBackgroundColor="@android:color/transparent"
-                app:cardCornerRadius="@dimen/corner_radius_large"
-                app:cardElevation="@dimen/card_elevation_small"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/progress_section_title">
-
-                <FrameLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:background="@drawable/glassmorphism_card_background">
-
-                    <androidx.constraintlayout.widget.ConstraintLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:padding="16dp">
-
-                        <TextView
-                            android:id="@+id/chart_title"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="Steps This Week"
-                            android:textSize="16sp"
-                            android:textStyle="bold"
-                            android:textColor="@color/textPrimary"
-                            app:layout_constraintStart_toStartOf="parent"
-                            app:layout_constraintTop_toTopOf="parent" />
-
-                        <!-- Chart Placeholder - Replace with actual chart implementation -->
-                        <View
-                            android:id="@+id/chart_placeholder"
-                            android:layout_width="0dp"
-                            android:layout_height="150dp"
-                            android:layout_marginTop="12dp"
-                            android:background="#1AFFFFFF"
-                            app:layout_constraintEnd_toEndOf="parent"
-                            app:layout_constraintStart_toStartOf="parent"
-                            app:layout_constraintTop_toBottomOf="@+id/chart_title" />
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="Bar Chart Placeholder"
-                            android:textColor="@color/textSecondary"
-                            app:layout_constraintBottom_toBottomOf="@+id/chart_placeholder"
-                            app:layout_constraintEnd_toEndOf="@+id/chart_placeholder"
-                            app:layout_constraintStart_toStartOf="@+id/chart_placeholder"
-                            app:layout_constraintTop_toTopOf="@+id/chart_placeholder" />
-                    </androidx.constraintlayout.widget.ConstraintLayout>
-                </FrameLayout>
-            </androidx.cardview.widget.CardView>
-
             <!-- Health Highlights Section -->
             <TextView
                 android:id="@+id/highlights_section_title"
@@ -375,7 +303,7 @@
                 android:text="Health Highlights"
                 style="@style/TextAppearance.HealthAssistant.SectionTitle"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/weekly_progress_card" />
+                app:layout_constraintTop_toBottomOf="@+id/health_stats_card" />
 
             <!-- Health Highlights Recycler -->
             <androidx.recyclerview.widget.RecyclerView

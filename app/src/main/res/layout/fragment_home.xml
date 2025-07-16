@@ -356,6 +356,161 @@
                 </FrameLayout>
             </androidx.cardview.widget.CardView>
 
+            <!-- My Progress Section -->
+            <TextView
+                android:id="@+id/my_progress_title"
+                style="@style/TextAppearance.HealthAssistant.SectionTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="24dp"
+                android:layout_marginTop="32dp"
+                android:text="My Progress"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/contextual_card" />
+
+            <!-- Steps This Week Card -->
+            <androidx.cardview.widget.CardView
+                android:id="@+id/steps_this_week_card"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="16dp"
+                android:layout_marginEnd="16dp"
+                app:cardBackgroundColor="@android:color/transparent"
+                app:cardCornerRadius="@dimen/corner_radius_large"
+                app:cardElevation="@dimen/card_elevation_small"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/my_progress_title">
+
+                <FrameLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/glassmorphism_card_background">
+
+                    <androidx.constraintlayout.widget.ConstraintLayout
+                        android:id="@+id/steps_chart_container"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:padding="24dp">
+
+                        <TextView
+                            android:id="@+id/steps_chart_title"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Steps This Week"
+                            android:textSize="18sp"
+                            android:textStyle="bold"
+                            android:textColor="@color/textPrimary"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toTopOf="parent" />
+
+                        <!-- Steps Summary Row -->
+                        <LinearLayout
+                            android:id="@+id/steps_summary_row"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="8dp"
+                            android:orientation="horizontal"
+                            android:gravity="center_vertical"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toBottomOf="@+id/steps_chart_title">
+
+                            <TextView
+                                android:id="@+id/total_steps_label"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Total: "
+                                android:textSize="14sp"
+                                android:textColor="@color/textSecondary" />
+
+                            <TextView
+                                android:id="@+id/total_steps_value"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="42,350 steps"
+                                android:textSize="14sp"
+                                android:textStyle="bold"
+                                android:textColor="@color/textPrimary" />
+
+                            <View
+                                android:layout_width="0dp"
+                                android:layout_height="1dp"
+                                android:layout_weight="1" />
+
+                            <TextView
+                                android:id="@+id/daily_average_label"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Avg: "
+                                android:textSize="14sp"
+                                android:textColor="@color/textSecondary" />
+
+                            <TextView
+                                android:id="@+id/daily_average_value"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="6,050/day"
+                                android:textSize="14sp"
+                                android:textStyle="bold"
+                                android:textColor="@color/textPrimary" />
+
+                        </LinearLayout>
+
+                        <!-- Chart Container - Real MPAndroidChart BarChart -->
+                        <com.github.mikephil.charting.charts.BarChart
+                            android:id="@+id/steps_bar_chart"
+                            android:layout_width="0dp"
+                            android:layout_height="180dp"
+                            android:layout_marginTop="16dp"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toBottomOf="@+id/steps_summary_row" />
+
+                        <!-- Weekly Goal Progress -->
+                        <LinearLayout
+                            android:id="@+id/weekly_goal_container"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="16dp"
+                            android:orientation="vertical"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toBottomOf="@+id/steps_bar_chart">
+
+                            <TextView
+                                android:id="@+id/weekly_goal_label"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Weekly Goal Progress"
+                                android:textSize="14sp"
+                                android:textStyle="bold"
+                                android:textColor="@color/textPrimary" />
+
+                            <com.google.android.material.progressindicator.LinearProgressIndicator
+                                android:id="@+id/weekly_goal_progress"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="8dp"
+                                android:progress="60"
+                                app:indicatorColor="@color/progress_green"
+                                app:trackColor="#30FFFFFF"
+                                app:trackCornerRadius="4dp" />
+
+                            <TextView
+                                android:id="@+id/weekly_goal_text"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="4dp"
+                                android:text="42,350 / 70,000 steps (60%)"
+                                android:textSize="12sp"
+                                android:textColor="@color/textSecondary" />
+
+                        </LinearLayout>
+
+                    </androidx.constraintlayout.widget.ConstraintLayout>
+                </FrameLayout>
+            </androidx.cardview.widget.CardView>
+
             <!-- Quick Actions Section -->
             <TextView
                 android:id="@+id/quick_actions_title"
@@ -366,7 +521,7 @@
                 android:layout_marginTop="32dp"
                 android:text="Quick Actions"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/contextual_card" />
+                app:layout_constraintTop_toBottomOf="@+id/steps_this_week_card" />
 
             <!-- Quick Actions as Pill-shaped Floating Action Buttons -->
             <HorizontalScrollView

@@ -127,6 +127,9 @@ dependencies {
     // Add Gson dependency for Room TypeConverters
     implementation("com.google.code.gson:gson:2.10.1")
 
+    // MPAndroidChart for step tracking visualization
+    implementation(libs.mpandroidchart)
+
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.material)
