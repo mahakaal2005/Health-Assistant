@@ -11,7 +11,7 @@ import javax.inject.Singleton
 
 /**
  * Dependency injection module for Activity Card feature
- * Provides repository implementation using existing journal infrastructure
+ * Uses existing journal system to maintain compatibility
  */
 @Module
 @InstallIn(SingletonComponent::class)
@@ -20,8 +20,8 @@ object ActivityCardModule {
     @Provides
     @Singleton
     fun provideActivityCardRepository(
-        journalEntryDao: JournalEntryDao
+        journalDao: JournalEntryDao
     ): ActivityCardRepository {
-        return ActivityCardRepositoryImpl(journalEntryDao)
+        return ActivityCardRepositoryImpl(journalDao)
     }
 }

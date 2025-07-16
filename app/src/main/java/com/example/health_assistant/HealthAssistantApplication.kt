@@ -1,11 +1,13 @@
 package com.example.health_assistant
 
 import android.app.Application
+import androidx.work.Configuration
 import androidx.work.Constraints
 import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.NetworkType
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
+import androidx.hilt.work.HiltWorkerFactory
 import com.example.health_assistant.workers.HealthDataSyncWorker
 import com.example.health_assistant.features.journal.workers.ActivityCardScheduler
 import com.google.firebase.FirebaseApp
@@ -17,7 +19,13 @@ import javax.inject.Inject
  * Application class for initializing Firebase and setting up background health sync
  */
 @HiltAndroidApp
-class HealthAssistantApplication : Application() {
+class HealthAssistantApplication : Application(), Configuration.Provider {
+
+    @Inject
+    lateinit var workerFactory: HiltWorkerFactory
+
+    @Inject
+    lateinit var activityCardScheduler: ActivityCardScheduler
 
     override fun onCreate() {
         super.onCreate()
@@ -28,9 +36,14 @@ class HealthAssistantApplication : Application() {
         // Setup periodic health data sync
         setupPeriodicHealthSync()
 
-        // Setup activity card generation using manual instantiation
+        // Setup activity card generation using Hilt-injected scheduler
         setupActivityCardGeneration()
     }
+
+    override val workManagerConfiguration: Configuration
+        get() = Configuration.Builder()
+            .setWorkerFactory(workerFactory)
+            .build()
 
     /**
      * Setup periodic background sync for health data from Google Fit
@@ -58,8 +71,7 @@ class HealthAssistantApplication : Application() {
      * Setup automatic daily activity card generation at midnight
      */
     private fun setupActivityCardGeneration() {
-        // Create scheduler manually and initialize
-        val activityCardScheduler = ActivityCardScheduler(this)
+        // Use Hilt-injected scheduler instead of manual creation
         activityCardScheduler.scheduleDailyGeneration()
     }
 }

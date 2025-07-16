@@ -11,21 +11,24 @@ import com.example.health_assistant.data.local.dao.ProfileImageDao
 import com.example.health_assistant.data.local.entity.ProfileImageEntity
 import com.example.health_assistant.data.local.entity.PrescriptionEntity
 import com.example.health_assistant.data.model.DiseaseCategoryEntity
+import com.example.health_assistant.features.journal.data.ActivityCardDao
 import com.example.health_assistant.features.journal.data.JournalEntryDao
 import com.example.health_assistant.features.journal.data.JournalEntryEntity
+import com.example.health_assistant.features.journal.domain.ActivityCard
 
 /**
  * Main database for the Health Assistant application
- * Integrates all entities: prescriptions, profile images, disease categories, and journal entries
+ * Integrates all entities: prescriptions, profile images, disease categories, journal entries, and activity cards
  */
 @Database(
     entities = [
         PrescriptionEntity::class,
         DiseaseCategoryEntity::class,
         JournalEntryEntity::class,
-        ProfileImageEntity::class
+        ProfileImageEntity::class,
+        ActivityCard::class
     ],
-    version = 3, // Increment to include journal schema fixes
+    version = 4, // Increment to include ActivityCard table
     exportSchema = false
 )
 @TypeConverters(Converters::class)
@@ -35,6 +38,7 @@ abstract class HealthAssistantDatabase : RoomDatabase() {
     abstract fun diseaseCategoryDao(): DiseaseCategoryDao
     abstract fun journalEntryDao(): JournalEntryDao
     abstract fun profileImageDao(): ProfileImageDao
+    abstract fun activityCardDao(): ActivityCardDao
 
     companion object {
         const val DATABASE_NAME = "health_assistant_database"

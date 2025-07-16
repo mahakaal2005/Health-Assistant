@@ -36,8 +36,10 @@ import com.example.health_assistant.features.health.model.HealthMetrics
 import com.example.health_assistant.features.health.viewmodel.HealthMetricsViewModel
 import com.example.health_assistant.features.home.adapters.WellnessTipsAdapter
 import com.example.health_assistant.features.home.models.WellnessTip
+import com.example.health_assistant.features.journal.workers.ActivityCardScheduler
 import com.example.health_assistant.utils.HealthNotificationManager
 import com.example.health_assistant.utils.ProfilePhotoManager
+import androidx.work.WorkManager
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
@@ -79,6 +81,10 @@ class HomeFragment : Fragment() {
     // NEW: Inject HealthNotificationManager for step notifications
     @Inject
     lateinit var notificationManager: HealthNotificationManager
+
+    // CRITICAL FIX: Inject ActivityCardScheduler instead of manually creating it
+    @Inject
+    lateinit var activityCardScheduler: ActivityCardScheduler
 
     private lateinit var wellnessTipsAdapter: WellnessTipsAdapter
 
@@ -454,6 +460,20 @@ class HomeFragment : Fragment() {
         binding.stepsValue.text = "0 / 9000 steps"
         binding.caloriesValue.text = "0 / 300 kcal"
         binding.heartPointsValue.text = "0 / 50 points"
+
+        // NEW: Add click handler for health rings to trigger activity card generation
+        binding.tripleRingProgress.setOnClickListener {
+            Log.d("HomeFragment", "Health rings clicked - triggering activity card generation")
+            animatePressEffect(binding.tripleRingProgress)
+            triggerActivityCardGeneration()
+        }
+
+        // Also add click handler to the health summary card
+        binding.healthSummaryCard.setOnClickListener {
+            Log.d("HomeFragment", "Health summary card clicked - triggering activity card generation")
+            animatePressEffect(binding.healthSummaryCard)
+            triggerActivityCardGeneration()
+        }
     }
 
     /**
@@ -800,16 +820,43 @@ class HomeFragment : Fragment() {
      * Setup test buttons for notification functionality (for testing purposes)
      */
     private fun setupNotificationTestButtons() {
-         // Remove all debug test buttons - notification system is now working
-        // The health ring and cards will now function normally without test notifications
+        // Add a simple click handler for testing activity card generation
+        // The health rings will trigger activity card generation when clicked
+        Log.d("HomeFragment", "Notification test setup complete - health rings clickable for testing")
+    }
 
-        // Optional: Keep a simple tap for testing if needed, but without debug messages
-        binding.tripleRingProgress.setOnClickListener {
-            // Normal health ring interaction - could navigate to detailed health stats
-            // For now, just a subtle feedback without debug messages
+    /**
+     * Trigger activity card generation using properly injected Hilt scheduler
+     */
+    private fun triggerActivityCardGeneration() {
+        try {
+            Log.d("HomeFragment", "🎯 TRIGGERING ACTIVITY CARD GENERATION")
+
+            // CRITICAL FIX: Use Hilt-injected scheduler directly without WorkManager cache clearing
+            // This ensures the HiltWorkerFactory is used properly
+            activityCardScheduler.forceGenerateCardForToday()
+
+            Log.d("HomeFragment", "✅ Activity card generation triggered successfully")
+
+            // Show user feedback
+            Snackbar.make(
+                binding.root,
+                "Generating activity card... Check Journal in a moment",
+                Snackbar.LENGTH_LONG
+            ).show()
+
+        } catch (e: Exception) {
+            Log.e("HomeFragment", "❌ Error triggering activity card generation", e)
+            Toast.makeText(context, "Error: ${e.message}", Toast.LENGTH_SHORT).show()
         }
+    }
 
-        // Remove all debug mode activation messages
+
+    /**
+     * Test method - manually trigger activity card generation
+     */
+    private fun testGenerateActivityCard() {
+        triggerActivityCardGeneration()
     }
 
     override fun onDestroyView() {

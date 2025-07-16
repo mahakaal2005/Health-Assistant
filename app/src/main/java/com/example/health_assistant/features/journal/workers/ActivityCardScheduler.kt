@@ -1,6 +1,7 @@
 package com.example.health_assistant.features.journal.workers
 
 import android.content.Context
+import android.util.Log
 import androidx.work.*
 import dagger.hilt.android.qualifiers.ApplicationContext
 import java.time.LocalDateTime
@@ -19,6 +20,10 @@ class ActivityCardScheduler @Inject constructor(
     @ApplicationContext private val context: Context
 ) {
 
+    companion object {
+        private const val TAG = "ActivityCardScheduler"
+    }
+
     /**
      * Schedule daily activity card generation at midnight
      */
@@ -27,22 +32,28 @@ class ActivityCardScheduler @Inject constructor(
 
         // Cancel any existing work
         workManager.cancelUniqueWork(ActivityCardGeneratorWorker.WORK_NAME)
+        Log.d(TAG, "Cancelled any existing activity card work")
 
         // Calculate initial delay until next midnight
         val now = LocalDateTime.now()
         val nextMidnight = now.toLocalDate().plusDays(1).atTime(LocalTime.MIDNIGHT)
-        val initialDelay = ChronoUnit.MINUTES.between(now, nextMidnight)
+        val initialDelayMinutes = ChronoUnit.MINUTES.between(now, nextMidnight)
 
-        // Create periodic work request for daily execution
+        Log.d(TAG, "Current time: $now")
+        Log.d(TAG, "Next midnight: $nextMidnight")
+        Log.d(TAG, "Initial delay: $initialDelayMinutes minutes")
+
+        // Create periodic work request for daily execution with relaxed constraints
         val workRequest = PeriodicWorkRequestBuilder<ActivityCardGeneratorWorker>(
             24, TimeUnit.HOURS,
-            15, TimeUnit.MINUTES // Flex interval
+            6, TimeUnit.HOURS // Larger flex interval for better reliability
         )
-            .setInitialDelay(initialDelay, TimeUnit.MINUTES)
+            .setInitialDelay(initialDelayMinutes, TimeUnit.MINUTES)
             .setConstraints(
                 Constraints.Builder()
                     .setRequiredNetworkType(NetworkType.NOT_REQUIRED)
-                    .setRequiresBatteryNotLow(true)
+                    .setRequiresBatteryNotLow(false) // Remove battery constraint
+                    .setRequiresDeviceIdle(false)
                     .build()
             )
             .addTag("activity_card")
@@ -54,6 +65,41 @@ class ActivityCardScheduler @Inject constructor(
             ExistingPeriodicWorkPolicy.REPLACE,
             workRequest
         )
+
+        Log.d(TAG, "Scheduled daily activity card generation")
+
+        // Also schedule a backup one-time work for tomorrow in case periodic fails
+        scheduleBackupGeneration()
+    }
+
+    /**
+     * Schedule backup one-time generation for tomorrow
+     */
+    private fun scheduleBackupGeneration() {
+        val workManager = WorkManager.getInstance(context)
+
+        val now = LocalDateTime.now()
+        val tomorrow = now.toLocalDate().plusDays(1).atTime(1, 0) // 1 AM tomorrow
+        val delayMinutes = ChronoUnit.MINUTES.between(now, tomorrow)
+
+        val backupRequest = OneTimeWorkRequestBuilder<ActivityCardGeneratorWorker>()
+            .setInitialDelay(delayMinutes, TimeUnit.MINUTES)
+            .setConstraints(
+                Constraints.Builder()
+                    .setRequiredNetworkType(NetworkType.NOT_REQUIRED)
+                    .setRequiresBatteryNotLow(false)
+                    .build()
+            )
+            .addTag("activity_card_backup")
+            .build()
+
+        workManager.enqueueUniqueWork(
+            "activity_card_backup_tomorrow",
+            ExistingWorkPolicy.REPLACE,
+            backupRequest
+        )
+
+        Log.d(TAG, "Scheduled backup activity card generation for tomorrow at 1 AM")
     }
 
     /**

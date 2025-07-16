@@ -34,6 +34,18 @@
         android:theme="@style/Theme.HealthAssistant"
         tools:targetApi="31">
 
+        <!-- CRITICAL FIX: Disable default WorkManager initializer -->
+        <provider
+            android:name="androidx.startup.InitializationProvider"
+            android:authorities="${applicationId}.androidx-startup"
+            android:exported="false"
+            tools:node="merge">
+            <meta-data
+                android:name="androidx.work.WorkManagerInitializer"
+                android:value="androidx.startup"
+                tools:node="remove" />
+        </provider>
+
         <!-- Splash Activity - Main Launcher -->
         <activity
             android:name=".splash.SplashActivity"

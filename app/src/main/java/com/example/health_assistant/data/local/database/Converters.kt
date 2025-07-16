@@ -62,6 +62,17 @@ class Converters {
         return timestamp?.let { java.util.Date(it) }
     }
 
+    // LocalDate converters for ActivityCard
+    @TypeConverter
+    fun fromLocalDate(date: java.time.LocalDate?): String? {
+        return date?.toString()
+    }
+
+    @TypeConverter
+    fun toLocalDate(dateString: String?): java.time.LocalDate? {
+        return dateString?.let { java.time.LocalDate.parse(it) }
+    }
+
     // Additional converters for robust data handling
     @TypeConverter
     fun fromBoolean(value: Boolean): Int {
