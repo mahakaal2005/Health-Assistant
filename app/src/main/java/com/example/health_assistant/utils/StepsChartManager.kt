@@ -21,9 +21,8 @@ import java.util.*
  */
 object StepsChartManager {
 
-    // Chart colors - Updated to avoid triple ring conflicts
-    private const val GOAL_ACHIEVED_COLOR = "#8BC34A"  // Light Green (different from triple ring)
-    private const val GOAL_NOT_ACHIEVED_COLOR = "#FF7043"  // Deep Orange (different from triple ring)
+    // Chart colors - Updated to green for all bars
+    private const val BAR_COLOR = "#4CAF50"  // Green
     private const val TODAY_COLOR = "#3F51B5"  // Indigo (different from triple ring blue)
     private const val GOAL_LINE_COLOR = "#E91E63"  // Pink for goal line
     private const val TEXT_COLOR = "#000000"  // Black for axis text
@@ -149,13 +148,8 @@ object StepsChartManager {
             BarEntry(index.toFloat(), dayData.steps.toFloat())
         }
 
-        val colors = weeklyData.mapIndexed { index, dayData ->
-            when {
-                index == getCurrentDayIndex(weeklyData) -> Color.parseColor(TODAY_COLOR)
-                dayData.isGoalAchieved -> Color.parseColor(GOAL_ACHIEVED_COLOR)
-                else -> Color.parseColor(GOAL_NOT_ACHIEVED_COLOR)
-            }
-        }
+        // All bars green
+        val colors = List(weeklyData.size) { Color.parseColor(BAR_COLOR) }
 
         val dataSet = BarDataSet(entries, "Steps").apply {
             this.colors = colors

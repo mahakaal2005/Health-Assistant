@@ -570,20 +570,55 @@ class HomeFragment : Fragment() {
      */
     private fun setupStepsChart() {
         try {
-            Log.d("HomeFragment", "Setting up steps chart...")
+            Log.d("HomeFragment", "Setting up steps chart with improved integration...")
 
-            // Initialize chart with loading state
+            // Show loading state initially
             showChartLoadingState()
 
-            // Set up observers for health data changes
+            // Set up real-time observers for chart updates
             setupStepsChartObservers()
 
-            // Load weekly step data
-            loadWeeklyStepData()
+            // Load weekly data using the new simplified approach
+            loadWeeklyStepDataSimplified()
 
         } catch (e: Exception) {
             Log.e("HomeFragment", "Error setting up steps chart", e)
             setupChartWithSampleData()
+        }
+    }
+
+    /**
+     * IMPROVED: Simplified weekly step data loading
+     */
+    private fun loadWeeklyStepDataSimplified() {
+        lifecycleScope.launch {
+            try {
+                Log.d("HomeFragment", "Loading weekly step data (simplified approach)...")
+
+                val today = java.time.LocalDate.now()
+                val startOfWeek = today.minusDays(today.dayOfWeek.value.toLong() - 1) // Monday
+
+                // Use the new repository method for getting weekly data
+                when (val result = healthRepository.getWeeklyStepData(startOfWeek)) {
+                    is Result.Success -> {
+                        val weeklyData = result.data
+                        Log.d("HomeFragment", "Successfully loaded weekly step data: ${weeklyData.size} days")
+                        updateStepsChart(weeklyData)
+                    }
+                    is Result.Error -> {
+                        Log.w("HomeFragment", "Failed to load weekly step data: ${result.message}")
+                        setupChartWithSampleData()
+                    }
+                    is Result.Loading -> {
+                        // Keep showing loading state
+                        showChartLoadingState()
+                    }
+                }
+
+            } catch (e: Exception) {
+                Log.e("HomeFragment", "Error in simplified weekly data loading", e)
+                setupChartWithSampleData()
+            }
         }
     }
 
@@ -1087,6 +1122,38 @@ class HomeFragment : Fragment() {
 
         // Trigger initial refresh of health metrics using the correct method
         healthMetricsViewModel.refreshMetrics()
+
+        /**
+         * Add observer for real-time step data updates to refresh chart automatically
+         */
+        observeRealTimeStepUpdates()
+    }
+
+    /**
+     * Add observer for real-time step data updates to refresh chart automatically
+     */
+    private fun observeRealTimeStepUpdates() {
+        lifecycleScope.launch {
+            // Observe health metrics changes in real-time
+            healthMetricsViewModel.healthMetrics.observe(viewLifecycleOwner) { metrics ->
+                metrics?.let { currentMetrics ->
+                    // Update today's step data in the repository and refresh chart
+                    val today = java.time.LocalDate.now()
+                    val todayStepData = DailyStepData(
+                        date = today,
+                        steps = currentMetrics.steps.current,
+                        goal = currentMetrics.steps.target
+                    )
+
+                    // Save updated step data and refresh chart
+                    lifecycleScope.launch {
+                        healthRepository.saveDailyStepData(todayStepData)
+                        // Refresh the chart with updated data
+                        loadWeeklyStepDataSimplified()
+                    }
+                }
+            }
+        }
     }
 
     /**

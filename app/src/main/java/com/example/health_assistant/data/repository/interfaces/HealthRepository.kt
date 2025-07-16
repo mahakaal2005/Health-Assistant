@@ -2,7 +2,9 @@ package com.example.health_assistant.data.repository.interfaces
 
 import com.example.health_assistant.core.util.Result
 import com.example.health_assistant.features.health.model.HealthMetrics
+import com.example.health_assistant.data.models.DailyStepData
 import kotlinx.coroutines.flow.Flow
+import java.time.LocalDate
 
 /**
  * Repository interface for managing health metrics data
@@ -59,4 +61,19 @@ interface HealthRepository {
      * Get weekly health trends
      */
     suspend fun getWeeklyTrends(): List<HealthMetrics>
+
+    /**
+     * NEW: Get daily step data for a specific date
+     */
+    suspend fun getDailyStepData(date: LocalDate): Result<DailyStepData>
+
+    /**
+     * NEW: Get weekly step data for chart display
+     */
+    suspend fun getWeeklyStepData(startDate: LocalDate): Result<List<DailyStepData>>
+
+    /**
+     * NEW: Save daily step data
+     */
+    suspend fun saveDailyStepData(stepData: DailyStepData): Result<Unit>
 }
