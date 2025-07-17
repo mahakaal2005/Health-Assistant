@@ -141,4 +141,41 @@ class ActivityCardScheduler @Inject constructor(
         workManager.cancelUniqueWork(ActivityCardGeneratorWorker.WORK_NAME)
         workManager.cancelAllWorkByTag("activity_card")
     }
+
+    /**
+     * CRITICAL FIX: Generate activity card immediately with current health data
+     * This fixes the issue where cards are only generated on health preview click
+     */
+    fun generateImmediateCard(stepCount: Int, caloriesBurned: Int, heartPoints: Int) {
+        val workManager = WorkManager.getInstance(context)
+
+        // Create input data with current health metrics
+        val inputData = workDataOf(
+            "immediate_generation" to true,
+            "step_count" to stepCount,
+            "calories_burned" to caloriesBurned,
+            "heart_points" to heartPoints
+        )
+
+        // Create one-time work request for immediate execution
+        val immediateRequest = OneTimeWorkRequestBuilder<ActivityCardGeneratorWorker>()
+            .setInputData(inputData)
+            .setConstraints(
+                Constraints.Builder()
+                    .setRequiredNetworkType(NetworkType.NOT_REQUIRED)
+                    .setRequiresBatteryNotLow(false)
+                    .build()
+            )
+            .addTag("immediate_activity_card")
+            .build()
+
+        // Enqueue immediate work
+        workManager.enqueueUniqueWork(
+            "immediate_activity_card_${System.currentTimeMillis()}",
+            ExistingWorkPolicy.REPLACE,
+            immediateRequest
+        )
+
+        Log.d(TAG, "Scheduled immediate activity card generation with steps: $stepCount, calories: $caloriesBurned, heart points: $heartPoints")
+    }
 }

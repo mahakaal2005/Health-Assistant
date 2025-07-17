@@ -16,7 +16,17 @@ interface HealthRepository {
     /**
      * Get daily health metrics for a specific date
      */
-    fun getDailyHealthMetrics(date: String): Flow<Result<HealthMetrics?>>
+    suspend fun getDailyHealthMetrics(date: String): Flow<Result<HealthMetrics>>
+
+    /**
+     * Save health metrics for specific dates to ensure persistence
+     */
+    suspend fun saveHealthMetrics(date: String, metrics: HealthMetrics)
+
+    /**
+     * Get real-time step count flow for live UI updates
+     */
+    fun getRealTimeStepFlow(): Flow<Int>
 
     /**
      * Save daily health metrics

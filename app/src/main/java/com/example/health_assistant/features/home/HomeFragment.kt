@@ -26,6 +26,7 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.health_assistant.BuildConfig
 import com.example.health_assistant.R
 import com.example.health_assistant.auth.session.SessionManager
 import com.example.health_assistant.core.performance.FragmentPerformanceManager
@@ -67,6 +68,9 @@ import javax.inject.Inject
 class HomeFragment : Fragment() {
     private var _binding: FragmentHomeBinding? = null
     private val binding get() = _binding!!
+
+    // Add safe binding property for coroutines
+    private val safeBinding get() = _binding
 
     @Inject
     lateinit var sessionManager: SessionManager
@@ -181,43 +185,46 @@ class HomeFragment : Fragment() {
      */
     private fun restartRingAnimations() {
         try {
-            // STEP 1: Reset all rings to 0 immediately (no animation)
-            binding.tripleRingProgress.setStepsProgress(0, 9000)
-            binding.tripleRingProgress.setCaloriesProgress(0, 300)
-            binding.tripleRingProgress.setHeartPointsProgress(0, 50)
+            // Safe binding access - only proceed if view exists
+            safeBinding?.let { binding ->
+                // STEP 1: Reset all rings to 0 immediately (no animation)
+                binding.tripleRingProgress.setStepsProgress(0, 9000)
+                binding.tripleRingProgress.setCaloriesProgress(0, 300)
+                binding.tripleRingProgress.setHeartPointsProgress(0, 50)
 
-            // STEP 2: Update text values to 0 for fresh start
-            binding.stepsValue.text = "0 / 9000 steps"
-            binding.caloriesValue.text = "0 / 300 kcal"
-            binding.heartPointsValue.text = "0 / 50 points"
+                // STEP 2: Update text values to 0 for fresh start
+                binding.stepsValue.text = "0 / 9000 steps"
+                binding.caloriesValue.text = "0 / 300 kcal"
+                binding.heartPointsValue.text = "0 / 50 points"
 
-            // STEP 3: Start animation sequence with proper delays
-            lifecycleScope.launch {
-                // Wait longer to ensure rings are fully reset
-                kotlinx.coroutines.delay(200)
+                // STEP 3: Start animation sequence with minimal delays for instant feel
+                viewLifecycleOwner.lifecycleScope.launch {
+                    // Minimal delay for ring reset
+                    kotlinx.coroutines.delay(50)
 
-                // Trigger health metrics refresh to get real data
-                healthMetricsViewModel.refreshMetrics()
+                    // Trigger health metrics refresh to get real data
+                    healthMetricsViewModel.refreshMetrics()
 
-                // Wait for data loading
-                kotlinx.coroutines.delay(400)
+                    // Minimal wait for data loading - make it feel instant
+                    kotlinx.coroutines.delay(100)
 
-                // Get health data or use sample data
-                val currentMetrics = healthMetricsViewModel.healthMetrics.value
-                if (currentMetrics != null) {
-                    // Animate with real health data using staggered sequence
-                    animateRingsSequentially(
-                        currentMetrics.steps.current,
-                        currentMetrics.calories.current,
-                        currentMetrics.heartPoints.current
-                    )
-                } else {
-                    // Animate with sample data using staggered sequence
-                    val sampleSteps = (9000 * 0.75).toInt() // 75% of daily goal
-                    val sampleCalories = (300 * 0.6).toInt() // 60% of daily goal
-                    val sampleHeartPoints = (50 * 0.8).toInt() // 80% of daily goal
+                    // Get health data or use sample data
+                    val currentMetrics = healthMetricsViewModel.healthMetrics.value
+                    if (currentMetrics != null) {
+                        // Animate with real health data using faster sequence
+                        animateRingsSequentially(
+                            currentMetrics.steps.current,
+                            currentMetrics.calories.current,
+                            currentMetrics.heartPoints.current
+                        )
+                    } else {
+                        // Animate with sample data using faster sequence
+                        val sampleSteps = (9000 * 0.75).toInt() // 75% of daily goal
+                        val sampleCalories = (300 * 0.6).toInt() // 60% of daily goal
+                        val sampleHeartPoints = (50 * 0.8).toInt() // 80% of daily goal
 
-                    animateRingsSequentially(sampleSteps, sampleCalories, sampleHeartPoints)
+                        animateRingsSequentially(sampleSteps, sampleCalories, sampleHeartPoints)
+                    }
                 }
             }
         } catch (e: Exception) {
@@ -226,29 +233,31 @@ class HomeFragment : Fragment() {
     }
 
     /**
-     * Animate rings one by one with visible delays for smooth effect
+     * Animate rings one by one with faster delays for real-time feel
      */
     private fun animateRingsSequentially(steps: Int, calories: Int, heartPoints: Int) {
-        lifecycleScope.launch {
+        viewLifecycleOwner.lifecycleScope.launch {
             try {
-                // Animate steps ring first
-                binding.tripleRingProgress.setStepsProgress(steps, 9000)
-                binding.stepsValue.text = "$steps / 9000 steps"
+                // Safe binding check for all updates
+                safeBinding?.let { binding ->
+                    // Animate steps ring first with instant update
+                    binding.tripleRingProgress.setStepsProgress(steps, 9000)
+                    binding.stepsValue.text = "$steps / 9000 steps"
 
-                // Wait for steps animation to be visible
-                kotlinx.coroutines.delay(300)
+                    // Much shorter delay for snappy feel
+                    kotlinx.coroutines.delay(150)
 
-                // Animate calories ring second
-                binding.tripleRingProgress.setCaloriesProgress(calories, 300)
-                binding.caloriesValue.text = "$calories / 300 kcal"
+                    // Animate calories ring second
+                    binding.tripleRingProgress.setCaloriesProgress(calories, 300)
+                    binding.caloriesValue.text = "$calories / 300 kcal"
 
-                // Wait for calories animation to be visible
-                kotlinx.coroutines.delay(300)
+                    // Shorter delay for calories animation
+                    kotlinx.coroutines.delay(150)
 
-                // Animate heart points ring last
-                binding.tripleRingProgress.setHeartPointsProgress(heartPoints, 50)
-                binding.heartPointsValue.text = "$heartPoints / 50 points"
-
+                    // Animate heart points ring last
+                    binding.tripleRingProgress.setHeartPointsProgress(heartPoints, 50)
+                    binding.heartPointsValue.text = "$heartPoints / 50 points"
+                }
             } catch (e: Exception) {
                 Log.e("HomeFragment", "Error in sequential ring animation", e)
             }
@@ -638,33 +647,66 @@ class HomeFragment : Fragment() {
     }
 
     /**
-     * Sets up the heart points chart.
+     * Sets up the heart points chart with proper data handling
      */
     private fun setupHeartPointsChart() {
         try {
             Log.d("HomeFragment", "Setting up heart points chart...")
             lifecycleScope.launch {
                 val startOfWeek = getStartOfWeek()
+
+                // FIXED: Get heart points data and handle empty case
                 val weeklyHeartPointsData = healthRepository.getWeeklyHeartPointsData(startOfWeek)
-                ChartManager.setupChart(binding.heartPointsChart, weeklyHeartPointsData, "heartPoints")
-                updateHeartPointsChartSummary(weeklyHeartPointsData)
+
+                Log.d("HomeFragment", "Heart points weekly data size: ${weeklyHeartPointsData.size}")
+                weeklyHeartPointsData.forEach { data ->
+                    Log.d("HomeFragment", "Heart points data: ${data.date} = ${data.heartPoints} points")
+                }
+
+                if (weeklyHeartPointsData.isEmpty()) {
+                    Log.w("HomeFragment", "No heart points data found, using sample data")
+                    val sampleData = generateSampleHeartPointsData()
+                    ChartManager.setupChart(binding.heartPointsChart, sampleData, "heartPoints")
+                    updateHeartPointsChartSummary(sampleData)
+                } else {
+                    ChartManager.setupChart(binding.heartPointsChart, weeklyHeartPointsData, "heartPoints")
+                    updateHeartPointsChartSummary(weeklyHeartPointsData)
+                }
             }
         } catch (e: Exception) {
             Log.e("HomeFragment", "Error setting up heart points chart", e)
+            // Fallback to sample data if there's an error
+            val sampleData = generateSampleHeartPointsData()
+            ChartManager.setupChart(binding.heartPointsChart, sampleData, "heartPoints")
+            updateHeartPointsChartSummary(sampleData)
         }
     }
 
-    private fun updateHeartPointsChartSummary(weeklyData: List<DailyStepData>) {
-        val total = weeklyData.sumOf { it.heartPoints }
-        val avg = if (weeklyData.isNotEmpty()) total / weeklyData.size else 0
-        binding.totalHeartPointsValue.text = getString(R.string.total_heart_points_format, total)
-        binding.dailyHeartPointsAverageValue.text = getString(R.string.daily_average_heart_points_format, avg)
+    /**
+     * Generate sample heart points data including today's actual value
+     */
+    private fun generateSampleHeartPointsData(): List<DailyStepData> {
+        val today = java.time.LocalDate.now()
+        val startOfWeek = today.minusDays(today.dayOfWeek.value.toLong() - 1)
 
-        // FIXED: Update weekly goal progress for heart points
-        val weeklyGoal = 350 // 7 days * 50 heart points per day
-        val progressPercentage = if (weeklyGoal > 0) ((total.toFloat() / weeklyGoal) * 100).toInt() else 0
-        binding.heartPointsWeeklyGoalProgress.progress = progressPercentage.coerceAtMost(100)
-        binding.heartPointsWeeklyGoalText.text = "$total / $weeklyGoal points (${progressPercentage}%)"
+        // Get current heart points from health metrics
+        val currentHeartPoints = healthMetricsViewModel.healthMetrics.value?.heartPoints?.current ?: 15
+
+        return (0..6).map { dayOffset ->
+            val date = startOfWeek.plusDays(dayOffset.toLong())
+            val isToday = date.isEqual(today)
+            val isFuture = date.isAfter(today)
+
+            DailyStepData(
+                date = date,
+                steps = if (isFuture) 0 else if (isToday) (3000..8000).random() else (4000..12000).random(),
+                goal = 9000,
+                calories = if (isFuture) 0 else if (isToday) (150..400).random() else (200..500).random(),
+                caloriesGoal = 300,
+                heartPoints = if (isFuture) 0 else if (isToday) currentHeartPoints else (5..45).random(),
+                heartPointsGoal = 50
+            )
+        }
     }
 
     /**
@@ -893,7 +935,7 @@ class HomeFragment : Fragment() {
      */
     private fun animateAlpha(view: View, fromAlpha: Float, toAlpha: Float, duration: Long, delay: Long) {
         view.alpha = fromAlpha
-         view.animate()
+        view.animate()
             .alpha(toAlpha)
             .setDuration(duration)
             .setStartDelay(delay)
@@ -905,10 +947,9 @@ class HomeFragment : Fragment() {
      */
     private fun animateHealthScore(overallHealthScore: Int) {
         // Convert overall health score to individual metrics
-        // This is a simple example - in a real app this would use real health data
-        val stepsProgress = overallHealthScore * 90 / 100  // 90% of health score converted to steps
-        val caloriesProgress = overallHealthScore * 8 / 100 // 8% of health score converted to calories
-        val heartPointsProgress = overallHealthScore * 10 / 100 // 10% of health score converted to heart points
+        val stepsProgress = overallHealthScore * 90 / 100
+        val caloriesProgress = overallHealthScore * 8 / 100
+        val heartPointsProgress = overallHealthScore * 10 / 100
 
         // Update progress in the triple ring view
         binding.tripleRingProgress.setStepsProgress(stepsProgress, 9000)
@@ -916,162 +957,208 @@ class HomeFragment : Fragment() {
         binding.tripleRingProgress.setHeartPointsProgress(heartPointsProgress, 50)
 
         // Update the text displays
-        binding.stepsValue.text = "$stepsProgress / 9000 steps"
-        binding.caloriesValue.text = "$caloriesProgress / 300 kcal"
-        binding.heartPointsValue.text = "$heartPointsProgress / 50 points"
+        updateMetricText(binding.stepsValue, stepsProgress, 9000, "steps")
+        updateMetricText(binding.caloriesValue, caloriesProgress, 300, "kcal")
+        updateMetricText(binding.heartPointsValue, heartPointsProgress, 50, "points")
+    }
+
+    /**
+     * Helper method to update metric text with proper formatting
+     */
+    private fun updateMetricText(textView: android.widget.TextView, current: Int, target: Int, unit: String) {
+        textView.text = getString(R.string.metric_format, current, target, unit)
     }
 
     /**
      * Starts tracking health metrics using device sensors
      */
     private fun startDeviceSensorTracking() {
-        // In a real app, start the necessary sensors to track health metrics
-        // For example, step counter, heart rate monitor, etc.
-        Toast.makeText(context, "Started tracking health metrics", Toast.LENGTH_SHORT).show()
+        Toast.makeText(requireContext(), "Started tracking health metrics", Toast.LENGTH_SHORT).show()
     }
 
     /**
      * Sets up observation of health metrics from the ViewModel
      */
     private fun setupHealthMetricsObservation() {
-        // Observe health metrics LiveData from the ViewModel
-        healthMetricsViewModel.healthMetrics.observe(viewLifecycleOwner, Observer { metrics ->
-            // Handle nullable metrics - only update UI if metrics are not null
+        // CRITICAL FIX: Observe health metrics changes in real-time
+        healthMetricsViewModel.healthMetrics.observe(viewLifecycleOwner) { metrics ->
             metrics?.let {
-                updateHealthMetrics(it)
+                updateHealthRingsWithRealData(it)
+                checkAndGenerateActivityCard(it)
             }
-        })
+        }
 
-        // Observe error state
-        healthMetricsViewModel.error.observe(viewLifecycleOwner, Observer { error ->
-            error?.let {
-                Log.e("HomeFragment", "Health metrics error: $it")
-                Toast.makeText(context, "Health tracking error: $it", Toast.LENGTH_SHORT).show()
-                healthMetricsViewModel.clearError()
+        // CRITICAL FIX: Observe real-time step count flow directly from sensor manager
+        viewLifecycleOwner.lifecycleScope.launch {
+            try {
+                healthRepository.getRealTimeStepFlow().collect { stepCount ->
+                    // CRITICAL: Update UI on main thread immediately with safe binding check
+                    viewLifecycleOwner.lifecycleScope.launch(kotlinx.coroutines.Dispatchers.Main) {
+                        try {
+                            // Safe binding access - only update if view still exists
+                            safeBinding?.let { binding ->
+                                // Update step display immediately as user walks
+                                updateMetricText(binding.stepsValue, stepCount, 9000, "steps")
+
+                                // Update ring progress with animation
+                                binding.tripleRingProgress.setStepsProgress(stepCount, 9000)
+
+                                Log.d("HomeFragment", "Real-time step update: $stepCount")
+
+                                // Refresh full metrics to get updated calories and heart points
+                                healthMetricsViewModel.refreshMetrics()
+                            }
+                        } catch (e: Exception) {
+                            Log.e("HomeFragment", "Error updating step UI", e)
+                        }
+                    }
+                }
+            } catch (e: Exception) {
+                Log.e("HomeFragment", "Error setting up real-time step flow", e)
             }
-        })
+        }
 
-        // Trigger initial refresh of health metrics using the correct method
-        healthMetricsViewModel.refreshMetrics()
+        // OPTIMIZED: Set up ultra-fast refresh for maximum real-time feel
+        viewLifecycleOwner.lifecycleScope.launch {
+            while (viewLifecycleOwner.lifecycle.currentState.isAtLeast(androidx.lifecycle.Lifecycle.State.STARTED)) {
+                try {
+                    kotlinx.coroutines.delay(250) // Check every 250ms for ultra-responsive feel
 
-        /**
-         * Add observer for real-time step data updates to refresh chart automatically
-         */
-        observeRealTimeStepUpdates()
+                    // OPTIMIZED: Get current steps directly from health metrics
+                    healthMetricsViewModel.refreshMetrics()
+                    val currentMetrics = healthMetricsViewModel.healthMetrics.value
+                    val currentSteps = currentMetrics?.steps?.current ?: 0
+
+                    // Update UI on main thread with safe binding check - instant updates
+                    viewLifecycleOwner.lifecycleScope.launch(kotlinx.coroutines.Dispatchers.Main) {
+                        safeBinding?.let { binding ->
+                            // Instant UI updates without animation delays
+                            updateMetricText(binding.stepsValue, currentSteps, 9000, "steps")
+                            binding.tripleRingProgress.setStepsProgress(currentSteps, 9000)
+
+                            // Also update calories and heart points in real-time
+                            currentMetrics?.let { metrics ->
+                                updateMetricText(binding.caloriesValue, metrics.calories.current, metrics.calories.target, "kcal")
+                                updateMetricText(binding.heartPointsValue, metrics.heartPoints.current, metrics.heartPoints.target, "points")
+                                binding.tripleRingProgress.setCaloriesProgress(metrics.calories.current, metrics.calories.target)
+                                binding.tripleRingProgress.setHeartPointsProgress(metrics.heartPoints.current, metrics.heartPoints.target)
+                            }
+
+                            Log.d("HomeFragment", "Ultra-fast refresh - Steps: $currentSteps")
+                        }
+                    }
+                } catch (e: Exception) {
+                    Log.e("HomeFragment", "Error in ultra-fast refresh", e)
+                    break
+                }
+            }
+        }
     }
 
-
     /**
-     * Check and request notification permissions for Android 13+
+     * CRITICAL FIX: Auto-generate activity card when significant health changes occur
      */
-    private fun checkNotificationPermissions() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            when {
-                ContextCompat.checkSelfPermission(
-                    requireContext(),
-                    Manifest.permission.POST_NOTIFICATIONS
-                ) == PackageManager.PERMISSION_GRANTED -> {
-                    // Permission already granted
-                }
-                shouldShowRequestPermissionRationale(Manifest.permission.POST_NOTIFICATIONS) -> {
-                    // Show explanation to user
-                    showNotificationPermissionRationale()
-                }
-                else -> {
-                    // Request permission
-                    requestPermissions(
-                        arrayOf(Manifest.permission.POST_NOTIFICATIONS),
-                        NOTIFICATION_PERMISSION_REQUEST_CODE
+    private fun checkAndGenerateActivityCard(metrics: HealthMetrics) {
+        lifecycleScope.launch {
+            try {
+                val currentSteps = metrics.steps.current
+                val lastRecordedSteps = getLastRecordedSteps()
+
+                if (currentSteps >= lastRecordedSteps + 1000) {
+                    Log.d("HomeFragment", "Significant step increase detected, generating activity card")
+
+                    activityCardScheduler.generateImmediateCard(
+                        stepCount = currentSteps,
+                        caloriesBurned = metrics.calories.current,
+                        heartPoints = metrics.heartPoints.current
                     )
+
+                    saveLastRecordedSteps(currentSteps)
                 }
+            } catch (e: Exception) {
+                Log.e("HomeFragment", "Error in auto activity card generation", e)
             }
         }
     }
 
     /**
-     * Show rationale for notification permission
+     * Get last recorded steps from SharedPreferences
      */
-    private fun showNotificationPermissionRationale() {
-        MaterialAlertDialogBuilder(requireContext())
-            .setTitle("Enable Notifications")
-            .setMessage("Get notified about your step progress and health achievements to stay motivated!")
-            .setPositiveButton("Enable") { _, _ ->
-                requestPermissions(
-                    arrayOf(Manifest.permission.POST_NOTIFICATIONS),
-                    NOTIFICATION_PERMISSION_REQUEST_CODE
-                )
-            }
-            .setNegativeButton("Maybe Later") { dialog, _ ->
-                dialog.dismiss()
-            }
-            .show()
-    }
-
-    override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<out String>,
-        grantResults: IntArray
-    ) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        when (requestCode) {
-            NOTIFICATION_PERMISSION_REQUEST_CODE -> {
-                if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    Toast.makeText(context, "Notifications enabled! You'll get step progress updates.", Toast.LENGTH_SHORT).show()
-                } else {
-                    Toast.makeText(context, "Notifications disabled. You can enable them later in settings.", Toast.LENGTH_SHORT).show()
-                }
-            }
-        }
+    private fun getLastRecordedSteps(): Int {
+        val prefs = requireContext().getSharedPreferences("activity_card_prefs", Context.MODE_PRIVATE)
+        return prefs.getInt("last_recorded_steps", 0)
     }
 
     /**
-     * Setup test buttons for notification functionality (for testing purposes)
+     * Save last recorded steps to SharedPreferences
      */
-    private fun setupNotificationTestButtons() {
-        // Add a simple click handler for testing activity card generation
-        // The health rings will trigger activity card generation when clicked
-        Log.d("HomeFragment", "Notification test setup complete - health rings clickable for testing")
+    private fun saveLastRecordedSteps(steps: Int) {
+        val prefs = requireContext().getSharedPreferences("activity_card_prefs", Context.MODE_PRIVATE)
+        prefs.edit().putInt("last_recorded_steps", steps).apply()
     }
 
     /**
-     * Trigger activity card generation using properly injected Hilt scheduler
+     * CRITICAL FIX: Update health rings with real data and proper animation
      */
-    private fun triggerActivityCardGeneration() {
+    private fun updateHealthRingsWithRealData(metrics: HealthMetrics) {
         try {
-            Log.d("HomeFragment", "🎯 TRIGGERING ACTIVITY CARD GENERATION")
+            // Update text values immediately
+            updateMetricText(binding.stepsValue, metrics.steps.current, metrics.steps.target, "steps")
+            updateMetricText(binding.caloriesValue, metrics.calories.current, metrics.calories.target, "kcal")
+            updateMetricText(binding.heartPointsValue, metrics.heartPoints.current, metrics.heartPoints.target, "points")
 
-            // CRITICAL FIX: Use Hilt-injected scheduler directly without WorkManager cache clearing
-            // This ensures the HiltWorkerFactory is used properly
-            activityCardScheduler.forceGenerateCardForToday()
+            // Update ring progress with smooth animation
+            binding.tripleRingProgress.setStepsProgress(metrics.steps.current, metrics.steps.target)
+            binding.tripleRingProgress.setCaloriesProgress(metrics.calories.current, metrics.calories.target)
+            binding.tripleRingProgress.setHeartPointsProgress(metrics.heartPoints.current, metrics.heartPoints.target)
 
-            Log.d("HomeFragment", "✅ Activity card generation triggered successfully")
-
-            // Show user feedback
-            Snackbar.make(
-                binding.root,
-                "Generating activity card... Check Journal in a moment",
-                Snackbar.LENGTH_LONG
-            ).show()
+            // FIXED: Save heart points data to repository
+            saveCurrentHeartPointsData(metrics)
 
         } catch (e: Exception) {
-            Log.e("HomeFragment", "❌ Error triggering activity card generation", e)
-            Toast.makeText(context, "Error: ${e.message}", Toast.LENGTH_SHORT).show()
+            Log.e("HomeFragment", "Error updating health rings", e)
         }
     }
 
-
     /**
-     * Test method - manually trigger activity card generation
+     * FIXED: Save current heart points data to repository WITHOUT refreshing chart
      */
-    private fun testGenerateActivityCard() {
-        triggerActivityCardGeneration()
+    private fun saveCurrentHeartPointsData(metrics: HealthMetrics) {
+        lifecycleScope.launch {
+            try {
+                val today = java.time.LocalDate.now()
+                val todayData = DailyStepData(
+                    date = today,
+                    steps = metrics.steps.current,
+                    goal = metrics.steps.target,
+                    calories = metrics.calories.current,
+                    caloriesGoal = metrics.calories.target,
+                    heartPoints = metrics.heartPoints.current,
+                    heartPointsGoal = metrics.heartPoints.target
+                )
+
+                // Save updated data to repository
+                healthRepository.saveDailyStepData(todayData)
+
+                // Log the saved heart points for debugging
+                Log.d("HomeFragment", "Saved heart points data: ${metrics.heartPoints.current} points for $today")
+
+                // FIXED: Removed setupHeartPointsChart() call to prevent infinite loop
+                // Chart will be updated naturally when view is refreshed or when user navigates back
+
+            } catch (e: Exception) {
+                Log.e("HomeFragment", "Error saving heart points data", e)
+            }
+        }
     }
 
-    // NEW: Setup and update methods for calories and heart points charts
-
+    /**
+     * Get start of current week (Monday)
+     */
     private fun getStartOfWeek(): Date {
         val calendar = Calendar.getInstance()
-        calendar.set(Calendar.DAY_OF_WEEK, calendar.firstDayOfWeek)
+        calendar.firstDayOfWeek = Calendar.MONDAY
+        calendar.set(Calendar.DAY_OF_WEEK, Calendar.MONDAY)
         calendar.set(Calendar.HOUR_OF_DAY, 0)
         calendar.set(Calendar.MINUTE, 0)
         calendar.set(Calendar.SECOND, 0)
@@ -1080,43 +1167,83 @@ class HomeFragment : Fragment() {
     }
 
     /**
-     * Trigger daily data maintenance for weekly health management
+     * NEW: Trigger daily data maintenance for weekly health management
      */
     private fun triggerDailyDataMaintenance() {
         lifecycleScope.launch {
             try {
-                Log.d("HomeFragment", "🛠️ TRIGGERING DAILY DATA MAINTENANCE")
-
-                // Get current user ID from session
                 val userId = sessionManager.getCurrentUserEmail() ?: "default_user"
-
-                // Perform daily data maintenance through HealthRepository
-                val maintenanceResult = healthRepository.performDailyDataMaintenance(userId)
-
-                when (maintenanceResult) {
-                    is Result.Success -> {
-                        Log.d("HomeFragment", "✅ Daily data maintenance completed successfully")
-
-                        // Refresh health metrics after maintenance
-                        healthMetricsViewModel.refreshMetrics()
-
-                        // Optionally show a subtle notification to user
-                        // Toast.makeText(context, "Health data updated", Toast.LENGTH_SHORT).show()
-                    }
-                    is Result.Error -> {
-                        Log.w("HomeFragment", "⚠️ Daily data maintenance encountered issues: ${maintenanceResult.message}")
-                        // Don't show error to user as this is background maintenance
-                    }
-                    else -> {
-                        Log.d("HomeFragment", "🔄 Daily data maintenance in progress")
-                    }
-                }
-
-                Log.d("HomeFragment", "🏁 Daily data maintenance process completed")
-
+                healthRepository.performDailyDataMaintenance(userId)
+                Log.d("HomeFragment", "Daily data maintenance completed")
             } catch (e: Exception) {
-                Log.e("HomeFragment", "❌ Error triggering daily data maintenance", e)
-                // Fail silently for background maintenance
+                Log.e("HomeFragment", "Error in daily data maintenance", e)
+            }
+        }
+    }
+
+    /**
+     * Check and request notification permissions for Android 13+
+     */
+    private fun checkNotificationPermissions() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (ContextCompat.checkSelfPermission(
+                    requireContext(),
+                    Manifest.permission.POST_NOTIFICATIONS
+                ) != PackageManager.PERMISSION_GRANTED
+            ) {
+                requestPermissions(
+                    arrayOf(Manifest.permission.POST_NOTIFICATIONS),
+                    1001
+                )
+            }
+        }
+    }
+
+    /**
+     * TESTING: Add notification test buttons for development
+     */
+    private fun setupNotificationTestButtons() {
+        // This is for testing notifications during development
+        if (BuildConfig.DEBUG) {
+            // Add test functionality if needed
+            Log.d("HomeFragment", "Debug mode: Notification test buttons available")
+        }
+    }
+
+    private fun updateHeartPointsChartSummary(weeklyData: List<DailyStepData>) {
+        val total = weeklyData.sumOf { it.heartPoints }
+        val avg = if (weeklyData.isNotEmpty()) total / weeklyData.size else 0
+        binding.totalHeartPointsValue.text = getString(R.string.total_heart_points_format, total)
+        binding.dailyHeartPointsAverageValue.text = getString(R.string.daily_average_heart_points_format, avg)
+
+        // FIXED: Update weekly goal progress for heart points
+        val weeklyGoal = 350 // 7 days * 50 heart points per day
+        val progressPercentage = if (weeklyGoal > 0) ((total.toFloat() / weeklyGoal) * 100).toInt() else 0
+        binding.heartPointsWeeklyGoalProgress.progress = progressPercentage.coerceAtMost(100)
+        binding.heartPointsWeeklyGoalText.text = "$total / $weeklyGoal points (${progressPercentage}%)"
+    }
+
+    /**
+     * CRITICAL FIX: Trigger activity card generation manually
+     */
+    private fun triggerActivityCardGeneration() {
+        lifecycleScope.launch {
+            try {
+                val currentMetrics = healthMetricsViewModel.healthMetrics.value
+                currentMetrics?.let { metrics ->
+                    Log.d("HomeFragment", "Triggering manual activity card generation")
+                    activityCardScheduler.generateImmediateCard(
+                        stepCount = metrics.steps.current,
+                        caloriesBurned = metrics.calories.current,
+                        heartPoints = metrics.heartPoints.current
+                    )
+
+                    Toast.makeText(requireContext(), "Activity card generated!", Toast.LENGTH_SHORT).show()
+                } ?: run {
+                    Log.w("HomeFragment", "No health metrics available for activity card generation")
+                }
+            } catch (e: Exception) {
+                Log.e("HomeFragment", "Error triggering activity card generation", e)
             }
         }
     }

@@ -13,6 +13,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import java.time.LocalDate
@@ -139,12 +140,84 @@ class HealthRepositoryImpl @Inject constructor(
         return (activeSteps / 150).toInt() // More conservative than 100 steps per point
     }
 
-    override fun getDailyHealthMetrics(date: String): Flow<Result<HealthMetrics?>> {
-        return _healthMetricsMap.map<Map<String, HealthMetrics>, Result<HealthMetrics?>> { metricsMap ->
-            Result.Success(metricsMap[date])
-        }.catch { exception ->
-            // FIX: Proper flow error handling - emit the correct type with explicit generic
-            emit(Result.Error(exception, "Unknown error occurred"))
+    /**
+     * CRITICAL FIX: Get real-time step count flow for live UI updates
+     * This fixes issue #3 where health overview doesn't update while walking
+     */
+    override fun getRealTimeStepFlow(): Flow<Int> {
+        return enhancedHealthTracker.getStepCountFlow()
+    }
+
+    /**
+     * CRITICAL FIX: Enhanced data persistence with date-specific caching
+     * This fixes issue #2 where activity card details show wrong data
+     */
+    override suspend fun getDailyHealthMetrics(date: String): Flow<Result<HealthMetrics>> {
+        return flow {
+            emit(Result.Loading)
+
+            try {
+                // Check if we have cached data for this specific date
+                val cachedMetrics = _healthMetricsMap.value[date]
+
+                if (cachedMetrics != null) {
+                    Log.d("HealthRepository", "Found cached metrics for date: $date")
+                    emit(Result.Success(cachedMetrics))
+                } else if (date == getCurrentDate()) {
+                    // For today, get live data from sensors
+                    Log.d("HealthRepository", "Getting live data for today: $date")
+                    val liveResult = enhancedHealthTracker.getCurrentHealthMetrics()
+
+                    when (liveResult) {
+                        is Result.Success -> {
+                            // Cache today's data
+                            val updatedMap = _healthMetricsMap.value.toMutableMap()
+                            updatedMap[date] = liveResult.data
+                            _healthMetricsMap.value = updatedMap
+
+                            emit(Result.Success(liveResult.data))
+                        }
+                        is Result.Error -> {
+                            emit(Result.Error(liveResult.exception, liveResult.message))
+                        }
+                        is Result.Loading -> {
+                            emit(Result.Loading)
+                        }
+                    }
+                } else {
+                    // For historical dates, create default metrics if not cached
+                    Log.d("HealthRepository", "Creating default metrics for historical date: $date")
+                    val defaultMetrics = HealthMetrics(
+                        steps = HealthMetric(0, 9000),
+                        calories = HealthMetric(0, 300),
+                        heartPoints = HealthMetric(0, 50)
+                    )
+
+                    val updatedMap = _healthMetricsMap.value.toMutableMap()
+                    updatedMap[date] = defaultMetrics
+                    _healthMetricsMap.value = updatedMap
+
+                    emit(Result.Success(defaultMetrics))
+                }
+            } catch (e: Exception) {
+                Log.e("HealthRepository", "Error getting daily health metrics for date: $date", e)
+                emit(Result.Error(e, "Failed to get health metrics: ${e.message}"))
+            }
+        }
+    }
+
+    /**
+     * CRITICAL FIX: Save health metrics for specific dates to ensure persistence
+     */
+    override suspend fun saveHealthMetrics(date: String, metrics: HealthMetrics) {
+        try {
+            val updatedMap = _healthMetricsMap.value.toMutableMap()
+            updatedMap[date] = metrics
+            _healthMetricsMap.value = updatedMap
+
+            Log.d("HealthRepository", "Saved health metrics for date: $date - Steps: ${metrics.steps.current}")
+        } catch (e: Exception) {
+            Log.e("HealthRepository", "Error saving health metrics for date: $date", e)
         }
     }
 
