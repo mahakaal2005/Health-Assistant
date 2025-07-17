@@ -31,6 +31,13 @@ data class Prescription(
 
 // Extension functions for mapping
 fun com.example.health_assistant.data.local.entity.PrescriptionEntity.toPrescription(): Prescription {
+    // Try to extract categoryId from diseaseCategory if it's a number
+    val categoryIdFromString = try {
+        diseaseCategory.toLongOrNull()
+    } catch (e: Exception) {
+        null
+    }
+    
     return Prescription(
         id = id,
         medicationName = name,
@@ -43,9 +50,9 @@ fun com.example.health_assistant.data.local.entity.PrescriptionEntity.toPrescrip
         isActive = isActive,
         createdAt = java.util.Date(dateCreated),
         updatedAt = java.util.Date(dateModified),
-        userId = null, // Not available in entity
-        categoryId = null, // Not available in entity
-        displayName = diseaseCategory,
+        userId = userId, // Now properly mapping userId from entity
+        categoryId = categoryIdFromString ?: 1L, // Default to category 1 (Cardiology) if not a number
+        displayName = if (categoryIdFromString == null) diseaseCategory else null, // Only use as display name if not a number
         notes = notes,
         imageUri = imagePath,
         localImagePath = imagePath,
@@ -58,6 +65,11 @@ fun com.example.health_assistant.data.local.entity.PrescriptionEntity.toPrescrip
 }
 
 fun Prescription.toPrescriptionEntity(): com.example.health_assistant.data.local.entity.PrescriptionEntity {
+    // Get category name from ID if possible
+    val categoryName = categoryId?.let { id ->
+        com.example.health_assistant.data.model.DiseaseCategory.getDefaultCategories().find { it.id == id }?.name
+    } ?: displayName ?: "General"
+    
     return com.example.health_assistant.data.local.entity.PrescriptionEntity(
         id = if (id == 0L) 0 else id, // Let Room auto-generate if 0
         name = medicationName,
@@ -73,10 +85,11 @@ fun Prescription.toPrescriptionEntity(): com.example.health_assistant.data.local
         reminderEnabled = false, // Default value
         reminderTimes = "", // Default value
         notes = notes ?: "",
-        diseaseCategory = displayName ?: "",
+        diseaseCategory = categoryId?.toString() ?: "", // Store category ID as string
         startDate = startDate.time,
         endDate = endDate?.time,
         pillCount = null,
-        refillReminder = false
+        refillReminder = false,
+        userId = userId ?: "" // Now properly mapping userId to entity
     )
 }

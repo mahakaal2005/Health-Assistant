@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#E6000000"
+    android:background="#F0000000"
     android:clickable="true"
     android:focusable="true">
 
@@ -29,7 +29,7 @@
         android:layout_gravity="center"
         android:adjustViewBounds="true"
         android:scaleType="matrix"
-        android:contentDescription="Full size profile picture - pinch to zoom, drag to pan" />
+        android:contentDescription="Full size image - pinch to zoom, drag to pan" />
 
     <!-- Loading indicator -->
     <com.google.android.material.progressindicator.CircularProgressIndicator
@@ -48,12 +48,13 @@
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|center_horizontal"
         android:layout_marginBottom="32dp"
-        android:text="Pinch to zoom • Drag to pan • Tap to close"
+        android:text="Pinch to zoom • Drag to pan • Double-tap to reset"
         android:textColor="@android:color/white"
-        android:textSize="14sp"
-        android:alpha="0.8"
+        android:textSize="16sp"
+        android:alpha="0.9"
         android:background="#80000000"
         android:padding="12dp"
-        android:visibility="gone" />
+        android:elevation="4dp"
+        android:visibility="visible" />
 
 </FrameLayout>

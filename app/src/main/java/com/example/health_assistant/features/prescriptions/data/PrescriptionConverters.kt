@@ -42,7 +42,8 @@ fun PrescriptionEntity.toDomain(): Prescription {
         startDate = startDate,
         endDate = endDate,
         pillCount = pillCount,
-        refillReminder = refillReminder
+        refillReminder = refillReminder,
+        userId = userId
     )
 }
 
@@ -73,7 +74,8 @@ fun Prescription.toEntity(): PrescriptionEntity {
         startDate = startDate,
         endDate = endDate,
         pillCount = pillCount,
-        refillReminder = refillReminder
+        refillReminder = refillReminder,
+        userId = userId
     )
 }
 

@@ -1,5 +1,6 @@
 package com.example.health_assistant.data.repository.impl
 
+import com.example.health_assistant.auth.session.SessionManager
 import com.example.health_assistant.core.util.Result
 import com.example.health_assistant.data.local.dao.PrescriptionDao
 import com.example.health_assistant.data.local.dao.DiseaseCategoryDao
@@ -23,12 +24,18 @@ import javax.inject.Singleton
 @Singleton
 class RoomPrescriptionRepositoryImpl @Inject constructor(
     private val prescriptionDao: PrescriptionDao,
-    private val diseaseCategoryDao: DiseaseCategoryDao
+    private val diseaseCategoryDao: DiseaseCategoryDao,
+    private val sessionManager: SessionManager
 ) : PrescriptionRepository {
+
+    private fun getCurrentUserId(): String {
+        return sessionManager.getCurrentUserId() ?: ""
+    }
 
     override suspend fun insertPrescription(prescription: Prescription): Result<Unit> {
         return try {
-            val entity = prescription.toPrescriptionEntity()
+            val userId = getCurrentUserId()
+            val entity = prescription.toPrescriptionEntity().copy(userId = userId)
             prescriptionDao.insertPrescription(entity)
             Result.Success(Unit)
         } catch (e: Exception) {
@@ -38,9 +45,17 @@ class RoomPrescriptionRepositoryImpl @Inject constructor(
 
     override suspend fun getAllPrescriptions(): Flow<Result<List<Prescription>>> = flow {
         try {
-            prescriptionDao.getAllPrescriptions().collect { entities ->
-                val prescriptions = entities.map { it.toPrescription() }
-                emit(Result.Success(prescriptions))
+            val userId = getCurrentUserId()
+            if (userId.isNotEmpty()) {
+                prescriptionDao.getAllPrescriptionsByUserId(userId).collect { entities ->
+                    val prescriptions = entities.map { it.toPrescription() }
+                    emit(Result.Success(prescriptions))
+                }
+            } else {
+                prescriptionDao.getAllPrescriptions().collect { entities ->
+                    val prescriptions = entities.map { it.toPrescription() }
+                    emit(Result.Success(prescriptions))
+                }
             }
         } catch (e: Exception) {
             emit(Result.Error(e, e.message ?: "Failed to get prescriptions"))
@@ -50,8 +65,20 @@ class RoomPrescriptionRepositoryImpl @Inject constructor(
     override suspend fun getPrescriptionById(id: Long): Result<Prescription?> {
         return try {
             val entity = prescriptionDao.getPrescriptionById(id)
-            val prescription = entity?.toPrescription()
-            Result.Success(prescription)
+            
+            // Only return the prescription if it belongs to the current user or if no user is logged in
+            val userId = getCurrentUserId()
+            if (userId.isNotEmpty() && entity != null) {
+                if (entity.userId == userId) {
+                    val prescription = entity.toPrescription()
+                    Result.Success(prescription)
+                } else {
+                    Result.Success(null)
+                }
+            } else {
+                val prescription = entity?.toPrescription()
+                Result.Success(prescription)
+            }
         } catch (e: Exception) {
             Result.Error(e, e.message ?: "Failed to get prescription")
         }
@@ -59,7 +86,8 @@ class RoomPrescriptionRepositoryImpl @Inject constructor(
 
     override suspend fun updatePrescription(prescription: Prescription): Result<Unit> {
         return try {
-            val entity = prescription.toPrescriptionEntity()
+            val userId = getCurrentUserId()
+            val entity = prescription.toPrescriptionEntity().copy(userId = userId)
             prescriptionDao.updatePrescription(entity)
             Result.Success(Unit)
         } catch (e: Exception) {
@@ -69,7 +97,19 @@ class RoomPrescriptionRepositoryImpl @Inject constructor(
 
     override suspend fun deletePrescription(id: Long): Result<Unit> {
         return try {
-            prescriptionDao.deletePrescriptionById(id)
+            // Get the prescription entity first
+            val entity = prescriptionDao.getPrescriptionById(id)
+            if (entity != null) {
+                // Check if the prescription belongs to the current user
+                val userId = getCurrentUserId()
+                if (userId.isNotEmpty() && entity.userId != userId) {
+                    // Don't delete if it doesn't belong to the current user
+                    return Result.Success(Unit)
+                }
+                
+                // Delete using the entity
+                prescriptionDao.deletePrescription(entity)
+            }
             Result.Success(Unit)
         } catch (e: Exception) {
             Result.Error(e, e.message ?: "Failed to delete prescription")

@@ -28,14 +28,9 @@ class PrescriptionViewHolder(
                 crossfade(true)
             }
 
-            // Set category chip - use displayName if available (stores category name), fallback to ID lookup
-            val categoryText = if (!prescription.displayName.isNullOrBlank()) {
-                prescription.displayName
-            } else {
-                val category = PrescriptionUtils.getCategoryById(prescription.categoryId?.toString() ?: "1")
-                category?.name ?: "General"
-            }
-            categoryChip.text = categoryText
+            // Set category chip - always use categoryId to look up the category name
+            val category = PrescriptionUtils.getCategoryById(prescription.categoryId)
+            categoryChip.text = category?.name ?: "General"
 
             // Set doctor name with Dr. prefix
             val doctorNameText = prescription.doctorName ?: "Unknown Doctor"

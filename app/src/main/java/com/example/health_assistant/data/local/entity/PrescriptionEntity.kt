@@ -2,12 +2,16 @@ package com.example.health_assistant.data.local.entity
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import androidx.room.Index
 
 /**
  * Entity for prescription data in the database
  * Stores prescription information including images and metadata
  */
-@Entity(tableName = "prescriptions")
+@Entity(
+    tableName = "prescriptions",
+    indices = [Index("userId")] // Add index on userId for faster queries
+)
 data class PrescriptionEntity(
     @PrimaryKey(autoGenerate = true)
     val id: Long = 0,
@@ -28,5 +32,6 @@ data class PrescriptionEntity(
     val startDate: Long? = null, // When to start taking medication
     val endDate: Long? = null, // When to stop taking medication
     val pillCount: Int? = null, // Number of pills remaining
-    val refillReminder: Boolean = false
+    val refillReminder: Boolean = false,
+    val userId: String = "" // User ID to associate prescriptions with specific users
 )

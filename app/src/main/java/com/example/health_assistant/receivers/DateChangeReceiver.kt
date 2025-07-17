@@ -5,8 +5,11 @@ import android.content.Context
 import android.content.Intent
 import android.util.Log
 import com.example.health_assistant.data.sensors.DeviceSensorManager
+import com.example.health_assistant.features.journal.workers.ActivityCardScheduler
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 
 /**
  * Broadcast receiver to handle date/time changes for midnight reset
@@ -21,6 +24,9 @@ class DateChangeReceiver : BroadcastReceiver() {
 
     @Inject
     lateinit var deviceSensorManager: DeviceSensorManager
+    
+    @Inject
+    lateinit var activityCardScheduler: ActivityCardScheduler
 
     override fun onReceive(context: Context, intent: Intent) {
         Log.d(TAG, "Date change receiver triggered: ${intent.action}")
@@ -40,10 +46,26 @@ class DateChangeReceiver : BroadcastReceiver() {
         try {
             // Trigger reset in the sensor manager
             deviceSensorManager.resetStepCount()
-
+            
+            // Generate activity card for previous day, not today
+            // This ensures we don't create a card with 0 steps for the new day
+            val yesterday = java.time.LocalDate.now().minusDays(1)
+            Log.d(TAG, "Generating activity card for previous day: $yesterday")
+            
+            // Use a background thread to avoid blocking the receiver
+            kotlinx.coroutines.GlobalScope.launch {
+                try {
+                    // Just generate the card directly - the repository layer will handle deduplication
+                    Log.d(TAG, "Requesting card generation for $yesterday")
+                    activityCardScheduler.generateCardForDate(yesterday)
+                } catch (e: Exception) {
+                    Log.e(TAG, "Error in background card generation", e)
+                }
+            }
+            
             Log.d(TAG, "Step count reset completed successfully")
         } catch (e: Exception) {
-            Log.e(TAG, "Failed to reset step count on date change", e)
+            Log.e(TAG, "Failed to handle date change operations", e)
         }
     }
 }

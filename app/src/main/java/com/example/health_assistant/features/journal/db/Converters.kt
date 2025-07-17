@@ -17,54 +17,62 @@ fun JournalEntryEntity.toDomain(): JournalEntry {
             moodLevel = moodLevel ?: 3,
             emoji = emoji ?: "😐",
             description = title ?: "Mood Entry",
-            note = content ?: ""
+            note = content ?: "",
+            userId = userId
         )
         "heart_rate" -> JournalEntry.HeartRate(
             id = id,
             timestamp = timestamp,
             bpm = numericValue1?.toInt() ?: 75,
             state = state ?: "resting",
-            note = content ?: ""
+            note = content ?: "",
+            userId = userId
         )
         "blood_pressure" -> JournalEntry.BloodPressure(
             id = id,
             timestamp = timestamp,
             systolic = numericValue1?.toInt() ?: 120,
             diastolic = numericValue2?.toInt() ?: 80,
-            note = content ?: ""
+            note = content ?: "",
+            userId = userId
         )
         "workout" -> JournalEntry.Workout(
             id = id,
             timestamp = timestamp,
             activityType = title ?: "Exercise",
             duration = numericValue1?.toInt() ?: 30,
-            summary = content ?: ""
+            summary = content ?: "",
+            userId = userId
         )
         "weight" -> JournalEntry.Weight(
             id = id,
             timestamp = timestamp,
             weight = numericValue1 ?: 70.0,
             unit = unit ?: "kg",
-            note = content ?: ""
+            note = content ?: "",
+            userId = userId
         )
         "sleep" -> JournalEntry.Sleep(
             id = id,
             timestamp = timestamp,
             duration = numericValue1?.toInt() ?: 480, // 8 hours in minutes
             quality = numericValue2?.toInt() ?: 3,
-            note = content ?: ""
+            note = content ?: "",
+            userId = userId
         )
         "note", "generic" -> JournalEntry.Generic(
             id = id,
             timestamp = timestamp,
             type = type,
-            content = content ?: title ?: "Journal Entry"
+            content = content ?: title ?: "Journal Entry",
+            userId = userId
         )
         else -> JournalEntry.Generic(
             id = id,
             timestamp = timestamp,
             type = type,
-            content = content ?: "Unknown entry type: $type"
+            content = content ?: "Unknown entry type: $type",
+            userId = userId
         )
     }
 }
@@ -78,7 +86,8 @@ fun JournalEntry.toEntity(): JournalEntryEntity {
             title = description,
             content = note,
             moodLevel = moodLevel,
-            emoji = emoji
+            emoji = emoji,
+            userId = userId
         )
         is JournalEntry.HeartRate -> JournalEntryEntity(
             id = if (id == 0L) 0 else id,
@@ -86,7 +95,8 @@ fun JournalEntry.toEntity(): JournalEntryEntity {
             type = "heart_rate",
             content = note,
             numericValue1 = bpm.toDouble(),
-            state = state
+            state = state,
+            userId = userId
         )
         is JournalEntry.BloodPressure -> JournalEntryEntity(
             id = if (id == 0L) 0 else id,
@@ -94,7 +104,8 @@ fun JournalEntry.toEntity(): JournalEntryEntity {
             type = "blood_pressure",
             content = note,
             numericValue1 = systolic.toDouble(),
-            numericValue2 = diastolic.toDouble()
+            numericValue2 = diastolic.toDouble(),
+            userId = userId
         )
         is JournalEntry.Workout -> JournalEntryEntity(
             id = if (id == 0L) 0 else id,
@@ -102,7 +113,8 @@ fun JournalEntry.toEntity(): JournalEntryEntity {
             type = "workout",
             title = activityType,
             content = summary,
-            numericValue1 = duration.toDouble()
+            numericValue1 = duration.toDouble(),
+            userId = userId
         )
         is JournalEntry.Weight -> JournalEntryEntity(
             id = if (id == 0L) 0 else id,
@@ -110,7 +122,8 @@ fun JournalEntry.toEntity(): JournalEntryEntity {
             type = "weight",
             content = note,
             numericValue1 = weight,
-            unit = unit
+            unit = unit,
+            userId = userId
         )
         is JournalEntry.Sleep -> JournalEntryEntity(
             id = if (id == 0L) 0 else id,
@@ -118,13 +131,15 @@ fun JournalEntry.toEntity(): JournalEntryEntity {
             type = "sleep",
             content = note,
             numericValue1 = duration.toDouble(),
-            numericValue2 = quality.toDouble()
+            numericValue2 = quality.toDouble(),
+            userId = userId
         )
         is JournalEntry.Generic -> JournalEntryEntity(
             id = if (id == 0L) 0 else id,
             timestamp = timestamp,
             type = type,
-            content = content
+            content = content,
+            userId = userId
         )
     }
 }

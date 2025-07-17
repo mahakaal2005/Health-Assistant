@@ -73,5 +73,8 @@ class HealthAssistantApplication : Application(), Configuration.Provider {
     private fun setupActivityCardGeneration() {
         // Use Hilt-injected scheduler instead of manual creation
         activityCardScheduler.scheduleDailyGeneration()
+        
+        // Also check for any missing activity cards
+        activityCardScheduler.checkForMissingActivityCards()
     }
 }

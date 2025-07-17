@@ -40,6 +40,7 @@ class ZoomableImageView @JvmOverloads constructor(
     // Matrix for transformations
     private val matrix = Matrix()
     private val savedMatrix = Matrix()
+    private val baseMatrix = Matrix() // Store the initial fit-to-screen matrix
 
     // Touch handling
     private var mode = NONE
@@ -56,6 +57,7 @@ class ZoomableImageView @JvmOverloads constructor(
 
     // Current scale and boundaries
     private var currentScale = 1f
+    private var baseScale = 1f // Store the initial fit-to-screen scale
     private var originalWidth = 0f
     private var originalHeight = 0f
     private var viewWidth = 0
@@ -79,6 +81,9 @@ class ZoomableImageView @JvmOverloads constructor(
         }
     }
 
+    /**
+     * Reset image to fit screen
+     */
     private fun resetImageMatrix() {
         // Wait for view to be measured
         post {
@@ -103,12 +108,17 @@ class ZoomableImageView @JvmOverloads constructor(
             val dx = (viewWidth - originalWidth * scale) / 2f
             val dy = (viewHeight - originalHeight * scale) / 2f
 
+            // Reset and store the base matrix
             matrix.reset()
             matrix.postScale(scale, scale)
             matrix.postTranslate(dx, dy)
+            baseMatrix.set(matrix)
+            
+            // Store the base scale
+            baseScale = scale
+            currentScale = scale
 
             imageMatrix = matrix
-            currentScale = scale
         }
     }
 
@@ -145,6 +155,11 @@ class ZoomableImageView @JvmOverloads constructor(
             MotionEvent.ACTION_UP, MotionEvent.ACTION_POINTER_UP -> {
                 mode = NONE
                 lastEvent = null
+                
+                // If scale is close to MIN_ZOOM, snap back to exact MIN_ZOOM
+                if (currentScale < MIN_ZOOM * 1.1f && currentScale > MIN_ZOOM * 0.9f) {
+                    resetImageMatrix()
+                }
             }
 
             MotionEvent.ACTION_MOVE -> {
@@ -275,15 +290,22 @@ class ZoomableImageView @JvmOverloads constructor(
             imageMatrix = matrix
             return true
         }
+        
+        override fun onScaleEnd(detector: ScaleGestureDetector) {
+            // If scale is very close to MIN_ZOOM, snap back to exact MIN_ZOOM
+            if (currentScale < MIN_ZOOM * 1.05f) {
+                resetImageMatrix()
+            }
+        }
     }
 
     private inner class GestureListener : GestureDetector.SimpleOnGestureListener() {
         override fun onDoubleTap(e: MotionEvent): Boolean {
-            if (currentScale > MIN_ZOOM) {
-                // Zoom out to fit
+            // If already zoomed in, reset to original size
+            if (currentScale > baseScale * 1.1f) {
                 resetImageMatrix()
             } else {
-                // Zoom in
+                // Zoom in to double tap zoom level
                 val targetScale = min(DOUBLE_TAP_ZOOM, MAX_ZOOM)
                 val scaleFactor = targetScale / currentScale
                 matrix.postScale(scaleFactor, scaleFactor, e.x, e.y)

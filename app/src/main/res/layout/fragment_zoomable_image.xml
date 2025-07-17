@@ -7,7 +7,7 @@
     android:background="@android:color/black">
 
     <!-- Zoomable Image View -->
-    <ImageView
+    <com.example.health_assistant.utils.ZoomableImageView
         android:id="@+id/zoomableImageView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -47,5 +47,21 @@
         android:layout_gravity="center"
         android:indeterminateTint="@android:color/white"
         android:visibility="gone" />
+
+    <!-- Instructions text -->
+    <TextView
+        android:id="@+id/instructionsText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|center_horizontal"
+        android:layout_marginBottom="32dp"
+        android:text="Pinch to zoom • Drag to pan • Double-tap to reset"
+        android:textColor="@android:color/white"
+        android:textSize="16sp"
+        android:alpha="0.9"
+        android:background="#80000000"
+        android:padding="12dp"
+        android:elevation="4dp"
+        android:visibility="visible" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

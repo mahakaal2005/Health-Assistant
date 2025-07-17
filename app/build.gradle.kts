@@ -4,6 +4,7 @@ plugins {
     alias(libs.plugins.google.services)
     id("com.google.devtools.ksp")
     id("com.google.dagger.hilt.android")
+    id("androidx.navigation.safeargs.kotlin")
     id("jacoco")
 }
 
@@ -139,6 +140,9 @@ dependencies {
     implementation(libs.lottie)
     implementation(libs.androidx.navigation.fragment.ktx)
     implementation(libs.androidx.navigation.ui.ktx)
+    
+    // ExifInterface for image orientation fixes
+    implementation("androidx.exifinterface:exifinterface:1.3.7")
 
     // Import the Firebase BoM
     implementation(platform(libs.firebase.bom))

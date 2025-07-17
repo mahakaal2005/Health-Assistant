@@ -8,12 +8,14 @@ sealed class JournalEntry {
     abstract val id: Long
     abstract val timestamp: Long
     abstract val type: String
+    abstract val userId: String
 
     data class Generic(
         override val id: Long,
         override val timestamp: Long,
         override val type: String = "note",
-        val content: String
+        val content: String,
+        override val userId: String = ""
     ) : JournalEntry()
 
     data class Mood(
@@ -23,7 +25,8 @@ sealed class JournalEntry {
         val moodLevel: Int, // 1-5 scale
         val emoji: String,
         val description: String,
-        val note: String = ""
+        val note: String = "",
+        override val userId: String = ""
     ) : JournalEntry()
 
     data class HeartRate(
@@ -32,7 +35,8 @@ sealed class JournalEntry {
         override val type: String = "heart_rate",
         val bpm: Int,
         val state: String, // "resting", "active", "exercise"
-        val note: String = ""
+        val note: String = "",
+        override val userId: String = ""
     ) : JournalEntry()
 
     data class BloodPressure(
@@ -41,7 +45,8 @@ sealed class JournalEntry {
         override val type: String = "blood_pressure",
         val systolic: Int,
         val diastolic: Int,
-        val note: String = ""
+        val note: String = "",
+        override val userId: String = ""
     ) : JournalEntry()
 
     data class Workout(
@@ -50,7 +55,8 @@ sealed class JournalEntry {
         override val type: String = "workout",
         val activityType: String,
         val duration: Int, // in minutes
-        val summary: String = ""
+        val summary: String = "",
+        override val userId: String = ""
     ) : JournalEntry()
 
     data class Weight(
@@ -59,7 +65,8 @@ sealed class JournalEntry {
         override val type: String = "weight",
         val weight: Double, // in kg
         val unit: String = "kg",
-        val note: String = ""
+        val note: String = "",
+        override val userId: String = ""
     ) : JournalEntry()
 
     data class Sleep(
@@ -68,6 +75,7 @@ sealed class JournalEntry {
         override val type: String = "sleep",
         val duration: Int, // in minutes
         val quality: Int, // 1-5 scale
-        val note: String = ""
+        val note: String = "",
+        override val userId: String = ""
     ) : JournalEntry()
 }

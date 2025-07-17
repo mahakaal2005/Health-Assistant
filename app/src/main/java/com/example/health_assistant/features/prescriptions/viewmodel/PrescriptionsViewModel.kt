@@ -6,6 +6,7 @@ import com.example.health_assistant.auth.session.SessionManager
 import com.example.health_assistant.core.util.Result
 import com.example.health_assistant.data.model.Prescription
 import com.example.health_assistant.data.repository.interfaces.PrescriptionRepository
+import com.example.health_assistant.features.prescriptions.utils.PrescriptionUtils
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
@@ -230,6 +231,11 @@ class PrescriptionsViewModel @Inject constructor(
         query: String,
         categoryFilter: String
     ): List<Prescription> {
+        // Get default category names for "Other" filtering
+        val defaultCategoryNames = com.example.health_assistant.data.model.DiseaseCategory.getDefaultCategories()
+            .map { it.name }
+            .filter { it != "Other" } // Exclude "Other" itself from the default names
+        
         return prescriptions.filter { prescription ->
             // Text search across multiple fields
             val matchesQuery = query.isBlank() ||
@@ -239,9 +245,20 @@ class PrescriptionsViewModel @Inject constructor(
                 prescription.notes?.contains(query, ignoreCase = true) == true ||
                 prescription.frequency.contains(query, ignoreCase = true)
 
-            // Simple category filter - matches if category is "All Categories" or if it matches the prescription's category
-            val matchesCategory = categoryFilter == "All Categories" ||
-                prescription.categoryId?.toString() == categoryFilter
+            // Category filter - handle "All Categories", "Other", and specific categories
+            val matchesCategory = when (categoryFilter) {
+                "All Categories" -> true
+                "Other" -> {
+                    // For "Other" filter, match prescriptions that don't match any default category
+                    val category = PrescriptionUtils.getCategoryById(prescription.categoryId)
+                    category == null || !defaultCategoryNames.contains(category.name)
+                }
+                else -> {
+                    // For specific category filter, match by category name
+                    val category = PrescriptionUtils.getCategoryById(prescription.categoryId)
+                    category?.name == categoryFilter
+                }
+            }
 
             matchesQuery && matchesCategory
         }

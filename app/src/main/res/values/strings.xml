@@ -99,7 +99,7 @@
     <string name="prescription_notes_hint">Additional Notes (Optional)</string>
     <string name="prescription_action_cancel">Cancel</string>
     <string name="prescription_action_save">Save Prescription</string>
-    <string name="prescription_error_camera_permission">Camera permission is required to capture prescription photos</string>
+    <string name="prescription_error_camera_permission">Camera permission is required to capture prescription photos. Please grant the permission in app settings.</string>
     <string name="prescription_saved_successfully">Prescription saved successfully!</string>
     <string name="prescription_deleted_successfully">Prescription deleted successfully</string>
     <string name="error_deleting_prescription">Error deleting prescription. Please try again.</string>

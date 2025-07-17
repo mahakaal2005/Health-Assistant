@@ -1,12 +1,9 @@
 package com.example.health_assistant.features.prescriptions.dialogs
 
 import android.app.Dialog
-import android.graphics.Matrix
-import android.graphics.PointF
+import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
-import android.view.MotionEvent
-import android.view.ScaleGestureDetector
 import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
@@ -19,12 +16,13 @@ import coil3.request.placeholder
 import com.example.health_assistant.R
 import com.example.health_assistant.databinding.FragmentZoomableImageBinding
 import com.example.health_assistant.features.prescriptions.utils.FileManager
+import com.example.health_assistant.utils.ImageOrientationFixer
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
-import kotlin.math.min
 
 /**
  * DialogFragment for displaying prescription images with zoom and pan functionality
+ * Uses the ZoomableImageView for consistent zoom behavior across the app
  */
 @AndroidEntryPoint
 class ZoomableImageFragment : DialogFragment() {
@@ -36,25 +34,9 @@ class ZoomableImageFragment : DialogFragment() {
     lateinit var fileManager: FileManager
 
     private lateinit var imagePath: String
-    private lateinit var scaleGestureDetector: ScaleGestureDetector
-
-    // Matrix for image transformations
-    private val matrix = Matrix()
-    private val savedMatrix = Matrix()
-
-    // Touch handling
-    private val start = PointF()
-    private val mid = PointF()
-    private var mode = NONE
-    private var scaleFactor = 1f
-    private val minScale = 0.5f
-    private val maxScale = 5f
 
     companion object {
         private const val ARG_IMAGE_PATH = "image_path"
-        private const val NONE = 0
-        private const val DRAG = 1
-        private const val ZOOM = 2
 
         fun newInstance(imagePath: String): ZoomableImageFragment {
             return ZoomableImageFragment().apply {
@@ -96,52 +78,9 @@ class ZoomableImageFragment : DialogFragment() {
         imagePath = arguments?.getString(ARG_IMAGE_PATH)
             ?: throw IllegalArgumentException("Image path is required")
 
-        setupZoomGestures()
         setupToolbar()
         loadImage()
-    }
-
-    private fun setupZoomGestures() {
-        scaleGestureDetector = ScaleGestureDetector(requireContext(), ScaleListener())
-
-        binding.zoomableImageView.setOnTouchListener { _, event ->
-            scaleGestureDetector.onTouchEvent(event)
-
-            when (event.action and MotionEvent.ACTION_MASK) {
-                MotionEvent.ACTION_DOWN -> {
-                    savedMatrix.set(matrix)
-                    start.set(event.x, event.y)
-                    mode = DRAG
-                }
-
-                MotionEvent.ACTION_POINTER_DOWN -> {
-                    savedMatrix.set(matrix)
-                    midPoint(mid, event)
-                    mode = ZOOM
-                }
-
-                MotionEvent.ACTION_MOVE -> {
-                    if (mode == DRAG && scaleFactor > 1f) {
-                        // Only allow dragging when zoomed in
-                        matrix.set(savedMatrix)
-                        val dx = event.x - start.x
-                        val dy = event.y - start.y
-                        matrix.postTranslate(dx, dy)
-
-                        // Apply bounds checking
-                        checkBounds()
-                        binding.zoomableImageView.imageMatrix = matrix
-                    }
-                }
-
-                MotionEvent.ACTION_UP, MotionEvent.ACTION_POINTER_UP -> {
-                    mode = NONE
-                    savedMatrix.set(matrix)
-                }
-            }
-
-            true
-        }
+        setupInstructions()
     }
 
     private fun setupToolbar() {
@@ -157,89 +96,60 @@ class ZoomableImageFragment : DialogFragment() {
     private fun loadImage() {
         binding.loadingProgress.visibility = View.VISIBLE
 
-        binding.zoomableImageView.load(imagePath) {
-            placeholder(R.drawable.ic_prescription_placeholder)
-            error(R.drawable.ic_prescription_placeholder)
-            crossfade(true)
-            listener(
-                onSuccess = { _, _ ->
-                    binding.loadingProgress.visibility = View.GONE
-                    // Center the image initially
-                    centerImage()
-                },
-                onError = { _, _ ->
-                    binding.loadingProgress.visibility = View.GONE
-                }
-            )
-        }
-    }
+        try {
+            // Create a URI from the image path
+            val imageUri = Uri.parse(imagePath)
+            
+            // Fix orientation if needed
+            val fixedUri = if (imagePath.startsWith("file:") || imagePath.startsWith("/")) {
+                ImageOrientationFixer.fixImageOrientation(requireContext(), imageUri)
+            } else {
+                imageUri
+            }
 
-    private fun checkBounds() {
-        val imageView = binding.zoomableImageView
-        val drawable = imageView.drawable ?: return
-
-        val values = FloatArray(9)
-        matrix.getValues(values)
-
-        val transX = values[Matrix.MTRANS_X]
-        val transY = values[Matrix.MTRANS_Y]
-        val scaleX = values[Matrix.MSCALE_X]
-        val scaleY = values[Matrix.MSCALE_Y]
-
-        val viewWidth = imageView.width.toFloat()
-        val viewHeight = imageView.height.toFloat()
-        val imageWidth = drawable.intrinsicWidth * scaleX
-        val imageHeight = drawable.intrinsicHeight * scaleY
-
-        var deltaX = 0f
-        var deltaY = 0f
-
-        // Check horizontal bounds
-        if (imageWidth <= viewWidth) {
-            deltaX = (viewWidth - imageWidth) / 2 - transX
-        } else {
-            if (transX > 0) deltaX = -transX
-            if (transX + imageWidth < viewWidth) deltaX = viewWidth - imageWidth - transX
-        }
-
-        // Check vertical bounds
-        if (imageHeight <= viewHeight) {
-            deltaY = (viewHeight - imageHeight) / 2 - transY
-        } else {
-            if (transY > 0) deltaY = -transY
-            if (transY + imageHeight < viewHeight) deltaY = viewHeight - imageHeight - transY
-        }
-
-        matrix.postTranslate(deltaX, deltaY)
-    }
-
-    private fun centerImage() {
-        // Post this to ensure the view has been laid out
-        binding.zoomableImageView.post {
-            val imageView = binding.zoomableImageView
-            val drawable = imageView.drawable ?: return@post
-
-            val viewWidth = imageView.width.toFloat()
-            val viewHeight = imageView.height.toFloat()
-            val drawableWidth = drawable.intrinsicWidth.toFloat()
-            val drawableHeight = drawable.intrinsicHeight.toFloat()
-
-            if (viewWidth > 0 && viewHeight > 0 && drawableWidth > 0 && drawableHeight > 0) {
-                val scale = min(viewWidth / drawableWidth, viewHeight / drawableHeight)
-
-                matrix.reset()
-                matrix.postScale(scale, scale)
-                matrix.postTranslate(
-                    (viewWidth - drawableWidth * scale) / 2f,
-                    (viewHeight - drawableHeight * scale) / 2f
+            binding.zoomableImageView.load(fixedUri) {
+                placeholder(R.drawable.ic_prescription_placeholder)
+                error(R.drawable.ic_prescription_placeholder)
+                crossfade(true)
+                listener(
+                    onSuccess = { _, _ ->
+                        binding.loadingProgress.visibility = View.GONE
+                    },
+                    onError = { _, _ ->
+                        binding.loadingProgress.visibility = View.GONE
+                    }
                 )
-
-                scaleFactor = scale
-                savedMatrix.set(matrix)
-                imageView.imageMatrix = matrix
-                imageView.scaleType = android.widget.ImageView.ScaleType.MATRIX
+            }
+        } catch (e: Exception) {
+            // If there's an error, try loading the original path directly
+            binding.zoomableImageView.load(imagePath) {
+                placeholder(R.drawable.ic_prescription_placeholder)
+                error(R.drawable.ic_prescription_placeholder)
+                crossfade(true)
+                listener(
+                    onSuccess = { _, _ ->
+                        binding.loadingProgress.visibility = View.GONE
+                    },
+                    onError = { _, _ ->
+                        binding.loadingProgress.visibility = View.GONE
+                    }
+                )
             }
         }
+    }
+
+    private fun setupInstructions() {
+        // Show instructions for a few seconds then fade out
+        binding.instructionsText.visibility = View.VISIBLE
+        binding.instructionsText.postDelayed({
+            binding.instructionsText.animate()
+                .alpha(0f)
+                .setDuration(500)
+                .withEndAction {
+                    binding.instructionsText.visibility = View.GONE
+                }
+                .start()
+        }, 3000)
     }
 
     private fun shareImage() {
@@ -267,42 +177,6 @@ class ZoomableImageFragment : DialogFragment() {
                 "Error sharing image: ${e.message}",
                 android.widget.Toast.LENGTH_SHORT
             ).show()
-        }
-    }
-
-    private fun midPoint(point: PointF, event: MotionEvent) {
-        val x = event.getX(0) + event.getX(1)
-        val y = event.getY(0) + event.getY(1)
-        point.set(x / 2, y / 2)
-    }
-
-    private inner class ScaleListener : ScaleGestureDetector.SimpleOnScaleGestureListener() {
-        override fun onScaleBegin(detector: ScaleGestureDetector): Boolean {
-            mode = ZOOM
-            return true
-        }
-
-        override fun onScale(detector: ScaleGestureDetector): Boolean {
-            val detectorScaleFactor = detector.scaleFactor
-            val newScaleFactor = scaleFactor * detectorScaleFactor
-
-            // Constrain scale factor within bounds
-            if (newScaleFactor >= minScale && newScaleFactor <= maxScale) {
-                scaleFactor = newScaleFactor
-
-                matrix.set(savedMatrix)
-                matrix.postScale(detectorScaleFactor, detectorScaleFactor, detector.focusX, detector.focusY)
-
-                checkBounds()
-                binding.zoomableImageView.imageMatrix = matrix
-            }
-
-            return true
-        }
-
-        override fun onScaleEnd(detector: ScaleGestureDetector) {
-            savedMatrix.set(matrix)
-            mode = NONE
         }
     }
 

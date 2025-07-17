@@ -25,7 +25,8 @@ data class Prescription(
     val startDate: Long? = null,
     val endDate: Long? = null,
     val pillCount: Int? = null,
-    val refillReminder: Boolean = false
+    val refillReminder: Boolean = false,
+    val userId: String = "" // User ID to associate prescriptions with specific users
 )
 
 /**

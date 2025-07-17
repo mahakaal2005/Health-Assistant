@@ -58,6 +58,13 @@ data class DiseaseCategory(
                     description = "Bone and joint conditions",
                     iconResId = null,
                     isActive = true
+                ),
+                DiseaseCategory(
+                    id = 6L,
+                    name = "Other",
+                    description = "Other medical conditions and custom categories",
+                    iconResId = null,
+                    isActive = true
                 )
             )
         }

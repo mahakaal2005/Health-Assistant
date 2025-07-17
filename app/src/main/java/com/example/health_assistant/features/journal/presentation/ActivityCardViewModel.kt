@@ -8,6 +8,7 @@ import com.example.health_assistant.features.journal.domain.usecase.GetActivityC
 import com.example.health_assistant.features.journal.workers.ActivityCardScheduler
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 import javax.inject.Inject
@@ -107,6 +108,34 @@ class ActivityCardViewModel @Inject constructor(
      */
     fun selectActivityCard(card: ActivityCard) {
         _selectedCard.value = card
+    }
+
+    /**
+     * Select a specific activity card by ID for detailed view
+     */
+    suspend fun selectActivityCardById(cardId: Long) {
+        viewModelScope.launch {
+            _uiState.update { it.copy(isLoading = true, error = null) }
+            
+            try {
+                // Get all cards and find the one with matching ID
+                val allCards = getActivityCardsUseCase.getAllActivityCards().first()
+                val card = allCards.find { it.id == cardId }
+                
+                if (card != null) {
+                    _selectedCard.value = card
+                    _uiState.update { it.copy(isLoading = false) }
+                } else {
+                    _uiState.update { 
+                        it.copy(isLoading = false, error = "Activity card not found") 
+                    }
+                }
+            } catch (e: Exception) {
+                _uiState.update {
+                    it.copy(isLoading = false, error = e.message ?: "Failed to load activity card")
+                }
+            }
+        }
     }
 
     /**

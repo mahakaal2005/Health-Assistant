@@ -49,6 +49,10 @@ class MainActivity : AppCompatActivity() {
     @Inject
     lateinit var enhancedHealthTracker: EnhancedHealthTracker
 
+    // Inject ActivityCardScheduler for manual card generation testing
+    @Inject
+    lateinit var activityCardScheduler: com.example.health_assistant.features.journal.workers.ActivityCardScheduler
+
     // CRITICAL FIX: Runtime permission handling for sensor access
     private val sensorPermissionLauncher = registerForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions()
@@ -99,6 +103,9 @@ class MainActivity : AppCompatActivity() {
 
         // CRITICAL FIX: Initialize health tracking immediately
         initializeHealthTracking()
+        
+        // Check for missing activity cards on app start
+        activityCardScheduler.checkForMissingActivityCards()
 
         // NEW: Setup modern back button handling
         setupBackButtonHandler()
@@ -275,27 +282,61 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    // CRITICAL FIX: Initialize health tracking immediately when MainActivity is created
+    /**
+     * CRITICAL FIX: Initialize health tracking and request necessary permissions
+     */
     private fun initializeHealthTracking() {
         try {
-            // Check if we have the required permissions first
-            if (checkSensorPermissions()) {
-                // Permissions already granted, start tracking immediately
-                val trackingStarted = enhancedHealthTracker.initialize()
+            // First check and request permissions if needed
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                val activityRecognitionPermission = Manifest.permission.ACTIVITY_RECOGNITION
+                val bodySensorsPermission = Manifest.permission.BODY_SENSORS
 
-                if (trackingStarted) {
-                    Log.d(TAG, "Health tracking initialized successfully - sensors are working!")
+                val permissionsToRequest = mutableListOf<String>()
+
+                // Check each permission individually
+                if (ContextCompat.checkSelfPermission(this, activityRecognitionPermission) != PackageManager.PERMISSION_GRANTED) {
+                    permissionsToRequest.add(activityRecognitionPermission)
+                }
+
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT_WATCH &&
+                    ContextCompat.checkSelfPermission(this, bodySensorsPermission) != PackageManager.PERMISSION_GRANTED) {
+                    permissionsToRequest.add(bodySensorsPermission)
+                }
+
+                // Request permissions if needed
+                if (permissionsToRequest.isNotEmpty()) {
+                    sensorPermissionLauncher.launch(permissionsToRequest.toTypedArray())
                 } else {
-                    Log.w(TAG, "Health tracking initialized but no sensors available - will use manual entry")
+                    // Permissions already granted, initialize health tracking
+                    enhancedHealthTracker.initialize()
+                    Log.d(TAG, "Health tracking initialized with existing permissions")
                 }
             } else {
-                // Request permissions first
-                Log.d(TAG, "Requesting sensor permissions for step tracking...")
-                requestSensorPermissions()
+                // Older Android versions don't need runtime permissions for sensors
+                enhancedHealthTracker.initialize()
+                Log.d(TAG, "Health tracking initialized (pre-Android 10)")
             }
         } catch (e: Exception) {
             Log.e(TAG, "Error initializing health tracking: ${e.message}")
-            // Health tracking is important, but not critical for app launch
+        }
+    }
+    
+    /**
+     * Force generate activity cards for testing purposes
+     * This can be called from a debug menu or developer settings
+     */
+    private fun forceGenerateActivityCards() {
+        try {
+            // Force generate today's card
+            activityCardScheduler.forceGenerateCardForToday()
+            
+            // Check for any missing cards
+            activityCardScheduler.checkForMissingActivityCards()
+            
+            Log.d(TAG, "Manually triggered activity card generation")
+        } catch (e: Exception) {
+            Log.e(TAG, "Error forcing activity card generation: ${e.message}")
         }
     }
 

@@ -5,6 +5,7 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.Uri
 import androidx.core.content.FileProvider
+import com.example.health_assistant.utils.ImageOrientationFixer
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -38,7 +39,10 @@ class FileManager @Inject constructor(
         fileName: String? = null
     ): Result<String> = withContext(Dispatchers.IO) {
         try {
-            val inputStream = context.contentResolver.openInputStream(sourceUri)
+            // First fix orientation if needed
+            val fixedUri = ImageOrientationFixer.fixImageOrientation(context, sourceUri)
+            
+            val inputStream = context.contentResolver.openInputStream(fixedUri)
                 ?: return@withContext Result.failure(IOException("Cannot open input stream"))
 
             // Decode bitmap
@@ -58,6 +62,18 @@ class FileManager @Inject constructor(
                 originalBitmap.recycle()
             }
             compressedBitmap.recycle()
+            
+            // Clean up temporary files if we created any
+            if (fixedUri != sourceUri) {
+                try {
+                    val file = File(fixedUri.path ?: "")
+                    if (file.exists()) {
+                        file.delete()
+                    }
+                } catch (e: Exception) {
+                    // Ignore cleanup errors
+                }
+            }
 
             Result.success(savedPath)
         } catch (e: Exception) {
@@ -126,6 +142,9 @@ class FileManager @Inject constructor(
                     }
                 }
             }
+            
+            // Also clean up any temporary orientation-fixed images
+            ImageOrientationFixer.cleanupTempFiles(context)
 
             Result.success(deletedCount)
         } catch (e: Exception) {

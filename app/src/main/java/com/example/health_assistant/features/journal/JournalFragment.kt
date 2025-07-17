@@ -229,7 +229,14 @@ class JournalFragment : Fragment() {
                 // Check for activity-related entries
                 journalEntry is JournalEntry.Workout ||
                 journalEntry.type.contains("activity", ignoreCase = true) -> {
-                    findNavController().navigate(R.id.action_journalFragment_to_activityDetailFragment)
+                    // Create bundle to pass activity card ID and date
+                    val bundle = Bundle().apply {
+                        putLong("activityCardId", journalEntry.id)
+                        // Convert timestamp to ISO date string for the activity card
+                        val date = java.time.LocalDate.ofEpochDay(journalEntry.timestamp / (24 * 60 * 60 * 1000))
+                        putString("activityCardDate", date.toString())
+                    }
+                    findNavController().navigate(R.id.action_journalFragment_to_activityDetailFragment, bundle)
                 }
                 // Check for diary-related entries
                 journalEntry is JournalEntry.Generic &&

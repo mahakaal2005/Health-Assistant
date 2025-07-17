@@ -7,11 +7,13 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.fragment.navArgs
 import com.example.health_assistant.databinding.FragmentActivityDetailBinding
 import com.example.health_assistant.features.journal.domain.ActivityCard
 import com.example.health_assistant.features.journal.workers.ActivityCardScheduler
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
+import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import javax.inject.Inject
 
@@ -21,6 +23,9 @@ class ActivityDetailFragment : Fragment() {
     private val binding get() = _binding!!
 
     private val viewModel: ActivityCardViewModel by viewModels()
+    
+    // Get navigation arguments
+    private val args: ActivityDetailFragmentArgs by navArgs()
 
     @Inject
     lateinit var activityCardScheduler: ActivityCardScheduler
@@ -70,7 +75,24 @@ class ActivityDetailFragment : Fragment() {
     }
 
     private fun loadActivityCard() {
-        viewTodaysActivity()
+        // Check if we have a specific activity card ID from navigation args
+        if (args.activityCardId > 0) {
+            // Load specific activity card by ID
+            viewLifecycleOwner.lifecycleScope.launch {
+                viewModel.selectActivityCardById(args.activityCardId)
+            }
+        } else if (args.activityCardDate.isNotEmpty()) {
+            // Load activity card by date string
+            try {
+                val date = LocalDate.parse(args.activityCardDate)
+                viewModel.getActivityCardByDate(date)
+            } catch (e: Exception) {
+                viewTodaysActivity()
+            }
+        } else {
+            // Default to today's activity if no arguments provided
+            viewTodaysActivity()
+        }
     }
 
     private fun displayActivityCard(activityCard: ActivityCard) {

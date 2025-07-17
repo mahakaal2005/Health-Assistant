@@ -28,6 +28,7 @@ import com.example.health_assistant.features.prescriptions.camera.CameraCaptureF
 import com.example.health_assistant.features.prescriptions.utils.FileManager
 import com.example.health_assistant.features.prescriptions.utils.PrescriptionUtils
 import com.example.health_assistant.features.prescriptions.utils.PrescriptionValidationResult
+import com.example.health_assistant.utils.ImageOrientationFixer
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
@@ -197,8 +198,12 @@ class AddPrescriptionBottomSheet : BottomSheetDialogFragment() {
     }
 
     private fun setupCategoryDropdown() {
-        // Get categories from the dynamic CategoryManager
-        val categories = categoryManager.getCategoriesForDropdown()
+        // Get categories from DiseaseCategory for consistency with filters
+        val defaultCategories = com.example.health_assistant.data.model.DiseaseCategory.getDefaultCategories()
+        val categories = defaultCategories.map { it.name }.toMutableList()
+        
+        // Add option to create custom category
+        categories.add("➕ Add Custom Category...")
 
         val adapter = ArrayAdapter<String>(
             requireContext(),
@@ -235,18 +240,18 @@ class AddPrescriptionBottomSheet : BottomSheetDialogFragment() {
             .setPositiveButton("Add") { _, _ ->
                 val customCategory = editText.text.toString().trim()
                 if (customCategory.isNotBlank()) {
-                    val added = categoryManager.addCustomCategory(customCategory)
-                    if (added) {
+                    // Check if category already exists
+                    val defaultCategories = com.example.health_assistant.data.model.DiseaseCategory.getDefaultCategories()
+                    val categoryExists = defaultCategories.any { it.name.equals(customCategory, ignoreCase = true) }
+                    
+                    if (!categoryExists) {
+                        // Set the custom category
                         selectedCategory = customCategory
                         binding.diseaseCategoryDropdown.setText(customCategory, false)
-
-                        // Refresh the dropdown with new category
-                        setupCategoryDropdown()
                         validateForm()
-
-                        showSuccess("Category '$customCategory' added successfully!")
+                        showSuccess("Custom category added")
                     } else {
-                        showError("Category already exists or invalid name")
+                        showError("Category already exists")
                     }
                 } else {
                     showError("Please enter a valid category name")
@@ -370,11 +375,14 @@ class AddPrescriptionBottomSheet : BottomSheetDialogFragment() {
 
     private fun showPhotoPreview(uri: Uri) {
         try {
+            // Fix orientation if needed
+            val fixedUri = ImageOrientationFixer.fixImageOrientation(requireContext(), uri)
+            
             // For FileProvider URIs, we don't need to check file existence manually
             // The URI itself is valid if it was created successfully
             binding.photoPreview.apply {
                 visibility = View.VISIBLE
-                load(uri) {
+                load(fixedUri) {
                     crossfade(true)
                 }
             }
@@ -418,7 +426,12 @@ class AddPrescriptionBottomSheet : BottomSheetDialogFragment() {
                 if (result.isSuccess) {
                     val savedPath = result.getOrNull() ?: ""
 
-                    // Create prescription object using simplified approach
+                    // Find category ID from default categories or use "Other" category ID (6L)
+                    val defaultCategories = com.example.health_assistant.data.model.DiseaseCategory.getDefaultCategories()
+                    val category = defaultCategories.find { it.name == categoryName }
+                    val categoryId = category?.id ?: 6L // Use "Other" category ID if not found
+                    
+                    // Create prescription object using proper category ID
                     val prescription = com.example.health_assistant.data.model.Prescription(
                         medicationName = "Medication", // Default or prompt user for this
                         dosage = "As prescribed", // Default or prompt user for this
@@ -429,8 +442,8 @@ class AddPrescriptionBottomSheet : BottomSheetDialogFragment() {
                         doctorName = doctorName,
                         isActive = true,
                         userId = currentUserId,
-                        categoryId = categoryName.hashCode().toLong(), // Keep for backwards compatibility
-                        displayName = categoryName, // Store the actual category name in displayName field
+                        categoryId = categoryId, // Use proper category ID
+                        displayName = if (category == null) categoryName else null, // Only store name for custom categories
                         notes = notes,
                         imageUri = imageUri.toString(),
                         localImagePath = savedPath

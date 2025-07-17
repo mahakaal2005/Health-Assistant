@@ -610,8 +610,8 @@ class PrescriptionDetailDialog : DialogFragment() {
             // Set prescription details
             doctorNameDetail.text = prescription.doctorName
 
-            // Get category by ID
-            val category = PrescriptionUtils.getCategoryById(prescription.categoryId?.toString() ?: "1")
+            // Get category by ID - directly use the categoryId Long value
+            val category = PrescriptionUtils.getCategoryById(prescription.categoryId)
             diseaseCategoryDetailChip.text = category?.name ?: "Unknown Category"
 
             dateAddedDetail.text = PrescriptionUtils.formatDate(prescription.dateAdded.time)
@@ -637,7 +637,7 @@ class PrescriptionDetailDialog : DialogFragment() {
 
     private fun openZoomableImage(imagePath: String) {
         try {
-            // Use the same zoom system as profile pictures for consistency
+            // Use the ImageZoomManager for consistent zoom experience
             imageZoomManager.showImageFullscreen(
                 context = requireContext(),
                 imagePath = imagePath
@@ -694,7 +694,7 @@ class PrescriptionDetailDialog : DialogFragment() {
                         append("Prescription Details\n")
                         append("Doctor: ${it.doctorName}\n")
                         append("Date: ${PrescriptionUtils.formatDate(it.dateAdded.time)}\n")
-                        val category = PrescriptionUtils.getCategoryById(it.categoryId?.toString() ?: "1")
+                        val category = PrescriptionUtils.getCategoryById(it.categoryId)
                         append("Category: ${category?.name ?: "General"}\n")
                         if (!it.notes.isNullOrBlank()) {
                             append("Notes: ${it.notes}\n")

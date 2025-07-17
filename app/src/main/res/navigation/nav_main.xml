@@ -130,7 +130,16 @@
         android:id="@+id/activityDetailFragment"
         android:name="com.example.health_assistant.features.journal.presentation.ActivityDetailFragment"
         android:label="Activity Details"
-        tools:layout="@layout/fragment_activity_detail" />
+        tools:layout="@layout/fragment_activity_detail">
+        <argument
+            android:name="activityCardId"
+            app:argType="long"
+            android:defaultValue="0L" />
+        <argument
+            android:name="activityCardDate"
+            app:argType="string"
+            android:defaultValue="" />
+    </fragment>
 
     <fragment
         android:id="@+id/diaryDetailFragment"

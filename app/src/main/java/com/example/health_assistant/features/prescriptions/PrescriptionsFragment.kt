@@ -191,13 +191,20 @@ class PrescriptionsFragment : Fragment() {
     }
 
     /**
-     * Enhanced category filter using dynamic categories from CategoryManager
+     * Enhanced category filter using default categories from DiseaseCategory
      */
     private fun showSimpleCategoryFilter() {
         val popupMenu = androidx.appcompat.widget.PopupMenu(requireContext(), binding.categoryFilterButton)
 
-        // Get dynamic categories from CategoryManager (includes both predefined and user-created)
-        val categories = categoryManager.getCategoriesForFilter()
+        // Get categories from DiseaseCategory for consistent filtering
+        val defaultCategories = com.example.health_assistant.data.model.DiseaseCategory.getDefaultCategories()
+        val categories = mutableListOf("All Categories")
+        categories.addAll(defaultCategories.map { it.name })
+        
+        // Make sure we have "Other" as the last option
+        if (!categories.contains("Other")) {
+            categories.add("Other")
+        }
 
         categories.forEachIndexed { index, category ->
             popupMenu.menu.add(0, index, 0, category)
