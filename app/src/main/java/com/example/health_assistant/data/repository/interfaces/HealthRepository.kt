@@ -123,4 +123,14 @@ interface HealthRepository {
      * Used when testing or when data becomes corrupted
      */
     suspend fun resetUserStepCount(userId: String): Result<Unit>
+
+    /**
+     * Preserve previous day's health metrics when date changes
+     */
+    suspend fun preservePreviousDayMetrics(userId: String, date: String): Result<Unit>
+    
+    /**
+     * Get preserved previous day's health metrics
+     */
+    suspend fun getPreviousDayMetrics(userId: String, date: String): Result<HealthMetrics?>
 }

@@ -75,4 +75,34 @@ interface JournalEntryDao {
 
     @Query("SELECT COUNT(*) FROM journal_entries WHERE type = :type AND userId = :userId")
     suspend fun getEntryCountByTypeAndUserId(type: String, userId: String): Int
+
+    @Query("SELECT COUNT(*) FROM journal_entries WHERE type = :type AND timestamp BETWEEN :startTimestamp AND :endTimestamp AND userId = :userId")
+    suspend fun getEntryCountByTypeAndDateRangeAndUserId(type: String, startTimestamp: Long, endTimestamp: Long, userId: String): Int
+
+    /**
+     * Delete duplicate activity cards for a specific date and user
+     * Keeps only the latest card (highest ID) and deletes all others
+     */
+    @Query("DELETE FROM journal_entries WHERE type = :type AND timestamp BETWEEN :startTimestamp AND :endTimestamp AND userId = :userId AND id NOT IN (SELECT MAX(id) FROM journal_entries WHERE type = :type AND timestamp BETWEEN :startTimestamp AND :endTimestamp AND userId = :userId)")
+    suspend fun deleteDuplicateEntries(type: String, startTimestamp: Long, endTimestamp: Long, userId: String): Int
+
+    /**
+     * Delete ALL duplicate activity cards, keeping only the latest one for each date and user
+     * This is a direct SQL query that runs once on app startup
+     * CRITICAL: Only deletes activity_summary entries, not other journal types
+     */
+    @Query("DELETE FROM journal_entries WHERE type = 'activity_summary' AND id NOT IN (SELECT MAX(id) FROM journal_entries WHERE type = 'activity_summary' GROUP BY userId, CAST(timestamp / 86400000 AS INTEGER))")
+    suspend fun cleanupAllDuplicateActivityCards(): Int
+
+    /**
+     * Get all distinct user IDs in the database
+     */
+    @Query("SELECT DISTINCT userId FROM journal_entries WHERE userId != ''")
+    suspend fun getAllDistinctUserIds(): List<String>
+
+    /**
+     * Get all distinct dates (timestamps) for a specific user and entry type
+     */
+    @Query("SELECT DISTINCT timestamp FROM journal_entries WHERE type = :type AND userId = :userId ORDER BY timestamp DESC")
+    suspend fun getDistinctDatesForUserAndType(type: String, userId: String): List<Long>
 }

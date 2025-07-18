@@ -79,16 +79,27 @@ class JournalAdapter(
                 is JournalEntry.Generic -> {
                     when (entry.type.lowercase()) {
                         "diary" -> {
-                            // Diary Entry styling - Beige background (#F5EFE6)
-                            binding.cardView.setCardBackgroundColor(android.graphics.Color.parseColor("#F5EFE6"))
+                            // Diary Entry styling - Beautiful pinkish aesthetic
+                            binding.cardView.setCardBackgroundColor(android.graphics.Color.parseColor("#FDF2F8"))
+                            binding.cardView.strokeColor = android.graphics.Color.parseColor("#F8BBD9")
+                            binding.cardView.strokeWidth = 2
                             binding.entryTitle.text = "Diary Entry"
-                            binding.entryTitle.setTextColor(android.graphics.Color.parseColor("#3E2723"))
+                            binding.entryTitle.setTextColor(android.graphics.Color.parseColor("#BE185D"))
+                            binding.entryTitle.textSize = 18f
+                            binding.entryTitle.setTypeface(null, android.graphics.Typeface.BOLD)
                             binding.entryDescription.text = entry.content
-                            binding.entryDescription.setTextColor(android.graphics.Color.parseColor("#5D4037"))
+                            binding.entryDescription.setTextColor(android.graphics.Color.parseColor("#BE185D"))
+                            binding.entryDescription.setLineSpacing(4f, 1.2f)
                             binding.entryType.text = "Diary"
-                            binding.entryType.setTextColor(android.graphics.Color.parseColor("#8D6E63"))
-                            binding.entryType.setBackgroundColor(android.graphics.Color.parseColor("#FFDDAA"))
-                            binding.entryDate.setTextColor(android.graphics.Color.parseColor("#8D6E63"))
+                            binding.entryType.setTextColor(android.graphics.Color.parseColor("#BE185D"))
+                            binding.entryType.setBackgroundColor(android.graphics.Color.parseColor("#F8BBD9"))
+                            binding.entryType.textSize = 13f
+                            binding.entryType.setTypeface(null, android.graphics.Typeface.NORMAL)
+                            binding.entryType.elevation = 0f
+                            binding.entryType.setPadding(44, 22, 44, 22)
+                            binding.entryDate.setTextColor(android.graphics.Color.parseColor("#BE185D"))
+                            binding.entryDate.textSize = 13f
+                            binding.entryDate.setTypeface(null, android.graphics.Typeface.BOLD)
                         }
                         "note" -> {
                             // Personal Note styling - Light purple background (#E6E0F8)
@@ -102,24 +113,90 @@ class JournalAdapter(
                             binding.entryType.setBackgroundColor(android.graphics.Color.parseColor("#D1C4E9"))
                             binding.entryDate.setTextColor(android.graphics.Color.parseColor("#7B1FA2"))
                         }
-                        "activity_card" -> {
-                            // Activity Card styling - Light green background (#E8F5E8) with health theme
-                            binding.cardView.setCardBackgroundColor(android.graphics.Color.parseColor("#E8F5E8"))
+                        "activity_card", "activity_summary" -> {
+                            // Activity Card styling - More prominent yellow/gold theme with stronger contrast
+                            binding.cardView.setCardBackgroundColor(android.graphics.Color.parseColor("#FFFACD"))
+                            binding.cardView.strokeColor = android.graphics.Color.parseColor("#FFD700")
+                            binding.cardView.strokeWidth = 3
                             binding.entryTitle.text = "Daily Activity Summary"
-                            binding.entryTitle.setTextColor(android.graphics.Color.parseColor("#1B5E20"))
+                            binding.entryTitle.setTextColor(android.graphics.Color.parseColor("#B8860B"))
+                            binding.entryTitle.textSize = 20f
+                            binding.entryTitle.setTypeface(null, android.graphics.Typeface.BOLD)
 
-                            // Parse the activity data from content and create a nice display
+                            // Improved data parsing to handle JSON format properly
                             val content = entry.content ?: ""
-                            val steps = content.substringAfter("steps:").substringBefore(",").trim().toIntOrNull() ?: 0
-                            val calories = content.substringAfter("calories:").substringBefore(",").trim().toIntOrNull() ?: 0
-                            val heartPoints = content.substringAfter("heartPoints:").trim().toIntOrNull() ?: 0
+                            var steps = 0
+                            var calories = 0
+                            var heartPoints = 0
 
-                            binding.entryDescription.text = "🚶 $steps steps  •  🔥 $calories kcal  •  ❤️ $heartPoints points"
-                            binding.entryDescription.setTextColor(android.graphics.Color.parseColor("#2E7D32"))
+                            try {
+                                // Parse JSON format using Gson
+                                val gson = com.google.gson.Gson()
+                                val activityData = gson.fromJson(content, Map::class.java)
+
+                                steps = (activityData["stepCount"] as? Double)?.toInt() ?: 0
+                                calories = (activityData["caloriesBurned"] as? Double)?.toInt() ?: 0
+                                heartPoints = (activityData["heartPoints"] as? Double)?.toInt() ?: 0
+
+                                android.util.Log.d("ActivityCard", "Successfully parsed JSON - Steps: $steps, Calories: $calories, Heart Points: $heartPoints")
+                            } catch (jsonException: Exception) {
+                                android.util.Log.w("ActivityCard", "Failed to parse JSON, trying legacy format: ${jsonException.message}")
+
+                                try {
+                                    // Fallback to legacy parsing formats
+                                    if (content.contains("stepCount") && content.contains("\"")) {
+                                        // Handle malformed JSON-like strings
+                                        steps = content.substringAfter("\"stepCount\":").substringBefore(",").replace("\"", "").trim().toIntOrNull() ?: 0
+                                        calories = content.substringAfter("\"caloriesBurned\":").substringBefore(",").replace("\"", "").trim().toIntOrNull() ?: 0
+                                        heartPoints = content.substringAfter("\"heartPoints\":").replace("}", "").replace("\"", "").trim().toIntOrNull() ?: 0
+                                    } else {
+                                        // Original format parsing
+                                        steps = content.substringAfter("steps:").substringBefore(",").trim().toIntOrNull() ?: 0
+                                        calories = content.substringAfter("calories:").substringBefore(",").trim().toIntOrNull() ?: 0
+                                        heartPoints = content.substringAfter("heartPoints:").trim().toIntOrNull() ?: 0
+                                    }
+                                } catch (e: Exception) {
+                                    android.util.Log.e("JournalAdapter", "Error parsing activity data: ${e.message}")
+                                    // Set default values if parsing fails
+                                    steps = 0
+                                    calories = 0
+                                    heartPoints = 0
+                                }
+                            }
+
+                            // Create a rich, visually appealing description with better formatting
+                            val activityDescription = buildString {
+                                append("🚶‍♂️ ${String.format("%,d", steps)} steps")
+                                append("\n🔥 ${calories} calories burned")
+                                append("\n❤️ ${heartPoints} heart points earned")
+                            }
+
+                            binding.entryDescription.text = activityDescription
+                            binding.entryDescription.setTextColor(android.graphics.Color.parseColor("#8B4513"))
+                            binding.entryDescription.textSize = 16f
+                            binding.entryDescription.setLineSpacing(6f, 1.3f)
+                            binding.entryDescription.maxLines = 4
+                            binding.entryDescription.setTypeface(null, android.graphics.Typeface.NORMAL)
+
+                            // Activity type chip - maximum background box size for ultimate visibility
                             binding.entryType.text = "Activity"
-                            binding.entryType.setTextColor(android.graphics.Color.parseColor("#388E3C"))
-                            binding.entryType.setBackgroundColor(android.graphics.Color.parseColor("#C8E6C9"))
-                            binding.entryDate.setTextColor(android.graphics.Color.parseColor("#388E3C"))
+                            binding.entryType.setTextColor(android.graphics.Color.parseColor("#8B4513"))
+                            binding.entryType.setBackgroundColor(android.graphics.Color.parseColor("#FFE4B5"))
+                            binding.entryType.textSize = 13f
+                            binding.entryType.setTypeface(null, android.graphics.Typeface.NORMAL)
+                            // Reset any previous styling
+                            binding.entryType.elevation = 0f
+                            binding.entryType.setPadding(40, 20, 40, 20)
+
+                            // Consistent date styling with better contrast
+                            binding.entryDate.setTextColor(android.graphics.Color.parseColor("#B8860B"))
+                            binding.entryDate.textSize = 14f
+                            binding.entryDate.setTypeface(null, android.graphics.Typeface.BOLD)
+                            binding.entryDate.alpha = 1.0f
+
+                            // Debug logging to help troubleshoot data issues
+                            android.util.Log.d("ActivityCard", "Raw content: $content")
+                            android.util.Log.d("ActivityCard", "Parsed - Steps: $steps, Calories: $calories, Heart Points: $heartPoints")
                         }
                         else -> {
                             // Fallback for other generic types - default white background

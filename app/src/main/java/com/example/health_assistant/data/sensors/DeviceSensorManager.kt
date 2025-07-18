@@ -241,6 +241,7 @@ class DeviceSensorManager @Inject constructor(
 
     /**
      * Handle step counter sensor data (cumulative steps since boot)
+     * EMERGENCY FIX: Limit step increments to prevent UI freezing
      */
     private fun handleStepCounterData(totalSteps: Long) {
         coroutineScope.launch {
@@ -260,6 +261,12 @@ class DeviceSensorManager @Inject constructor(
             } else {
                 // Normal case - calculate increment
                 stepIncrement = maxOf(0, globalStepCount - previousGlobalStepCount)
+            }
+            
+            // EMERGENCY FIX: Limit step increment to prevent unrealistic values
+            if (stepIncrement > 1000) {
+                Log.w(TAG, "Large step increment detected ($stepIncrement), limiting to 100 to prevent UI issues")
+                stepIncrement = 100
             }
             
             // Only update if there's a positive increment (user actually walked)
@@ -399,6 +406,42 @@ class DeviceSensorManager @Inject constructor(
     }
 
     /**
+     * EMERGENCY RESET - Force reset all step data and stop all tracking
+     * Use this when the UI becomes unresponsive
+     */
+    fun emergencyReset() {
+        try {
+            Log.w(TAG, "EMERGENCY RESET - Stopping all tracking and resetting data")
+            
+            // Stop all sensor listeners immediately
+            unregisterSensorListeners()
+            
+            // Stop background service
+            stopBackgroundService()
+            
+            // Reset all in-memory data
+            userStepCounts.clear()
+            globalStepCount = 0
+            
+            // Reset UI state flows
+            _stepCount.value = 0
+            _isTracking.value = false
+            
+            // Clear all SharedPreferences data
+            val currentUserId = getCurrentUserId()
+            if (currentUserId.isNotEmpty()) {
+                val prefsName = "${PREFS_NAME_PREFIX}${currentUserId}"
+                val userPrefs = context.getSharedPreferences(prefsName, Context.MODE_PRIVATE)
+                userPrefs.edit().clear().apply()
+            }
+            
+            Log.w(TAG, "EMERGENCY RESET COMPLETED - All tracking stopped and data cleared")
+        } catch (e: Exception) {
+            Log.e(TAG, "Error during emergency reset", e)
+        }
+    }
+
+    /**
      * Check if date has changed (midnight reset)
      */
     private fun checkForDateChange() {
@@ -406,10 +449,59 @@ class DeviceSensorManager @Inject constructor(
         
         if (currentDate != today) {
             Log.d(TAG, "Date changed from $currentDate to $today")
+            
+            // Before resetting, save previous day's data for activity card generation
+            savePreviousDayData(currentDate)
+            
+            // Update current date
             currentDate = today
             
             // Reset step counts for all users at midnight
             resetAllUserStepCounts()
+        }
+    }
+    
+    /**
+     * Save previous day's data for activity card generation
+     */
+    private fun savePreviousDayData(previousDate: String) {
+        try {
+            val userId = getCurrentUserId()
+            if (userId.isEmpty()) {
+                Log.d(TAG, "No user logged in, skipping previous day data saving")
+                return
+            }
+            
+            val steps = userStepCounts[userId] ?: 0
+            
+            // Save to a special "previous day" SharedPreferences
+            val previousDayPrefs = context.getSharedPreferences("previous_day_data_${userId}", Context.MODE_PRIVATE)
+            previousDayPrefs.edit {
+                putInt("steps", steps)
+                putString("date", previousDate)
+                putLong("timestamp", System.currentTimeMillis())
+            }
+            
+            Log.d(TAG, "Saved previous day data for user $userId: $steps steps on $previousDate")
+        } catch (e: Exception) {
+            Log.e(TAG, "Error saving previous day data", e)
+        }
+    }
+    
+    /**
+     * Get previous day's step count for a user
+     */
+    fun getPreviousDaySteps(userId: String): Int {
+        try {
+            val previousDayPrefs = context.getSharedPreferences("previous_day_data_${userId}", Context.MODE_PRIVATE)
+            val steps = previousDayPrefs.getInt("steps", 0)
+            val date = previousDayPrefs.getString("date", "") ?: ""
+            
+            Log.d(TAG, "Retrieved previous day data for user $userId: $steps steps on $date")
+            return steps
+        } catch (e: Exception) {
+            Log.e(TAG, "Error getting previous day steps", e)
+            return 0
         }
     }
     

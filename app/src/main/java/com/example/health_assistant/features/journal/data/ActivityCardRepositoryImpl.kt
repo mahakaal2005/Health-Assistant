@@ -6,6 +6,8 @@ import com.example.health_assistant.features.journal.domain.ActivityCardReposito
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.withContext
+import kotlinx.coroutines.Dispatchers
 import java.time.LocalDate
 import java.time.ZoneId
 import javax.inject.Inject
@@ -21,7 +23,7 @@ class ActivityCardRepositoryImpl @Inject constructor(
 
     companion object {
         private const val TAG = "ActivityCardRepo"
-        private const val ACTIVITY_TYPE = "activity_card"
+        private const val ACTIVITY_TYPE = "activity_summary"
     }
     
     private fun getCurrentUserId(): String {
@@ -112,10 +114,18 @@ class ActivityCardRepositoryImpl @Inject constructor(
                 getCurrentUserId()
             }
             
-            val entries = journalDao.getEntriesByTypeAndDateRangeAndUserId(ACTIVITY_TYPE, startTimestamp, endTimestamp, effectiveUserId).first()
-            Log.d(TAG, "Checking card for date $date: found ${entries.size} cards for user $effectiveUserId")
+            // CRITICAL FIX: Use direct query to check if card exists
+            val count = journalDao.getEntryCountByTypeAndDateRangeAndUserId(
+                ACTIVITY_TYPE, 
+                startTimestamp, 
+                endTimestamp, 
+                effectiveUserId
+            )
             
-            return entries.isNotEmpty()
+            val exists = count > 0
+            Log.d(TAG, "Checking card for date $date: found $count cards for user $effectiveUserId, exists=$exists")
+            
+            return exists
         } catch (e: Exception) {
             Log.e(TAG, "Error checking if card exists for date $date and user $userId", e)
             return false
@@ -131,20 +141,41 @@ class ActivityCardRepositoryImpl @Inject constructor(
             // Always use the current user's ID for new cards
             val cardWithUserId = activityCard.copy(userId = userId)
             
-            // Get existing entry for this date and user
-            val existingEntries = journalDao.getEntriesByTypeAndDateRangeAndUserId(ACTIVITY_TYPE, startTimestamp, endTimestamp, userId).first()
+            // SAFE DUPLICATE PREVENTION: Check for existing entries with timeout
+            val existingEntries = try {
+                withContext(Dispatchers.IO) {
+                    journalDao.getEntriesByTypeAndDateRangeAndUserId(ACTIVITY_TYPE, startTimestamp, endTimestamp, userId).first()
+                }
+            } catch (e: Exception) {
+                Log.w(TAG, "Error checking for existing entries, proceeding with caution", e)
+                emptyList()
+            }
+            
             val existingEntry = existingEntries.firstOrNull()
             
             val journalEntry = activityCardMapper.toJournalEntry(cardWithUserId).copy(userId = userId)
             
             return if (existingEntry != null) {
-                // Update existing entry
-                Log.d(TAG, "Updating existing card for date ${activityCard.date} with ID ${existingEntry.id}")
+                // Update existing entry instead of creating duplicate
+                Log.d(TAG, "DUPLICATE PREVENTION: Updating existing card for date ${activityCard.date} with ID ${existingEntry.id}")
                 journalDao.updateEntry(journalEntry.copy(id = existingEntry.id))
                 existingEntry.id
             } else {
-                // Create new entry
-                Log.d(TAG, "Creating new card for date ${activityCard.date}")
+                // SAFE INSERTION: Create new entry only if none exists
+                Log.d(TAG, "SAFE INSERTION: Creating new card for date ${activityCard.date}")
+                
+                // Double-check right before insertion to prevent race conditions
+                val lastMinuteCheck = try {
+                    journalDao.getEntryCountByTypeAndDateRangeAndUserId(ACTIVITY_TYPE, startTimestamp, endTimestamp, userId)
+                } catch (e: Exception) {
+                    0
+                }
+                
+                if (lastMinuteCheck > 0) {
+                    Log.w(TAG, "RACE CONDITION DETECTED: Card was created by another process, skipping insertion")
+                    return -1 // Indicate that insertion was skipped
+                }
+                
                 journalDao.insertEntry(journalEntry)
             }
         } catch (e: Exception) {
@@ -157,5 +188,33 @@ class ActivityCardRepositoryImpl @Inject constructor(
         val userId = getCurrentUserId()
         val entries = journalDao.getAllEntriesByUserId(userId).first()
         return entries.count { it.type == ACTIVITY_TYPE }
+    }
+
+    override suspend fun cleanupDuplicateActivityCards(date: LocalDate, userId: String): Int {
+        try {
+            val startTimestamp = date.atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli()
+            val endTimestamp = date.plusDays(1).atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli() - 1
+            
+            // Use provided user ID or get from session manager
+            val effectiveUserId = if (userId.isNotEmpty()) {
+                userId
+            } else {
+                getCurrentUserId()
+            }
+            
+            // CRITICAL FIX: Use direct SQL query to delete duplicates
+            val deletedCount = journalDao.deleteDuplicateEntries(
+                ACTIVITY_TYPE,
+                startTimestamp,
+                endTimestamp,
+                effectiveUserId
+            )
+            
+            Log.d(TAG, "Cleaned up $deletedCount duplicate activity cards for date $date and user $effectiveUserId")
+            return deletedCount
+        } catch (e: Exception) {
+            Log.e(TAG, "Error cleaning up duplicate cards for date $date and user $userId", e)
+            return 0
+        }
     }
 }

@@ -43,4 +43,10 @@ interface ActivityCardRepository {
      * Get total count of activity cards
      */
     suspend fun getActivityCardCount(): Int
+
+    /**
+     * Clean up duplicate activity cards for a specific date and user
+     * Keeps only the latest card (highest ID) and deletes all others
+     */
+    suspend fun cleanupDuplicateActivityCards(date: LocalDate, userId: String): Int
 }

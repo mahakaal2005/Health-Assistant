@@ -3,7 +3,9 @@ package com.example.health_assistant.features.journal.workers
 import android.content.Context
 import android.util.Log
 import androidx.work.*
+import androidx.hilt.work.HiltWorkerFactory
 import com.example.health_assistant.auth.session.SessionManager
+import com.example.health_assistant.features.journal.domain.ActivityCardRepository
 import dagger.hilt.android.qualifiers.ApplicationContext
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -21,11 +23,19 @@ import javax.inject.Singleton
 @Singleton
 class ActivityCardScheduler @Inject constructor(
     @ApplicationContext private val context: Context,
-    private val sessionManager: SessionManager
+    private val sessionManager: SessionManager,
+    private val activityCardRepository: ActivityCardRepository
 ) {
 
     companion object {
         private const val TAG = "ActivityCardScheduler"
+    }
+    
+    /**
+     * Get the ActivityCardRepository for cleanup operations
+     */
+    fun getActivityCardRepository(): ActivityCardRepository {
+        return activityCardRepository
     }
 
     /**
@@ -103,14 +113,22 @@ class ActivityCardScheduler @Inject constructor(
             ActivityCardGeneratorWorker.KEY_USER_ID to currentUserId
         )
 
+        // CRITICAL FIX: Use unique work ID to prevent duplicate cards
+        val today = LocalDate.now()
+        val uniqueWorkId = "activity_card_${currentUserId}_${today}"
+
         // Create immediate work request
         val workRequest = OneTimeWorkRequestBuilder<ActivityCardGeneratorWorker>()
             .setInputData(inputData)
             .addTag("activity_card_immediate_generation")
             .build()
 
-        // Enqueue the work
-        workManager.enqueue(workRequest)
+        // Use unique work to prevent duplicates
+        workManager.enqueueUniqueWork(
+            uniqueWorkId,
+            ExistingWorkPolicy.REPLACE,
+            workRequest
+        )
 
         Log.d(TAG, "Forced activity card generation for today for user $currentUserId")
     }
@@ -150,6 +168,54 @@ class ActivityCardScheduler @Inject constructor(
     }
 
     /**
+     * Generate activity card with sample data for testing
+     * This creates a card with realistic sample data
+     */
+    fun generateSampleCardForToday() {
+        val workManager = WorkManager.getInstance(context)
+
+        // Get current user ID
+        val currentUserId = sessionManager.getCurrentUserId() ?: ""
+        if (currentUserId.isEmpty()) {
+            Log.w(TAG, "No user logged in, skipping sample activity card generation")
+            return
+        }
+
+        // Create sample data
+        val sampleSteps = (5000..12000).random()
+        val sampleCalories = (200..600).random()
+        val sampleHeartPoints = (10..50).random()
+
+        // Create input data with today's date, user ID, and sample metrics
+        val inputData = workDataOf(
+            ActivityCardGeneratorWorker.KEY_TARGET_DATE to LocalDate.now().toString(),
+            ActivityCardGeneratorWorker.KEY_USER_ID to currentUserId,
+            "steps" to sampleSteps,
+            "calories" to sampleCalories,
+            "heart_points" to sampleHeartPoints
+        )
+
+        // CRITICAL FIX: Use unique work ID to prevent duplicate cards
+        val today = LocalDate.now()
+        val uniqueWorkId = "sample_activity_card_${currentUserId}_${today}"
+
+        // Create immediate work request
+        val workRequest = OneTimeWorkRequestBuilder<ActivityCardGeneratorWorker>()
+            .setInputData(inputData)
+            .addTag("activity_card_sample_generation")
+            .build()
+
+        // Use unique work to prevent duplicates
+        workManager.enqueueUniqueWork(
+            uniqueWorkId,
+            ExistingWorkPolicy.REPLACE,
+            workRequest
+        )
+
+        Log.d(TAG, "Generated sample activity card for today for user $currentUserId with Steps: $sampleSteps, Calories: $sampleCalories, Heart Points: $sampleHeartPoints")
+    }
+
+    /**
      * Generate activity card for a specific date
      * Used to fill in missing cards
      */
@@ -169,6 +235,9 @@ class ActivityCardScheduler @Inject constructor(
             ActivityCardGeneratorWorker.KEY_USER_ID to currentUserId
         )
         
+        // CRITICAL FIX: Use unique work ID to prevent duplicate cards
+        val uniqueWorkId = "activity_card_${currentUserId}_${date}"
+        
         // Create work request for specific date
         val workRequest = OneTimeWorkRequestBuilder<ActivityCardGeneratorWorker>()
             .setInputData(inputData)
@@ -177,7 +246,7 @@ class ActivityCardScheduler @Inject constructor(
             
         // Enqueue the work with a unique name
         workManager.enqueueUniqueWork(
-            "activity_card_date_${date}",
+            uniqueWorkId,
             ExistingWorkPolicy.REPLACE,
             workRequest
         )

@@ -868,4 +868,63 @@ class HealthRepositoryImpl @Inject constructor(
             Result.Error(e, "Failed to perform daily maintenance")
         }
     }
+
+    /**
+     * Preserve previous day's health metrics when date changes
+     * This ensures we don't lose data when the date changes
+     */
+    override suspend fun preservePreviousDayMetrics(userId: String, date: String): Result<Unit> {
+        return try {
+            // Get the metrics for the specified date
+            val metrics = _healthMetricsMap.value[userId]?.get(date)
+            
+            if (metrics != null) {
+                // Store in a special "previous day metrics" cache
+                val previousDayKey = "previous_day_${userId}_${date}"
+                val userMetricsMap = _healthMetricsMap.value.toMutableMap()
+                
+                // Get or create the user's metrics map
+                val userMetrics = userMetricsMap[userId]?.toMutableMap() ?: mutableMapOf()
+                
+                // Add the previous day metrics
+                userMetrics[previousDayKey] = metrics
+                
+                // Update the user's metrics in the main map
+                userMetricsMap[userId] = userMetrics
+                
+                // Update the main map
+                _healthMetricsMap.value = userMetricsMap
+                
+                Log.d(TAG, "Preserved previous day metrics for user $userId on date $date: $metrics")
+                Result.Success(Unit)
+            } else {
+                Log.d(TAG, "No metrics found to preserve for user $userId on date $date")
+                Result.Success(Unit)
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "Error preserving previous day metrics", e)
+            Result.Error(e, "Failed to preserve previous day metrics")
+        }
+    }
+    
+    /**
+     * Get preserved previous day's health metrics
+     */
+    override suspend fun getPreviousDayMetrics(userId: String, date: String): Result<HealthMetrics?> {
+        return try {
+            val previousDayKey = "previous_day_${userId}_${date}"
+            val metrics = _healthMetricsMap.value[userId]?.get(previousDayKey)
+            
+            if (metrics != null) {
+                Log.d(TAG, "Retrieved preserved metrics for user $userId on date $date: $metrics")
+                Result.Success(metrics)
+            } else {
+                Log.d(TAG, "No preserved metrics found for user $userId on date $date")
+                Result.Success(null)
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "Error retrieving preserved metrics", e)
+            Result.Error(e, "Failed to retrieve preserved metrics")
+        }
+    }
 }

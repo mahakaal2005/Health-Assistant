@@ -57,6 +57,7 @@ import java.util.Date
 import java.util.Locale
 import java.util.Random
 import javax.inject.Inject
+import java.time.LocalDate
 
 /**
  * Premium Home Fragment featuring a modern interface with personalized greeting,
@@ -129,15 +130,39 @@ class HomeFragment : Fragment() {
         return binding.root
     }
 
+    /**
+     * Clean up any duplicate activity cards for today
+     */
+    private fun cleanupDuplicateActivityCards() {
+        lifecycleScope.launch {
+            try {
+                val userId = sessionManager.getCurrentUserId() ?: return@launch
+                val today = LocalDate.now()
+                
+                val activityCardRepository = activityCardScheduler.getActivityCardRepository()
+                val deletedCount = activityCardRepository.cleanupDuplicateActivityCards(today, userId)
+                
+                if (deletedCount > 0) {
+                    Log.d("HomeFragment", "Cleaned up $deletedCount duplicate activity cards for today")
+                }
+            } catch (e: Exception) {
+                Log.e("HomeFragment", "Error cleaning up duplicate activity cards", e)
+            }
+        }
+    }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        // Clean up any duplicate activity cards
+        cleanupDuplicateActivityCards()
+        
         // Check and request notification permissions
         checkNotificationPermissions()
 
         // NEW: Trigger daily data maintenance for weekly health management
         triggerDailyDataMaintenance()
-
+        
         // OPTIMIZED: Use performance manager for smooth transitions
         performanceManager.lazyLoadUI(
             fragment = this,

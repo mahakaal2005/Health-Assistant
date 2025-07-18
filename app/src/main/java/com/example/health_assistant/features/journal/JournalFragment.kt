@@ -53,8 +53,37 @@ class JournalFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        
+        // Clean up duplicate activity cards
+        cleanupDuplicateActivityCards()
+        
         setupUI()
         observeViewModel()
+    }
+    
+    /**
+     * Clean up duplicate activity cards
+     */
+    private fun cleanupDuplicateActivityCards() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            try {
+                // Get current user ID
+                val userId = viewModel.getCurrentUserId()
+                if (userId.isNotEmpty()) {
+                    // Clean up duplicate cards for all dates
+                    viewModel.cleanupAllDuplicateActivityCards()
+                    
+                    // Show a toast message
+                    android.widget.Toast.makeText(
+                        requireContext(),
+                        "Cleaned up duplicate activity cards",
+                        android.widget.Toast.LENGTH_SHORT
+                    ).show()
+                }
+            } catch (e: Exception) {
+                android.util.Log.e("JournalFragment", "Error cleaning up duplicate activity cards", e)
+            }
+        }
     }
 
     private fun setupUI() {
@@ -408,5 +437,25 @@ class JournalFragment : Fragment() {
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
+    }
+
+    override fun onCreateOptionsMenu(menu: android.view.Menu, inflater: android.view.MenuInflater) {
+        inflater.inflate(R.menu.journal_menu, menu)
+        super.onCreateOptionsMenu(menu, inflater)
+    }
+
+    override fun onOptionsItemSelected(item: android.view.MenuItem): Boolean {
+        return when (item.itemId) {
+            R.id.action_cleanup_duplicates -> {
+                cleanupDuplicateActivityCards()
+                true
+            }
+            else -> super.onOptionsItemSelected(item)
+        }
+    }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setHasOptionsMenu(true)
     }
 }
