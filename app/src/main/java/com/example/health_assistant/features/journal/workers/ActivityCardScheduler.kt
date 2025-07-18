@@ -5,17 +5,18 @@ import android.util.Log
 import androidx.work.*
 import com.example.health_assistant.auth.session.SessionManager
 import dagger.hilt.android.qualifiers.ApplicationContext
+import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
 import java.time.temporal.ChronoUnit
 import java.util.concurrent.TimeUnit
-import java.util.UUID
 import javax.inject.Inject
 import javax.inject.Singleton
 
 /**
  * Scheduler for Activity Card generation worker
  * Handles automatic daily scheduling at midnight
+ * Now with proper user isolation for multi-user support
  */
 @Singleton
 class ActivityCardScheduler @Inject constructor(
@@ -51,241 +52,136 @@ class ActivityCardScheduler @Inject constructor(
 
         // Get current user ID for the work request
         val currentUserId = sessionManager.getCurrentUserId() ?: ""
+        if (currentUserId.isEmpty()) {
+            Log.w(TAG, "No user logged in, skipping activity card scheduling")
+            return
+        }
         
         // Create input data with user ID
-        val inputData = workDataOf("user_id" to currentUserId)
-
-        // Create periodic work request for daily execution with relaxed constraints
-        val workRequest = PeriodicWorkRequestBuilder<ActivityCardGeneratorWorker>(
-            24, TimeUnit.HOURS,
-            6, TimeUnit.HOURS // Larger flex interval for better reliability
+        val inputData = workDataOf(
+            ActivityCardGeneratorWorker.KEY_USER_ID to currentUserId
         )
+
+        // Create work request
+        val workRequest = OneTimeWorkRequestBuilder<ActivityCardGeneratorWorker>()
             .setInitialDelay(initialDelayMinutes, TimeUnit.MINUTES)
             .setInputData(inputData)
             .setConstraints(
                 Constraints.Builder()
-                    .setRequiredNetworkType(NetworkType.NOT_REQUIRED)
-                    .setRequiresBatteryNotLow(false) // Remove battery constraint
-                    .setRequiresDeviceIdle(false)
+                    .setRequiresBatteryNotLow(true)
                     .build()
             )
-            .addTag("activity_card")
+            .addTag("activity_card_generation")
             .build()
 
-        // Schedule the work
-        workManager.enqueueUniquePeriodicWork(
+        // Enqueue unique work
+        workManager.enqueueUniqueWork(
             ActivityCardGeneratorWorker.WORK_NAME,
-            ExistingPeriodicWorkPolicy.REPLACE,
+            ExistingWorkPolicy.REPLACE,
             workRequest
         )
 
-        Log.d(TAG, "Scheduled daily activity card generation")
+        Log.d(TAG, "Scheduled activity card generation for user $currentUserId at $nextMidnight (in $initialDelayMinutes minutes)")
+    }
 
-        // Also schedule a backup one-time work for tomorrow in case periodic fails
-        scheduleBackupGeneration()
+    /**
+     * Force generate activity card for today (for testing)
+     */
+    fun forceGenerateCardForToday() {
+        val workManager = WorkManager.getInstance(context)
+
+        // Get current user ID
+        val currentUserId = sessionManager.getCurrentUserId() ?: ""
+        if (currentUserId.isEmpty()) {
+            Log.w(TAG, "No user logged in, skipping activity card generation")
+            return
+        }
+
+        // Create input data with today's date and user ID
+        val inputData = workDataOf(
+            ActivityCardGeneratorWorker.KEY_TARGET_DATE to LocalDate.now().toString(),
+            ActivityCardGeneratorWorker.KEY_USER_ID to currentUserId
+        )
+
+        // Create immediate work request
+        val workRequest = OneTimeWorkRequestBuilder<ActivityCardGeneratorWorker>()
+            .setInputData(inputData)
+            .addTag("activity_card_immediate_generation")
+            .build()
+
+        // Enqueue the work
+        workManager.enqueue(workRequest)
+
+        Log.d(TAG, "Forced activity card generation for today for user $currentUserId")
     }
 
     /**
      * Check for missing activity cards and generate them
-     * This ensures we have cards even if the midnight trigger was missed
      */
     fun checkForMissingActivityCards() {
         val workManager = WorkManager.getInstance(context)
         
-        // Get current user ID for the work request
+        // Get current user ID
         val currentUserId = sessionManager.getCurrentUserId() ?: ""
+        if (currentUserId.isEmpty()) {
+            Log.w(TAG, "No user logged in, skipping missing activity card check")
+            return
+        }
+
+        // Check for yesterday's card
+        val yesterday = LocalDate.now().minusDays(1)
         
-        // Create input data with user ID
-        val inputData = workDataOf("user_id" to currentUserId)
-        
-        // Create a one-time work request to check for missing cards
-        val checkRequest = OneTimeWorkRequestBuilder<ActivityCardMissingCheckWorker>()
+        // Create input data with yesterday's date and user ID
+        val inputData = workDataOf(
+            ActivityCardGeneratorWorker.KEY_TARGET_DATE to yesterday.toString(),
+            ActivityCardGeneratorWorker.KEY_USER_ID to currentUserId
+        )
+
+        // Create work request for yesterday's card
+        val workRequest = OneTimeWorkRequestBuilder<ActivityCardGeneratorWorker>()
             .setInputData(inputData)
-            .setConstraints(
-                Constraints.Builder()
-                    .setRequiredNetworkType(NetworkType.NOT_REQUIRED)
-                    .build()
-            )
-            .addTag("activity_card_missing_check")
+            .addTag("activity_card_backfill")
             .build()
-            
+
         // Enqueue the work
-        workManager.enqueue(checkRequest)
-        
-        Log.d(TAG, "Scheduled check for missing activity cards")
+        workManager.enqueue(workRequest)
+
+        Log.d(TAG, "Checking for missing activity card for yesterday (${yesterday}) for user $currentUserId")
     }
 
     /**
      * Generate activity card for a specific date
      * Used to fill in missing cards
      */
-    fun generateCardForDate(date: java.time.LocalDate) {
+    fun generateCardForDate(date: LocalDate) {
         val workManager = WorkManager.getInstance(context)
         
-        // Get current user ID for the work request
+        // Get current user ID
         val currentUserId = sessionManager.getCurrentUserId() ?: ""
-        
-        // Create input data with the date and user ID
+        if (currentUserId.isEmpty()) {
+            Log.w(TAG, "No user logged in, skipping activity card generation for date $date")
+            return
+        }
+
+        // Create input data with date and user ID
         val inputData = workDataOf(
-            "specific_date_generation" to true,
-            "year" to date.year,
-            "month" to date.monthValue,
-            "day" to date.dayOfMonth,
-            "check_existing" to true,  // Flag to check if card already exists
-            "user_id" to currentUserId
+            ActivityCardGeneratorWorker.KEY_TARGET_DATE to date.toString(),
+            ActivityCardGeneratorWorker.KEY_USER_ID to currentUserId
         )
         
-        // Create one-time work request for the specific date
-        val dateRequest = OneTimeWorkRequestBuilder<ActivityCardGeneratorWorker>()
+        // Create work request for specific date
+        val workRequest = OneTimeWorkRequestBuilder<ActivityCardGeneratorWorker>()
             .setInputData(inputData)
-            .setConstraints(
-                Constraints.Builder()
-                    .setRequiredNetworkType(NetworkType.NOT_REQUIRED)
-                    .build()
-            )
             .addTag("activity_card_specific_date")
             .build()
             
-        // Enqueue the work
+        // Enqueue the work with a unique name
         workManager.enqueueUniqueWork(
             "activity_card_date_${date}",
             ExistingWorkPolicy.REPLACE,
-            dateRequest
+            workRequest
         )
         
-        Log.d(TAG, "Scheduled activity card generation for specific date: $date")
-    }
-
-    /**
-     * Schedule backup one-time generation for tomorrow
-     */
-    private fun scheduleBackupGeneration() {
-        val workManager = WorkManager.getInstance(context)
-
-        val now = LocalDateTime.now()
-        val tomorrow = now.toLocalDate().plusDays(1).atTime(1, 0) // 1 AM tomorrow
-        val delayMinutes = ChronoUnit.MINUTES.between(now, tomorrow)
-
-        // Get current user ID for the work request
-        val currentUserId = sessionManager.getCurrentUserId() ?: ""
-        
-        // Create input data with user ID
-        val inputData = workDataOf("user_id" to currentUserId)
-
-        val backupRequest = OneTimeWorkRequestBuilder<ActivityCardGeneratorWorker>()
-            .setInitialDelay(delayMinutes, TimeUnit.MINUTES)
-            .setInputData(inputData)
-            .setConstraints(
-                Constraints.Builder()
-                    .setRequiredNetworkType(NetworkType.NOT_REQUIRED)
-                    .setRequiresBatteryNotLow(false)
-                    .build()
-            )
-            .addTag("activity_card_backup")
-            .build()
-
-        workManager.enqueueUniqueWork(
-            "activity_card_backup_tomorrow",
-            ExistingWorkPolicy.REPLACE,
-            backupRequest
-        )
-
-        Log.d(TAG, "Scheduled backup activity card generation for tomorrow at 1 AM")
-    }
-
-    /**
-     * Manually trigger activity card generation (for testing)
-     */
-    fun generateCardNow() {
-        val workManager = WorkManager.getInstance(context)
-
-        // Get current user ID for the work request
-        val currentUserId = sessionManager.getCurrentUserId() ?: ""
-        
-        // Create input data with user ID
-        val inputData = workDataOf("user_id" to currentUserId)
-
-        val workRequest = OneTimeWorkRequestBuilder<ActivityCardGeneratorWorker>()
-            .setInputData(inputData)
-            .addTag("activity_card_manual")
-            .build()
-
-        workManager.enqueue(workRequest)
-    }
-
-    /**
-     * Force generate activity card for testing date changes
-     */
-    fun forceGenerateCardForToday() {
-        val workManager = WorkManager.getInstance(context)
-
-        // Cancel any existing work first
-        workManager.cancelUniqueWork(ActivityCardGeneratorWorker.WORK_NAME)
-        workManager.cancelAllWorkByTag("activity_card")
-
-        // Get current user ID for the work request
-        val currentUserId = sessionManager.getCurrentUserId() ?: ""
-        
-        // Create input data with user ID
-        val inputData = workDataOf("user_id" to currentUserId)
-
-        // Trigger immediate generation
-        val immediateRequest = OneTimeWorkRequestBuilder<ActivityCardGeneratorWorker>()
-            .setInputData(inputData)
-            .addTag("activity_card_force")
-            .build()
-
-        workManager.enqueue(immediateRequest)
-    }
-
-    /**
-     * Cancel all activity card generation work
-     */
-    fun cancelScheduledGeneration() {
-        val workManager = WorkManager.getInstance(context)
-        workManager.cancelUniqueWork(ActivityCardGeneratorWorker.WORK_NAME)
-        workManager.cancelAllWorkByTag("activity_card")
-    }
-
-    /**
-     * CRITICAL FIX: Generate activity card immediately with current health data
-     * This fixes the issue where cards are only generated on health preview click
-     */
-    fun generateImmediateCard(stepCount: Int, caloriesBurned: Int, heartPoints: Int) {
-        val workManager = WorkManager.getInstance(context)
-
-        // Get current user ID for the work request
-        val currentUserId = sessionManager.getCurrentUserId() ?: ""
-
-        // Create input data with current health metrics and user ID
-        val inputData = workDataOf(
-            "immediate_generation" to true,
-            "step_count" to stepCount,
-            "calories_burned" to caloriesBurned,
-            "heart_points" to heartPoints,
-            "check_existing" to true,  // Check if card already exists
-            "user_id" to currentUserId
-        )
-
-        // Create one-time work request for immediate execution
-        val immediateRequest = OneTimeWorkRequestBuilder<ActivityCardGeneratorWorker>()
-            .setInputData(inputData)
-            .setConstraints(
-                Constraints.Builder()
-                    .setRequiredNetworkType(NetworkType.NOT_REQUIRED)
-                    .setRequiresBatteryNotLow(false)
-                    .build()
-            )
-            .addTag("immediate_activity_card")
-            .build()
-
-        // Enqueue immediate work
-        workManager.enqueueUniqueWork(
-            "immediate_activity_card_${System.currentTimeMillis()}",
-            ExistingWorkPolicy.REPLACE,
-            immediateRequest
-        )
-
-        Log.d(TAG, "Scheduled immediate activity card generation with steps: $stepCount, calories: $caloriesBurned, heart points: $heartPoints")
+        Log.d(TAG, "Scheduled activity card generation for date $date and user $currentUserId")
     }
 }

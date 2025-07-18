@@ -22,17 +22,17 @@ interface JournalEntryDao {
     @Query("SELECT * FROM journal_entries WHERE type = :type AND userId = :userId ORDER BY timestamp DESC")
     fun getEntriesByTypeAndUserId(type: String, userId: String): Flow<List<JournalEntryEntity>>
 
-    @Query("SELECT * FROM journal_entries WHERE timestamp >= :startTime AND timestamp <= :endTime ORDER BY timestamp DESC")
-    fun getEntriesByDateRange(startTime: Long, endTime: Long): Flow<List<JournalEntryEntity>>
+    @Query("SELECT * FROM journal_entries WHERE timestamp BETWEEN :startTimestamp AND :endTimestamp ORDER BY timestamp DESC")
+    fun getEntriesByDateRange(startTimestamp: Long, endTimestamp: Long): Flow<List<JournalEntryEntity>>
 
-    @Query("SELECT * FROM journal_entries WHERE timestamp >= :startTime AND timestamp <= :endTime AND userId = :userId ORDER BY timestamp DESC")
-    fun getEntriesByDateRangeAndUserId(startTime: Long, endTime: Long, userId: String): Flow<List<JournalEntryEntity>>
+    @Query("SELECT * FROM journal_entries WHERE timestamp BETWEEN :startTimestamp AND :endTimestamp AND userId = :userId ORDER BY timestamp DESC")
+    fun getEntriesByDateRangeAndUserId(startTimestamp: Long, endTimestamp: Long, userId: String): Flow<List<JournalEntryEntity>>
 
-    @Query("SELECT * FROM journal_entries WHERE type = :type AND timestamp >= :startTime AND timestamp <= :endTime ORDER BY timestamp DESC")
-    fun getEntriesByTypeAndDateRange(type: String, startTime: Long, endTime: Long): Flow<List<JournalEntryEntity>>
+    @Query("SELECT * FROM journal_entries WHERE type = :type AND timestamp BETWEEN :startTimestamp AND :endTimestamp ORDER BY timestamp DESC")
+    fun getEntriesByTypeAndDateRange(type: String, startTimestamp: Long, endTimestamp: Long): Flow<List<JournalEntryEntity>>
 
-    @Query("SELECT * FROM journal_entries WHERE type = :type AND timestamp >= :startTime AND timestamp <= :endTime AND userId = :userId ORDER BY timestamp DESC")
-    fun getEntriesByTypeAndDateRangeAndUserId(type: String, startTime: Long, endTime: Long, userId: String): Flow<List<JournalEntryEntity>>
+    @Query("SELECT * FROM journal_entries WHERE type = :type AND timestamp BETWEEN :startTimestamp AND :endTimestamp AND userId = :userId ORDER BY timestamp DESC")
+    fun getEntriesByTypeAndDateRangeAndUserId(type: String, startTimestamp: Long, endTimestamp: Long, userId: String): Flow<List<JournalEntryEntity>>
 
     @Query("SELECT * FROM journal_entries WHERE id = :id")
     suspend fun getEntryById(id: Long): JournalEntryEntity?
@@ -42,6 +42,12 @@ interface JournalEntryDao {
 
     @Query("SELECT * FROM journal_entries WHERE userId = :userId ORDER BY timestamp DESC LIMIT :limit")
     fun getRecentEntriesByUserId(userId: String, limit: Int): Flow<List<JournalEntryEntity>>
+
+    @Query("SELECT * FROM journal_entries WHERE type = :type ORDER BY timestamp DESC LIMIT :limit")
+    fun getRecentEntriesByType(type: String, limit: Int): Flow<List<JournalEntryEntity>>
+
+    @Query("SELECT * FROM journal_entries WHERE type = :type AND userId = :userId ORDER BY timestamp DESC LIMIT :limit")
+    fun getRecentEntriesByTypeAndUserId(type: String, userId: String, limit: Int): Flow<List<JournalEntryEntity>>
 
     @Query("SELECT DISTINCT type FROM journal_entries ORDER BY type")
     suspend fun getAllTypes(): List<String>
@@ -61,9 +67,12 @@ interface JournalEntryDao {
     @Delete
     suspend fun deleteEntry(entry: JournalEntryEntity)
 
-    @Query("DELETE FROM journal_entries WHERE id = :id")
-    suspend fun deleteEntryById(id: Long)
+    @Query("DELETE FROM journal_entries WHERE id = :entryId AND userId = :userId")
+    suspend fun deleteEntryByIdAndUserId(entryId: Long, userId: String)
     
     @Query("SELECT COUNT(*) FROM journal_entries WHERE userId = :userId")
     suspend fun getEntryCountByUserId(userId: String): Int
+
+    @Query("SELECT COUNT(*) FROM journal_entries WHERE type = :type AND userId = :userId")
+    suspend fun getEntryCountByTypeAndUserId(type: String, userId: String): Int
 }

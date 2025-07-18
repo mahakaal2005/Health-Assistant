@@ -51,9 +51,9 @@ class ActivityDetailFragment : Fragment() {
         showLoading()
 
         // Initialize triple ring progress to 0
-        binding.tripleRingProgress.setStepsProgress(0, 10000)
-        binding.tripleRingProgress.setCaloriesProgress(0, 500)
-        binding.tripleRingProgress.setHeartPointsProgress(0, 10)
+        binding.tripleRingProgress.setStepsProgress(0, 9000)
+        binding.tripleRingProgress.setCaloriesProgress(0, 300)
+        binding.tripleRingProgress.setHeartPointsProgress(0, 50)
     }
 
     private fun observeViewModel() {
@@ -117,11 +117,11 @@ class ActivityDetailFragment : Fragment() {
             // Post the progress update to ensure the view is laid out first
             tripleRingProgress.post {
                 // Update the triple ring progress widget with current and target values
-                tripleRingProgress.setStepsProgress(activityCard.stepCount, 10000)
-                tripleRingProgress.setCaloriesProgress(activityCard.caloriesBurned, 500)
-                tripleRingProgress.setHeartPointsProgress(activityCard.heartPoints, 10)
+                tripleRingProgress.setStepsProgress(activityCard.stepCount, 9000)
+                tripleRingProgress.setCaloriesProgress(activityCard.caloriesBurned, 300)
+                tripleRingProgress.setHeartPointsProgress(activityCard.heartPoints, 50)
 
-                android.util.Log.d("ActivityDetail", "Progress updated for Steps: ${activityCard.stepCount}/10000, Calories: ${activityCard.caloriesBurned}/500, Heart Points: ${activityCard.heartPoints}/10")
+                android.util.Log.d("ActivityDetail", "Progress updated for Steps: ${activityCard.stepCount}/9000, Calories: ${activityCard.caloriesBurned}/300, Heart Points: ${activityCard.heartPoints}/50")
             }
         }
     }
@@ -139,9 +139,9 @@ class ActivityDetailFragment : Fragment() {
             placeholderText.text = "Loading today's activity data..."
 
             // Reset progress
-            tripleRingProgress.setStepsProgress(0, 10000)
-            tripleRingProgress.setCaloriesProgress(0, 500)
-            tripleRingProgress.setHeartPointsProgress(0, 10)
+            tripleRingProgress.setStepsProgress(0, 9000)
+            tripleRingProgress.setCaloriesProgress(0, 300)
+            tripleRingProgress.setHeartPointsProgress(0, 50)
         }
     }
 

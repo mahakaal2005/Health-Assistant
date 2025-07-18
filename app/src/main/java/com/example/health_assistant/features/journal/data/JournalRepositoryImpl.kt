@@ -9,6 +9,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 import javax.inject.Singleton
+import android.util.Log
 
 /**
  * Implementation of JournalRepository
@@ -104,22 +105,30 @@ class JournalRepositoryImpl @Inject constructor(
     }
 
     override suspend fun deleteEntry(entry: JournalEntry) {
-        val userId = getCurrentUserId()
-        // Convert to entity and ensure the userId is set
-        val entity = entry.toEntity().copy(userId = userId)
-        dao.deleteEntry(entity)
+        try {
+            val userId = getCurrentUserId()
+            if (userId.isNotEmpty()) {
+                // Check if the entry belongs to the current user
+                if (entry.userId.isEmpty() || entry.userId == userId) {
+                    dao.deleteEntryByIdAndUserId(entry.id, userId)
+                }
+            } else {
+                // If no user ID, just delete by ID
+                dao.deleteEntryByIdAndUserId(entry.id, "")
+            }
+        } catch (e: Exception) {
+            Log.e("JournalRepo", "Error deleting entry", e)
+        }
     }
 
     override suspend fun deleteEntryById(id: Long) {
-        // First check if the entry belongs to the current user
+        // Delete entry by ID and user ID for proper user isolation
         val userId = getCurrentUserId()
-        if (userId.isNotEmpty()) {
-            val entry = dao.getEntryById(id)
-            if (entry != null && entry.userId == userId) {
-                dao.deleteEntryById(id)
-            }
-        } else {
-            dao.deleteEntryById(id)
+        try {
+            dao.deleteEntryByIdAndUserId(id, userId)
+            Log.d("JournalRepo", "Deleted entry with ID $id for user $userId")
+        } catch (e: Exception) {
+            Log.e("JournalRepo", "Error deleting entry with ID $id", e)
         }
     }
 

@@ -1056,28 +1056,22 @@ class HomeFragment : Fragment() {
     }
 
     /**
-     * CRITICAL FIX: Auto-generate activity card when significant health changes occur
+     * Check and generate activity card based on health metrics
      */
     private fun checkAndGenerateActivityCard(metrics: HealthMetrics) {
-        lifecycleScope.launch {
-            try {
-                val currentSteps = metrics.steps.current
-                val lastRecordedSteps = getLastRecordedSteps()
+        try {
+            // Generate activity card with current metrics
+            val stepCount = metrics.steps.current
+            val caloriesBurned = metrics.calories.current
+            val heartPoints = metrics.heartPoints.current
 
-                if (currentSteps >= lastRecordedSteps + 1000) {
-                    Log.d("HomeFragment", "Significant step increase detected, generating activity card")
-
-                    activityCardScheduler.generateImmediateCard(
-                        stepCount = currentSteps,
-                        caloriesBurned = metrics.calories.current,
-                        heartPoints = metrics.heartPoints.current
-                    )
-
-                    saveLastRecordedSteps(currentSteps)
-                }
-            } catch (e: Exception) {
-                Log.e("HomeFragment", "Error in auto activity card generation", e)
+            // If metrics are significant, generate an activity card
+            if (stepCount > 100 || caloriesBurned > 50 || heartPoints > 5) {
+                Log.d("HomeFragment", "Generating activity card with metrics: Steps=$stepCount, Calories=$caloriesBurned, HeartPoints=$heartPoints")
+                activityCardScheduler.forceGenerateCardForToday()
             }
+        } catch (e: Exception) {
+            Log.e("HomeFragment", "Error generating activity card", e)
         }
     }
 
@@ -1224,28 +1218,36 @@ class HomeFragment : Fragment() {
     }
 
     /**
-     * CRITICAL FIX: Trigger activity card generation manually
+     * Trigger activity card generation
      */
     private fun triggerActivityCardGeneration() {
-        lifecycleScope.launch {
-            try {
-                val currentMetrics = healthMetricsViewModel.healthMetrics.value
-                currentMetrics?.let { metrics ->
-                    Log.d("HomeFragment", "Triggering manual activity card generation")
-                    activityCardScheduler.generateImmediateCard(
-                        stepCount = metrics.steps.current,
-                        caloriesBurned = metrics.calories.current,
-                        heartPoints = metrics.heartPoints.current
-                    )
+        try {
+            val metrics = healthMetricsViewModel.healthMetrics.value ?: return
+            val stepCount = metrics.steps.current
+            val caloriesBurned = metrics.calories.current
+            val heartPoints = metrics.heartPoints.current
 
-                    Toast.makeText(requireContext(), "Activity card generated!", Toast.LENGTH_SHORT).show()
-                } ?: run {
-                    Log.w("HomeFragment", "No health metrics available for activity card generation")
-                }
-            } catch (e: Exception) {
-                Log.e("HomeFragment", "Error triggering activity card generation", e)
-            }
+            // Force generate an activity card with current metrics
+            Log.d("HomeFragment", "Manually triggering activity card with metrics: Steps=$stepCount, Calories=$caloriesBurned, HeartPoints=$heartPoints")
+            activityCardScheduler.forceGenerateCardForToday()
+
+            // Show success message
+            showSnackbar("Activity card generated successfully")
+        } catch (e: Exception) {
+            Log.e("HomeFragment", "Error triggering activity card", e)
+            showSnackbar("Failed to generate activity card")
         }
+    }
+
+    /**
+     * Show a snackbar message
+     */
+    private fun showSnackbar(message: String) {
+        com.google.android.material.snackbar.Snackbar.make(
+            binding.root,
+            message,
+            com.google.android.material.snackbar.Snackbar.LENGTH_SHORT
+        ).show()
     }
 
     override fun onDestroyView() {

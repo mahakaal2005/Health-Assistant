@@ -1,10 +1,12 @@
 package com.example.health_assistant.features.health.viewmodel
 
 import android.content.Context
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.health_assistant.auth.session.SessionManager
 import com.example.health_assistant.core.util.Result
 import com.example.health_assistant.data.health.EnhancedHealthTracker
 import com.example.health_assistant.data.repository.interfaces.HealthRepository
@@ -12,6 +14,7 @@ import com.example.health_assistant.features.health.model.HealthMetrics
 import com.example.health_assistant.utils.HealthNotificationManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -20,14 +23,18 @@ import javax.inject.Inject
 /**
  * ViewModel for managing health metrics data for the Home screen
  * Uses device sensors only via EnhancedHealthTracker - no Google Fit required
+ * Now with proper user isolation for multi-user support
  */
 @HiltViewModel
 class HealthMetricsViewModel @Inject constructor(
     private val healthRepository: HealthRepository,
     private val enhancedHealthTracker: EnhancedHealthTracker,
     private val notificationManager: HealthNotificationManager,
+    private val sessionManager: SessionManager,
     @ApplicationContext private val context: Context
 ) : ViewModel() {
+
+    private val TAG = "HealthMetricsViewModel"
 
     private val _healthMetrics = MutableLiveData<HealthMetrics?>()
     val healthMetrics: LiveData<HealthMetrics?> = _healthMetrics
@@ -44,12 +51,34 @@ class HealthMetricsViewModel @Inject constructor(
     // Add notification tracking variables
     private var lastNotifiedSteps = 0
     private var lastNotificationTime = 0L
-    private val defaultStepGoal = 10000 // Default step goal
 
     init {
         // Initialize device sensor tracking
         initializeDeviceSensors()
+        
+        // Load metrics for the current user
         loadTodayMetrics()
+        
+        // Monitor user changes
+        monitorUserChanges()
+    }
+
+    /**
+     * Monitor user changes to reload data when user changes
+     */
+    private fun monitorUserChanges() {
+        viewModelScope.launch {
+            try {
+                // This is a simplified approach - in a real app, you would observe a Flow from SessionManager
+                val currentUserId = sessionManager.getCurrentUserId()
+                Log.d(TAG, "Current user ID: $currentUserId")
+                
+                // When user changes, reload metrics
+                loadTodayMetrics()
+            } catch (e: Exception) {
+                Log.e(TAG, "Error monitoring user changes", e)
+            }
+        }
     }
 
     private fun initializeDeviceSensors() {
@@ -72,25 +101,33 @@ class HealthMetricsViewModel @Inject constructor(
         viewModelScope.launch {
             _isLoading.value = true
             val currentDate = getCurrentDate()
-            healthRepository.getDailyHealthMetrics(currentDate).collect { result ->
-                when (result) {
-                    is Result.Loading -> {
-                        _isLoading.value = true
-                    }
-                    is Result.Success -> {
-                        _isLoading.value = false
-                        val metrics = result.data
-                        _healthMetrics.value = metrics
-                        _error.value = null
+            
+            try {
+                healthRepository.getDailyHealthMetrics(currentDate).collectLatest { result ->
+                    when (result) {
+                        is Result.Loading -> {
+                            _isLoading.value = true
+                        }
+                        is Result.Success -> {
+                            _isLoading.value = false
+                            val metrics = result.data
+                            _healthMetrics.value = metrics
+                            _error.value = null
 
-                        // Check for step milestone notifications
-                        metrics?.let { checkAndSendStepNotifications(it) }
-                    }
-                    is Result.Error -> {
-                        _isLoading.value = false
-                        _error.value = result.message
+                            // Check for step milestone notifications
+                            metrics?.let { checkAndSendStepNotifications(it) }
+                        }
+                        is Result.Error -> {
+                            _isLoading.value = false
+                            _error.value = result.message
+                            Log.e(TAG, "Error loading metrics: ${result.message}")
+                        }
                     }
                 }
+            } catch (e: Exception) {
+                _isLoading.value = false
+                _error.value = "Failed to load metrics: ${e.message}"
+                Log.e(TAG, "Exception loading metrics", e)
             }
         }
     }
@@ -111,21 +148,29 @@ class HealthMetricsViewModel @Inject constructor(
                     }
                     is Result.Success -> {
                         val metrics = result.data
+                        
+                        // Save metrics to repository for current user
+                        healthRepository.saveDailyHealthMetrics(metrics)
+                        
                         _healthMetrics.value = metrics
                         _error.value = null
                         _syncStatus.value = SyncStatus.SENSOR_TRACKING
 
                         // Check for step milestone notifications
                         metrics?.let { checkAndSendStepNotifications(it) }
+                        
+                        Log.d(TAG, "Refreshed metrics for user ${sessionManager.getCurrentUserId()}: Steps=${metrics.steps.current}")
                     }
                     is Result.Error -> {
                         _error.value = result.message
                         _syncStatus.value = SyncStatus.ERROR
+                        Log.e(TAG, "Error refreshing metrics: ${result.message}")
                     }
                 }
             } catch (e: Exception) {
                 _error.value = "Failed to refresh metrics: ${e.message}"
                 _syncStatus.value = SyncStatus.ERROR
+                Log.e(TAG, "Exception refreshing metrics", e)
             } finally {
                 _isLoading.value = false
             }
@@ -145,93 +190,58 @@ class HealthMetricsViewModel @Inject constructor(
             return
         }
 
-        // Check if a milestone notification should be sent
-        val milestone = notificationManager.shouldShowMilestoneNotification(
-            currentSteps = currentSteps,
-            goalSteps = stepGoal,
-            lastNotifiedSteps = lastNotifiedSteps
-        )
-
-        milestone?.let {
+        // Check for step milestones
+        if (currentSteps >= stepGoal && lastNotifiedSteps < stepGoal) {
+            // Goal reached notification
             notificationManager.showStepMilestoneNotification(
                 currentSteps = currentSteps,
                 goalSteps = stepGoal,
-                milestonePercentage = it
+                milestonePercentage = 100f
             )
-
-            // Update tracking variables
+            lastNotifiedSteps = currentSteps
+            lastNotificationTime = currentTime
+        } else if (currentSteps >= 5000 && lastNotifiedSteps < 5000) {
+            // 5000 steps milestone
+            notificationManager.showStepMilestoneNotification(
+                currentSteps = currentSteps,
+                goalSteps = stepGoal,
+                milestonePercentage = 50f
+            )
+            lastNotifiedSteps = currentSteps
+            lastNotificationTime = currentTime
+        } else if (currentSteps >= 1000 && lastNotifiedSteps < 1000) {
+            // 1000 steps milestone
+            notificationManager.showStepMilestoneNotification(
+                currentSteps = currentSteps,
+                goalSteps = stepGoal,
+                milestonePercentage = 10f
+            )
             lastNotifiedSteps = currentSteps
             lastNotificationTime = currentTime
         }
     }
 
     /**
-     * Manually trigger daily summary notification
-     */
-    fun sendDailySummaryNotification() {
-        val metrics = _healthMetrics.value
-        metrics?.let {
-            val stepGoal = it.steps.target
-            notificationManager.showDailySummaryNotification(
-                totalSteps = it.steps.current,
-                goalSteps = stepGoal,
-                streakDays = calculateStreakDays() // You can implement streak calculation
-            )
-        }
-    }
-
-    /**
-     * Send motivational reminder notification
-     */
-    fun sendMotivationalReminder() {
-        val metrics = _healthMetrics.value
-        metrics?.let {
-            val stepGoal = it.steps.target
-            notificationManager.showMotivationalReminder(
-                currentSteps = it.steps.current,
-                goalSteps = stepGoal
-            )
-        }
-    }
-
-    /**
-     * Calculate streak days (placeholder - implement based on your streak logic)
-     */
-    private fun calculateStreakDays(): Int {
-        // Implement streak calculation logic here
-        return 0
-    }
-
-    /**
-     * NEW: Clear error state
-     */
-    fun clearError() {
-        _error.value = null
-    }
-
-    /**
-     * NEW: Clear sync status
-     */
-    fun clearSyncStatus() {
-        _syncStatus.value = SyncStatus.IDLE
-    }
-
-    /**
-     * NEW: Get current date in required format
+     * Get current date as string
      */
     private fun getCurrentDate(): String {
         return LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE)
     }
 
     /**
-     * NEW: Sync status enumeration
+     * Clear any error
      */
-    enum class SyncStatus {
-        IDLE,
-        SYNCING,
-        SUCCESS,
-        ERROR,
-        SENSOR_TRACKING,
-        MANUAL_ONLY
+    fun clearError() {
+        _error.value = null
     }
+}
+
+/**
+ * Sync status for health metrics
+ */
+enum class SyncStatus {
+    SYNCING,
+    SENSOR_TRACKING,
+    MANUAL_ONLY,
+    ERROR
 }

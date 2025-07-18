@@ -4,25 +4,25 @@ import com.example.health_assistant.features.journal.domain.ActivityCard
 import com.google.gson.Gson
 import java.time.LocalDate
 import java.time.ZoneId
+import android.util.Log
 
 /**
- * Simplified mapper for converting between ActivityCard domain models and JournalEntryEntity
- * Only handles the 3 essential health metrics: steps, calories, heart rate
+ * Mapper for converting between ActivityCard domain models and JournalEntryEntity
+ * Handles user ID preservation and proper data serialization
  */
 object ActivityCardMapper {
-
+    private const val TAG = "ActivityCardMapper"
     private val gson = Gson()
-
     const val ACTIVITY_CARD_TYPE = "activity_summary"
 
     /**
-     * Convert simplified ActivityCard domain model to JournalEntryEntity
+     * Convert ActivityCard domain model to JournalEntryEntity
      */
     fun toJournalEntry(activityCard: ActivityCard): JournalEntryEntity {
-        val activityData = ActivityCardData(
-            stepCount = activityCard.stepCount,
-            caloriesBurned = activityCard.caloriesBurned,
-            heartPoints = activityCard.heartPoints
+        val activityData = mapOf(
+            "stepCount" to activityCard.stepCount,
+            "caloriesBurned" to activityCard.caloriesBurned,
+            "heartPoints" to activityCard.heartPoints
         )
 
         val midnightTimestamp = activityCard.date
@@ -36,37 +36,40 @@ object ActivityCardMapper {
             type = ACTIVITY_CARD_TYPE,
             title = "Daily Activity Summary",
             content = gson.toJson(activityData),
-            description = "Steps, Calories, Heart Rate overview"
+            description = "Steps: ${activityCard.stepCount}, Calories: ${activityCard.caloriesBurned}, Heart Points: ${activityCard.heartPoints}",
+            userId = activityCard.userId // Preserve user ID
         )
     }
 
     /**
-     * Convert JournalEntryEntity to simplified ActivityCard domain model
+     * Convert JournalEntryEntity to ActivityCard domain model
      */
     fun toActivityCard(journalEntry: JournalEntryEntity): ActivityCard? {
         if (journalEntry.type != ACTIVITY_CARD_TYPE) return null
 
-        val activityData = try {
-            gson.fromJson(journalEntry.content, ActivityCardData::class.java)
+        return try {
+            val activityData = gson.fromJson(journalEntry.content, Map::class.java)
+            val date = LocalDate.ofEpochDay(journalEntry.timestamp / (24 * 60 * 60 * 1000))
+
+            ActivityCard(
+                id = journalEntry.id,
+                date = date,
+                stepCount = (activityData["stepCount"] as? Double)?.toInt() ?: 0,
+                caloriesBurned = (activityData["caloriesBurned"] as? Double)?.toInt() ?: 0,
+                heartPoints = (activityData["heartPoints"] as? Double)?.toInt() ?: 0,
+                userId = journalEntry.userId // Preserve user ID
+            )
         } catch (e: Exception) {
-            return null
+            Log.e(TAG, "Error converting journal entry to activity card", e)
+            null
         }
-
-        val date = LocalDate.ofEpochDay(journalEntry.timestamp / (24 * 60 * 60 * 1000))
-
-        return ActivityCard(
-            id = journalEntry.id,
-            date = date,
-            stepCount = activityData.stepCount,
-            caloriesBurned = activityData.caloriesBurned,
-            heartPoints = activityData.heartPoints
-        )
     }
 
     /**
-     * Create a new ActivityCard with today's date
+     * Create a new ActivityCard with today's date for a specific user
      */
     fun createTodayActivityCard(
+        userId: String,
         stepCount: Int = 0,
         caloriesBurned: Int = 0,
         heartPoints: Int = 0
@@ -76,7 +79,8 @@ object ActivityCardMapper {
             date = LocalDate.now(),
             stepCount = stepCount,
             caloriesBurned = caloriesBurned,
-            heartPoints = heartPoints
+            heartPoints = heartPoints,
+            userId = userId
         )
     }
 }

@@ -70,8 +70,8 @@ class ActivitySummaryAdapter(
             val estimatedSteps = calculateSteps(entry.activityType, durationMinutes)
             val heartPoints = calculateHeartPoints(entry.activityType, durationMinutes)
 
-            // Set up steps progress (goal: 10,000 steps)
-            val stepGoal = 10000
+            // Set up steps progress (goal: 9,000 steps)
+            val stepGoal = 9000
             val stepPercentage = ((estimatedSteps.toFloat() / stepGoal) * 100).coerceAtMost(100f)
             stepsProgress.progress = stepPercentage.toInt()
             stepsCount.text = "$estimatedSteps steps"
@@ -84,8 +84,8 @@ class ActivitySummaryAdapter(
             caloriesProgress.progress = caloriePercentage.toInt()
             caloriesCount.text = "$estimatedCalories cal"
 
-            // Set up heart points (active minutes) progress (goal: 60 minutes)
-            val heartPointGoal = 60
+            // Set up heart points progress (goal: 50 points)
+            val heartPointGoal = 50
             val heartPointPercentage = ((heartPoints.toFloat() / heartPointGoal) * 100).coerceAtMost(100f)
             activeMinutesProgress.progress = heartPointPercentage.toInt()
             activeMinutesCount.text = "$heartPoints pts"

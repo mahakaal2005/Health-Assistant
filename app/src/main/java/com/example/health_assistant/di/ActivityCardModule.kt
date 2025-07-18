@@ -1,6 +1,7 @@
 package com.example.health_assistant.di
 
 import com.example.health_assistant.auth.session.SessionManager
+import com.example.health_assistant.features.journal.data.ActivityCardMapper
 import com.example.health_assistant.features.journal.data.ActivityCardRepositoryImpl
 import com.example.health_assistant.features.journal.data.JournalEntryDao
 import com.example.health_assistant.features.journal.domain.ActivityCardRepository
@@ -20,10 +21,17 @@ object ActivityCardModule {
 
     @Provides
     @Singleton
+    fun provideActivityCardMapper(): ActivityCardMapper {
+        return ActivityCardMapper
+    }
+
+    @Provides
+    @Singleton
     fun provideActivityCardRepository(
         journalDao: JournalEntryDao,
-        sessionManager: SessionManager
+        sessionManager: SessionManager,
+        activityCardMapper: ActivityCardMapper
     ): ActivityCardRepository {
-        return ActivityCardRepositoryImpl(journalDao, sessionManager)
+        return ActivityCardRepositoryImpl(journalDao, sessionManager, activityCardMapper)
     }
 }

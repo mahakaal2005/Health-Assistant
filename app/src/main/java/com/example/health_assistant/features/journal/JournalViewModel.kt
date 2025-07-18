@@ -1,93 +1,67 @@
 package com.example.health_assistant.features.journal
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.health_assistant.auth.session.SessionManager
 import com.example.health_assistant.features.journal.domain.JournalEntry
-import com.example.health_assistant.features.journal.domain.JournalUseCases
+import com.example.health_assistant.features.journal.domain.JournalRepository
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
-import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
-import kotlinx.coroutines.Dispatchers
 
 /**
- * Simplified ViewModel for journal entries without calendar functionality
+ * ViewModel for Journal functionality
+ * Manages journal entries and user interactions
+ * Now with proper user isolation for multi-user support
  */
 @HiltViewModel
 class JournalViewModel @Inject constructor(
-    private val useCases: JournalUseCases
+    private val journalRepository: JournalRepository,
+    private val sessionManager: SessionManager
 ) : ViewModel() {
 
-    // Filter state
-    private val _selectedFilterType = MutableStateFlow(JournalFilterType.ALL)
-    val selectedFilterType: StateFlow<JournalFilterType> = _selectedFilterType.asStateFlow()
+    private val TAG = "JournalViewModel"
 
-    // Filter chips state
-    private val _filterChips = MutableStateFlow(createInitialFilterChips())
-    val filterChips: StateFlow<List<FilterChip>> = _filterChips.asStateFlow()
-
-    // Loading state
     private val _isLoading = MutableStateFlow(false)
     val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
 
-    // Add a manual refresh trigger
-    private val _refreshTrigger = MutableStateFlow(0L)
-
-    // Journal entries based on selected filter
-    private val recentEntries = combine(
-        _selectedFilterType,
-        _refreshTrigger
-    ) { filterType, _ ->
-        when (filterType) {
-            JournalFilterType.ALL -> {
-                useCases.getAllEntries()
-            }
-            else -> {
-                val entryTypes = filterType.getEntryTypes()
-                if (entryTypes.size == 1) {
-                    useCases.getEntriesByType(entryTypes.first())
-                } else {
-                    // For multiple types, get all entries and filter
-                    useCases.getAllEntries().map { entries ->
-                        entries.filter { it.type in entryTypes }
-                    }
-                }
+    // Journal entries filtered by current user
+    val entries: Flow<List<JournalEntry>> = journalRepository.getAllEntries()
+        .catch { e ->
+            Log.e(TAG, "Error getting journal entries", e)
+            emit(emptyList())
+        }
+        .map { entries ->
+            // Filter entries for the current user only
+            val currentUserId = sessionManager.getCurrentUserId() ?: ""
+            if (currentUserId.isNotEmpty()) {
+                entries.filter { it.userId == currentUserId }
+            } else {
+                // If no user is logged in, return empty list
+                emptyList()
             }
         }
-    }.flatMapLatest { it }.flowOn(Dispatchers.IO)
 
-    val entries: StateFlow<List<JournalEntry>> = recentEntries
-        .onStart { _isLoading.value = true }
-        .onEach { _isLoading.value = false }
-        .stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.Lazily,
-            initialValue = emptyList()
-        )
-
-    private fun createInitialFilterChips(): List<FilterChip> {
-        return listOf(
-            FilterChip(JournalFilterType.ALL, "All", true),
-            FilterChip(JournalFilterType.NOTES, "Notes"),
-            FilterChip(JournalFilterType.HEALTH, "Health"),
-            FilterChip(JournalFilterType.ACTIVITY, "Activity"),
-            FilterChip(JournalFilterType.MOOD, "Mood")
-        )
+    init {
+        // Monitor user changes to refresh data
+        monitorUserChanges()
     }
 
     /**
-     * Update selected filter and refresh filter chips
+     * Monitor user changes to refresh data when user changes
      */
-    fun selectFilter(filterType: JournalFilterType) {
-        if (_selectedFilterType.value == filterType) return
-
-        _selectedFilterType.value = filterType
-
-        // Update filter chips selection state
-        val updatedChips = _filterChips.value.map { chip ->
-            chip.copy(isSelected = chip.type == filterType)
+    private fun monitorUserChanges() {
+        viewModelScope.launch {
+            try {
+                // This is a simplified approach - in a real app, you would observe a Flow from SessionManager
+                val currentUserId = sessionManager.getCurrentUserId()
+                Log.d(TAG, "Current user ID: $currentUserId")
+            } catch (e: Exception) {
+                Log.e(TAG, "Error monitoring user changes", e)
+            }
         }
-        _filterChips.value = updatedChips
     }
 
     /**
@@ -95,10 +69,30 @@ class JournalViewModel @Inject constructor(
      */
     fun addEntry(entry: JournalEntry) {
         viewModelScope.launch {
+            _isLoading.value = true
             try {
-                useCases.addEntry(entry)
+                // Ensure entry has the current user ID
+                val currentUserId = sessionManager.getCurrentUserId() ?: ""
+                val entryWithUserId = if (entry.userId.isEmpty() && currentUserId.isNotEmpty()) {
+                    // Create a new entry with the current user ID
+                    when (entry) {
+                        is JournalEntry.Generic -> entry.copy(userId = currentUserId)
+                        is JournalEntry.Weight -> entry.copy(userId = currentUserId)
+                        is JournalEntry.BloodPressure -> entry.copy(userId = currentUserId)
+                        is JournalEntry.Workout -> entry.copy(userId = currentUserId)
+                        is JournalEntry.Mood -> entry.copy(userId = currentUserId)
+                        else -> entry
+                    }
+                } else {
+                    entry
+                }
+                
+                journalRepository.insertEntry(entryWithUserId)
+                Log.d(TAG, "Added journal entry for user $currentUserId")
             } catch (e: Exception) {
-                // Handle error - you could add error state here
+                Log.e(TAG, "Error adding journal entry", e)
+            } finally {
+                _isLoading.value = false
             }
         }
     }
@@ -108,12 +102,30 @@ class JournalViewModel @Inject constructor(
      */
     fun updateEntry(entry: JournalEntry) {
         viewModelScope.launch {
+            _isLoading.value = true
             try {
-                useCases.updateEntry(entry)
-                // Force refresh the entries list after successful update
-                refreshEntries()
+                // Ensure entry has the current user ID
+                val currentUserId = sessionManager.getCurrentUserId() ?: ""
+                val entryWithUserId = if (entry.userId.isEmpty() && currentUserId.isNotEmpty()) {
+                    // Create a new entry with the current user ID
+                    when (entry) {
+                        is JournalEntry.Generic -> entry.copy(userId = currentUserId)
+                        is JournalEntry.Weight -> entry.copy(userId = currentUserId)
+                        is JournalEntry.BloodPressure -> entry.copy(userId = currentUserId)
+                        is JournalEntry.Workout -> entry.copy(userId = currentUserId)
+                        is JournalEntry.Mood -> entry.copy(userId = currentUserId)
+                        else -> entry
+                    }
+                } else {
+                    entry
+                }
+                
+                journalRepository.updateEntry(entryWithUserId)
+                Log.d(TAG, "Updated journal entry for user $currentUserId")
             } catch (e: Exception) {
-                // Handle error
+                Log.e(TAG, "Error updating journal entry", e)
+            } finally {
+                _isLoading.value = false
             }
         }
     }
@@ -123,21 +135,27 @@ class JournalViewModel @Inject constructor(
      */
     fun deleteEntry(entry: JournalEntry) {
         viewModelScope.launch {
+            _isLoading.value = true
             try {
-                useCases.deleteEntry(entry)
-                // Force refresh the entries list after successful deletion
-                refreshEntries()
+                journalRepository.deleteEntry(entry)
+                Log.d(TAG, "Deleted journal entry ID: ${entry.id}")
             } catch (e: Exception) {
-                // Handle error
+                Log.e(TAG, "Error deleting journal entry", e)
+            } finally {
+                _isLoading.value = false
             }
         }
     }
 
     /**
-     * Force refresh the entries list - this ensures immediate UI updates
+     * Get entry by ID
      */
-    private fun refreshEntries() {
-        // Trigger a manual refresh by updating the refresh trigger
-        _refreshTrigger.value = System.currentTimeMillis()
+    suspend fun getEntryById(id: Long): JournalEntry? {
+        return try {
+            journalRepository.getEntryById(id)
+        } catch (e: Exception) {
+            Log.e(TAG, "Error getting journal entry by ID: $id", e)
+            null
+        }
     }
 }
