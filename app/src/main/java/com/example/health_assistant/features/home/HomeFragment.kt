@@ -170,8 +170,40 @@ class HomeFragment : Fragment() {
         loadProfilePhoto()
         // Refresh greeting with updated display name
         loadUserProfileAndUpdateGreeting()
+        // Reset and reload health metrics for current user
+        resetHealthMetricsForCurrentUser()
         // CRITICAL FIX: Restart ring animations every time user enters home fragment
         restartRingAnimations()
+    }
+
+    /**
+     * Reset and reload health metrics for the current user
+     * This ensures proper user isolation when switching users
+     */
+    private fun resetHealthMetricsForCurrentUser() {
+        try {
+            // Reset the UI to default values first
+            binding.tripleRingProgress.setStepsProgress(0, 9000)
+            binding.tripleRingProgress.setCaloriesProgress(0, 300)
+            binding.tripleRingProgress.setHeartPointsProgress(0, 50)
+
+            // Reset text values
+            binding.stepsValue.text = "0 / 9000 steps"
+            binding.caloriesValue.text = "0 / 300 kcal"
+            binding.heartPointsValue.text = "0 / 50 points"
+
+            // Force refresh the metrics from the ViewModel
+            healthMetricsViewModel.refreshMetrics()
+            
+            // Log the current user
+            val currentUserId = sessionManager.getCurrentUserId() ?: "no user"
+            Log.d("HomeFragment", "Reset health metrics for user: $currentUserId")
+            
+            // Refresh charts with user-specific data
+            setupCharts()
+        } catch (e: Exception) {
+            Log.e("HomeFragment", "Error resetting health metrics", e)
+        }
     }
 
     override fun onPause() {
@@ -496,6 +528,45 @@ class HomeFragment : Fragment() {
             Log.d("HomeFragment", "Health summary card clicked - triggering activity card generation")
             animatePressEffect(binding.healthSummaryCard)
             triggerActivityCardGeneration()
+        }
+
+        // Add long press handler to reset health metrics (for testing)
+        binding.healthSummaryCard.setOnLongClickListener {
+            resetHealthMetrics()
+            true
+        }
+    }
+
+    /**
+     * Reset health metrics for the current user
+     * This is used for testing to ensure proper user isolation
+     */
+    private fun resetHealthMetrics() {
+        lifecycleScope.launch {
+            try {
+                val userId = sessionManager.getCurrentUserId() ?: return@launch
+                val result = healthRepository.resetUserStepCount(userId)
+                
+                when (result) {
+                    is Result.Success -> {
+                        // Reset UI
+                        resetHealthMetricsForCurrentUser()
+                        // Show success message
+                        showSnackbar("Health metrics reset for current user")
+                        Log.d("HomeFragment", "Health metrics reset for user $userId")
+                    }
+                    is Result.Error -> {
+                        showSnackbar("Failed to reset health metrics")
+                        Log.e("HomeFragment", "Error resetting health metrics: ${result.message}")
+                    }
+                    is Result.Loading -> {
+                        // Do nothing
+                    }
+                }
+            } catch (e: Exception) {
+                Log.e("HomeFragment", "Exception resetting health metrics", e)
+                showSnackbar("Error resetting health metrics")
+            }
         }
     }
 
@@ -1115,7 +1186,7 @@ class HomeFragment : Fragment() {
     }
 
     /**
-     * FIXED: Save current heart points data to repository WITHOUT refreshing chart
+     * Save current heart points data to repository
      */
     private fun saveCurrentHeartPointsData(metrics: HealthMetrics) {
         lifecycleScope.launch {
@@ -1135,10 +1206,8 @@ class HomeFragment : Fragment() {
                 healthRepository.saveDailyStepData(todayData)
 
                 // Log the saved heart points for debugging
-                Log.d("HomeFragment", "Saved heart points data: ${metrics.heartPoints.current} points for $today")
-
-                // FIXED: Removed setupHeartPointsChart() call to prevent infinite loop
-                // Chart will be updated naturally when view is refreshed or when user navigates back
+                val userId = sessionManager.getCurrentUserId() ?: "no user"
+                Log.d("HomeFragment", "Saved health metrics for user $userId - Steps: ${metrics.steps.current}, Calories: ${metrics.calories.current}, Heart Points: ${metrics.heartPoints.current}")
 
             } catch (e: Exception) {
                 Log.e("HomeFragment", "Error saving heart points data", e)
@@ -1226,9 +1295,15 @@ class HomeFragment : Fragment() {
             val stepCount = metrics.steps.current
             val caloriesBurned = metrics.calories.current
             val heartPoints = metrics.heartPoints.current
+            
+            // Get current user ID
+            val userId = sessionManager.getCurrentUserId()
+            if (userId.isNullOrEmpty()) {
+                Log.w("HomeFragment", "No user logged in, using default user ID")
+            }
 
             // Force generate an activity card with current metrics
-            Log.d("HomeFragment", "Manually triggering activity card with metrics: Steps=$stepCount, Calories=$caloriesBurned, HeartPoints=$heartPoints")
+            Log.d("HomeFragment", "Manually triggering activity card with metrics: Steps=$stepCount, Calories=$caloriesBurned, HeartPoints=$heartPoints for user $userId")
             activityCardScheduler.forceGenerateCardForToday()
 
             // Show success message

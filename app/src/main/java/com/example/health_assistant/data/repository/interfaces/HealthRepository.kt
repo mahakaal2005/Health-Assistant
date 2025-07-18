@@ -117,4 +117,10 @@ interface HealthRepository {
      * NEW: Auto-cleanup trigger for daily data maintenance
      */
     suspend fun performDailyDataMaintenance(userId: String): Result<Unit>
+
+    /**
+     * NEW: Reset step count for a specific user
+     * Used when testing or when data becomes corrupted
+     */
+    suspend fun resetUserStepCount(userId: String): Result<Unit>
 }

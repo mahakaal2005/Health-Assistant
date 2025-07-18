@@ -9,6 +9,7 @@ import android.hardware.SensorEventListener
 import android.hardware.SensorManager
 import android.util.Log
 import androidx.core.content.edit
+import com.example.health_assistant.auth.session.SessionManager
 import com.example.health_assistant.services.StepTrackingService
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineScope
@@ -25,16 +26,18 @@ import javax.inject.Singleton
 /**
  * Manager for device sensors - syncs with StepTrackingService for consistent step counting
  * Ensures step counting works 24/7 and resets properly at midnight
+ * Now with proper user isolation for multi-user support
  */
 @Singleton
 class DeviceSensorManager @Inject constructor(
-    @ApplicationContext private val context: Context
+    @ApplicationContext private val context: Context,
+    private val sessionManager: SessionManager
 ) : SensorEventListener {
 
     companion object {
         private const val TAG = "DeviceSensorManager"
         // Use same SharedPreferences as StepTrackingService for consistency
-        private const val PREFS_NAME = "step_service_prefs"
+        private const val PREFS_NAME_PREFIX = "step_service_prefs_user_"
         private const val KEY_DAILY_STEPS = "service_daily_steps"
         private const val KEY_LAST_DATE = "service_last_date"
         private const val KEY_INITIAL_STEP_COUNT = "service_initial_step_count"
@@ -44,10 +47,9 @@ class DeviceSensorManager @Inject constructor(
     private val sensorManager = context.getSystemService(Context.SENSOR_SERVICE) as SensorManager
     private val stepCounterSensor = sensorManager.getDefaultSensor(Sensor.TYPE_STEP_COUNTER)
     private val stepDetectorSensor = sensorManager.getDefaultSensor(Sensor.TYPE_STEP_DETECTOR)
-    private val sharedPrefs: SharedPreferences = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
     private val coroutineScope = CoroutineScope(Dispatchers.IO)
 
-    // State flows for UI observation
+    // State flows for UI observation - these are now user-specific
     private val _stepCount = MutableStateFlow(0)
     val stepCount: StateFlow<Int> = _stepCount.asStateFlow()
 
@@ -60,11 +62,39 @@ class DeviceSensorManager @Inject constructor(
     // Internal tracking variables
     private var currentDate: String = getCurrentDateString()
     private var isListenerRegistered = false
+    
+    // Map of user IDs to their step counts
+    private val userStepCounts = mutableMapOf<String, Int>()
+    
+    // Global step count from sensor (cumulative since boot)
+    private var globalStepCount = 0
+    
+    // Last step increments for each user
+    private val lastUserStepIncrements = mutableMapOf<String, Int>()
 
     init {
         checkSensorAvailability()
-        loadStepDataFromService()
-        checkForDateChange()
+        loadCurrentUserStepData()
+    }
+    
+    /**
+     * Get user-specific SharedPreferences
+     */
+    private fun getUserPrefs(): SharedPreferences {
+        val userId = getCurrentUserId()
+        val prefsName = if (userId.isEmpty()) {
+            "${PREFS_NAME_PREFIX}default"
+        } else {
+            "${PREFS_NAME_PREFIX}${userId}"
+        }
+        return context.getSharedPreferences(prefsName, Context.MODE_PRIVATE)
+    }
+    
+    /**
+     * Get current user ID from SessionManager
+     */
+    private fun getCurrentUserId(): String {
+        return sessionManager.getCurrentUserId() ?: ""
     }
 
     /**
@@ -78,11 +108,14 @@ class DeviceSensorManager @Inject constructor(
             return
         }
 
+        // Register sensor listeners
+        registerSensorListeners()
+        
         // Start background service for continuous tracking
         startBackgroundService()
 
-        // Load current step data from service
-        loadStepDataFromService()
+        // Load current step data for the current user
+        loadCurrentUserStepData()
 
         _isTracking.value = true
         saveServiceState(true)
@@ -212,9 +245,28 @@ class DeviceSensorManager @Inject constructor(
     private fun handleStepCounterData(totalSteps: Long) {
         coroutineScope.launch {
             checkForDateChange()
-
-            val dailySteps = (totalSteps).toInt()
-            updateDailySteps(dailySteps)
+            
+            // Update global step count
+            val previousGlobalStepCount = globalStepCount
+            globalStepCount = totalSteps.toInt()
+            
+            // Calculate increment
+            var stepIncrement = 0
+            
+            // Handle device reboot case where step counter resets to 0
+            if (globalStepCount < previousGlobalStepCount && previousGlobalStepCount > 1000) {
+                // Device likely rebooted, treat current steps as the increment
+                stepIncrement = globalStepCount
+            } else {
+                // Normal case - calculate increment
+                stepIncrement = maxOf(0, globalStepCount - previousGlobalStepCount)
+            }
+            
+            // Only update if there's a positive increment (user actually walked)
+            if (stepIncrement > 0) {
+                // Update the current user's step count
+                updateCurrentUserSteps(stepIncrement)
+            }
         }
     }
 
@@ -224,20 +276,126 @@ class DeviceSensorManager @Inject constructor(
     private fun handleStepDetectorData() {
         coroutineScope.launch {
             checkForDateChange()
-            val currentSteps = getCurrentDailySteps()
-            updateDailySteps(currentSteps + 1)
+            
+            // Update the current user's step count by 1
+            updateCurrentUserSteps(1)
+        }
+    }
+    
+    /**
+     * Update the current user's step count
+     */
+    private fun updateCurrentUserSteps(stepIncrement: Int) {
+        val userId = getCurrentUserId()
+        if (userId.isEmpty()) {
+            Log.d(TAG, "No user logged in, skipping step update")
+            return
+        }
+        
+        // Get current user's step count or default to 0
+        val currentUserSteps = userStepCounts[userId] ?: 0
+        
+        // Add the increment to the user's step count
+        val newUserSteps = currentUserSteps + stepIncrement
+        
+        // Update the user step counts map
+        userStepCounts[userId] = newUserSteps
+        
+        // Update the step count flow
+        _stepCount.value = newUserSteps
+        
+        // Save to user-specific SharedPreferences
+        saveUserStepCount(userId, newUserSteps)
+        
+        Log.d(TAG, "Updated steps for user $userId: $currentUserSteps + $stepIncrement = $newUserSteps")
+    }
+    
+    /**
+     * Save user step count to SharedPreferences
+     */
+    private fun saveUserStepCount(userId: String, steps: Int) {
+        try {
+            val prefsName = "${PREFS_NAME_PREFIX}${userId}"
+            val userPrefs = context.getSharedPreferences(prefsName, Context.MODE_PRIVATE)
+            userPrefs.edit {
+                putInt(KEY_DAILY_STEPS, steps)
+                putString(KEY_LAST_DATE, getCurrentDateString())
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "Error saving user step count", e)
         }
     }
 
     /**
-     * Update daily step count and notify observers
+     * Load step data for the current user
      */
-    private fun updateDailySteps(steps: Int) {
-        val clampedSteps = maxOf(0, steps) // Ensure non-negative
-        _stepCount.value = clampedSteps
-        saveDailySteps(clampedSteps)
+    private fun loadCurrentUserStepData() {
+        coroutineScope.launch {
+            try {
+                val userId = getCurrentUserId()
+                if (userId.isEmpty()) {
+                    Log.d(TAG, "No user logged in, skipping step data loading")
+                    _stepCount.value = 0
+                    return@launch
+                }
+                
+                // Get user-specific SharedPreferences
+                val prefsName = "${PREFS_NAME_PREFIX}${userId}"
+                val userPrefs = context.getSharedPreferences(prefsName, Context.MODE_PRIVATE)
+                
+                // Check for date change
+                val lastDate = userPrefs.getString(KEY_LAST_DATE, getCurrentDateString()) ?: getCurrentDateString()
+                val today = getCurrentDateString()
+                
+                if (lastDate != today) {
+                    // Date has changed, reset step count for this user
+                    userPrefs.edit {
+                        putInt(KEY_DAILY_STEPS, 0)
+                        putString(KEY_LAST_DATE, today)
+                    }
+                    userStepCounts[userId] = 0
+                    _stepCount.value = 0
+                    Log.d(TAG, "Date changed for user $userId, reset step count to 0")
+                } else {
+                    // Same date, load saved step count
+                    val savedSteps = userPrefs.getInt(KEY_DAILY_STEPS, 0)
+                    userStepCounts[userId] = savedSteps
+                    _stepCount.value = savedSteps
+                    Log.d(TAG, "Loaded step count for user $userId: $savedSteps steps")
+                }
+            } catch (e: Exception) {
+                Log.e(TAG, "Error loading step data", e)
+            }
+        }
+    }
 
-        Log.d(TAG, "Daily steps updated: $clampedSteps")
+    /**
+     * Reset step count for a specific user
+     */
+    fun resetUserStepCount(userId: String) {
+        coroutineScope.launch {
+            try {
+                // Reset in memory
+                userStepCounts[userId] = 0
+                
+                // Reset in SharedPreferences
+                val prefsName = "${PREFS_NAME_PREFIX}${userId}"
+                val userPrefs = context.getSharedPreferences(prefsName, Context.MODE_PRIVATE)
+                userPrefs.edit {
+                    putInt(KEY_DAILY_STEPS, 0)
+                    putString(KEY_LAST_DATE, getCurrentDateString())
+                }
+                
+                // If this is the current user, also update the flow
+                if (userId == getCurrentUserId()) {
+                    _stepCount.value = 0
+                }
+                
+                Log.d(TAG, "Reset step count for user $userId")
+            } catch (e: Exception) {
+                Log.e(TAG, "Error resetting step count for user $userId", e)
+            }
+        }
     }
 
     /**
@@ -245,101 +403,42 @@ class DeviceSensorManager @Inject constructor(
      */
     private fun checkForDateChange() {
         val today = getCurrentDateString()
-        val serviceDate = sharedPrefs.getString(KEY_LAST_DATE, today) ?: today
-
-        if (currentDate != serviceDate) {
-            Log.d(TAG, "Date changed detected - syncing with service data")
-            currentDate = serviceDate
-            loadStepDataFromService()
+        
+        if (currentDate != today) {
+            Log.d(TAG, "Date changed from $currentDate to $today")
+            currentDate = today
+            
+            // Reset step counts for all users at midnight
+            resetAllUserStepCounts()
         }
     }
-
+    
     /**
-     * Load step data from StepTrackingService SharedPreferences
+     * Reset step counts for all users (called at midnight)
      */
-    private fun loadStepDataFromService() {
-        val savedSteps = sharedPrefs.getInt(KEY_DAILY_STEPS, 0)
-        val savedDate = sharedPrefs.getString(KEY_LAST_DATE, getCurrentDateString()) ?: getCurrentDateString()
-        val serviceEnabled = sharedPrefs.getBoolean(KEY_SERVICE_ENABLED, false)
-
-        _stepCount.value = savedSteps
-        currentDate = savedDate
-        _isTracking.value = serviceEnabled
-
-        Log.d(TAG, "Loaded step data from service - Steps: $savedSteps, Date: $savedDate, Service: $serviceEnabled")
-
-        // Auto-start if service was previously enabled
-        if (serviceEnabled && _sensorAvailable.value) {
-            startBackgroundService()
+    private fun resetAllUserStepCounts() {
+        coroutineScope.launch {
+            try {
+                // Reset all in-memory step counts
+                userStepCounts.clear()
+                
+                // Reset current user's step count in the flow
+                _stepCount.value = 0
+                
+                Log.d(TAG, "Reset step counts for all users at midnight")
+            } catch (e: Exception) {
+                Log.e(TAG, "Error resetting all user step counts", e)
+            }
         }
-    }
-
-    /**
-     * Refresh step count from service data
-     */
-    fun refreshStepCount() {
-        val currentSteps = sharedPrefs.getInt(KEY_DAILY_STEPS, 0)
-        _stepCount.value = currentSteps
-        Log.d(TAG, "Refreshed step count from service: $currentSteps")
-    }
-
-    /**
-     * Reset daily steps for new day
-     */
-    private fun resetDailySteps() {
-        _stepCount.value = 0
-        saveDailySteps(0)
-        saveCurrentDate(getCurrentDateString())
-
-        Log.d(TAG, "Daily steps reset for new day")
-    }
-
-    /**
-     * Load saved data from SharedPreferences
-     */
-    private fun loadSavedData() {
-        val savedSteps = sharedPrefs.getInt(KEY_DAILY_STEPS, 0)
-        val savedDate = sharedPrefs.getString(KEY_LAST_DATE, getCurrentDateString()) ?: getCurrentDateString()
-        val serviceEnabled = sharedPrefs.getBoolean(KEY_SERVICE_ENABLED, false)
-
-        _stepCount.value = savedSteps
-        currentDate = savedDate
-        _isTracking.value = serviceEnabled
-
-        Log.d(TAG, "Loaded saved data - Steps: $savedSteps, Date: $savedDate, Service: $serviceEnabled")
-
-        // Auto-start if service was previously enabled
-        if (serviceEnabled && _sensorAvailable.value) {
-            startBackgroundService()
-        }
-    }
-
-    /**
-     * Save daily steps to SharedPreferences
-     */
-    private fun saveDailySteps(steps: Int) {
-        sharedPrefs.edit { putInt(KEY_DAILY_STEPS, steps) }
-    }
-
-    /**
-     * Save current date to SharedPreferences
-     */
-    private fun saveCurrentDate(date: String) {
-        sharedPrefs.edit { putString(KEY_LAST_DATE, date) }
     }
 
     /**
      * Save service state to SharedPreferences
      */
     private fun saveServiceState(enabled: Boolean) {
-        sharedPrefs.edit { putBoolean(KEY_SERVICE_ENABLED, enabled) }
-    }
-
-    /**
-     * Get current daily steps from SharedPreferences
-     */
-    private fun getCurrentDailySteps(): Int {
-        return sharedPrefs.getInt(KEY_DAILY_STEPS, 0)
+        getUserPrefs().edit {
+            putBoolean(KEY_SERVICE_ENABLED, enabled)
+        }
     }
 
     /**
@@ -350,30 +449,33 @@ class DeviceSensorManager @Inject constructor(
     }
 
     /**
-     * Handle sensor accuracy changes
+     * Manually refresh step count from service
      */
+    fun refreshStepCount() {
+        loadCurrentUserStepData()
+    }
+
+    /**
+     * Get sensor debug information
+     */
+    fun getSensorInfo(): String {
+        val hasCounter = stepCounterSensor != null
+        val hasDetector = stepDetectorSensor != null
+        val userId = getCurrentUserId()
+        val userSteps = userStepCounts[userId] ?: 0
+
+        return """
+            Step Counter Sensor: $hasCounter
+            Step Detector Sensor: $hasDetector
+            Current User: ${if (userId.isEmpty()) "None" else userId}
+            Current User Steps: $userSteps
+            Global Step Count: $globalStepCount
+            Tracking Active: ${_isTracking.value}
+            Date: $currentDate
+        """.trimIndent()
+    }
+
     override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {
-        Log.d(TAG, "Sensor accuracy changed: ${sensor?.name}, accuracy: $accuracy")
-    }
-
-    /**
-     * Manually reset step count (for testing or user request)
-     */
-    fun resetStepCount() {
-        Log.d(TAG, "Manual step count reset requested")
-        resetDailySteps()
-    }
-
-    /**
-     * Get sensor information for debugging
-     */
-    fun getSensorInfo(): Map<String, Any> {
-        return mapOf(
-            "stepCounterAvailable" to (stepCounterSensor != null),
-            "stepDetectorAvailable" to (stepDetectorSensor != null),
-            "isTracking" to _isTracking.value,
-            "currentSteps" to _stepCount.value,
-            "currentDate" to currentDate
-        )
+        // Not used
     }
 }

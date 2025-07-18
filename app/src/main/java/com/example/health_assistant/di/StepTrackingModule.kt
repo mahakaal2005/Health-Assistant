@@ -1,6 +1,7 @@
 package com.example.health_assistant.di
 
 import android.content.Context
+import com.example.health_assistant.auth.session.SessionManager
 import com.example.health_assistant.data.sensors.DeviceSensorManager
 import dagger.Module
 import dagger.Provides
@@ -19,8 +20,9 @@ object StepTrackingModule {
     @Provides
     @Singleton
     fun provideDeviceSensorManager(
-        @ApplicationContext context: Context
+        @ApplicationContext context: Context,
+        sessionManager: SessionManager
     ): DeviceSensorManager {
-        return DeviceSensorManager(context)
+        return DeviceSensorManager(context, sessionManager)
     }
 }

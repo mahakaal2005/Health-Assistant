@@ -73,10 +73,42 @@ class HealthMetricsViewModel @Inject constructor(
                 val currentUserId = sessionManager.getCurrentUserId()
                 Log.d(TAG, "Current user ID: $currentUserId")
                 
-                // When user changes, reload metrics
+                // IMPORTANT: Do NOT reset step count when user logs in
+                // This ensures we preserve their existing data
+                
+                // When user changes, reload metrics for the current user
                 loadTodayMetrics()
+                
+                // Also refresh metrics immediately to get latest data
+                refreshMetrics()
+                
+                Log.d(TAG, "Health metrics loaded for user $currentUserId")
             } catch (e: Exception) {
                 Log.e(TAG, "Error monitoring user changes", e)
+            }
+        }
+    }
+
+    /**
+     * Reset step count for a user
+     */
+    private fun resetUserStepCount(userId: String) {
+        viewModelScope.launch {
+            try {
+                val result = healthRepository.resetUserStepCount(userId)
+                when (result) {
+                    is Result.Success -> {
+                        Log.d(TAG, "Successfully reset step count for user $userId")
+                    }
+                    is Result.Error -> {
+                        Log.e(TAG, "Error resetting step count: ${result.message}")
+                    }
+                    is Result.Loading -> {
+                        // Do nothing
+                    }
+                }
+            } catch (e: Exception) {
+                Log.e(TAG, "Exception resetting step count", e)
             }
         }
     }

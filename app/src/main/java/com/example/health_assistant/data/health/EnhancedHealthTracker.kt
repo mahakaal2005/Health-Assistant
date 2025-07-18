@@ -1,6 +1,7 @@
 package com.example.health_assistant.data.health
 
 import android.util.Log
+import com.example.health_assistant.auth.session.SessionManager
 import com.example.health_assistant.core.util.Result
 import com.example.health_assistant.data.sensors.DeviceSensorManager
 import com.example.health_assistant.features.health.model.HealthMetric
@@ -12,10 +13,12 @@ import javax.inject.Singleton
 /**
  * Enhanced Health Tracking Manager that works using device sensors only
  * No external dependencies required - works completely offline
+ * Now with proper user isolation for multi-user support
  */
 @Singleton
 class EnhancedHealthTracker @Inject constructor(
-    private val deviceSensorManager: DeviceSensorManager
+    private val deviceSensorManager: DeviceSensorManager,
+    private val sessionManager: SessionManager
 ) {
 
     companion object {
@@ -73,6 +76,14 @@ class EnhancedHealthTracker @Inject constructor(
     fun getStepCountFlow(): StateFlow<Int> {
         return deviceSensorManager.stepCount
     }
+    
+    /**
+     * Reset step count for a specific user
+     */
+    fun resetUserStepCount(userId: String) {
+        deviceSensorManager.resetUserStepCount(userId)
+        Log.d(TAG, "Reset step count for user $userId")
+    }
 
     /**
      * Check if any health tracking is available
@@ -115,9 +126,11 @@ class EnhancedHealthTracker @Inject constructor(
     fun getDebugInfo(): String {
         val status = getTrackingStatus()
         val sensorInfo = deviceSensorManager.getSensorInfo()
+        val userId = sessionManager.getCurrentUserId() ?: "none"
 
         return """
             === Enhanced Health Tracker Debug Info ===
+            Current User: $userId
             Primary Source: ${status.primarySource}
             Device Sensors Available: ${status.deviceSensorsAvailable}
             Device Sensors Tracking: ${status.deviceSensorsTracking}

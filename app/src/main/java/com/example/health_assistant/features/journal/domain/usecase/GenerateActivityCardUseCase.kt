@@ -19,13 +19,20 @@ class GenerateActivityCardUseCase @Inject constructor(
     private val TAG = "GenerateActivityCardUseCase"
 
     /**
-     * Check if an activity card already exists for a specific date
+     * Check if an activity card already exists for a specific date and user
      */
-    suspend fun activityCardExistsForDate(date: LocalDate): Boolean {
+    suspend fun activityCardExistsForDate(date: LocalDate, userId: String = ""): Boolean {
         return try {
-            activityCardRepository.activityCardExistsForDate(date)
+            // Use provided user ID or get from session manager
+            val effectiveUserId = if (userId.isNotEmpty()) {
+                userId
+            } else {
+                sessionManager.getCurrentUserId() ?: "default_user"
+            }
+            
+            activityCardRepository.activityCardExistsForDate(date, effectiveUserId)
         } catch (e: Exception) {
-            Log.e(TAG, "Error checking if card exists for date $date", e)
+            Log.e(TAG, "Error checking if card exists for date $date and user $userId", e)
             false
         }
     }

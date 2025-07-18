@@ -4,6 +4,7 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.util.Log
+import com.example.health_assistant.auth.session.SessionManager
 import com.example.health_assistant.data.sensors.DeviceSensorManager
 import com.example.health_assistant.features.journal.workers.ActivityCardScheduler
 import dagger.hilt.android.AndroidEntryPoint
@@ -26,6 +27,9 @@ class DateChangeReceiver : BroadcastReceiver() {
     lateinit var deviceSensorManager: DeviceSensorManager
     
     @Inject
+    lateinit var sessionManager: SessionManager
+    
+    @Inject
     lateinit var activityCardScheduler: ActivityCardScheduler
 
     override fun onReceive(context: Context, intent: Intent) {
@@ -44,8 +48,15 @@ class DateChangeReceiver : BroadcastReceiver() {
         Log.d(TAG, "Handling date/time change - triggering step count reset")
 
         try {
-            // Trigger reset in the sensor manager
-            deviceSensorManager.resetStepCount()
+            // Get current user ID
+            val userId = sessionManager.getCurrentUserId()
+            if (userId != null) {
+                // Trigger reset for the current user
+                deviceSensorManager.resetUserStepCount(userId)
+                Log.d(TAG, "Reset step count for user $userId")
+            } else {
+                Log.d(TAG, "No user logged in, skipping step count reset")
+            }
             
             // Generate activity card for previous day, not today
             // This ensures we don't create a card with 0 steps for the new day

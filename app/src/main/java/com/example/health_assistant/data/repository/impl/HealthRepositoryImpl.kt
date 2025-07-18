@@ -56,6 +56,12 @@ class HealthRepositoryImpl @Inject constructor(
     // Weekly data lifecycle management implementation by user ID
     private val _weeklyHealthSummaries = MutableStateFlow<Map<String, WeeklyHealthSummary>>(emptyMap())
 
+    // User-specific step counts - key is userId, value is current step count
+    private val _userStepCounts = MutableStateFlow<Map<String, Int>>(emptyMap())
+
+    // Last global step count - used to calculate increments
+    private var lastGlobalStepCount = 0
+
     init {
         // Initialize enhanced health tracking immediately
         val trackingStarted = enhancedHealthTracker.initialize()
@@ -69,15 +75,62 @@ class HealthRepositoryImpl @Inject constructor(
     private fun startRealTimeStepTracking() {
         // This will continuously update health metrics as user walks
         CoroutineScope(Dispatchers.Default).launch {
-            enhancedHealthTracker.getStepCountFlow().collect { stepCount ->
-                updateHealthMetricsFromSensors(stepCount)
-                updateDailyStepData(stepCount)
+            enhancedHealthTracker.getStepCountFlow().collect { globalStepCount ->
+                // Calculate the increment since last update
+                val stepIncrement = calculateStepIncrement(globalStepCount)
+                
+                // Only update if there's a positive increment (user actually walked)
+                if (stepIncrement > 0) {
+                    // Update the current user's step count
+                    updateCurrentUserSteps(stepIncrement)
+                }
+                
+                // Save the last global step count
+                lastGlobalStepCount = globalStepCount
             }
         }
     }
 
-    // Update health metrics using device sensor data
-    private suspend fun updateHealthMetricsFromSensors(steps: Int) {
+    // Calculate step increment since last update
+    private fun calculateStepIncrement(currentGlobalSteps: Int): Int {
+        // Handle device reboot case where step counter resets to 0
+        if (currentGlobalSteps < lastGlobalStepCount && lastGlobalStepCount > 1000) {
+            // Device likely rebooted, treat current steps as the increment
+            return currentGlobalSteps
+        }
+        
+        // Normal case - calculate increment
+        return maxOf(0, currentGlobalSteps - lastGlobalStepCount)
+    }
+
+    // Update the current user's step count
+    private suspend fun updateCurrentUserSteps(stepIncrement: Int) {
+        val userId = getCurrentUserId()
+        if (userId.isEmpty()) {
+            Log.d(TAG, "No user logged in, skipping step update")
+            return
+        }
+        
+        // Get current user's step count or default to 0
+        val currentUserSteps = _userStepCounts.value[userId] ?: 0
+        
+        // Add the increment to the user's step count
+        val newUserSteps = currentUserSteps + stepIncrement
+        
+        // Update the user step counts map
+        val updatedUserStepCounts = _userStepCounts.value.toMutableMap()
+        updatedUserStepCounts[userId] = newUserSteps
+        _userStepCounts.value = updatedUserStepCounts
+        
+        Log.d(TAG, "Updated steps for user $userId: $currentUserSteps + $stepIncrement = $newUserSteps")
+        
+        // Now update the health metrics with the new step count
+        updateHealthMetricsFromSteps(newUserSteps)
+        updateDailyStepData(newUserSteps)
+    }
+
+    // Update health metrics using step count
+    private suspend fun updateHealthMetricsFromSteps(steps: Int) {
         try {
             val userId = getCurrentUserId()
             if (userId.isEmpty()) {
@@ -86,31 +139,35 @@ class HealthRepositoryImpl @Inject constructor(
             }
 
             val currentDate = getCurrentDate()
+            
+            // Calculate calories and heart points based on steps
+            val calories = calculateCaloriesFromSteps(steps)
+            val heartPoints = calculateHeartPointsFromSteps(steps)
+            
+            // Create health metrics object
+            val metrics = HealthMetrics(
+                steps = HealthMetric(steps, 9000),
+                calories = HealthMetric(calories, 300),
+                heartPoints = HealthMetric(heartPoints, 50)
+            )
+            
+            // Get user's metrics map or create new one
+            val userMetricsMap = _healthMetricsMap.value[userId] ?: emptyMap()
+            val updatedUserMap = userMetricsMap.toMutableMap()
+            updatedUserMap[currentDate] = metrics
+            
+            // Update the global map with the user's updated map
+            val globalMap = _healthMetricsMap.value.toMutableMap()
+            globalMap[userId] = updatedUserMap
+            _healthMetricsMap.value = globalMap
 
-            // Get enhanced metrics from the tracker (includes estimated calories and heart points)
-            val enhancedResult = enhancedHealthTracker.getCurrentHealthMetrics()
-
-            if (enhancedResult is Result.Success) {
-                val enhancedMetrics = enhancedResult.data
-                
-                // Get user's metrics map or create new one
-                val userMetricsMap = _healthMetricsMap.value[userId] ?: emptyMap()
-                val updatedUserMap = userMetricsMap.toMutableMap()
-                updatedUserMap[currentDate] = enhancedMetrics
-                
-                // Update the global map with the user's updated map
-                val globalMap = _healthMetricsMap.value.toMutableMap()
-                globalMap[userId] = updatedUserMap
-                _healthMetricsMap.value = globalMap
-
-                Log.d(TAG, "Updated metrics for user $userId - Steps: ${enhancedMetrics.steps.current}, Calories: ${enhancedMetrics.calories.current}")
-            }
+            Log.d(TAG, "Updated metrics for user $userId - Steps: $steps, Calories: $calories, Heart Points: $heartPoints")
         } catch (e: Exception) {
-            Log.e(TAG, "Error updating metrics from sensors", e)
+            Log.e(TAG, "Error updating metrics from steps", e)
         }
     }
 
-    // Update daily step data when steps change
+    // Update daily step data
     private suspend fun updateDailyStepData(steps: Int) {
         try {
             val userId = getCurrentUserId()
@@ -122,7 +179,7 @@ class HealthRepositoryImpl @Inject constructor(
             val today = LocalDate.now()
             val todayString = today.format(DateTimeFormatter.ISO_LOCAL_DATE)
 
-            // Calculate realistic calories and heart points based on steps
+            // Calculate calories and heart points based on steps
             val calories = calculateCaloriesFromSteps(steps)
             val heartPoints = calculateHeartPointsFromSteps(steps)
 
@@ -167,9 +224,46 @@ class HealthRepositoryImpl @Inject constructor(
 
     /**
      * Get real-time step count flow for live UI updates
+     * Now with complete user isolation
      */
     override fun getRealTimeStepFlow(): Flow<Int> {
-        return enhancedHealthTracker.getStepCountFlow()
+        return _userStepCounts
+            .map { userStepCounts ->
+                val userId = getCurrentUserId()
+                userStepCounts[userId] ?: 0
+            }
+            .catch { e ->
+                Log.e(TAG, "Error in real-time step flow", e)
+                emit(0)
+            }
+    }
+
+    /**
+     * Reset step count for a specific user
+     * Used when testing or when data becomes corrupted
+     */
+    override suspend fun resetUserStepCount(userId: String): Result<Unit> {
+        return try {
+            // Reset user step count in EnhancedHealthTracker
+            enhancedHealthTracker.resetUserStepCount(userId)
+            
+            // Reset in our local cache
+            val updatedUserStepCounts = _userStepCounts.value.toMutableMap()
+            updatedUserStepCounts[userId] = 0
+            _userStepCounts.value = updatedUserStepCounts
+            
+            // Also update health metrics and daily step data
+            if (userId == getCurrentUserId()) {
+                updateHealthMetricsFromSteps(0)
+                updateDailyStepData(0)
+            }
+            
+            Log.d(TAG, "Reset step count for user $userId")
+            Result.Success(Unit)
+        } catch (e: Exception) {
+            Log.e(TAG, "Error resetting step count for user $userId", e)
+            Result.Error(e, "Failed to reset step count")
+        }
     }
 
     /**

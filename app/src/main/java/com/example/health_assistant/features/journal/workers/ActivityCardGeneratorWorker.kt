@@ -40,10 +40,10 @@ class ActivityCardGeneratorWorker @AssistedInject constructor(
     override suspend fun doWork(): Result {
         try {
             // Get user ID from input data or session
-            val userId = inputData.getString(KEY_USER_ID) ?: sessionManager.getCurrentUserId()
+            var userId = inputData.getString(KEY_USER_ID) ?: sessionManager.getCurrentUserId()
             if (userId.isNullOrEmpty()) {
-                Log.w(TAG, "No user ID provided or logged in, skipping activity card generation")
-                return Result.failure()
+                Log.w(TAG, "No user ID provided or logged in, using default user ID")
+                userId = "default_user" // Use default user ID instead of failing
             }
 
             // Get target date from input data or use today
@@ -54,7 +54,7 @@ class ActivityCardGeneratorWorker @AssistedInject constructor(
             Log.d(TAG, "Generating activity card for user $userId and date $targetDate")
 
             // Check if card already exists for this date and user
-            if (generateActivityCardUseCase.activityCardExistsForDate(targetDate)) {
+            if (generateActivityCardUseCase.activityCardExistsForDate(targetDate, userId)) {
                 Log.d(TAG, "Activity card already exists for user $userId and date $targetDate")
                 return Result.success()
             }

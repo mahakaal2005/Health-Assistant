@@ -25,7 +25,12 @@ class ActivityCardRepositoryImpl @Inject constructor(
     }
     
     private fun getCurrentUserId(): String {
-        return sessionManager.getCurrentUserId() ?: throw IllegalStateException("No user logged in")
+        val userId = sessionManager.getCurrentUserId()
+        if (userId.isNullOrEmpty()) {
+            Log.w(TAG, "No user ID available, using default")
+            return "default_user"
+        }
+        return userId
     }
 
     override fun getAllActivityCards(): Flow<List<ActivityCard>> {
@@ -95,18 +100,24 @@ class ActivityCardRepositoryImpl @Inject constructor(
             }
     }
 
-    override suspend fun activityCardExistsForDate(date: LocalDate): Boolean {
+    override suspend fun activityCardExistsForDate(date: LocalDate, userId: String): Boolean {
         try {
             val startTimestamp = date.atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli()
             val endTimestamp = date.plusDays(1).atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli() - 1
-            val userId = getCurrentUserId()
             
-            val entries = journalDao.getEntriesByTypeAndDateRangeAndUserId(ACTIVITY_TYPE, startTimestamp, endTimestamp, userId).first()
-            Log.d(TAG, "Checking card for date $date: found ${entries.size} cards for user $userId")
+            // Use provided user ID or get from session manager
+            val effectiveUserId = if (userId.isNotEmpty()) {
+                userId
+            } else {
+                getCurrentUserId()
+            }
+            
+            val entries = journalDao.getEntriesByTypeAndDateRangeAndUserId(ACTIVITY_TYPE, startTimestamp, endTimestamp, effectiveUserId).first()
+            Log.d(TAG, "Checking card for date $date: found ${entries.size} cards for user $effectiveUserId")
             
             return entries.isNotEmpty()
         } catch (e: Exception) {
-            Log.e(TAG, "Error checking if card exists for date $date", e)
+            Log.e(TAG, "Error checking if card exists for date $date and user $userId", e)
             return false
         }
     }

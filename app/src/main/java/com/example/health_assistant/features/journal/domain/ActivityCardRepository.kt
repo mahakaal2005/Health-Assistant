@@ -30,9 +30,9 @@ interface ActivityCardRepository {
     fun getRecentActivityCards(limit: Int): Flow<List<ActivityCard>>
 
     /**
-     * Check if activity card exists for a specific date
+     * Check if activity card exists for a specific date and user
      */
-    suspend fun activityCardExistsForDate(date: LocalDate): Boolean
+    suspend fun activityCardExistsForDate(date: LocalDate, userId: String = ""): Boolean
 
     /**
      * Insert or update an activity card
