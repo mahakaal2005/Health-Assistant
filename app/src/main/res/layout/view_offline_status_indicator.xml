@@ -1,0 +1,222 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:background="@drawable/bg_offline_status_card"
+    android:padding="12dp"
+    android:layout_margin="8dp">
+
+    <!-- Main Status Header -->
+    <LinearLayout
+        android:id="@+id/statusHeader"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:clickable="true"
+        android:focusable="true"
+        android:background="?android:attr/selectableItemBackground"
+        android:padding="4dp">
+
+        <ImageView
+            android:id="@+id/statusIcon"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:src="@drawable/ic_offline_ready"
+            android:contentDescription="Offline status"
+            app:tint="@color/success_green" />
+
+        <TextView
+            android:id="@+id/statusText"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginStart="8dp"
+            android:text="Offline Ready"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            android:textColor="@color/success_green" />
+
+        <ImageView
+            android:id="@+id/syncFreshnessIndicator"
+            android:layout_width="16dp"
+            android:layout_height="16dp"
+            android:src="@drawable/ic_sync_fresh"
+            android:layout_marginEnd="8dp"
+            app:tint="@color/success_green" />
+
+        <ImageView
+            android:id="@+id/expandIcon"
+            android:layout_width="16dp"
+            android:layout_height="16dp"
+            android:src="@drawable/ic_expand_more"
+            app:tint="@color/text_secondary" />
+
+    </LinearLayout>
+
+    <!-- Sync Status Container -->
+    <LinearLayout
+        android:id="@+id/syncStatusContainer"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:layout_marginTop="8dp"
+        android:padding="8dp"
+        android:background="@drawable/bg_sync_status"
+        android:visibility="gone">
+
+        <ImageView
+            android:id="@+id/syncIcon"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:src="@drawable/ic_sync"
+            app:tint="@color/primary_blue" />
+
+        <TextView
+            android:id="@+id/syncText"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginStart="8dp"
+            android:text="Syncing content..."
+            android:textSize="12sp"
+            android:textColor="@color/text_primary" />
+
+        <ProgressBar
+            android:id="@+id/syncProgress"
+            style="?android:attr/progressBarStyleHorizontal"
+            android:layout_width="60dp"
+            android:layout_height="4dp"
+            android:layout_marginStart="8dp"
+            android:visibility="gone" />
+
+    </LinearLayout>
+
+    <!-- Cache Status Container -->
+    <LinearLayout
+        android:id="@+id/cacheStatusContainer"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:layout_marginTop="4dp"
+        android:padding="8dp"
+        android:background="@drawable/bg_cache_status"
+        android:visibility="gone">
+
+        <ImageView
+            android:id="@+id/cacheIcon"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:src="@drawable/ic_cached"
+            app:tint="@color/primary_blue" />
+
+        <TextView
+            android:id="@+id/cacheText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:text="Initializing cache..."
+            android:textSize="12sp"
+            android:textColor="@color/text_primary" />
+
+    </LinearLayout>
+
+    <!-- Expandable Status Details -->
+    <LinearLayout
+        android:id="@+id/statusDetails"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_marginTop="8dp"
+        android:visibility="gone">
+
+        <!-- Sync Freshness Info -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:padding="4dp">
+
+            <TextView
+                android:id="@+id/syncFreshnessText"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Recently synced"
+                android:textSize="12sp"
+                android:textColor="@color/success_green" />
+
+            <TextView
+                android:id="@+id/lastSyncText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Last sync: Dec 15, 14:30"
+                android:textSize="11sp"
+                android:textColor="@color/text_secondary" />
+
+        </LinearLayout>
+
+        <!-- Cache Statistics -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="4dp"
+            android:padding="4dp">
+
+            <TextView
+                android:id="@+id/cachedItemsText"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="150 items cached"
+                android:textSize="12sp"
+                android:textColor="@color/text_secondary" />
+
+            <TextView
+                android:id="@+id/cacheSizeText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="25MB"
+                android:textSize="12sp"
+                android:textColor="@color/text_secondary" />
+
+        </LinearLayout>
+
+        <!-- Essential Content Status -->
+        <LinearLayout
+            android:id="@+id/essentialContentStatus"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginTop="4dp"
+            android:padding="4dp">
+
+            <ImageView
+                android:id="@+id/essentialContentIcon"
+                android:layout_width="16dp"
+                android:layout_height="16dp"
+                android:src="@drawable/ic_check_circle"
+                app:tint="@color/success_green" />
+
+            <TextView
+                android:id="@+id/essentialContentText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:text="Essential health info available offline"
+                android:textSize="12sp"
+                android:textColor="@color/text_secondary" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+</LinearLayout>

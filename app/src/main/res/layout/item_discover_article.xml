@@ -1,0 +1,180 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="@dimen/content_padding_small"
+    app:cardCornerRadius="@dimen/corner_radius_medium"
+    app:cardElevation="@dimen/card_elevation_small"
+    app:cardBackgroundColor="@color/cardBackground"
+    android:clickable="true"
+    android:focusable="true"
+    android:foreground="?android:attr/selectableItemBackground">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="@dimen/content_padding_medium">
+
+        <!-- Article Image -->
+        <ImageView
+            android:id="@+id/imageArticle"
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:layout_marginEnd="@dimen/content_padding_medium"
+            android:scaleType="centerCrop"
+            android:background="@drawable/card_light_gray"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:src="@drawable/ic_heart" />
+
+        <!-- Article Title -->
+        <TextView
+            android:id="@+id/textArticleTitle"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/content_padding_medium"
+            android:textSize="@dimen/text_size_subtitle"
+            android:textStyle="bold"
+            android:textColor="@color/textPrimary"
+            android:maxLines="2"
+            android:ellipsize="end"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/imageArticle"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="Understanding Heart Health: A Complete Guide" />
+
+        <!-- Article Summary -->
+        <TextView
+            android:id="@+id/textArticleSummary"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/content_padding_medium"
+            android:layout_marginTop="@dimen/content_padding_small"
+            android:textSize="@dimen/text_size_body"
+            android:textColor="@color/textSecondary"
+            android:maxLines="2"
+            android:ellipsize="end"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/imageArticle"
+            app:layout_constraintTop_toBottomOf="@id/textArticleTitle"
+            tools:text="Learn about the fundamentals of cardiovascular health and how to maintain a healthy heart through lifestyle choices." />
+
+        <!-- Author and Reading Time -->
+        <TextView
+            android:id="@+id/textArticleAuthor"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/content_padding_medium"
+            android:layout_marginTop="@dimen/content_padding_small"
+            android:textSize="@dimen/text_size_caption"
+            android:textColor="@color/textTertiary"
+            app:layout_constraintEnd_toStartOf="@id/textReadingTime"
+            app:layout_constraintStart_toEndOf="@id/imageArticle"
+            app:layout_constraintTop_toBottomOf="@id/textArticleSummary"
+            tools:text="Dr. Sarah Johnson" />
+
+        <TextView
+            android:id="@+id/textReadingTime"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/content_padding_small"
+            android:textSize="@dimen/text_size_caption"
+            android:textColor="@color/textTertiary"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/textArticleSummary"
+            tools:text="5 min read" />
+
+        <!-- Category Chip -->
+        <com.google.android.material.chip.Chip
+            android:id="@+id/chipCategory"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/content_padding_medium"
+            android:textSize="@dimen/text_size_caption"
+            app:chipBackgroundColor="@color/colorChip"
+            app:chipCornerRadius="@dimen/chip_corner_radius"
+            app:chipStrokeWidth="0dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/imageArticle"
+            tools:text="Nutrition" />
+
+        <!-- Credibility Score -->
+        <LinearLayout
+            android:id="@+id/layoutCredibility"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/content_padding_medium"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            app:layout_constraintStart_toEndOf="@id/chipCategory"
+            app:layout_constraintTop_toBottomOf="@id/imageArticle"
+            android:layout_marginStart="@dimen/content_padding_small">
+
+            <ImageView
+                android:layout_width="12dp"
+                android:layout_height="12dp"
+                android:src="@drawable/ic_verified"
+                android:tint="@color/success"
+                android:layout_marginEnd="4dp" />
+
+            <TextView
+                android:id="@+id/textCredibilityScore"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="@dimen/text_size_caption"
+                android:textColor="@color/success"
+                tools:text="Verified" />
+
+        </LinearLayout>
+
+        <!-- Progress Bar (for reading progress) -->
+        <ProgressBar
+            android:id="@+id/progressReading"
+            style="?android:attr/progressBarStyleHorizontal"
+            android:layout_width="0dp"
+            android:layout_height="4dp"
+            android:layout_marginTop="@dimen/content_padding_medium"
+            android:progressTint="@color/colorPrimary"
+            android:progressBackgroundTint="@color/colorProgressBackground"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/chipCategory"
+            tools:progress="30" />
+
+        <!-- Action Buttons -->
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/content_padding_medium"
+            android:orientation="horizontal"
+            android:gravity="end"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/progressReading">
+
+            <ImageButton
+                android:id="@+id/buttonBookmark"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_marginEnd="@dimen/content_padding_small"
+                android:background="?android:attr/selectableItemBackgroundBorderless"
+                android:src="@drawable/ic_bookmark"
+                android:tint="@color/textSecondary"
+                android:contentDescription="Bookmark article" />
+
+            <ImageButton
+                android:id="@+id/buttonShare"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:background="?android:attr/selectableItemBackgroundBorderless"
+                android:src="@drawable/ic_share"
+                android:tint="@color/textSecondary"
+                android:contentDescription="Share article" />
+
+        </LinearLayout>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</com.google.android.material.card.MaterialCardView>

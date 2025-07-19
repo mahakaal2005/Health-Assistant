@@ -8,6 +8,8 @@ import com.example.health_assistant.data.repository.interfaces.AuthRepository
 import com.example.health_assistant.data.repository.interfaces.HealthRepository
 import com.example.health_assistant.data.repository.interfaces.PrescriptionRepository
 import com.example.health_assistant.data.repository.interfaces.UserProfileRepository
+import com.example.health_assistant.features.discover.data.DiscoverRepositoryImpl
+import com.example.health_assistant.features.discover.domain.repository.DiscoverRepository
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
@@ -38,4 +40,10 @@ abstract class RepositoryModule {
     abstract fun bindPrescriptionRepository(
         roomPrescriptionRepositoryImpl: RoomPrescriptionRepositoryImpl
     ): PrescriptionRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindDiscoverRepository(
+        discoverRepositoryImpl: DiscoverRepositoryImpl
+    ): DiscoverRepository
 }

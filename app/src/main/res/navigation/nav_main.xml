@@ -18,6 +18,37 @@
         app:popUpTo="@id/nav_main"
         app:popUpToInclusive="true" />
 
+    <!-- Global actions for cross-feature navigation -->
+    <action
+        android:id="@+id/action_global_to_discoverFragment"
+        app:destination="@id/discoverFragment"
+        app:popUpTo="@id/homeFragment"
+        app:popUpToInclusive="false" />
+
+    <action
+        android:id="@+id/action_global_to_articleReaderFragment"
+        app:destination="@id/articleReaderFragment"
+        app:enterAnim="@anim/slide_in_right"
+        app:exitAnim="@anim/slide_out_left"
+        app:popEnterAnim="@anim/slide_in_left"
+        app:popExitAnim="@anim/slide_out_right" />
+
+    <action
+        android:id="@+id/action_global_to_videoPlayerFragment"
+        app:destination="@id/videoPlayerFragment"
+        app:enterAnim="@anim/slide_in_right"
+        app:exitAnim="@anim/slide_out_left"
+        app:popEnterAnim="@anim/slide_in_left"
+        app:popExitAnim="@anim/slide_out_right" />
+
+    <action
+        android:id="@+id/action_global_to_bookmarksFragment"
+        app:destination="@id/bookmarksFragment"
+        app:enterAnim="@anim/slide_in_right"
+        app:exitAnim="@anim/slide_out_left"
+        app:popEnterAnim="@anim/slide_in_left"
+        app:popExitAnim="@anim/slide_out_right" />
+
     <!-- HOME FRAGMENT - Central Hub -->
     <fragment
         android:id="@+id/homeFragment"
@@ -43,7 +74,49 @@
         android:id="@+id/discoverFragment"
         android:name="com.example.health_assistant.features.discover.DiscoverFragment"
         android:label="Discover"
-        tools:layout="@layout/fragment_discover" />
+        tools:layout="@layout/fragment_discover">
+
+        <!-- Navigation to article reader -->
+        <action
+            android:id="@+id/action_discoverFragment_to_articleReaderFragment"
+            app:destination="@id/articleReaderFragment"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right" />
+
+        <!-- Navigation to video player -->
+        <action
+            android:id="@+id/action_discoverFragment_to_videoPlayerFragment"
+            app:destination="@id/videoPlayerFragment"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right" />
+
+        <!-- Navigation to bookmarks -->
+        <action
+            android:id="@+id/action_discoverFragment_to_bookmarksFragment"
+            app:destination="@id/bookmarksFragment"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right" />
+
+        <!-- Cross-feature navigation to Journal for health tracking -->
+        <action
+            android:id="@+id/action_discoverFragment_to_journalFragment"
+            app:destination="@id/journalFragment"
+            app:popUpTo="@id/homeFragment"
+            app:popUpToInclusive="false" />
+
+        <!-- Navigation to Profile for health preferences -->
+        <action
+            android:id="@+id/action_discoverFragment_to_profileFragment"
+            app:destination="@id/profileFragment"
+            app:popUpTo="@id/homeFragment"
+            app:popUpToInclusive="false" />
+    </fragment>
 
     <fragment
         android:id="@+id/journalFragment"
@@ -158,6 +231,80 @@
             android:name="diaryId"
             app:argType="long"
             android:defaultValue="0L" />
+    </fragment>
+
+    <!-- DISCOVER DETAIL FRAGMENTS -->
+    <fragment
+        android:id="@+id/articleReaderFragment"
+        android:name="com.example.health_assistant.features.discover.presentation.ArticleReaderFragment"
+        android:label="Article Reader"
+        tools:layout="@layout/fragment_article_reader">
+        <argument
+            android:name="articleId"
+            app:argType="string" />
+        <argument
+            android:name="contentType"
+            app:argType="string"
+            android:defaultValue="article" />
+        
+        <!-- Deep link for sharing articles -->
+        <deepLink
+            app:uri="healthassistant://discover/article/{articleId}"
+            app:action="android.intent.action.VIEW" />
+        <deepLink
+            app:uri="https://healthassistant.app/discover/article/{articleId}"
+            app:action="android.intent.action.VIEW" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/bookmarksFragment"
+        android:name="com.example.health_assistant.features.discover.presentation.BookmarksFragment"
+        android:label="Bookmarks"
+        tools:layout="@layout/fragment_bookmarks">
+
+        <!-- Navigation to content readers -->
+        <action
+            android:id="@+id/action_bookmarksFragment_to_articleReaderFragment"
+            app:destination="@id/articleReaderFragment"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right" />
+
+        <action
+            android:id="@+id/action_bookmarksFragment_to_videoPlayerFragment"
+            app:destination="@id/videoPlayerFragment"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right" />
+
+        <!-- Deep link for bookmarks -->
+        <deepLink
+            app:uri="healthassistant://discover/bookmarks"
+            app:action="android.intent.action.VIEW" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/videoPlayerFragment"
+        android:name="com.example.health_assistant.features.discover.presentation.VideoPlayerFragment"
+        android:label="Video Player"
+        tools:layout="@layout/fragment_video_player">
+        <argument
+            android:name="videoId"
+            app:argType="string" />
+        <argument
+            android:name="autoPlay"
+            app:argType="boolean"
+            android:defaultValue="true" />
+        
+        <!-- Deep link for sharing videos -->
+        <deepLink
+            app:uri="healthassistant://discover/video/{videoId}"
+            app:action="android.intent.action.VIEW" />
+        <deepLink
+            app:uri="https://healthassistant.app/discover/video/{videoId}"
+            app:action="android.intent.action.VIEW" />
     </fragment>
 
 </navigation>

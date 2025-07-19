@@ -82,8 +82,26 @@
         <!-- Main Activity (remove launcher intent-filter) -->
         <activity
             android:name=".main.MainActivity"
-            android:exported="false"
-            android:theme="@style/Theme.HealthAssistant" />
+            android:exported="true"
+            android:theme="@style/Theme.HealthAssistant">
+            
+            <!-- Deep link support for Discover content -->
+            <intent-filter android:autoVerify="true">
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="healthassistant" />
+            </intent-filter>
+            
+            <!-- Web deep links for sharing -->
+            <intent-filter android:autoVerify="true">
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="https"
+                      android:host="healthassistant.app" />
+            </intent-filter>
+        </activity>
 
         <!-- Only adding essential step tracking service -->
         <service

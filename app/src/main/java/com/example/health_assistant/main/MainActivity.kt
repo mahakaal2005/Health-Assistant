@@ -27,6 +27,7 @@ import com.example.health_assistant.core.performance.FragmentPerformanceManager
 import com.example.health_assistant.databinding.MainActivityBinding
 import com.example.health_assistant.data.sync.ProfileSyncManager
 import com.example.health_assistant.data.health.EnhancedHealthTracker
+import com.example.health_assistant.features.discover.navigation.DiscoverDeepLinkHandler
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
@@ -52,6 +53,10 @@ class MainActivity : AppCompatActivity() {
     // Inject ActivityCardScheduler for manual card generation testing
     @Inject
     lateinit var activityCardScheduler: com.example.health_assistant.features.journal.workers.ActivityCardScheduler
+
+    // Inject deep link handler for Discover content
+    @Inject
+    lateinit var discoverDeepLinkHandler: DiscoverDeepLinkHandler
 
     // CRITICAL FIX: Runtime permission handling for sensor access
     private val sensorPermissionLauncher = registerForActivityResult(
@@ -126,6 +131,9 @@ class MainActivity : AppCompatActivity() {
         }
 
         initializeNavigation()
+        
+        // Handle deep links if this activity was started by one
+        handleDeepLinkIfPresent()
     }
 
     private fun initializeNavigation() {
@@ -413,6 +421,33 @@ class MainActivity : AppCompatActivity() {
                     binding.bottomNav.selectedItemId = R.id.homeFragment
                 }
             }
+        }
+    }
+
+    /**
+     * Handle deep links if present in the intent
+     */
+    private fun handleDeepLinkIfPresent() {
+        try {
+            if (::navController.isInitialized && intent != null) {
+                val handled = discoverDeepLinkHandler.handleDeepLink(intent, navController)
+                if (handled) {
+                    Log.d(TAG, "Deep link handled successfully")
+                } else {
+                    Log.d(TAG, "No deep link to handle or not a Discover deep link")
+                }
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "Error handling deep link: ${e.message}")
+        }
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        // Handle deep links when app is already running
+        setIntent(intent)
+        if (::navController.isInitialized) {
+            discoverDeepLinkHandler.handleDeepLink(intent, navController)
         }
     }
 }

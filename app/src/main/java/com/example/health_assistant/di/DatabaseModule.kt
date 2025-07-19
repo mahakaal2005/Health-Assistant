@@ -6,6 +6,8 @@ import com.example.health_assistant.data.local.dao.DiseaseCategoryDao
 import com.example.health_assistant.data.local.dao.PrescriptionDao
 import com.example.health_assistant.data.local.dao.ProfileImageDao
 import com.example.health_assistant.data.local.database.HealthAssistantDatabase
+import com.example.health_assistant.features.discover.data.DiscoverDao
+import com.example.health_assistant.features.discover.data.AnalyticsDao
 import com.example.health_assistant.features.journal.data.JournalEntryDao
 import dagger.Module
 import dagger.Provides
@@ -54,5 +56,15 @@ object DatabaseModule {
     @Provides
     fun provideProfileImageDao(database: HealthAssistantDatabase): ProfileImageDao {
         return database.profileImageDao()
+    }
+
+    @Provides
+    fun provideDiscoverDao(database: HealthAssistantDatabase): DiscoverDao {
+        return database.discoverDao()
+    }
+
+    @Provides
+    fun provideAnalyticsDao(database: HealthAssistantDatabase): AnalyticsDao {
+        return database.analyticsDao()
     }
 }

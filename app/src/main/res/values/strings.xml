@@ -48,6 +48,25 @@
     <string name="overall_health">Overall Health:</string>
     <string name="health_excellent">Excellent</string>
     <string name="health_good">Good</string>
+
+    <!-- Article Reader -->
+    <string name="article_header_image">Article header image</string>
+    <string name="author_icon">Author icon</string>
+    <string name="publication_date_icon">Publication date icon</string>
+    <string name="credibility_icon">Credibility icon</string>
+    <string name="warning_icon">Warning icon</string>
+    <string name="article_summary">Summary</string>
+    <string name="source_information">Source Information</string>
+    <string name="related_topics">Related Topics</string>
+    <string name="share_article">Share article</string>
+    <string name="bookmark_article">Bookmark article</string>
+    <string name="loading_article">Loading article...</string>
+    <string name="error_icon">Error icon</string>
+    <string name="error_loading_article">Failed to load article</string>
+    <string name="retry">Retry</string>
+    <string name="published_on">Published on %1$s</string>
+    <string name="min_read">%1$d min read</string>
+    <string name="last_updated">Last updated: %1$s</string>
     <string name="health_fair">Fair</string>
     <string name="health_poor">Poor</string>
     <string name="edit_profile">Edit Profile</string>
@@ -158,4 +177,85 @@
     <string name="daily_average_calories_format">%1$,d/day</string>
     <string name="total_heart_points_format">%1$,d points</string>
     <string name="daily_average_heart_points_format">%1$,d/day</string>
+
+    <!-- Bookmarks and Reading History -->
+    <string name="bookmarks_title">Bookmarks</string>
+    <string name="reading_history">Reading History</string>
+    <string name="no_bookmarks_title">No Bookmarks Yet</string>
+    <string name="no_bookmarks_message">Start bookmarking articles, news, and videos to access them quickly later</string>
+    <string name="error_loading_bookmarks">Error Loading Bookmarks</string>
+    <string name="remove_bookmark">Remove bookmark</string>
+    <string name="share_content">Share content</string>
+    <string name="sort_bookmarks">Sort Bookmarks</string>
+    <string name="clear_all_bookmarks">Clear All Bookmarks</string>
+    <string name="sort_by_date_added">Date Added</string>
+    <string name="sort_by_date_published">Date Published</string>
+    <string name="sort_by_content_type">Content Type</string>
+    <string name="sort_by_category">Category</string>
+    <string name="reading_time_minutes">%1$d min read</string>
+    <string name="credibility_score">★ %1$d</string>
+    <string name="reading_progress_percent">%1$d%% read</string>
+    <string name="watch_progress_percent">%1$d%% watched</string>
+    <string name="video_duration_format">%1$d:%2$02d</string>
+    <string name="breaking_news">BREAKING</string>
+
+    <!-- Plurals for bookmark count -->
+    <plurals name="bookmark_count">
+        <item quantity="zero">No bookmarks</item>
+        <item quantity="one">%d bookmark</item>
+        <item quantity="other">%d bookmarks</item>
+    </plurals>
+
+    <!-- Error Handling Strings -->
+    <string name="error_network_title">Connection Error</string>
+    <string name="error_server_title">Server Error</string>
+    <string name="error_timeout_title">Request Timeout</string>
+    <string name="error_content_not_found_title">Content Not Found</string>
+    <string name="error_video_playback_title">Video Error</string>
+    <string name="error_search_title">Search Error</string>
+    <string name="error_sync_title">Sync Error</string>
+    <string name="error_generic_title">Error</string>
+    <string name="view_offline_content">View Offline Content</string>
+    <string name="download_for_offline">Download for Offline</string>
+    <string name="browse_similar_content">Browse Similar Content</string>
+    <string name="retrying_attempt">Retrying... (Attempt %1$d of %2$d)</string>
+    <string name="offline_mode_title">You\'re Offline</string>
+    <string name="offline_with_cache">Showing cached content. Connect to the internet for the latest updates.</string>
+    <string name="offline_no_cache">No internet connection and no cached content available.</string>
+    <string name="view_cached_content">View Cached Content</string>
+    <string name="try_again">Try Again</string>
+    
+    <!-- Content Reporting Strings -->
+    <string name="report_content_title">Report Content</string>
+    <string name="report_type_label">What\'s the issue?</string>
+    <string name="select_report_type">Select issue type</string>
+    <string name="report_description_hint">Describe the issue (optional)</string>
+    <string name="report_description_helper">Help us understand the problem better</string>
+    <string name="report_description_required">Please describe the issue (required)</string>
+    <string name="cancel">Cancel</string>
+    <string name="submit_report">Submit Report</string>
+    <string name="report_submitted_title">Report Submitted</string>
+    <string name="report_submitted_message">Thank you for your feedback. We\'ll review this content and take appropriate action.</string>
+    <string name="report_error_title">Error</string>
+    <string name="report_error_message">Failed to submit report: %1$s</string>
+    
+    <!-- Report Types -->
+    <string name="report_type_inaccurate">Inaccurate Information</string>
+    <string name="report_type_outdated">Outdated Content</string>
+    <string name="report_type_misleading">Misleading Claims</string>
+    <string name="report_type_inappropriate">Inappropriate Content</string>
+    <string name="report_type_spam">Spam or Promotional</string>
+    <string name="report_type_copyright">Copyright Violation</string>
+    <string name="report_type_broken">Broken Link or Media</string>
+    <string name="report_type_other">Other</string>
+    
+    <!-- Report Type Descriptions -->
+    <string name="report_desc_inaccurate">The content contains medical or health information that appears to be incorrect</string>
+    <string name="report_desc_outdated">The information is no longer current or has been superseded by newer research</string>
+    <string name="report_desc_misleading">The content makes unsubstantiated or exaggerated health claims</string>
+    <string name="report_desc_inappropriate">The content is not suitable for a health education platform</string>
+    <string name="report_desc_spam">The content appears to be spam or primarily promotional in nature</string>
+    <string name="report_desc_copyright">The content appears to violate copyright or intellectual property rights</string>
+    <string name="report_desc_broken">Links, videos, or images in the content are not working properly</string>
+    <string name="report_desc_other">Other issues not covered by the above categories</string>
 </resources>

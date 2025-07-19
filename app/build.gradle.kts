@@ -158,6 +158,10 @@ dependencies {
 
     // Image loading (for displaying images from Firebase Storage)
     implementation(libs.coil3.coil)
+    
+    // Glide for image loading in discover feature
+    implementation("com.github.bumptech.glide:glide:4.16.0")
+    ksp("com.github.bumptech.glide:compiler:4.16.0")
 
     // Add android.security.crypto for secure data storage
     implementation(libs.androidx.security.crypto)
@@ -213,6 +217,13 @@ dependencies {
     testImplementation(libs.junit.jupiter.api)
     testRuntimeOnly(libs.junit.jupiter.engine)
     testImplementation(libs.turbine)
+    testImplementation("androidx.arch.core:core-testing:2.2.0")
+    
+    // Add Mockito dependencies for testing
+    testImplementation("org.mockito:mockito-core:5.8.0")
+    testImplementation("org.mockito.kotlin:mockito-kotlin:5.2.1")
+    testImplementation("org.robolectric:robolectric:4.11.1")
+    testImplementation("androidx.test:core:1.5.0")
 
     // Traditional Android View System dependencies (XML + Kotlin)
     implementation(libs.androidx.lifecycle.viewmodel.ktx)
@@ -231,4 +242,10 @@ dependencies {
     implementation(libs.androidx.camera.camera2)
     implementation(libs.androidx.camera.lifecycle)
     implementation(libs.androidx.camera.view)
+
+    // ExoPlayer dependencies for video playback
+    implementation(libs.exoplayer.core)
+    implementation(libs.exoplayer.ui)
+    implementation(libs.exoplayer.hls)
+    implementation(libs.exoplayer.dash)
 }

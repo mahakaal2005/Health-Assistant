@@ -1,0 +1,213 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="@dimen/content_padding_small"
+    app:cardCornerRadius="@dimen/corner_radius_medium"
+    app:cardElevation="@dimen/card_elevation_small"
+    app:cardBackgroundColor="@color/cardBackground"
+    android:clickable="true"
+    android:focusable="true"
+    android:foreground="?android:attr/selectableItemBackground">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="@dimen/content_padding_medium">
+
+        <!-- Video Thumbnail Container -->
+        <FrameLayout
+            android:id="@+id/frameVideoThumbnail"
+            android:layout_width="0dp"
+            android:layout_height="180dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <!-- Video Thumbnail -->
+            <ImageView
+                android:id="@+id/imageVideoThumbnail"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:scaleType="centerCrop"
+                android:background="@drawable/card_light_gray"
+                tools:src="@drawable/ic_heart" />
+
+            <!-- Play Button Overlay -->
+            <ImageView
+                android:id="@+id/imagePlayButton"
+                android:layout_width="56dp"
+                android:layout_height="56dp"
+                android:layout_gravity="center"
+                android:background="@drawable/circle_button_background"
+                android:src="@drawable/ic_play_arrow"
+                android:tint="@color/white"
+                android:padding="16dp"
+                android:elevation="4dp" />
+
+            <!-- Duration Badge -->
+            <TextView
+                android:id="@+id/textVideoDuration"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="bottom|end"
+                android:layout_margin="@dimen/content_padding_small"
+                android:background="@drawable/chip_background"
+                android:paddingHorizontal="@dimen/content_padding_small"
+                android:paddingVertical="4dp"
+                android:textColor="@color/white"
+                android:textSize="@dimen/text_size_caption"
+                android:textStyle="bold"
+                tools:text="5:30" />
+
+            <!-- Offline Download Indicator -->
+            <ImageView
+                android:id="@+id/imageOfflineIndicator"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_gravity="top|end"
+                android:layout_margin="@dimen/content_padding_small"
+                android:src="@drawable/ic_download"
+                android:tint="@color/success"
+                android:visibility="gone"
+                tools:visibility="visible" />
+
+        </FrameLayout>
+
+        <!-- Video Title -->
+        <TextView
+            android:id="@+id/textVideoTitle"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/content_padding_medium"
+            android:textSize="@dimen/text_size_title"
+            android:textStyle="bold"
+            android:textColor="@color/textPrimary"
+            android:maxLines="2"
+            android:ellipsize="end"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/frameVideoThumbnail"
+            tools:text="10-Minute Morning Yoga for Better Health" />
+
+        <!-- Video Description -->
+        <TextView
+            android:id="@+id/textVideoDescription"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/content_padding_small"
+            android:textSize="@dimen/text_size_body"
+            android:textColor="@color/textSecondary"
+            android:maxLines="2"
+            android:ellipsize="end"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/textVideoTitle"
+            tools:text="Start your day with this gentle yoga routine designed to improve flexibility and mental clarity." />
+
+        <!-- Expert Info -->
+        <TextView
+            android:id="@+id/textVideoExpert"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/content_padding_small"
+            android:textSize="@dimen/text_size_caption"
+            android:textColor="@color/textTertiary"
+            app:layout_constraintEnd_toStartOf="@id/textVideoDifficulty"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/textVideoDescription"
+            tools:text="Dr. Maria Rodriguez, Yoga Therapist" />
+
+        <TextView
+            android:id="@+id/textVideoDifficulty"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/content_padding_small"
+            android:textSize="@dimen/text_size_caption"
+            android:textColor="@color/textTertiary"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/textVideoDescription"
+            tools:text="Beginner" />
+
+        <!-- Category and Progress -->
+        <LinearLayout
+            android:id="@+id/layoutVideoInfo"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/content_padding_medium"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/textVideoExpert">
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chipVideoCategory"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="@dimen/text_size_caption"
+                app:chipBackgroundColor="@color/colorChip"
+                app:chipCornerRadius="@dimen/chip_corner_radius"
+                app:chipStrokeWidth="0dp"
+                tools:text="Fitness" />
+
+            <View
+                android:layout_width="0dp"
+                android:layout_height="1dp"
+                android:layout_weight="1" />
+
+            <TextView
+                android:id="@+id/textWatchProgress"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="@dimen/text_size_caption"
+                android:textColor="@color/colorPrimary"
+                android:visibility="gone"
+                tools:text="Watched 30%"
+                tools:visibility="visible" />
+
+        </LinearLayout>
+
+        <!-- Progress Bar (for watch progress) -->
+        <ProgressBar
+            android:id="@+id/progressWatching"
+            style="?android:attr/progressBarStyleHorizontal"
+            android:layout_width="0dp"
+            android:layout_height="4dp"
+            android:layout_marginTop="@dimen/content_padding_small"
+            android:progressTint="@color/colorPrimary"
+            android:progressBackgroundTint="@color/colorProgressBackground"
+            android:visibility="gone"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/layoutVideoInfo"
+            tools:progress="30"
+            tools:visibility="visible" />
+
+        <!-- Action Buttons -->
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/content_padding_medium"
+            android:orientation="horizontal"
+            android:gravity="end"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/progressWatching">
+
+            <ImageButton
+                android:id="@+id/buttonVideoShare"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:background="?android:attr/selectableItemBackgroundBorderless"
+                android:src="@drawable/ic_share"
+                android:tint="@color/textSecondary"
+                android:contentDescription="Share video" />
+
+        </LinearLayout>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</com.google.android.material.card.MaterialCardView>

@@ -53,7 +53,6 @@
     <color name="fab_background_gradient">#FF4285F4</color>
     <color name="fab_note_color">#FF34A853</color>
     <color name="fab_diary_color">#FFEA4335</color>
-    <color name="text_primary">#212121</color>
 
     <!-- Additional colors for the expanding FAB menu -->
     <color name="fab_overlay_color">#80000000</color>
@@ -150,4 +149,45 @@
 
     <!-- Error Color for TextInputLayout -->
     <color name="error_color">@color/colorError</color>
+
+    <!-- Discover Fragment Colors -->
+    <color name="background_primary">@color/colorBackground</color>
+    <color name="surface_primary">@color/colorSurface</color>
+    <color name="surface_secondary">#F8F9FA</color>
+
+    <!-- Search Highlighting Colors -->
+    <color name="search_highlight_background">#FFEB3B</color>
+    <color name="search_highlight_text">#1976D2</color>
+
+    <!-- Category Colors -->
+    <color name="category_nutrition">#4CAF50</color>
+    <color name="category_fitness">#FF5722</color>
+    <color name="category_mental_health">#9C27B0</color>
+    <color name="category_preventive_care">#2196F3</color>
+    <color name="category_chronic_conditions">#FF9800</color>
+    <color name="category_default">#757575</color>
+
+    <!-- Credibility Colors -->
+    <color name="credibility_high">#4CAF50</color>
+    <color name="credibility_medium">#FF9800</color>
+    <color name="credibility_low">#FFC107</color>
+    <color name="credibility_unverified">#9E9E9E</color>
+
+    <!-- Warning Colors for Article Reader -->
+    <color name="warning_background">#FFF3E0</color>
+    <color name="warning_border">#FFB74D</color>
+    <color name="warning_text">#E65100</color>
+
+    <!-- Missing Color Resources for Offline Status Indicator -->
+    <color name="primary_blue">@color/colorPrimary</color>
+    <color name="success_green">@color/success</color>
+    <color name="warning_orange">@color/warning</color>
+    <color name="error_red">@color/error</color>
+    <color name="text_primary">@color/textPrimary</color>
+    <color name="text_secondary">@color/textSecondary</color>
+    <color name="primary">@color/colorPrimary</color>
+    <color name="surface_variant">#F5F5F5</color>
+    <color name="outline_variant">#E0E0E0</color>
+    <color name="primary_container">#E3F2FD</color>
+    <color name="secondary_container">#E0F2F1</color>
 </resources>
