@@ -42,10 +42,16 @@ import com.example.health_assistant.features.journal.workers.ActivityCardSchedul
 import com.example.health_assistant.utils.HealthNotificationManager
 import com.example.health_assistant.utils.ProfilePhotoManager
 import com.example.health_assistant.utils.ChartManager
+import com.example.health_assistant.utils.HealthDataValidator
+import com.example.health_assistant.utils.HealthDataRecovery
+import com.example.health_assistant.utils.HealthDataLogger
+import com.example.health_assistant.utils.HealthDataMonitor
 import com.example.health_assistant.data.models.DailyStepData
 import com.example.health_assistant.data.models.WeeklyStepSummary
 import com.github.mikephil.charting.data.BarEntry
 import com.github.mikephil.charting.data.BarDataSet
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 import androidx.work.WorkManager
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
@@ -57,7 +63,6 @@ import java.util.Date
 import java.util.Locale
 import java.util.Random
 import javax.inject.Inject
-import java.time.LocalDate
 
 /**
  * Premium Home Fragment featuring a modern interface with personalized greeting,
@@ -105,6 +110,9 @@ class HomeFragment : Fragment() {
 
     // View model for health metrics
     private val healthMetricsViewModel: HealthMetricsViewModel by viewModels()
+    
+    // Health data recovery utility
+    private lateinit var healthDataRecovery: HealthDataRecovery
 
     // Key for checking if this is the first time app is launched
     private val PREF_NAME = "HealthAssistantPrefs"
@@ -119,6 +127,9 @@ class HomeFragment : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        
+        // Initialize health data recovery utility
+        healthDataRecovery = HealthDataRecovery(healthRepository)
     }
 
     override fun onCreateView(
@@ -680,21 +691,124 @@ class HomeFragment : Fragment() {
     }
 
     /**
-     * Sets up the steps chart with real data from HealthMetricsViewModel
+     * Enhanced implementation of setupStepsChart to request full 7-day historical data
+     * This method ensures consistent chart display with comprehensive error handling
      */
     private fun setupStepsChart() {
         try {
             Log.d("HomeFragment", "Setting up steps chart...")
             lifecycleScope.launch {
+                // Get the start of the week (Monday)
                 val startOfWeek = getStartOfWeek()
-                val weeklyDataResult = healthRepository.getWeeklyStepData(startOfWeek.toInstant().atZone(java.time.ZoneId.systemDefault()).toLocalDate())
-                if (weeklyDataResult is Result.Success) {
-                    ChartManager.setupChart(binding.stepsBarChart, weeklyDataResult.data, "steps")
-                    updateStepsChartSummary(weeklyDataResult.data) // FIXED: Add weekly goal progress update
+                val startLocalDate = startOfWeek.toInstant().atZone(java.time.ZoneId.systemDefault()).toLocalDate()
+                
+                try {
+                    // Get current user ID
+                    val userId = sessionManager.getCurrentUserId()
+                    
+                    if (userId == null) {
+                        Log.w("HomeFragment", "No user logged in, using fallback data")
+                        
+                        // Create a fallback dataset with zero values
+                        val fallbackData = createFallbackDataset(startLocalDate)
+                        
+                        // Setup the chart with the fallback dataset
+                        ChartManager.setupChart(binding.stepsBarChart, fallbackData, "steps")
+                        updateStepsChartSummary(fallbackData)
+                        return@launch
+                    }
+                    
+                    // Try to get weekly step data with error recovery
+                    val weeklyData = try {
+                        val result = healthRepository.getWeeklyStepData(startLocalDate)
+                        
+                        when (result) {
+                            is Result.Success -> result.data
+                            else -> {
+                                Log.w("HomeFragment", "Failed to get weekly step data, attempting recovery")
+                                healthDataRecovery.recoverWeeklyStepData(userId, startLocalDate)
+                            }
+                        }
+                    } catch (e: Exception) {
+                        Log.e("HomeFragment", "Exception getting weekly step data", e)
+                        healthDataRecovery.recoverWeeklyStepData(userId, startLocalDate)
+                    }
+                    
+                    // Validate the data
+                    val validatedData = HealthDataValidator.ensureComplete7DayDataset(startLocalDate, weeklyData)
+                    
+                    // Log chart data generation
+                    val hasGaps = validatedData.any { it.steps == 0 }
+                    HealthDataLogger.logChartDataGeneration("STEPS", userId, validatedData.size, hasGaps)
+                    
+                    // Setup the chart with the validated dataset
+                    ChartManager.setupChart(binding.stepsBarChart, validatedData, "steps")
+                    updateStepsChartSummary(validatedData)
+                    
+                    // Log success
+                    Log.d("HomeFragment", "Successfully set up steps chart with ${validatedData.size} days of data")
+                } catch (e: Exception) {
+                    Log.e("HomeFragment", "Error setting up steps chart", e)
+                    
+                    // Create a fallback dataset with zero values
+                    val fallbackData = createFallbackDataset(startLocalDate)
+                    
+                    // Setup the chart with the fallback dataset
+                    ChartManager.setupChart(binding.stepsBarChart, fallbackData, "steps")
+                    updateStepsChartSummary(fallbackData)
                 }
             }
         } catch (e: Exception) {
             Log.e("HomeFragment", "Error setting up steps chart", e)
+        }
+    }
+    
+    /**
+     * Create a complete 7-day dataset with zero values for missing days
+     */
+    private fun createComplete7DayDataset(startDate: LocalDate, partialData: List<DailyStepData>): List<DailyStepData> {
+        val completeData = mutableListOf<DailyStepData>()
+        
+        // Create a map of existing data by date string
+        val dataByDate = partialData.associateBy { it.date.format(DateTimeFormatter.ISO_LOCAL_DATE) }
+        
+        // Create data for all 7 days
+        for (dayOffset in 0..6) {
+            val date = startDate.plusDays(dayOffset.toLong())
+            val dateString = date.format(DateTimeFormatter.ISO_LOCAL_DATE)
+            
+            // Use existing data if available, otherwise create zero-value data
+            val dailyData = dataByDate[dateString] ?: DailyStepData(
+                date = date,
+                steps = 0,
+                goal = 9000,
+                calories = 0,
+                caloriesGoal = 300,
+                heartPoints = 0,
+                heartPointsGoal = 50
+            )
+            
+            completeData.add(dailyData)
+        }
+        
+        return completeData
+    }
+    
+    /**
+     * Create a fallback dataset with zero values
+     */
+    private fun createFallbackDataset(startDate: LocalDate): List<DailyStepData> {
+        return (0..6).map { dayOffset ->
+            val date = startDate.plusDays(dayOffset.toLong())
+            DailyStepData(
+                date = date,
+                steps = 0,
+                goal = 9000,
+                calories = 0,
+                caloriesGoal = 300,
+                heartPoints = 0,
+                heartPointsGoal = 50
+            )
         }
     }
 
@@ -715,14 +829,47 @@ class HomeFragment : Fragment() {
     /**
      * Sets up the calories chart.
      */
+    /**
+     * Enhanced implementation of setupCaloriesChart to ensure consistent chart display
+     * This method uses the same approach as setupStepsChart
+     */
     private fun setupCaloriesChart() {
         try {
             Log.d("HomeFragment", "Setting up calories chart...")
             lifecycleScope.launch {
+                // Get the start of the week (Monday)
                 val startOfWeek = getStartOfWeek()
-                val weeklyCaloriesData = healthRepository.getWeeklyCaloriesData(startOfWeek)
-                ChartManager.setupChart(binding.caloriesChart, weeklyCaloriesData, "calories")
-                updateCaloriesChartSummary(weeklyCaloriesData)
+                val startLocalDate = startOfWeek.toInstant().atZone(java.time.ZoneId.systemDefault()).toLocalDate()
+                
+                try {
+                    // Get weekly calories data
+                    val weeklyCaloriesData = healthRepository.getWeeklyCaloriesData(startOfWeek)
+                    
+                    // Validate that we have exactly 7 days of data
+                    if (weeklyCaloriesData.size != 7) {
+                        Log.w("HomeFragment", "Expected 7 days of calories data but got ${weeklyCaloriesData.size} days")
+                        
+                        // Create a complete 7-day dataset with zero values for missing days
+                        val completeWeeklyData = createComplete7DayDataset(startLocalDate, weeklyCaloriesData)
+                        
+                        // Setup the chart with the complete dataset
+                        ChartManager.setupChart(binding.caloriesChart, completeWeeklyData, "calories")
+                        updateCaloriesChartSummary(completeWeeklyData)
+                    } else {
+                        // We have exactly 7 days of data, setup the chart
+                        ChartManager.setupChart(binding.caloriesChart, weeklyCaloriesData, "calories")
+                        updateCaloriesChartSummary(weeklyCaloriesData)
+                    }
+                } catch (e: Exception) {
+                    Log.e("HomeFragment", "Error getting weekly calories data", e)
+                    
+                    // Create a fallback dataset with zero values
+                    val fallbackData = createFallbackDataset(startLocalDate)
+                    
+                    // Setup the chart with the fallback dataset
+                    ChartManager.setupChart(binding.caloriesChart, fallbackData, "calories")
+                    updateCaloriesChartSummary(fallbackData)
+                }
             }
         } catch (e: Exception) {
             Log.e("HomeFragment", "Error setting up calories chart", e)
@@ -745,36 +892,64 @@ class HomeFragment : Fragment() {
     /**
      * Sets up the heart points chart with proper data handling
      */
+    /**
+     * Enhanced implementation of setupHeartPointsChart to ensure consistent chart display
+     * This method uses the same approach as setupStepsChart
+     */
     private fun setupHeartPointsChart() {
         try {
             Log.d("HomeFragment", "Setting up heart points chart...")
             lifecycleScope.launch {
+                // Get the start of the week (Monday)
                 val startOfWeek = getStartOfWeek()
-
-                // FIXED: Get heart points data and handle empty case
-                val weeklyHeartPointsData = healthRepository.getWeeklyHeartPointsData(startOfWeek)
-
-                Log.d("HomeFragment", "Heart points weekly data size: ${weeklyHeartPointsData.size}")
-                weeklyHeartPointsData.forEach { data ->
-                    Log.d("HomeFragment", "Heart points data: ${data.date} = ${data.heartPoints} points")
-                }
-
-                if (weeklyHeartPointsData.isEmpty()) {
-                    Log.w("HomeFragment", "No heart points data found, using sample data")
-                    val sampleData = generateSampleHeartPointsData()
-                    ChartManager.setupChart(binding.heartPointsChart, sampleData, "heartPoints")
-                    updateHeartPointsChartSummary(sampleData)
-                } else {
-                    ChartManager.setupChart(binding.heartPointsChart, weeklyHeartPointsData, "heartPoints")
-                    updateHeartPointsChartSummary(weeklyHeartPointsData)
+                val startLocalDate = startOfWeek.toInstant().atZone(java.time.ZoneId.systemDefault()).toLocalDate()
+                
+                try {
+                    // Get weekly heart points data
+                    val weeklyHeartPointsData = healthRepository.getWeeklyHeartPointsData(startOfWeek)
+                    
+                    Log.d("HomeFragment", "Heart points weekly data size: ${weeklyHeartPointsData.size}")
+                    
+                    // Validate that we have exactly 7 days of data
+                    if (weeklyHeartPointsData.size != 7) {
+                        Log.w("HomeFragment", "Expected 7 days of heart points data but got ${weeklyHeartPointsData.size} days")
+                        
+                        // Create a complete 7-day dataset with zero values for missing days
+                        val completeWeeklyData = createComplete7DayDataset(startLocalDate, weeklyHeartPointsData)
+                        
+                        // Setup the chart with the complete dataset
+                        ChartManager.setupChart(binding.heartPointsChart, completeWeeklyData, "heartPoints")
+                        updateHeartPointsChartSummary(completeWeeklyData)
+                    } else {
+                        // We have exactly 7 days of data, setup the chart
+                        ChartManager.setupChart(binding.heartPointsChart, weeklyHeartPointsData, "heartPoints")
+                        updateHeartPointsChartSummary(weeklyHeartPointsData)
+                    }
+                    
+                    // Log the data for debugging
+                    weeklyHeartPointsData.forEach { data ->
+                        Log.d("HomeFragment", "Heart points data: ${data.date} = ${data.heartPoints} points")
+                    }
+                } catch (e: Exception) {
+                    Log.e("HomeFragment", "Error getting weekly heart points data", e)
+                    
+                    // Create a fallback dataset with zero values
+                    val fallbackData = createFallbackDataset(startLocalDate)
+                    
+                    // Setup the chart with the fallback dataset
+                    ChartManager.setupChart(binding.heartPointsChart, fallbackData, "heartPoints")
+                    updateHeartPointsChartSummary(fallbackData)
                 }
             }
         } catch (e: Exception) {
             Log.e("HomeFragment", "Error setting up heart points chart", e)
-            // Fallback to sample data if there's an error
-            val sampleData = generateSampleHeartPointsData()
-            ChartManager.setupChart(binding.heartPointsChart, sampleData, "heartPoints")
-            updateHeartPointsChartSummary(sampleData)
+            
+            // Create a fallback dataset with zero values
+            val fallbackData = generateSampleHeartPointsData()
+            
+            // Setup the chart with the fallback dataset
+            ChartManager.setupChart(binding.heartPointsChart, fallbackData, "heartPoints")
+            updateHeartPointsChartSummary(fallbackData)
         }
     }
 
@@ -1255,14 +1430,40 @@ class HomeFragment : Fragment() {
     }
 
     /**
-     * NEW: Trigger daily data maintenance for weekly health management
+     * Enhanced implementation of triggerDailyDataMaintenance to ensure proper data backup before day transition
+     * This method performs daily data maintenance and backs up current day data
      */
     private fun triggerDailyDataMaintenance() {
         lifecycleScope.launch {
             try {
-                val userId = sessionManager.getCurrentUserEmail() ?: "default_user"
+                val userId = sessionManager.getCurrentUserId() ?: return@launch
+                
+                // Get today's date
+                val today = LocalDate.now()
+                val todayStr = today.format(DateTimeFormatter.ISO_LOCAL_DATE)
+                
+                // STEP 1: Backup current day's data
+                Log.d("HomeFragment", "Backing up current day data for user $userId")
+                val todayResult = healthRepository.getTodayMetrics()
+                
+                if (todayResult is Result.Success && todayResult.data != null) {
+                    // Save today's metrics with explicit date
+                    healthRepository.saveHealthMetrics(todayStr, todayResult.data)
+                    Log.d("HomeFragment", "Backed up today's metrics: ${todayResult.data.steps.current} steps")
+                }
+                
+                // STEP 2: Perform daily data maintenance
                 healthRepository.performDailyDataMaintenance(userId)
                 Log.d("HomeFragment", "Daily data maintenance completed")
+                
+                // STEP 3: Refresh charts to show updated data
+                setupCharts()
+                Log.d("HomeFragment", "Charts refreshed with updated data")
+                
+                // STEP 4: Generate periodic health report (every 10th maintenance cycle)
+                if (System.currentTimeMillis() % 10 == 0L) {
+                    HealthDataMonitor.logHealthReport()
+                }
             } catch (e: Exception) {
                 Log.e("HomeFragment", "Error in daily data maintenance", e)
             }

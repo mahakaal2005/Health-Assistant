@@ -1,0 +1,82 @@
+    /**
+     * Enhanced implementation of saveDailyStepData to ensure proper persistence
+     * This method includes data validation and atomic updates
+     */
+    override suspend fun saveDailyStepData(stepData: DailyStepData): Result<Unit> {
+        return try {
+            val userId = getCurrentUserId()
+            if (userId.isEmpty()) {
+                Log.w(TAG, "No user logged in, skipping daily step data save")
+                return Result.Error(Exception("No user logged in"), "No user logged in")
+            }
+            
+            // Validate the step data
+            if (!validateStepData(stepData)) {
+                return Result.Error(Exception("Invalid step data"), "Invalid step data")
+            }
+            
+            val dateString = stepData.date.format(DateTimeFormatter.ISO_LOCAL_DATE)
+            
+            // Get user's step data map or create new one
+            val userStepDataMap = _dailyStepDataMap.value[userId] ?: emptyMap()
+            val updatedUserMap = userStepDataMap.toMutableMap()
+            
+            // Store the step data
+            updatedUserMap[dateString] = stepData
+            
+            // Maintain a rolling 7-day window
+            maintainRollingSevenDayWindow(updatedUserMap, LocalDate.now())
+            
+            // Update the global map with the user's updated map (atomic update)
+            val globalMap = _dailyStepDataMap.value.toMutableMap()
+            globalMap[userId] = updatedUserMap
+            _dailyStepDataMap.value = globalMap
+            
+            // If this is today's data, also update the previous day cache for tomorrow
+            if (stepData.date.isEqual(LocalDate.now())) {
+                val updatedPreviousDayCache = _previousDayDataCache.value.toMutableMap()
+                updatedPreviousDayCache[userId] = stepData
+                _previousDayDataCache.value = updatedPreviousDayCache
+            }
+            
+            Log.d(TAG, "Saved daily step data for user $userId: ${stepData.steps} steps for ${stepData.date}")
+            Result.Success(Unit)
+        } catch (e: Exception) {
+            Log.e(TAG, "Error saving daily step data", e)
+            Result.Error(e, "Failed to save daily step data")
+        }
+    }
+    
+    /**
+     * Validate step data to ensure data integrity
+     */
+    private fun validateStepData(stepData: DailyStepData): Boolean {
+        // Ensure steps is not negative
+        if (stepData.steps < 0) {
+            Log.w(TAG, "Invalid step data: negative steps value ${stepData.steps}")
+            return false
+        }
+        
+        // Ensure calories is not negative
+        if (stepData.calories < 0) {
+            Log.w(TAG, "Invalid step data: negative calories value ${stepData.calories}")
+            return false
+        }
+        
+        // Ensure heart points is not negative
+        if (stepData.heartPoints < 0) {
+            Log.w(TAG, "Invalid step data: negative heart points value ${stepData.heartPoints}")
+            return false
+        }
+        
+        // Ensure date is not in the future
+        if (stepData.date.isAfter(LocalDate.now())) {
+            // Future dates are allowed but should have zero values
+            if (stepData.steps > 0 || stepData.calories > 0 || stepData.heartPoints > 0) {
+                Log.w(TAG, "Invalid step data: future date ${stepData.date} with non-zero values")
+                return false
+            }
+        }
+        
+        return true
+    }
