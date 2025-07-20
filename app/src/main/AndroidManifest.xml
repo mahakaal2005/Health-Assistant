@@ -85,8 +85,8 @@
             android:exported="true"
             android:theme="@style/Theme.HealthAssistant">
             
-            <!-- Deep link support for Discover content -->
-            <intent-filter android:autoVerify="true">
+            <!-- Deep link support for Discover content (custom scheme) -->
+            <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />

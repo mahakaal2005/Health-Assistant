@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout 
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -7,7 +8,6 @@
     android:background="@color/background_primary"
     tools:context=".features.discover.DiscoverFragment">
 
-    <!-- App Bar Layout with Search -->
     <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/app_bar_layout"
         android:layout_width="match_parent"
@@ -23,83 +23,8 @@
             app:titleTextColor="@color/textPrimary"
             app:menu="@menu/discover_menu" />
 
-        <!-- Search Bar -->
-        <com.google.android.material.search.SearchBar
-            android:id="@+id/search_bar"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginHorizontal="16dp"
-            android:layout_marginBottom="8dp"
-            android:hint="Search health topics..."
-            app:backgroundTint="@color/surface_secondary" />
-
-        <!-- Category Filter Chips -->
-        <HorizontalScrollView
-            android:id="@+id/category_scroll_view"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:scrollbars="none"
-            android:paddingBottom="8dp">
-
-            <com.google.android.material.chip.ChipGroup
-                android:id="@+id/chip_group_categories"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:paddingHorizontal="16dp"
-                app:singleSelection="true"
-                app:selectionRequired="false"
-                app:chipSpacingHorizontal="8dp">
-
-                <com.google.android.material.chip.Chip
-                    android:id="@+id/chip_all"
-                    style="@style/Widget.Material3.Chip.Filter"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="All"
-                    android:checked="true" />
-
-                <com.google.android.material.chip.Chip
-                    android:id="@+id/chip_nutrition"
-                    style="@style/Widget.Material3.Chip.Filter"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Nutrition" />
-
-                <com.google.android.material.chip.Chip
-                    android:id="@+id/chip_fitness"
-                    style="@style/Widget.Material3.Chip.Filter"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Fitness" />
-
-                <com.google.android.material.chip.Chip
-                    android:id="@+id/chip_mental_health"
-                    style="@style/Widget.Material3.Chip.Filter"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Mental Health" />
-
-                <com.google.android.material.chip.Chip
-                    android:id="@+id/chip_preventive_care"
-                    style="@style/Widget.Material3.Chip.Filter"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Preventive Care" />
-
-                <com.google.android.material.chip.Chip
-                    android:id="@+id/chip_chronic_conditions"
-                    style="@style/Widget.Material3.Chip.Filter"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Chronic Conditions" />
-
-            </com.google.android.material.chip.ChipGroup>
-
-        </HorizontalScrollView>
-
     </com.google.android.material.appbar.AppBarLayout>
 
-    <!-- Main Content with Pull-to-Refresh -->
     <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
         android:id="@+id/swipe_refresh_layout"
         android:layout_width="match_parent"
@@ -115,28 +40,204 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical">
+                android:orientation="vertical"
+                android:padding="16dp">
 
-                <!-- Content RecyclerView -->
-                <androidx.recyclerview.widget.RecyclerView
-                    android:id="@+id/recycler_view_content"
+                <!-- Articles Section -->
+                <LinearLayout
+                    android:id="@+id/layout_articles_section"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:nestedScrollingEnabled="false"
-                    android:paddingHorizontal="16dp"
-                    android:paddingTop="8dp"
-                    android:clipToPadding="false"
-                    tools:listitem="@layout/item_discover_article" />
+                    android:orientation="vertical"
+                    android:layout_marginBottom="24dp">
 
-                <!-- Loading State -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:layout_marginBottom="12dp">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="Health Articles"
+                            android:textSize="20sp"
+                            android:textStyle="bold"
+                            android:textColor="@color/textPrimary" />
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/button_see_all_articles"
+                            style="@style/Widget.Material3.Button.TextButton"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="See All"
+                            android:textSize="14sp" />
+
+                    </LinearLayout>
+
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/recycler_view_articles"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:clipToPadding="false"
+                        android:paddingStart="4dp"
+                        android:paddingEnd="4dp"
+                        tools:listitem="@layout/item_discover_article" />
+
+                    <LinearLayout
+                        android:id="@+id/layout_articles_empty"
+                        android:layout_width="match_parent"
+                        android:layout_height="120dp"
+                        android:gravity="center"
+                        android:orientation="vertical"
+                        android:visibility="gone">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="No articles available"
+                            android:textColor="@color/textSecondary"
+                            android:textSize="14sp" />
+
+                    </LinearLayout>
+
+                </LinearLayout>
+
+                <!-- News Section -->
+                <LinearLayout
+                    android:id="@+id/layout_news_section"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:layout_marginBottom="24dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:layout_marginBottom="12dp">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="Health News"
+                            android:textSize="20sp"
+                            android:textStyle="bold"
+                            android:textColor="@color/textPrimary" />
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/button_see_all_news"
+                            style="@style/Widget.Material3.Button.TextButton"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="See All"
+                            android:textSize="14sp" />
+
+                    </LinearLayout>
+
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/recycler_view_news"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:clipToPadding="false"
+                        android:paddingStart="4dp"
+                        android:paddingEnd="4dp"
+                        tools:listitem="@layout/item_discover_news" />
+
+                    <LinearLayout
+                        android:id="@+id/layout_news_empty"
+                        android:layout_width="match_parent"
+                        android:layout_height="120dp"
+                        android:gravity="center"
+                        android:orientation="vertical"
+                        android:visibility="gone">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="No news available"
+                            android:textColor="@color/textSecondary"
+                            android:textSize="14sp" />
+
+                    </LinearLayout>
+
+                </LinearLayout>
+
+                <!-- Videos Section -->
+                <LinearLayout
+                    android:id="@+id/layout_videos_section"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:layout_marginBottom="24dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:layout_marginBottom="12dp">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="Health Videos"
+                            android:textSize="20sp"
+                            android:textStyle="bold"
+                            android:textColor="@color/textPrimary" />
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/button_see_all_videos"
+                            style="@style/Widget.Material3.Button.TextButton"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="See All"
+                            android:textSize="14sp" />
+
+                    </LinearLayout>
+
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/recycler_view_videos"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:clipToPadding="false"
+                        android:paddingStart="4dp"
+                        android:paddingEnd="4dp"
+                        tools:listitem="@layout/item_discover_video" />
+
+                    <LinearLayout
+                        android:id="@+id/layout_videos_empty"
+                        android:layout_width="match_parent"
+                        android:layout_height="120dp"
+                        android:gravity="center"
+                        android:orientation="vertical"
+                        android:visibility="gone">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="No videos available"
+                            android:textColor="@color/textSecondary"
+                            android:textSize="14sp" />
+
+                    </LinearLayout>
+
+                </LinearLayout>
+
                 <LinearLayout
                     android:id="@+id/layout_loading"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="32dp"
+                    android:layout_height="200dp"
                     android:gravity="center"
                     android:orientation="vertical"
-                    android:padding="32dp"
                     android:visibility="gone"
                     tools:visibility="visible">
 
@@ -155,68 +256,18 @@
 
                 </LinearLayout>
 
-                <!-- Empty State -->
-                <LinearLayout
-                    android:id="@+id/layout_empty"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="64dp"
-                    android:gravity="center"
-                    android:orientation="vertical"
-                    android:padding="32dp"
-                    android:visibility="gone"
-                    tools:visibility="gone">
-
-                    <ImageView
-                        android:layout_width="120dp"
-                        android:layout_height="120dp"
-                        android:src="@drawable/ic_browse"
-                        android:alpha="0.6"
-                        app:tint="@color/textSecondary" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="16dp"
-                        android:text="No content available"
-                        android:textColor="@color/textPrimary"
-                        android:textSize="18sp"
-                        android:textStyle="bold" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="8dp"
-                        android:text="Try refreshing or check your connection"
-                        android:textColor="@color/textSecondary"
-                        android:textSize="14sp"
-                        android:gravity="center" />
-
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/button_retry"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="16dp"
-                        android:text="Retry"
-                        style="@style/Widget.Material3.Button.OutlinedButton" />
-
-                </LinearLayout>
-
-                <!-- Error State -->
                 <LinearLayout
                     android:id="@+id/layout_error"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="32dp"
+                    android:layout_height="200dp"
                     android:gravity="center"
                     android:orientation="vertical"
-                    android:padding="32dp"
                     android:visibility="gone"
                     tools:visibility="gone">
 
                     <ImageView
-                        android:layout_width="80dp"
-                        android:layout_height="80dp"
+                        android:layout_width="64dp"
+                        android:layout_height="64dp"
                         android:src="@drawable/ic_emergency"
                         android:alpha="0.6"
                         app:tint="@color/error" />
@@ -247,24 +298,5 @@
         </androidx.core.widget.NestedScrollView>
 
     </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
-
-    <!-- Search View (Full Screen Overlay) -->
-    <com.google.android.material.search.SearchView
-        android:id="@+id/search_view"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:hint="Search health topics..."
-        app:layout_anchor="@id/search_bar">
-
-        <!-- Search Results RecyclerView -->
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/recycler_view_search_results"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:padding="16dp"
-            android:clipToPadding="false"
-            tools:listitem="@layout/item_discover_article" />
-
-    </com.google.android.material.search.SearchView>
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

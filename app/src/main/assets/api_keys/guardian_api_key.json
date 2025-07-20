@@ -1,0 +1,6 @@
+{
+  "_comment": "Replace YOUR_GUARDIAN_API_KEY_HERE with your actual Guardian API key from https://open-platform.theguardian.com/access/",
+  "api-key": "210b23b4-41d1-401e-984c-1a8dcdd092e6",
+  "format": "json",
+  "show-fields": "headline,standfirst,trailText,byline,main,body,thumbnail"
+}

@@ -17,16 +17,7 @@ import com.example.health_assistant.features.journal.data.ActivityCardDao
 import com.example.health_assistant.features.journal.data.JournalEntryDao
 import com.example.health_assistant.features.journal.data.JournalEntryEntity
 import com.example.health_assistant.features.journal.domain.ActivityCard
-import com.example.health_assistant.features.discover.data.entity.HealthArticleEntity
-import com.example.health_assistant.features.discover.data.entity.HealthNewsEntity
-import com.example.health_assistant.features.discover.data.entity.EducationalVideoEntity
-import com.example.health_assistant.features.discover.data.entity.ContentBookmarkEntity
-import com.example.health_assistant.features.discover.data.entity.ContentAnalyticsEntity
-import com.example.health_assistant.features.discover.data.entity.UserEngagementEntity
-import com.example.health_assistant.features.discover.data.entity.ContentRecommendationEntity
-import com.example.health_assistant.features.discover.data.entity.ABTestEntity
-import com.example.health_assistant.features.discover.data.DiscoverDao
-import com.example.health_assistant.features.discover.data.AnalyticsDao
+
 
 /**
  * Main database for the Health Assistant application
@@ -38,17 +29,9 @@ import com.example.health_assistant.features.discover.data.AnalyticsDao
         DiseaseCategoryEntity::class,
         JournalEntryEntity::class,
         ProfileImageEntity::class,
-        ActivityCard::class,
-        HealthArticleEntity::class,
-        HealthNewsEntity::class,
-        EducationalVideoEntity::class,
-        ContentBookmarkEntity::class,
-        ContentAnalyticsEntity::class,
-        UserEngagementEntity::class,
-        ContentRecommendationEntity::class,
-        ABTestEntity::class
+        ActivityCard::class
     ],
-    version = 7, // Increment to include Analytics entities
+    version = 5, // Simplified version without discover entities
     exportSchema = false
 )
 @TypeConverters(Converters::class)
@@ -59,8 +42,6 @@ abstract class HealthAssistantDatabase : RoomDatabase() {
     abstract fun journalEntryDao(): JournalEntryDao
     abstract fun profileImageDao(): ProfileImageDao
     abstract fun activityCardDao(): ActivityCardDao
-    abstract fun discoverDao(): DiscoverDao
-    abstract fun analyticsDao(): AnalyticsDao
 
     companion object {
         const val DATABASE_NAME = "health_assistant_database"

@@ -1,12 +1,10 @@
 package com.example.health_assistant.features.discover.domain.model
 
-import java.io.Serializable
-
 /**
- * Sealed class representing different types of content in the Discover section
- * Provides a unified interface for mixed content display
+ * Simple sealed class for API compatibility
+ * Used by HealthContentRemoteDataSource
  */
-sealed class DiscoverContent : Serializable {
+sealed class DiscoverContent {
     abstract val id: String
     abstract val title: String
     abstract val publishedDate: Long
@@ -14,9 +12,6 @@ sealed class DiscoverContent : Serializable {
     abstract val imageUrl: String?
     abstract val userId: String
 
-    /**
-     * Health article content
-     */
     data class Article(
         override val id: String,
         override val title: String,
@@ -37,9 +32,6 @@ sealed class DiscoverContent : Serializable {
         val credibilityScore: Int
     ) : DiscoverContent()
 
-    /**
-     * Health news content
-     */
     data class News(
         override val id: String,
         override val title: String,
@@ -56,9 +48,6 @@ sealed class DiscoverContent : Serializable {
         val relevanceScore: Int
     ) : DiscoverContent()
 
-    /**
-     * Educational video content
-     */
     data class Video(
         override val id: String,
         override val title: String,
@@ -77,49 +66,4 @@ sealed class DiscoverContent : Serializable {
         val isDownloadedOffline: Boolean,
         val transcriptAvailable: Boolean
     ) : DiscoverContent()
-
-    /**
-     * Get content type as string for identification
-     */
-    fun getContentType(): String = when (this) {
-        is Article -> "article"
-        is News -> "news"
-        is Video -> "video"
-    }
-
-    /**
-     * Get display title for UI
-     */
-    fun getDisplayTitle(): String = when (this) {
-        is Article -> title
-        is News -> title
-        is Video -> title
-    }
-
-    /**
-     * Get content summary for preview
-     */
-    fun getContentSummary(): String = when (this) {
-        is Article -> summary
-        is News -> summary
-        is Video -> description
-    }
-
-    /**
-     * Check if content is bookmarked
-     */
-    fun getBookmarkStatus(): Boolean = when (this) {
-        is Article -> isBookmarked
-        is News -> false // News items don't have bookmark status in entity
-        is Video -> false // Videos don't have bookmark status in entity
-    }
-
-    /**
-     * Get reading/watching progress
-     */
-    fun getProgress(): Float = when (this) {
-        is Article -> readProgress
-        is News -> 0f // News items don't track progress
-        is Video -> watchProgress
-    }
 }
