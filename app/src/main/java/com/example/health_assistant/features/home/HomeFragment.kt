@@ -1350,6 +1350,30 @@ class HomeFragment : Fragment() {
         ).show()
     }
 
+    /**
+     * Test method to verify notification system works
+     * Can be called from debug menu or during development
+     */
+    private fun testNotificationSystem() {
+        try {
+            Log.d("HomeFragment", "Testing notification system...")
+            
+            // Test basic notification
+            notificationManager.sendTestNotification()
+            
+            // Test step milestone notification
+            notificationManager.showStepMilestoneNotification(
+                currentSteps = 2500,
+                goalSteps = 10000,
+                milestonePercentage = 0.25f
+            )
+            
+            Log.d("HomeFragment", "Test notifications sent successfully")
+        } catch (e: Exception) {
+            Log.e("HomeFragment", "Error testing notifications", e)
+        }
+    }
+
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null

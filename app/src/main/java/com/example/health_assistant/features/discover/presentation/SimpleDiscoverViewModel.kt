@@ -51,7 +51,8 @@ class SimpleDiscoverViewModel @Inject constructor(
                     _uiState.value = _uiState.value.copy(
                         isLoading = false,
                         sections = result.data,
-                        error = null
+                        error = null,
+                        isFromCache = false
                     )
                 }
                 is Result.Error -> {
@@ -126,6 +127,8 @@ class SimpleDiscoverViewModel @Inject constructor(
         Log.d(TAG, "Retrying content load")
         loadContent()
     }
+
+
 }
 
 /**
@@ -135,7 +138,8 @@ data class DiscoverUiState(
     val isLoading: Boolean = false,
     val sections: DiscoverSections? = null,
     val error: String? = null,
-    val isRefreshing: Boolean = false
+    val isRefreshing: Boolean = false,
+    val isFromCache: Boolean = false
 ) {
     val hasContent: Boolean
         get() = sections != null && (

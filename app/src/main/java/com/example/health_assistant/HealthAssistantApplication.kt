@@ -41,6 +41,9 @@ class HealthAssistantApplication : Application(), Configuration.Provider {
     @Inject
     lateinit var journalEntryDao: JournalEntryDao
 
+    @Inject
+    lateinit var discoverRepository: com.example.health_assistant.features.discover.data.SimpleDiscoverRepositoryImpl
+
     override fun onCreate() {
         super.onCreate()
 
@@ -58,6 +61,9 @@ class HealthAssistantApplication : Application(), Configuration.Provider {
         
         // Setup safe, lightweight duplicate cleanup
         setupSafeDuplicateCleanup()
+
+        // NEW: Start preloading Discover content for smooth UX
+        setupDiscoverPreloading()
     }
 
     override val workManagerConfiguration: Configuration
@@ -198,6 +204,25 @@ class HealthAssistantApplication : Application(), Configuration.Provider {
             } catch (e: Exception) {
                 Log.e("HealthAssistantApp", "Error setting up safe duplicate cleanup", e)
             }
+        }
+    }
+
+    /**
+     * Setup Discover content preloading for smooth UX
+     * Loads content when app starts and retains until termination
+     */
+    private fun setupDiscoverPreloading() {
+        try {
+            Log.d("HealthAssistantApp", "Setting up Discover content preloading...")
+            
+            // Start preloading in background immediately when app launches
+            CoroutineScope(Dispatchers.IO).launch {
+                discoverRepository.preloadContent()
+            }
+            
+            Log.d("HealthAssistantApp", "Discover preloading initiated successfully")
+        } catch (e: Exception) {
+            Log.e("HealthAssistantApp", "Error setting up Discover preloading", e)
         }
     }
 }

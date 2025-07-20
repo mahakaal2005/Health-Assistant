@@ -27,7 +27,19 @@ class SimpleDiscoverRepositoryImpl @Inject constructor(
         private const val TAG = "SimpleDiscoverRepo"
     }
 
+    // Internal cache to avoid circular dependency
+    private var cachedSections: DiscoverSections? = null
+    private var cacheTime: Long = 0L
+    private val cacheValidityDuration = 30 * 60 * 1000L // 30 minutes
+
     override suspend fun getDiscoverContent(): Result<DiscoverSections> {
+        // First check internal cache for instant loading
+        if (isCacheFresh() && cachedSections != null) {
+            Log.d(TAG, "Returning cached discover content")
+            return Result.Success(cachedSections!!)
+        }
+
+        // If no cache available, fetch from APIs
         return try {
             Log.d(TAG, "Fetching discover content from APIs")
             
@@ -46,8 +58,12 @@ class SimpleDiscoverRepositoryImpl @Inject constructor(
                     news = news,
                     videos = videos
                 )
+
+                // Cache the result
+                cachedSections = sections
+                cacheTime = System.currentTimeMillis()
                 
-                Log.d(TAG, "Successfully fetched content: ${articles.size} articles, ${news.size} news, ${videos.size} videos")
+                Log.d(TAG, "Successfully fetched and cached content: ${articles.size} articles, ${news.size} news, ${videos.size} videos")
                 Result.Success(sections)
             }
         } catch (e: Exception) {
@@ -57,8 +73,36 @@ class SimpleDiscoverRepositoryImpl @Inject constructor(
     }
 
     override suspend fun refreshContent(): Result<DiscoverSections> {
-        Log.d(TAG, "Refreshing discover content")
-        return getDiscoverContent()
+        Log.d(TAG, "Refreshing discover content (bypassing cache)")
+        
+        return try {
+            coroutineScope {
+                // Always fetch fresh data when refreshing
+                val articlesDeferred = async { fetchArticles() }
+                val newsDeferred = async { fetchNews() }
+                val videosDeferred = async { fetchVideos() }
+                
+                val articles = articlesDeferred.await()
+                val news = newsDeferred.await()
+                val videos = videosDeferred.await()
+                
+                val sections = DiscoverSections(
+                    articles = articles,
+                    news = news,
+                    videos = videos
+                )
+                
+                // Update cache with fresh data
+                cachedSections = sections
+                cacheTime = System.currentTimeMillis()
+                
+                Log.d(TAG, "Successfully refreshed and cached content: ${articles.size} articles, ${news.size} news, ${videos.size} videos")
+                Result.Success(sections)
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "Failed to refresh discover content", e)
+            Result.Error(e)
+        }
     }
 
     private suspend fun fetchArticles(): List<HealthContent> {
@@ -151,5 +195,24 @@ class SimpleDiscoverRepositoryImpl @Inject constructor(
     private fun formatDate(timestamp: Long): String {
         val formatter = SimpleDateFormat("MMM dd, yyyy", Locale.getDefault())
         return formatter.format(Date(timestamp))
+    }
+
+    /**
+     * Check if cached content is still fresh
+     */
+    private fun isCacheFresh(): Boolean {
+        return (System.currentTimeMillis() - cacheTime) < cacheValidityDuration
+    }
+
+    /**
+     * Preload content for smooth UX (called from Application)
+     */
+    suspend fun preloadContent() {
+        if (!isCacheFresh() || cachedSections == null) {
+            Log.d(TAG, "Preloading discover content...")
+            getDiscoverContent()
+        } else {
+            Log.d(TAG, "Content already cached and fresh, skipping preload")
+        }
     }
 }

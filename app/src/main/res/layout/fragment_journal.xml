@@ -62,9 +62,9 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:paddingStart="24dp"
-            android:paddingTop="24dp"
+            android:paddingTop="12dp"
             android:paddingEnd="24dp"
-            android:paddingBottom="16dp"
+            android:paddingBottom="12dp"
             android:background="@android:color/transparent">
 
             <TextView
@@ -74,13 +74,9 @@
                 android:text="Journal"
                 android:textSize="32sp"
                 android:textStyle="bold"
-                android:textColor="@android:color/white"
-                android:fontFamily="sans-serif-medium"
+                android:textColor="#FFFFFF"
+                android:fontFamily="sans-serif-black"
                 android:elevation="2dp"
-                android:shadowColor="@android:color/black"
-                android:shadowDx="0"
-                android:shadowDy="2"
-                android:shadowRadius="4"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
@@ -89,12 +85,12 @@
                 android:id="@+id/header_subtitle"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
+                android:layout_marginTop="2dp"
                 android:text="Track your health journey"
                 android:textSize="16sp"
-                android:textColor="#E0FFFFFF"
-                android:fontFamily="sans-serif"
-                android:elevation="2dp"
+                android:textColor="#FFFFFF"
+                android:fontFamily="sans-serif-medium"
+                android:elevation="1dp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/header_title" />
@@ -106,10 +102,10 @@
             android:id="@+id/search_filter_container"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
+            android:layout_marginTop="8dp"
             android:layout_marginStart="24dp"
             android:layout_marginEnd="24dp"
-            android:layout_marginBottom="4dp"
+            android:layout_marginBottom="8dp"
             android:orientation="vertical">
 
             <!-- Search Bar -->

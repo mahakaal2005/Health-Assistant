@@ -21,6 +21,7 @@ import androidx.core.content.edit
 import com.example.health_assistant.main.MainActivity
 import com.example.health_assistant.R
 import com.example.health_assistant.data.sensors.DeviceSensorManager
+import com.example.health_assistant.utils.HealthNotificationManager
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -54,6 +55,9 @@ class StepTrackingService : Service(), SensorEventListener {
     @Inject
     lateinit var deviceSensorManager: DeviceSensorManager
 
+    @Inject
+    lateinit var healthNotificationManager: HealthNotificationManager
+
     private lateinit var sensorManager: SensorManager
     private lateinit var notificationManager: NotificationManager
     private lateinit var powerManager: PowerManager
@@ -64,6 +68,11 @@ class StepTrackingService : Service(), SensorEventListener {
     private var isServiceRunning = false
     private var initialStepCount = 0L
     private var currentDate: String = getCurrentDateString()
+
+    // Notification tracking variables
+    private var lastNotifiedSteps = 0
+    private var lastNotificationTime = 0L
+    private val stepGoal = 10000 // Default step goal
 
     private val serviceScope = CoroutineScope(Dispatchers.Default + Job())
     private var midnightCheckJob: Job? = null
@@ -95,6 +104,8 @@ class StepTrackingService : Service(), SensorEventListener {
         createNotificationChannel()
         registerBroadcastReceivers()
         startMidnightCheckJob()
+        
+        Log.d(TAG, "Service initialization complete - notifications will work in background")
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -103,6 +114,10 @@ class StepTrackingService : Service(), SensorEventListener {
         if (!isServiceRunning) {
             startForegroundService()
             startStepTracking()
+            
+            // ADDED: Sync with actual step count on service start
+            syncWithDeviceSensorManager()
+            
             isServiceRunning = true
         }
 
@@ -218,26 +233,32 @@ class StepTrackingService : Service(), SensorEventListener {
 
     /**
      * Handle step counter sensor data
+     * FIXED: Sync with DeviceSensorManager to show correct step count
      */
     private fun handleStepCounterData(totalSteps: Long) {
         checkForDateChange()
 
-        if (initialStepCount == 0L) {
-            initialStepCount = totalSteps - getCurrentDailySteps()
-            saveInitialStepCount(initialStepCount)
-        }
-
-        val dailySteps = (totalSteps - initialStepCount).toInt()
-        updateDailySteps(dailySteps)
+        // Get the actual daily steps from DeviceSensorManager
+        val actualDailySteps = deviceSensorManager.stepCount.value
+        
+        // Update with the actual step count instead of calculating our own
+        updateDailySteps(actualDailySteps)
+        
+        Log.d(TAG, "Synced with DeviceSensorManager: $actualDailySteps steps")
     }
 
     /**
      * Handle step detector sensor data
+     * FIXED: Sync with DeviceSensorManager instead of incrementing our own counter
      */
     private fun handleStepDetectorData() {
         checkForDateChange()
-        val currentSteps = getCurrentDailySteps()
-        updateDailySteps(currentSteps + 1)
+        
+        // Get the actual daily steps from DeviceSensorManager
+        val actualDailySteps = deviceSensorManager.stepCount.value
+        updateDailySteps(actualDailySteps)
+        
+        Log.d(TAG, "Step detected - synced count: $actualDailySteps steps")
     }
 
     /**
@@ -247,6 +268,9 @@ class StepTrackingService : Service(), SensorEventListener {
         val clampedSteps = maxOf(0, steps)
         saveDailySteps(clampedSteps)
         updateNotification(clampedSteps)
+
+        // Check for step milestone notifications
+        checkAndSendStepNotifications(clampedSteps)
 
         Log.d(TAG, "Service updated daily steps: $clampedSteps")
     }
@@ -269,33 +293,52 @@ class StepTrackingService : Service(), SensorEventListener {
     private fun handleMidnightReset() {
         currentDate = getCurrentDateString()
 
-        // Reset daily steps
-        saveDailySteps(0)
-        saveCurrentDate(currentDate)
+        // Reset notification tracking
+        lastNotifiedSteps = 0
+        lastNotificationTime = 0L
 
-        // Reset initial step count
-        initialStepCount = 0L
-        saveInitialStepCount(initialStepCount)
+        // Sync with DeviceSensorManager for accurate step count after midnight
+        syncWithDeviceSensorManager()
 
-        updateNotification(0)
-
-        Log.d(TAG, "Service performed midnight reset")
+        Log.d(TAG, "Service performed midnight reset and synced step count")
     }
 
     /**
-     * Start midnight check job
+     * Start midnight check job and periodic step sync
      */
     private fun startMidnightCheckJob() {
         midnightCheckJob = serviceScope.launch {
             while (isServiceRunning) {
                 try {
                     checkForDateChange()
+                    
+                    // ADDED: Periodic sync with DeviceSensorManager to ensure notification accuracy
+                    syncWithDeviceSensorManager()
+                    
                     delay(MIDNIGHT_CHECK_INTERVAL)
                 } catch (e: Exception) {
                     Log.e(TAG, "Error in midnight check job", e)
                     delay(MIDNIGHT_CHECK_INTERVAL)
                 }
             }
+        }
+    }
+
+    /**
+     * Sync step count with DeviceSensorManager to ensure notification accuracy
+     */
+    private fun syncWithDeviceSensorManager() {
+        try {
+            val actualSteps = deviceSensorManager.stepCount.value
+            val currentNotificationSteps = getCurrentDailySteps()
+            
+            // Only update if there's a significant difference
+            if (kotlin.math.abs(actualSteps - currentNotificationSteps) > 0) {
+                Log.d(TAG, "Syncing notification: $currentNotificationSteps → $actualSteps steps")
+                updateDailySteps(actualSteps)
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "Error syncing with DeviceSensorManager", e)
         }
     }
 
@@ -434,6 +477,13 @@ class StepTrackingService : Service(), SensorEventListener {
         }
     }
 
+    private fun saveNotificationState() {
+        getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE).edit {
+            putInt("last_notified_steps", lastNotifiedSteps)
+            putLong("last_notification_time", lastNotificationTime)
+        }
+    }
+
     private fun getCurrentDailySteps(): Int {
         return getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
             .getInt(KEY_DAILY_STEPS, 0)
@@ -447,11 +497,110 @@ class StepTrackingService : Service(), SensorEventListener {
     private fun loadSavedData() {
         val prefs = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
         currentDate = prefs.getString(KEY_LAST_DATE, getCurrentDateString()) ?: getCurrentDateString()
-        initialStepCount = prefs.getLong(KEY_INITIAL_STEP_COUNT, 0L)
+        
+        // Load notification tracking state
+        lastNotifiedSteps = prefs.getInt("last_notified_steps", 0)
+        lastNotificationTime = prefs.getLong("last_notification_time", 0L)
+        
+        // REMOVED: initialStepCount logic since we sync directly with DeviceSensorManager
+        Log.d(TAG, "Loaded saved data - will sync with DeviceSensorManager for accurate step count")
     }
 
     private fun getCurrentDateString(): String {
         return LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE)
+    }
+
+    /**
+     * Check if step milestone notifications should be sent
+     * This runs in the background service, so notifications work even when app is closed
+     */
+    private fun checkAndSendStepNotifications(currentSteps: Int) {
+        try {
+            // Avoid sending notifications too frequently (minimum 30 minutes apart)
+            val currentTime = System.currentTimeMillis()
+            if (currentTime - lastNotificationTime < 30 * 60 * 1000) {
+                return
+            }
+
+            // Check for step milestones
+            when {
+                currentSteps >= stepGoal && lastNotifiedSteps < stepGoal -> {
+                    // Goal reached notification
+                    healthNotificationManager.showStepMilestoneNotification(
+                        currentSteps = currentSteps,
+                        goalSteps = stepGoal,
+                        milestonePercentage = 1.0f
+                    )
+                    lastNotifiedSteps = currentSteps
+                    lastNotificationTime = currentTime
+                    saveNotificationState()
+                    Log.d(TAG, "Sent goal achievement notification: $currentSteps/$stepGoal")
+                }
+                currentSteps >= (stepGoal * 0.75).toInt() && lastNotifiedSteps < (stepGoal * 0.75).toInt() -> {
+                    // 75% milestone
+                    healthNotificationManager.showStepMilestoneNotification(
+                        currentSteps = currentSteps,
+                        goalSteps = stepGoal,
+                        milestonePercentage = 0.75f
+                    )
+                    lastNotifiedSteps = currentSteps
+                    lastNotificationTime = currentTime
+                    saveNotificationState()
+                    Log.d(TAG, "Sent 75% milestone notification: $currentSteps/$stepGoal")
+                }
+                currentSteps >= (stepGoal * 0.5).toInt() && lastNotifiedSteps < (stepGoal * 0.5).toInt() -> {
+                    // 50% milestone
+                    healthNotificationManager.showStepMilestoneNotification(
+                        currentSteps = currentSteps,
+                        goalSteps = stepGoal,
+                        milestonePercentage = 0.5f
+                    )
+                    lastNotifiedSteps = currentSteps
+                    lastNotificationTime = currentTime
+                    saveNotificationState()
+                    Log.d(TAG, "Sent 50% milestone notification: $currentSteps/$stepGoal")
+                }
+                currentSteps >= (stepGoal * 0.25).toInt() && lastNotifiedSteps < (stepGoal * 0.25).toInt() -> {
+                    // 25% milestone
+                    healthNotificationManager.showStepMilestoneNotification(
+                        currentSteps = currentSteps,
+                        goalSteps = stepGoal,
+                        milestonePercentage = 0.25f
+                    )
+                    lastNotifiedSteps = currentSteps
+                    lastNotificationTime = currentTime
+                    saveNotificationState()
+                    Log.d(TAG, "Sent 25% milestone notification: $currentSteps/$stepGoal")
+                }
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "Error sending step notification", e)
+        }
+    }
+
+    /**
+     * Test method to verify notifications work from the service
+     */
+    fun testNotification() {
+        try {
+            Log.d(TAG, "Testing notification from service...")
+            healthNotificationManager.sendTestNotification()
+        } catch (e: Exception) {
+            Log.e(TAG, "Error testing notification", e)
+        }
+    }
+
+    /**
+     * Force sync with DeviceSensorManager and update notification
+     * Useful for debugging step count issues
+     */
+    fun forceSyncStepCount() {
+        try {
+            Log.d(TAG, "Force syncing step count...")
+            syncWithDeviceSensorManager()
+        } catch (e: Exception) {
+            Log.e(TAG, "Error force syncing step count", e)
+        }
     }
 
     override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {
