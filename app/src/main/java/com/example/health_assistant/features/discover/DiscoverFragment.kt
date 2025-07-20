@@ -11,6 +11,7 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.health_assistant.databinding.FragmentDiscoverBinding
 import com.example.health_assistant.features.discover.presentation.SimpleDiscoverViewModel
@@ -85,17 +86,17 @@ class DiscoverFragment : Fragment() {
     }
 
     private fun setupClickListeners() {
-        // See All buttons - simplified for now
+        // See All buttons - navigate to content list
         binding.buttonSeeAllVideos.setOnClickListener {
-            showMessage("Videos list coming soon!")
+            navigateToContentList("VIDEO")
         }
         
         binding.buttonSeeAllNews.setOnClickListener {
-            showMessage("News list coming soon!")
+            navigateToContentList("NEWS")
         }
         
         binding.buttonSeeAllArticles.setOnClickListener {
-            showMessage("Articles list coming soon!")
+            navigateToContentList("ARTICLE")
         }
 
         // Pull to refresh functionality
@@ -217,6 +218,15 @@ class DiscoverFragment : Fragment() {
             viewModel.onContentClick(content) // Log the interaction
         } catch (e: Exception) {
             showMessage("Unable to open content")
+        }
+    }
+
+    private fun navigateToContentList(contentType: String) {
+        try {
+            val action = DiscoverFragmentDirections.actionDiscoverFragmentToContentListFragment(contentType)
+            findNavController().navigate(action)
+        } catch (e: Exception) {
+            showMessage("Unable to open content list")
         }
     }
 

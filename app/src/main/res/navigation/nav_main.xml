@@ -116,6 +116,15 @@
             app:destination="@id/profileFragment"
             app:popUpTo="@id/homeFragment"
             app:popUpToInclusive="false" />
+
+        <!-- Navigation to content list -->
+        <action
+            android:id="@+id/action_discoverFragment_to_contentListFragment"
+            app:destination="@id/contentListFragment"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right" />
     </fragment>
 
     <fragment
@@ -234,6 +243,16 @@
     </fragment>
 
     <!-- DISCOVER DETAIL FRAGMENTS -->
+    <fragment
+        android:id="@+id/contentListFragment"
+        android:name="com.example.health_assistant.features.discover.presentation.ContentListFragment"
+        android:label="Content List"
+        tools:layout="@layout/fragment_content_list">
+        <argument
+            android:name="contentType"
+            app:argType="string" />
+    </fragment>
+
     <fragment
         android:id="@+id/articleReaderFragment"
         android:name="com.example.health_assistant.features.discover.presentation.ArticleReaderFragment"
