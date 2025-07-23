@@ -14,3 +14,14 @@
 .cxx
 local.properties
 /app/google-services.json
+
+# BMAD related files and directories
+.bmad-core/
+.clinerules/
+.claude/
+.cursor/
+.gemini/
+.roomodes
+kiro.md
+.github/
+.vscode/
