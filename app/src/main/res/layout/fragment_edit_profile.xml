@@ -4,28 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@android:color/transparent">
-
-    <!-- Dynamic Gradient Background -->
-    <FrameLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
-
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:background="@drawable/premium_gradient_background" />
-
-        <!-- Decorative Shape -->
-        <View
-            android:layout_width="250dp"
-            android:layout_height="250dp"
-            android:layout_gravity="top|end"
-            android:layout_marginTop="-100dp"
-            android:layout_marginEnd="-100dp"
-            android:alpha="0.2"
-            android:background="@drawable/decorative_circle_shape" />
-    </FrameLayout>
+    android:background="@color/background_primary">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
@@ -36,11 +15,11 @@
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
-            android:background="@android:color/transparent"
+            android:background="@color/background_primary"
             app:title="Edit Profile"
-            app:titleTextColor="@android:color/white"
+            app:titleTextColor="@color/text_primary_dark"
             app:navigationIcon="@drawable/ic_arrow_back"
-            app:navigationIconTint="@android:color/white"
+            app:navigationIconTint="@color/text_primary_dark"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent">
@@ -53,12 +32,12 @@
                 android:layout_gravity="end"
                 android:layout_marginEnd="16dp"
                 android:text="Save"
-                android:textColor="@android:color/white"
+                android:textColor="@color/health_primary"
                 android:textSize="14sp"
                 android:minWidth="64dp"
                 android:enabled="false"
                 style="@style/Widget.Material3.Button.TextButton"
-                app:strokeColor="@android:color/white"
+                app:strokeColor="@color/health_primary"
                 app:strokeWidth="1dp" />
 
         </com.google.android.material.appbar.MaterialToolbar>
@@ -83,7 +62,7 @@
                 android:layout_gravity="center"
                 android:orientation="vertical"
                 android:gravity="center"
-                android:background="@drawable/glassmorphism_card_background"
+                android:background="@color/background_primary"
                 android:padding="24dp">
 
                 <com.google.android.material.progressindicator.CircularProgressIndicator
@@ -137,7 +116,7 @@
                     <FrameLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:background="@drawable/glassmorphism_card_background">
+                        android:background="@color/background_primary">
 
                         <LinearLayout
                             android:layout_width="match_parent"
@@ -161,7 +140,7 @@
                                     android:focusable="true"
                                     android:foreground="?android:attr/selectableItemBackgroundBorderless"
                                     app:civ_border_width="3dp"
-                                    app:civ_border_color="@color/colorPrimaryGradientStart" />
+                                    app:civ_border_color="@color/health_primary" />
 
                                 <!-- Upload Progress Indicator -->
                                 <com.google.android.material.progressindicator.CircularProgressIndicator
@@ -170,7 +149,7 @@
                                     android:layout_height="match_parent"
                                     android:visibility="gone"
                                     android:indeterminate="true"
-                                    app:indicatorColor="@color/colorPrimaryGradientStart" />
+                                    app:indicatorColor="@color/health_primary" />
 
                                 <!-- Camera Icon Overlay -->
                                 <FrameLayout
@@ -216,7 +195,7 @@
                     <FrameLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:background="@drawable/glassmorphism_card_background">
+                        android:background="@color/background_primary">
 
                         <LinearLayout
                             android:layout_width="match_parent"
@@ -237,7 +216,7 @@
                                     android:layout_height="24dp"
                                     android:src="@drawable/ic_person"
                                     android:contentDescription="Personal information"
-                                    app:tint="@color/colorPrimaryGradientStart" />
+                                    app:tint="@color/health_primary" />
 
                                 <TextView
                                     android:layout_width="0dp"
@@ -292,10 +271,10 @@
                                 android:layout_marginBottom="@dimen/content_padding_medium"
                                 android:hint="Enter your display name"
                                 app:boxBackgroundColor="#10FFFFFF"
-                                app:boxStrokeColor="@color/colorPrimaryGradientStart"
-                                app:hintTextColor="@color/colorPrimaryGradientStart"
+                                app:boxStrokeColor="@color/health_primary"
+                                app:hintTextColor="@color/health_primary"
                                 app:startIconDrawable="@drawable/ic_person"
-                                app:startIconTint="@color/colorPrimaryGradientStart"
+                                app:startIconTint="@color/health_primary"
                                 app:helperText="This is how others will see your name"
                                 app:helperTextTextColor="@color/textSecondary"
                                 app:counterEnabled="true"
@@ -330,10 +309,10 @@
                                 android:layout_marginBottom="@dimen/content_padding_medium"
                                 android:hint="Tell us about yourself"
                                 app:boxBackgroundColor="#10FFFFFF"
-                                app:boxStrokeColor="@color/colorPrimaryGradientStart"
-                                app:hintTextColor="@color/colorPrimaryGradientStart"
+                                app:boxStrokeColor="@color/health_primary"
+                                app:hintTextColor="@color/health_primary"
                                 app:startIconDrawable="@drawable/ic_person"
-                                app:startIconTint="@color/colorPrimaryGradientStart"
+                                app:startIconTint="@color/health_primary"
                                 app:helperText="Share your interests, goals, or motivation"
                                 app:helperTextTextColor="@color/textSecondary"
                                 app:counterEnabled="true"
@@ -370,13 +349,13 @@
                                 android:layout_marginBottom="@dimen/content_padding_medium"
                                 android:hint="Select your birthday"
                                 app:boxBackgroundColor="#10FFFFFF"
-                                app:boxStrokeColor="@color/colorPrimaryGradientStart"
-                                app:hintTextColor="@color/colorPrimaryGradientStart"
+                                app:boxStrokeColor="@color/health_primary"
+                                app:hintTextColor="@color/health_primary"
                                 app:startIconDrawable="@drawable/ic_calendar"
-                                app:startIconTint="@color/colorPrimaryGradientStart"
+                                app:startIconTint="@color/health_primary"
                                 app:endIconMode="custom"
                                 app:endIconDrawable="@drawable/ic_calendar"
-                                app:endIconTint="@color/colorPrimaryGradientStart"
+                                app:endIconTint="@color/health_primary"
                                 app:helperText="Optional - helps personalize your experience">
 
                                 <com.google.android.material.textfield.TextInputEditText
@@ -408,11 +387,11 @@
                                 android:layout_height="wrap_content"
                                 android:hint="Select gender"
                                 app:boxBackgroundColor="#10FFFFFF"
-                                app:boxStrokeColor="@color/colorPrimaryGradientStart"
-                                app:hintTextColor="@color/colorPrimaryGradientStart"
+                                app:boxStrokeColor="@color/health_primary"
+                                app:hintTextColor="@color/health_primary"
                                 app:startIconDrawable="@drawable/ic_person"
-                                app:startIconTint="@color/colorPrimaryGradientStart"
-                                app:endIconTint="@color/colorPrimaryGradientStart"
+                                app:startIconTint="@color/health_primary"
+                                app:endIconTint="@color/health_primary"
                                 app:helperText="Optional - helps customize health recommendations">
 
                                 <AutoCompleteTextView
@@ -443,7 +422,7 @@
                     <FrameLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:background="@drawable/glassmorphism_card_background">
+                        android:background="@color/background_primary">
 
                         <LinearLayout
                             android:layout_width="match_parent"
@@ -464,7 +443,7 @@
                                     android:layout_height="24dp"
                                     android:src="@drawable/ic_health_monitoring"
                                     android:contentDescription="Health information"
-                                    app:tint="@color/colorPrimaryGradientStart" />
+                                    app:tint="@color/health_primary" />
 
                                 <TextView
                                     android:layout_width="0dp"
@@ -508,8 +487,8 @@
                                         android:layout_height="wrap_content"
                                         android:hint="cm"
                                         app:boxBackgroundColor="#10FFFFFF"
-                                        app:boxStrokeColor="@color/colorPrimaryGradientStart"
-                                        app:hintTextColor="@color/colorPrimaryGradientStart"
+                                        app:boxStrokeColor="@color/health_primary"
+                                        app:hintTextColor="@color/health_primary"
                                         app:suffixText="cm"
                                         app:suffixTextColor="@color/textSecondary">
 
@@ -550,8 +529,8 @@
                                         android:layout_height="wrap_content"
                                         android:hint="kg"
                                         app:boxBackgroundColor="#10FFFFFF"
-                                        app:boxStrokeColor="@color/colorPrimaryGradientStart"
-                                        app:hintTextColor="@color/colorPrimaryGradientStart"
+                                        app:boxStrokeColor="@color/health_primary"
+                                        app:hintTextColor="@color/health_primary"
                                         app:suffixText="kg"
                                         app:suffixTextColor="@color/textSecondary">
 

@@ -4,42 +4,10 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@android:color/transparent"
+    android:background="@color/background_primary"
     tools:context=".features.home.HomeFragment">
 
-    <!-- Dynamic Gradient Background with Decorative Elements -->
-    <FrameLayout
-        android:id="@+id/dynamic_background"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
-
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:background="@drawable/premium_gradient_background" />
-
-        <!-- Decorative Shape 1 - Top Right -->
-        <View
-            android:id="@+id/decorative_shape_1"
-            android:layout_width="300dp"
-            android:layout_height="300dp"
-            android:layout_gravity="top|end"
-            android:layout_marginTop="-100dp"
-            android:layout_marginEnd="-100dp"
-            android:alpha="0.3"
-            android:background="@drawable/decorative_circle_shape" />
-
-        <!-- Decorative Shape 2 - Bottom Left -->
-        <View
-            android:id="@+id/decorative_shape_2"
-            android:layout_width="250dp"
-            android:layout_height="250dp"
-            android:layout_gravity="bottom|start"
-            android:layout_marginBottom="-100dp"
-            android:layout_marginStart="-100dp"
-            android:alpha="0.2"
-            android:background="@drawable/decorative_circle_shape" />
-    </FrameLayout>
+    <!-- Clean white background - no decorative elements needed -->
 
     <!-- Main Scrollable Content -->
     <androidx.core.widget.NestedScrollView
@@ -91,7 +59,7 @@
                         android:layout_height="wrap_content"
                         android:text="Good morning, Alex"
                         android:textSize="30sp"
-                        android:textColor="#000000"
+                        android:textColor="@color/text_primary_dark"
                         android:fontFamily="sans-serif-black"
                         android:textStyle="bold"
                         android:gravity="start"
@@ -107,7 +75,7 @@
                         android:layout_marginTop="6dp"
                         android:text="Saturday, July 12"
                         android:textSize="18sp"
-                        android:textColor="#FFFFFF"
+                        android:textColor="@color/text_tertiary_dark"
                         android:fontFamily="sans-serif-medium"
                         android:textStyle="bold"
                         android:gravity="start"
@@ -124,7 +92,7 @@
                     android:focusable="true"
                     android:scaleType="centerCrop"
                     android:src="@android:drawable/ic_menu_myplaces"
-                    app:civ_border_color="#FFFFFF"
+                    app:civ_border_color="@color/colorPrimary"
                     app:civ_border_width="2dp"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
@@ -140,7 +108,7 @@
                 android:layout_marginStart="16dp"
                 android:layout_marginEnd="16dp"
                 android:layout_marginTop="-16dp"
-                app:cardBackgroundColor="@android:color/transparent"
+                app:cardBackgroundColor="@color/surface_health"
                 app:cardCornerRadius="@dimen/corner_radius_large"
                 app:cardElevation="@dimen/card_elevation_small"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -150,7 +118,7 @@
                 <FrameLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:background="@drawable/glassmorphism_card_background">
+                    android:background="@color/surface_health">
 
                     <androidx.constraintlayout.widget.ConstraintLayout
                         android:layout_width="match_parent"
@@ -177,12 +145,14 @@
                             app:layout_constraintTop_toBottomOf="@id/health_summary_title"
                             app:layout_constraintVertical_bias="0.0" />
 
-                        <!-- Health Metrics Legend -->
+                        <!-- Health Metrics Legend - Improved spacing and contrast -->
                         <androidx.constraintlayout.widget.ConstraintLayout
                             android:id="@+id/metrics_container"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
-                            android:layout_marginStart="16dp"
+                            android:layout_marginStart="20dp"
+                            android:background="@drawable/clean_card_background"
+                            android:padding="12dp"
                             app:layout_constraintBottom_toBottomOf="@id/triple_ring_progress"
                             app:layout_constraintEnd_toEndOf="parent"
                             app:layout_constraintStart_toEndOf="@id/triple_ring_progress"
@@ -207,6 +177,7 @@
                                 android:text="Steps"
                                 android:textSize="14sp"
                                 android:textStyle="bold"
+                                android:textColor="#1A1A1A"
                                 app:layout_constraintStart_toEndOf="@id/steps_icon"
                                 app:layout_constraintTop_toTopOf="@id/steps_icon"
                                 app:layout_constraintBottom_toBottomOf="@id/steps_icon" />
@@ -308,7 +279,7 @@
                 android:layout_marginStart="16dp"
                 android:layout_marginEnd="16dp"
                 android:layout_marginTop="16dp"
-                app:cardBackgroundColor="@android:color/transparent"
+                app:cardBackgroundColor="@color/surface_elevated"
                 app:cardCornerRadius="@dimen/corner_radius_large"
                 app:cardElevation="@dimen/card_elevation_small"
                 android:foreground="?attr/selectableItemBackground"
@@ -319,7 +290,7 @@
                 <FrameLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:background="@drawable/glassmorphism_card_background">
+                    android:background="@color/surface_elevated">
 
                     <androidx.constraintlayout.widget.ConstraintLayout
                         android:layout_width="match_parent"
@@ -798,84 +769,6 @@
                 </FrameLayout>
             </androidx.cardview.widget.CardView>
 
-            <!-- Quick Actions Section -->
-            <TextView
-                android:id="@+id/quick_actions_title"
-                style="@style/TextAppearance.HealthAssistant.SectionTitle"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="24dp"
-                android:layout_marginTop="32dp"
-                android:text="Quick Actions"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/heart_points_this_week_card" />
-
-            <!-- Quick Actions as Pill-shaped Floating Action Buttons -->
-            <HorizontalScrollView
-                android:id="@+id/quick_actions_scroll"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:clipToPadding="false"
-                android:overScrollMode="never"
-                android:paddingStart="16dp"
-                android:paddingEnd="16dp"
-                android:scrollbars="none"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/quick_actions_title">
-
-                <LinearLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:padding="4dp">
-
-                    <!-- Health Check Pill Button -->
-                    <Button
-                        android:id="@+id/health_check_button"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginEnd="12dp"
-                        style="@style/Widget.HealthAssistant.Button.Primary"
-                        android:drawableStart="@android:drawable/ic_menu_help"
-                        android:drawableTint="#FFFFFF"
-                        android:text="Health Check" />
-
-                    <!-- Prescriptions Pill Button -->
-                    <Button
-                        android:id="@+id/prescriptions_button"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginEnd="12dp"
-                        style="@style/Widget.HealthAssistant.Button.Primary"
-                        android:drawableStart="@android:drawable/ic_menu_agenda"
-                        android:drawableTint="#FFFFFF"
-                        android:text="Prescriptions" />
-
-                    <!-- AI Assistant Pill Button -->
-                    <Button
-                        android:id="@+id/ai_assistant_button"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginEnd="12dp"
-                        style="@style/Widget.HealthAssistant.Button.Primary"
-                        android:drawableStart="@android:drawable/ic_menu_edit"
-                        android:drawableTint="#FFFFFF"
-                        android:text="AI Assistant" />
-
-                    <!-- Emergency Pill Button -->
-                    <Button
-                        android:id="@+id/emergency_button"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        style="@style/Widget.HealthAssistant.Button.Primary"
-                        android:drawableStart="@android:drawable/ic_menu_call"
-                        android:drawableTint="#FFFFFF"
-                        android:text="Emergency" />
-                </LinearLayout>
-            </HorizontalScrollView>
-
             <!-- Wellness Tips Section -->
             <TextView
                 android:id="@+id/insights_title"
@@ -886,7 +779,7 @@
                 android:layout_marginTop="32dp"
                 android:text="Your Insights"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/quick_actions_scroll" />
+                app:layout_constraintTop_toBottomOf="@+id/heart_points_this_week_card" />
 
             <!-- Wellness Tips Cards with Premium Style -->
             <androidx.recyclerview.widget.RecyclerView

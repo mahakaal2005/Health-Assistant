@@ -91,16 +91,16 @@ class ProfileFragment : Fragment() {
     }
 
     private fun setupUI() {
-        // Set up settings button click listener
-        binding.settingsButton.setOnClickListener {
-            // Navigate to Settings screen
-            findNavController().navigate(R.id.action_profileFragment_to_settingsFragment)
-        }
-
         // Set up edit profile button click listener
         binding.editProfileButton.setOnClickListener {
             // Navigate to Edit Profile screen
             findNavController().navigate(R.id.action_profileFragment_to_editProfileFragment)
+        }
+
+        // Set up prescriptions button click listener
+        binding.prescriptionsButton.setOnClickListener {
+            // Navigate to Prescriptions screen
+            findNavController().navigate(R.id.action_profileFragment_to_prescriptionsFragment)
         }
 
         // Set up logout button click listener
@@ -111,6 +111,8 @@ class ProfileFragment : Fragment() {
         // Note: Camera button has been removed from layout and no longer handled here
         // Profile photo editing is now only available in EditProfileFragment
     }
+
+
 
     /**
      * Shows a confirmation dialog before logging out

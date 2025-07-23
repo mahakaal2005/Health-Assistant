@@ -9,25 +9,39 @@
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
 
-    <!-- App Theme Colors -->
-    <color name="colorPrimary">#1976D2</color>
-    <color name="colorPrimaryVariant">#0D47A1</color>
-    <color name="colorSecondary">#03DAC6</color>
-    <color name="colorSecondaryVariant">#018786</color>
+    <!-- Clean UI Background System with Health Green Tints -->
+    <color name="background_primary">#FFFFFF</color> <!-- Pure white -->
+    <color name="background_secondary">#F1F8E9</color> <!-- Very subtle green tint -->
+    <color name="surface_primary">#FFFFFF</color>
+    <color name="surface_elevated">#FAFAFA</color> <!-- Slight gray for elevation -->
+    <color name="surface_health">#E8F5E8</color> <!-- Subtle green surface for health cards -->
+    
+    <!-- High Contrast Text System -->
+    <color name="text_primary_dark">#1A1A1A</color>
+    <color name="text_secondary_dark">#2C2C2C</color>
+    <color name="text_tertiary_dark">#757575</color>
+    <color name="text_disabled_dark">#BDBDBD</color>
+    
+    <!-- Health-Focused Green Theme Colors -->
+    <color name="colorPrimary">#4CAF50</color> <!-- Material Green 500 - perfect for health -->
+    <color name="colorPrimaryVariant">#388E3C</color> <!-- Darker green -->
+    <color name="colorSecondary">#81C784</color> <!-- Light green accent -->
+    <color name="colorSecondaryVariant">#66BB6A</color> <!-- Medium green -->
     <color name="colorOnPrimary">@color/white</color>
     <color name="colorOnSecondary">#000000</color>
-    <color name="colorSurface">@color/white</color>
-    <color name="colorOnSurface">#000000</color>
-    <color name="colorBackground">#FAFAFA</color>
-    <color name="colorOnBackground">#000000</color>
-    <color name="colorError">#B00020</color>
+    <color name="text_on_green">#FFFFFF</color> <!-- White text on green -->
+    <color name="colorSurface">@color/background_primary</color>
+    <color name="colorOnSurface">@color/text_primary_dark</color>
+    <color name="colorBackground">@color/background_primary</color>
+    <color name="colorOnBackground">@color/text_primary_dark</color>
+    <color name="colorError">#F44336</color>
     <color name="colorOnError">@color/white</color>
 
-    <!-- Text Colors -->
-    <color name="textPrimary">#212121</color>
-    <color name="textSecondary">#757575</color>
+    <!-- Updated Text Colors for Clean UI -->
+    <color name="textPrimary">@color/text_primary_dark</color>
+    <color name="textSecondary">@color/text_tertiary_dark</color>
     <color name="textTertiary">#9E9E9E</color>
-    <color name="textDisabled">#BDBDBD</color>
+    <color name="textDisabled">@color/text_disabled_dark</color>
 
     <!-- Complete Profile Screen Colors -->
     <color name="orange_primary">#FFA726</color>
@@ -41,6 +55,12 @@
     <color name="card_background_alt">#F8F9FA</color>
     <color name="divider">#E0E0E0</color>
 
+    <!-- Health-themed accent colors -->
+    <color name="health_primary">#4CAF50</color> <!-- Main health green -->
+    <color name="health_light">#C8E6C9</color> <!-- Very light green for backgrounds -->
+    <color name="health_accent">#81C784</color> <!-- Accent green for highlights -->
+    <color name="health_dark">#2E7D32</color> <!-- Dark green for emphasis -->
+
     <!-- Semantic Colors -->
     <color name="success">#4CAF50</color>
     <color name="warning">#FF9800</color>
@@ -50,9 +70,9 @@
     <color name="primary_color">@color/colorPrimary</color>
 
     <!-- FAB Colors for Expanding Menu -->
-    <color name="fab_background_gradient">#FF4285F4</color>
-    <color name="fab_note_color">#FF34A853</color>
-    <color name="fab_diary_color">#FFEA4335</color>
+    <color name="fab_background_gradient">@color/health_primary</color>
+    <color name="fab_note_color">@color/health_accent</color>
+    <color name="fab_diary_color">@color/health_dark</color>
 
     <!-- Additional colors for the expanding FAB menu -->
     <color name="fab_overlay_color">#80000000</color>
@@ -150,10 +170,7 @@
     <!-- Error Color for TextInputLayout -->
     <color name="error_color">@color/colorError</color>
 
-    <!-- Discover Fragment Colors -->
-    <color name="background_primary">@color/colorBackground</color>
-    <color name="surface_primary">@color/colorSurface</color>
-    <color name="surface_secondary">#F8F9FA</color>
+    <!-- Note: background_primary and surface_primary already defined above -->
 
     <!-- Search Highlighting Colors -->
     <color name="search_highlight_background">#FFEB3B</color>

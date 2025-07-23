@@ -4,43 +4,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@android:color/transparent"
+    android:background="@color/background_primary"
     tools:context=".features.prescriptions.PrescriptionsFragment">
-
-    <!-- Dynamic Gradient Background with Decorative Elements -->
-    <FrameLayout
-        android:id="@+id/dynamic_background"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
-
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:background="@drawable/premium_gradient_background" />
-
-        <!-- Decorative Shape 1 - Top Right -->
-        <View
-            android:id="@+id/decorative_shape_1"
-            android:layout_width="300dp"
-            android:layout_height="300dp"
-            android:layout_gravity="top|end"
-            android:layout_marginTop="-100dp"
-            android:layout_marginEnd="-100dp"
-            android:alpha="0.3"
-            android:background="@drawable/decorative_circle_shape" />
-
-        <!-- Decorative Shape 2 - Bottom Left -->
-        <View
-            android:id="@+id/decorative_shape_2"
-            android:layout_width="250dp"
-            android:layout_height="250dp"
-            android:layout_gravity="bottom|start"
-            android:layout_marginBottom="-100dp"
-            android:layout_marginStart="-100dp"
-            android:alpha="0.2"
-            android:background="@drawable/decorative_circle_shape" />
-
-    </FrameLayout>
 
     <!-- Main Content -->
     <LinearLayout
@@ -53,11 +18,11 @@
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
-            android:background="@android:color/transparent"
+            android:background="@color/background_primary"
             app:title="Prescriptions"
-            app:titleTextColor="?attr/colorOnPrimary"
+            app:titleTextColor="@color/text_primary_dark"
             app:navigationIcon="@drawable/ic_arrow_back"
-            app:navigationIconTint="?attr/colorOnPrimary" />
+            app:navigationIconTint="@color/text_primary_dark" />
 
         <!-- Search Bar -->
         <com.google.android.material.card.MaterialCardView

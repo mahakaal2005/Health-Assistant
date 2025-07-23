@@ -258,4 +258,44 @@ class JournalViewModel @Inject constructor(
             }
         }
     }
+
+    /**
+     * Generate sample journal entries for testing the UI
+     * This creates various types of entries to populate the journal list
+     */
+    fun generateSampleJournalEntries() {
+        viewModelScope.launch {
+            _isLoading.value = true
+            try {
+                val currentUserId = getCurrentUserId()
+                if (currentUserId.isEmpty()) {
+                    Log.w(TAG, "No user logged in, cannot generate sample entries")
+                    return@launch
+                }
+
+                val currentTime = System.currentTimeMillis()
+                val entries = mutableListOf<JournalEntry>()
+
+                // Add a generic entry from 4 days ago
+                entries.add(JournalEntry.Generic(
+                    id = 0,
+                    timestamp = currentTime - (4 * 24 * 60 * 60 * 1000), // 4 days ago
+                    type = "health_note",
+                    content = "Started taking vitamin D supplements as recommended by doctor",
+                    userId = currentUserId
+                ))
+
+                // Insert all entries
+                entries.forEach { entry ->
+                    journalRepository.insertEntry(entry)
+                }
+                
+                Log.d(TAG, "Generated ${entries.size} sample journal entries for user $currentUserId")
+            } catch (e: Exception) {
+                Log.e(TAG, "Error generating sample journal entries", e)
+            } finally {
+                _isLoading.value = false
+            }
+        }
+    }
 }

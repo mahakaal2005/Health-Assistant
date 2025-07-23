@@ -4,40 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@android:color/transparent">
-
-    <!-- Dynamic Gradient Background with Decorative Elements (matching your app theme) -->
-    <FrameLayout
-        android:id="@+id/dynamic_background"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
-
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:background="@drawable/premium_gradient_background" />
-
-        <!-- Decorative Shape 1 - Top Right -->
-        <View
-            android:layout_width="300dp"
-            android:layout_height="300dp"
-            android:layout_gravity="top|end"
-            android:layout_marginTop="-100dp"
-            android:layout_marginEnd="-100dp"
-            android:alpha="0.3"
-            android:background="@drawable/decorative_circle_shape" />
-
-        <!-- Decorative Shape 2 - Bottom Left -->
-        <View
-            android:layout_width="250dp"
-            android:layout_height="250dp"
-            android:layout_gravity="bottom|start"
-            android:layout_marginBottom="-100dp"
-            android:layout_marginStart="-100dp"
-            android:alpha="0.2"
-            android:background="@drawable/decorative_circle_shape" />
-
-    </FrameLayout>
+    android:background="@color/background_primary">
 
     <!-- Main Content -->
     <LinearLayout
@@ -50,11 +17,11 @@
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
-            android:background="@android:color/transparent"
+            android:background="@color/background_primary"
             app:title="Prescription Details"
-            app:titleTextColor="?attr/colorOnPrimary"
+            app:titleTextColor="@color/text_primary_dark"
             app:navigationIcon="@drawable/ic_arrow_back"
-            app:navigationIconTint="?attr/colorOnPrimary">
+            app:navigationIconTint="@color/text_primary_dark">
 
             <!-- Edit Mode Action Buttons -->
             <LinearLayout
@@ -72,7 +39,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Save"
-                    android:textColor="?attr/colorOnPrimary"
+                    android:textColor="@color/health_primary"
                     android:layout_marginEnd="8dp" />
 
                 <com.google.android.material.button.MaterialButton
@@ -81,7 +48,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Cancel"
-                    android:textColor="?attr/colorOnPrimary" />
+                    android:textColor="@color/text_secondary_dark" />
 
             </LinearLayout>
 
@@ -95,7 +62,7 @@
                 android:background="?android:attr/selectableItemBackgroundBorderless"
                 android:src="@drawable/ic_more_vert"
                 android:contentDescription="More options"
-                app:tint="?attr/colorOnPrimary" />
+                app:tint="@color/text_primary_dark" />
 
         </com.google.android.material.appbar.MaterialToolbar>
 

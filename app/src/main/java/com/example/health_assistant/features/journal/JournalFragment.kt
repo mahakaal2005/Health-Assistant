@@ -333,6 +333,12 @@ class JournalFragment : Fragment() {
             }
         }
 
+        // Debug: Generate sample data on long press (for testing)
+        fabMain.setOnLongClickListener {
+            generateSampleData()
+            true
+        }
+
         // Hide menu when overlay is clicked
         fabOverlay.setOnClickListener {
             closeFabMenu()
@@ -457,5 +463,19 @@ class JournalFragment : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
+    }
+
+    /**
+     * Generate sample data for testing UI (triggered by long press on main FAB)
+     */
+    private fun generateSampleData() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            try {
+                viewModel.generateSampleJournalEntries()
+                showSuccessMessage("Sample journal entries created!")
+            } catch (e: Exception) {
+                showSuccessMessage("Error creating sample data: ${e.message}")
+            }
+        }
     }
 }

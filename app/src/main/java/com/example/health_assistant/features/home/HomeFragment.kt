@@ -181,7 +181,6 @@ class HomeFragment : Fragment() {
                 // Load only essential UI elements immediately for fast transition
                 setupGreetingSection()
                 setupHealthSummary()
-                setupQuickActions()
             },
             nonCriticalViews = {
                 // Defer heavy operations to improve transition speed
@@ -501,9 +500,9 @@ class HomeFragment : Fragment() {
      * Sets up subtle animation effects for background decorative elements
      */
     private fun setupBackgroundEffects() {
-        // Subtle floating animation for decorative shapes
-        animateDecorativeShape(binding.decorativeShape1, 20f, 6000L, 0L)
-        animateDecorativeShape(binding.decorativeShape2, 15f, 7000L, 1000L)
+        // Decorative shapes removed as part of clean UI redesign
+        // Background effects now rely  on clean white background with subtle shadows
+        Log.d("HomeFragment", "Background effects setup - using clean design approach")
     }
 
     /**
@@ -633,34 +632,7 @@ class HomeFragment : Fragment() {
     }
 
 
-    /**
-     * Sets up pill-shaped quick action buttons with animations
-     */
-    private fun setupQuickActions() {
-        // Health Check button
-        binding.healthCheckButton.setOnClickListener {
-            animatePillButton(binding.healthCheckButton)
-            Toast.makeText(context, "Starting Health Check", Toast.LENGTH_SHORT).show()
-        }
 
-        // Prescriptions button
-        binding.prescriptionsButton.setOnClickListener {
-            animatePillButton(binding.prescriptionsButton)
-            findNavController().navigate(R.id.action_homeFragment_to_prescriptionsFragment)
-        }
-
-        // AI Assistant button
-        binding.aiAssistantButton.setOnClickListener {
-            animatePillButton(binding.aiAssistantButton)
-            Toast.makeText(context, "Launching AI Assistant", Toast.LENGTH_SHORT).show()
-        }
-
-        // Emergency button
-        binding.emergencyButton.setOnClickListener {
-            animatePillButton(binding.emergencyButton)
-            Toast.makeText(context, "Emergency Contacts", Toast.LENGTH_SHORT).show()
-        }
-    }
 
     /**
      * Sets up wellness insights recycler view
@@ -1095,8 +1067,7 @@ class HomeFragment : Fragment() {
             .start()
 
         // Animate section titles and lists with staggered timing
-        animateAlpha(binding.quickActionsTitle, 0f, 1f, animDuration, animDelay * 6)
-        animateAlpha(binding.quickActionsScroll, 0f, 1f, animDuration, animDelay * 7)
+        // Quick actions removed as part of clean UI redesign
         animateAlpha(binding.insightsTitle, 0f, 1f, animDuration, animDelay * 8)
         animateAlpha(binding.insightsRecycler, 0f, 1f, animDuration, animDelay * 9)
     }
@@ -1183,23 +1154,7 @@ class HomeFragment : Fragment() {
             .start()
     }
 
-    /**
-     * Animates pill buttons for feedback
-     */
-    private fun animatePillButton(button: View) {
-        button.animate()
-            .scaleX(0.95f)
-            .scaleY(0.95f)
-            .setDuration(100)
-            .withEndAction {
-                button.animate()
-                    .scaleX(1f)
-                    .scaleY(1f)
-                    .setDuration(200)
-                    .start()
-            }
-            .start()
-    }
+
 
     /**
      * Helper for fade animations
