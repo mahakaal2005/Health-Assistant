@@ -97,6 +97,55 @@
         <item name="android:letterSpacing">0.02</item>
     </style>
 
+    <!-- Secondary Button Style -->
+    <style name="Widget.HealthAssistant.Button.Secondary" parent="Widget.Material3.Button.OutlinedButton">
+        <!-- Use health green outline -->
+        <item name="strokeColor">@color/health_primary</item>
+        <item name="strokeWidth">2dp</item>
+        <!-- Padding: 12dp top/bottom, 24dp left/right -->
+        <item name="android:paddingTop">12dp</item>
+        <item name="android:paddingBottom">12dp</item>
+        <item name="android:paddingLeft">24dp</item>
+        <item name="android:paddingRight">24dp</item>
+        <!-- Minimum height: 56dp -->
+        <item name="android:minHeight">56dp</item>
+        <!-- Drawable padding: 10dp -->
+        <item name="android:drawablePadding">10dp</item>
+        <!-- Text size: 16sp -->
+        <item name="android:textSize">16sp</item>
+        <!-- Font: sans-serif-medium, bold, not all caps -->
+        <item name="android:fontFamily">sans-serif-medium</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textAllCaps">false</item>
+        <!-- Text color: health green -->
+        <item name="android:textColor">@color/health_primary</item>
+        <!-- Letter spacing: 0.02 -->
+        <item name="android:letterSpacing">0.02</item>
+    </style>
+
+    <!-- Tertiary Button Style -->
+    <style name="Widget.HealthAssistant.Button.Tertiary" parent="Widget.Material3.Button.TextButton">
+        <!-- Padding: 12dp top/bottom, 24dp left/right -->
+        <item name="android:paddingTop">12dp</item>
+        <item name="android:paddingBottom">12dp</item>
+        <item name="android:paddingLeft">24dp</item>
+        <item name="android:paddingRight">24dp</item>
+        <!-- Minimum height: 56dp -->
+        <item name="android:minHeight">56dp</item>
+        <!-- Drawable padding: 10dp -->
+        <item name="android:drawablePadding">10dp</item>
+        <!-- Text size: 16sp -->
+        <item name="android:textSize">16sp</item>
+        <!-- Font: sans-serif-medium, bold, not all caps -->
+        <item name="android:fontFamily">sans-serif-medium</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textAllCaps">false</item>
+        <!-- Text color: health green -->
+        <item name="android:textColor">@color/health_primary</item>
+        <!-- Letter spacing: 0.02 -->
+        <item name="android:letterSpacing">0.02</item>
+    </style>
+
     <style name="Widget.HealthAssistant.TextInputLayout" parent="Widget.Material3.TextInputLayout.OutlinedBox">
         <item name="boxBackgroundColor">@color/text_input_background</item>
         <item name="boxStrokeColor">@color/text_input_box_stroke</item>
@@ -117,6 +166,8 @@
         <item name="android:textSize">16sp</item>
         <item name="android:fontFamily">sans-serif</item>
     </style>
+
+
 
     <!-- Additional Text Appearance Styles -->
     <style name="TextAppearance.HealthAssistant.Greeting" parent="TextAppearance.Material3.HeadlineMedium">

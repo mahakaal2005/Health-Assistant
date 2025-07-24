@@ -35,20 +35,18 @@
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/saveButton"
-                    style="@style/Widget.Material3.Button.TextButton"
+                    style="@style/Widget.HealthAssistant.Button.Primary"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Save"
-                    android:textColor="@color/health_primary"
-                    android:layout_marginEnd="8dp" />
+                    android:layout_marginEnd="@dimen/ds_margin_xs" />
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/cancelButton"
-                    style="@style/Widget.Material3.Button.TextButton"
+                    style="@style/Widget.HealthAssistant.Button.Tertiary"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Cancel"
-                    android:textColor="@color/text_secondary_dark" />
+                    android:text="Cancel" />
 
             </LinearLayout>
 
@@ -104,13 +102,12 @@
                 </com.example.health_assistant.core.design.components.HealthCardComponent>
 
                 <!-- Doctor Information Card -->
-                <com.google.android.material.card.MaterialCardView
+                <com.example.health_assistant.core.design.components.HealthCardComponent
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginBottom="16dp"
-                    app:cardCornerRadius="12dp"
-                    app:cardElevation="4dp"
-                    app:cardBackgroundColor="@color/cardBackground">
+                    android:layout_marginBottom="@dimen/ds_margin_standard"
+                    app:healthCardType="secondary"
+                    app:healthCardPadding="@dimen/ds_padding_large">
 
                     <LinearLayout
                         android:layout_width="match_parent"
@@ -122,10 +119,9 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="Doctor Information"
-                            android:textSize="16sp"
-                            android:textStyle="bold"
+                            style="@style/TextAppearance.HealthAssistant.SectionTitle"
                             android:textColor="@color/textPrimary"
-                            android:layout_marginBottom="12dp" />
+                            android:layout_marginBottom="@dimen/ds_margin_small" />
 
                         <!-- View Mode: Doctor Name Display -->
                         <LinearLayout
@@ -163,13 +159,12 @@
                             android:orientation="vertical"
                             android:visibility="gone">
 
-                            <com.google.android.material.textfield.TextInputLayout
+                            <com.example.health_assistant.core.design.components.HealthTextInputLayout
                                 android:id="@+id/doctorNameInputLayout"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
-                                android:layout_marginBottom="12dp"
-                                app:boxStrokeColor="@color/colorPrimary"
-                                app:hintTextColor="@color/colorPrimary">
+                                android:layout_marginBottom="@dimen/ds_margin_small"
+                                app:healthInputStyle="primary">
 
                                 <com.google.android.material.textfield.TextInputEditText
                                     android:id="@+id/doctorNameEditText"
@@ -179,16 +174,15 @@
                                     android:inputType="textPersonName"
                                     android:textColor="@color/textPrimary" />
 
-                            </com.google.android.material.textfield.TextInputLayout>
+                            </com.example.health_assistant.core.design.components.HealthTextInputLayout>
 
-                            <com.google.android.material.textfield.TextInputLayout
+                            <com.example.health_assistant.core.design.components.HealthTextInputLayout
                                 android:id="@+id/categoryInputLayout"
                                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
                                 android:hint="Category"
-                                app:boxStrokeColor="@color/colorPrimary"
-                                app:hintTextColor="@color/colorPrimary">
+                                app:healthInputStyle="primary">
 
                                 <AutoCompleteTextView
                                     android:id="@+id/categoryDropdown"
@@ -197,22 +191,21 @@
                                     android:inputType="none"
                                     android:textColor="@color/textPrimary" />
 
-                            </com.google.android.material.textfield.TextInputLayout>
+                            </com.example.health_assistant.core.design.components.HealthTextInputLayout>
 
                         </LinearLayout>
 
                     </LinearLayout>
 
-                </com.google.android.material.card.MaterialCardView>
+                </com.example.health_assistant.core.design.components.HealthCardComponent>
 
                 <!-- Date Information Card -->
-                <com.google.android.material.card.MaterialCardView
+                <com.example.health_assistant.core.design.components.HealthCardComponent
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginBottom="16dp"
-                    app:cardCornerRadius="12dp"
-                    app:cardElevation="4dp"
-                    app:cardBackgroundColor="@color/cardBackground">
+                    android:layout_marginBottom="@dimen/ds_margin_standard"
+                    app:healthCardType="secondary"
+                    app:healthCardPadding="@dimen/ds_padding_large">
 
                     <LinearLayout
                         android:layout_width="match_parent"
@@ -224,10 +217,9 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="Date Information"
-                            android:textSize="16sp"
-                            android:textStyle="bold"
+                            style="@style/TextAppearance.HealthAssistant.SectionTitle"
                             android:textColor="@color/textPrimary"
-                            android:layout_marginBottom="12dp" />
+                            android:layout_marginBottom="@dimen/ds_margin_small" />
 
                         <LinearLayout
                             android:layout_width="match_parent"
@@ -280,17 +272,16 @@
 
                     </LinearLayout>
 
-                </com.google.android.material.card.MaterialCardView>
+                </com.example.health_assistant.core.design.components.HealthCardComponent>
 
                 <!-- Notes Card -->
-                <com.google.android.material.card.MaterialCardView
+                <com.example.health_assistant.core.design.components.HealthCardComponent
                     android:id="@+id/notesCard"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginBottom="24dp"
-                    app:cardCornerRadius="12dp"
-                    app:cardElevation="4dp"
-                    app:cardBackgroundColor="@color/cardBackground">
+                    android:layout_marginBottom="@dimen/ds_margin_xl"
+                    app:healthCardType="secondary"
+                    app:healthCardPadding="@dimen/ds_padding_large">
 
                     <LinearLayout
                         android:layout_width="match_parent"
@@ -302,10 +293,9 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="Notes"
-                            android:textSize="16sp"
-                            android:textStyle="bold"
+                            style="@style/TextAppearance.HealthAssistant.SectionTitle"
                             android:textColor="@color/textPrimary"
-                            android:layout_marginBottom="12dp" />
+                            android:layout_marginBottom="@dimen/ds_margin_small" />
 
                         <!-- View Mode: Notes Display -->
                         <TextView
@@ -319,13 +309,12 @@
                             tools:text="Take with food, monitor blood pressure regularly" />
 
                         <!-- Edit Mode: Notes Input -->
-                        <com.google.android.material.textfield.TextInputLayout
+                        <com.example.health_assistant.core.design.components.HealthTextInputLayout
                             android:id="@+id/notesInputLayout"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:visibility="gone"
-                            app:boxStrokeColor="@color/colorPrimary"
-                            app:hintTextColor="@color/colorPrimary">
+                            app:healthInputStyle="primary">
 
                             <com.google.android.material.textfield.TextInputEditText
                                 android:id="@+id/notesEditText"
@@ -338,11 +327,11 @@
                                 android:textColor="@color/textPrimary"
                                 android:gravity="top" />
 
-                        </com.google.android.material.textfield.TextInputLayout>
+                        </com.example.health_assistant.core.design.components.HealthTextInputLayout>
 
                     </LinearLayout>
 
-                </com.google.android.material.card.MaterialCardView>
+                </com.example.health_assistant.core.design.components.HealthCardComponent>
 
             </LinearLayout>
 

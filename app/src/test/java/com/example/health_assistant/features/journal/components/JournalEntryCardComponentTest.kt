@@ -88,6 +88,7 @@ class JournalEntryCardComponentTest {
             id = 4L,
             timestamp = System.currentTimeMillis(),
             activityType = "Running",
+            duration = 30,
             summary = "30 minute run in the park"
         )
 

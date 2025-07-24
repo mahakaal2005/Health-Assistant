@@ -65,24 +65,24 @@
             android:contentDescription="@string/prescription_photo_preview_description" />
 
         <!-- Retake Photo Button -->
-        <Button
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/retakePhotoButton"
-            style="@style/Widget.Material3.Button.TextButton"
+            style="@style/Widget.HealthAssistant.Button.Secondary"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:text="@string/prescription_retake_photo"
             android:visibility="gone"
-            android:layout_marginBottom="16dp" />
+            android:layout_marginBottom="@dimen/ds_margin_standard" />
 
         <!-- Doctor Name Input -->
-        <com.google.android.material.textfield.TextInputLayout
+        <com.example.health_assistant.core.design.components.HealthTextInputLayout
             android:id="@+id/doctorNameInputLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="@string/prescription_doctor_name_hint"
-            android:layout_marginBottom="16dp"
-            style="@style/Widget.Material3.TextInputLayout.OutlinedBox">
+            android:layout_marginBottom="@dimen/ds_margin_standard"
+            app:healthInputStyle="primary">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/doctorNameEditText"
@@ -91,16 +91,17 @@
                 android:inputType="textPersonName|textCapWords"
                 android:imeOptions="actionNext" />
 
-        </com.google.android.material.textfield.TextInputLayout>
+        </com.example.health_assistant.core.design.components.HealthTextInputLayout>
 
         <!-- Disease Category Dropdown -->
-        <com.google.android.material.textfield.TextInputLayout
+        <com.example.health_assistant.core.design.components.HealthTextInputLayout
             android:id="@+id/categoryInputLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="@string/prescription_disease_category_hint"
-            android:layout_marginBottom="16dp"
-            style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu">
+            android:layout_marginBottom="@dimen/ds_margin_standard"
+            style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+            app:healthInputStyle="primary">
 
             <AutoCompleteTextView
                 android:id="@+id/diseaseCategoryDropdown"
@@ -108,16 +109,16 @@
                 android:layout_height="wrap_content"
                 android:inputType="none" />
 
-        </com.google.android.material.textfield.TextInputLayout>
+        </com.example.health_assistant.core.design.components.HealthTextInputLayout>
 
         <!-- Notes Input -->
-        <com.google.android.material.textfield.TextInputLayout
+        <com.example.health_assistant.core.design.components.HealthTextInputLayout
             android:id="@+id/notesInputLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="@string/prescription_notes_hint"
-            android:layout_marginBottom="32dp"
-            style="@style/Widget.Material3.TextInputLayout.OutlinedBox">
+            android:layout_marginBottom="@dimen/ds_margin_xl"
+            app:healthInputStyle="primary">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/notesEditText"
@@ -130,7 +131,7 @@
                 android:imeOptions="actionDone"
                 android:scrollbars="vertical" />
 
-        </com.google.android.material.textfield.TextInputLayout>
+        </com.example.health_assistant.core.design.components.HealthTextInputLayout>
 
         <!-- Action Buttons -->
         <LinearLayout
@@ -138,18 +139,19 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:gravity="end"
-            android:layout_marginTop="16dp">
+            android:layout_marginTop="@dimen/ds_margin_standard">
 
-            <Button
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/cancelButton"
-                style="@style/Widget.Material3.Button.TextButton"
+                style="@style/Widget.HealthAssistant.Button.Tertiary"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/prescription_action_cancel"
-                android:layout_marginEnd="8dp" />
+                android:layout_marginEnd="@dimen/ds_margin_xs" />
 
-            <Button
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/saveButton"
+                style="@style/Widget.HealthAssistant.Button.Primary"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/prescription_action_save"

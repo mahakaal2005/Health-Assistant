@@ -101,38 +101,42 @@
         app:layout_constraintEnd_toEndOf="parent">
 
         <!-- Gallery button -->
-        <ImageButton
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/btnGallery"
+            style="@style/Widget.HealthAssistant.Button.Secondary"
             android:layout_width="56dp"
             android:layout_height="56dp"
-            android:background="@drawable/camera_secondary_button_background"
-            android:src="@drawable/ic_photo_library_24"
+            android:backgroundTint="@color/ds_surface_secondary"
+            app:icon="@drawable/ic_photo_library_24"
+            app:iconTint="@android:color/white"
             android:contentDescription="@string/open_gallery"
-            android:layout_marginEnd="32dp"
-            app:tint="@android:color/white" />
+            android:layout_marginEnd="@dimen/ds_margin_large"
+            app:cornerRadius="28dp" />
 
         <!-- Capture button -->
         <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/btnCapture"
             android:layout_width="80dp"
             android:layout_height="80dp"
-            android:backgroundTint="@android:color/white"
+            android:backgroundTint="@color/health_primary"
             android:src="@drawable/ic_camera_24"
             android:contentDescription="@string/capture_photo"
-            app:tint="@color/colorPrimary"
+            app:tint="@android:color/white"
             app:fabSize="normal"
             app:elevation="8dp" />
 
         <!-- Switch camera button -->
-        <ImageButton
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/btnSwitchCamera"
+            style="@style/Widget.HealthAssistant.Button.Secondary"
             android:layout_width="56dp"
             android:layout_height="56dp"
-            android:background="@drawable/camera_secondary_button_background"
-            android:src="@drawable/ic_camera_front_24"
+            android:backgroundTint="@color/ds_surface_secondary"
+            app:icon="@drawable/ic_camera_front_24"
+            app:iconTint="@android:color/white"
             android:contentDescription="@string/switch_camera"
-            android:layout_marginStart="32dp"
-            app:tint="@android:color/white" />
+            android:layout_marginStart="@dimen/ds_margin_large"
+            app:cornerRadius="28dp" />
 
     </LinearLayout>
 

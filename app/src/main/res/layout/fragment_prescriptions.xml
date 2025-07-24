@@ -25,12 +25,12 @@
             app:navigationIconTint="@color/text_primary_dark" />
 
         <!-- Search Bar -->
-        <com.google.android.material.card.MaterialCardView
+        <com.example.health_assistant.core.design.components.HealthCardComponent
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_margin="16dp"
-            app:cardCornerRadius="8dp"
-            app:cardElevation="2dp">
+            android:layout_margin="@dimen/ds_margin_standard"
+            app:healthCardType="secondary"
+            app:healthCardPadding="@dimen/ds_padding_xs">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -45,18 +45,18 @@
                     android:layout_weight="1"
                     android:background="@android:color/transparent"
                     android:hint="Search medications, doctors..."
-                    android:padding="8dp"
+                    android:padding="@dimen/ds_padding_xs"
                     android:drawableStart="@drawable/ic_search"
-                    android:drawablePadding="8dp"
-                    android:textSize="14sp" />
+                    android:drawablePadding="@dimen/ds_padding_xs"
+                    style="@style/TextAppearance.HealthAssistant.Body" />
 
                 <!-- Category Filter Button -->
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/categoryFilterButton"
-                    style="@style/Widget.Material3.Button.IconButton"
+                    style="@style/Widget.HealthAssistant.Button.Tertiary"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="8dp"
+                    android:layout_marginStart="@dimen/ds_margin_xs"
                     app:icon="@drawable/ic_filter_list"
                     app:iconSize="20dp"
                     app:iconTint="?attr/colorOnSurface"
@@ -87,7 +87,7 @@
                 </com.google.android.material.card.MaterialCardView>
             </LinearLayout>
 
-        </com.google.android.material.card.MaterialCardView>
+        </com.example.health_assistant.core.design.components.HealthCardComponent>
 
         <!-- Content Container -->
         <FrameLayout
