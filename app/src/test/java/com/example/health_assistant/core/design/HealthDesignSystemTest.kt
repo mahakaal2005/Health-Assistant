@@ -85,7 +85,7 @@ class HealthDesignSystemTest {
     fun `design system should be accessible as object`() {
         // Test that design system can be accessed as an object
         assertNotNull(HealthDesignSystem)
-        assertTrue(HealthDesignSystem::class.isObject)
+        assertTrue(HealthDesignSystem::class.objectInstance != null)
     }
 
     @Test
