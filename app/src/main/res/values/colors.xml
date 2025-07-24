@@ -207,4 +207,28 @@
     <color name="outline_variant">#E0E0E0</color>
     <color name="primary_container">#E3F2FD</color>
     <color name="secondary_container">#E0F2F1</color>
+
+    <!-- Design System Semantic Tokens -->
+    <!-- These tokens provide semantic meaning to colors for consistent usage -->
+    <color name="ds_primary">@color/health_primary</color>
+    <color name="ds_primary_variant">@color/colorPrimaryVariant</color>
+    <color name="ds_secondary">@color/health_accent</color>
+    <color name="ds_secondary_variant">@color/colorSecondaryVariant</color>
+    <color name="ds_surface_primary">@color/surface_primary</color>
+    <color name="ds_surface_elevated">@color/surface_elevated</color>
+    <color name="ds_surface_health">@color/surface_health</color>
+    <color name="ds_background_primary">@color/background_primary</color>
+    <color name="ds_background_secondary">@color/background_secondary</color>
+    <color name="ds_text_primary">@color/text_primary_dark</color>
+    <color name="ds_text_secondary">@color/text_tertiary_dark</color>
+    <color name="ds_text_tertiary">@color/textTertiary</color>
+    <color name="ds_card_background">@color/cardBackground</color>
+    <color name="ds_card_elevated">@color/card_background_elevated</color>
+    <color name="ds_card_alternative">@color/card_background_alt</color>
+    <color name="ds_success">@color/success</color>
+    <color name="ds_warning">@color/warning</color>
+    <color name="ds_error">@color/error</color>
+    <color name="ds_interactive_ripple">@color/ripple_color</color>
+    <color name="ds_interactive_outline">@color/outline_variant</color>
+    <color name="ds_interactive_divider">@color/divider</color>
 </resources>

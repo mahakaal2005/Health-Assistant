@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Health Design System - Spacing Tokens -->
+    <!-- All spacing values follow 8dp grid system for consistency -->
+    
+    <!-- Base spacing units -->
+    <dimen name="ds_spacing_unit">8dp</dimen>
+    <dimen name="ds_spacing_half">4dp</dimen>
+    <dimen name="ds_spacing_quarter">2dp</dimen>
+    
+    <!-- Padding tokens - Internal component spacing -->
+    <dimen name="ds_padding_none">0dp</dimen>
+    <dimen name="ds_padding_xs">4dp</dimen>
+    <dimen name="ds_padding_small">8dp</dimen>
+    <dimen name="ds_padding_medium">12dp</dimen>
+    <dimen name="ds_padding_standard">16dp</dimen>
+    <dimen name="ds_padding_large">20dp</dimen>
+    <dimen name="ds_padding_xl">24dp</dimen>
+    <dimen name="ds_padding_xxl">32dp</dimen>
+    
+    <!-- Margin tokens - External component spacing -->
+    <dimen name="ds_margin_none">0dp</dimen>
+    <dimen name="ds_margin_xs">4dp</dimen>
+    <dimen name="ds_margin_small">8dp</dimen>
+    <dimen name="ds_margin_medium">12dp</dimen>
+    <dimen name="ds_margin_standard">16dp</dimen>
+    <dimen name="ds_margin_large">20dp</dimen>
+    <dimen name="ds_margin_xl">24dp</dimen>
+    <dimen name="ds_margin_xxl">32dp</dimen>
+    
+    <!-- Component sizing tokens - Standard component dimensions -->
+    <dimen name="ds_component_button_height">56dp</dimen>
+    <dimen name="ds_component_button_height_small">40dp</dimen>
+    <dimen name="ds_component_input_height">56dp</dimen>
+    <dimen name="ds_component_card_radius">12dp</dimen>
+    <dimen name="ds_component_card_radius_small">8dp</dimen>
+    <dimen name="ds_component_icon_size">24dp</dimen>
+    <dimen name="ds_component_icon_size_small">16dp</dimen>
+    <dimen name="ds_component_icon_size_large">32dp</dimen>
+    <dimen name="ds_component_touch_target">48dp</dimen>
+    
+    <!-- Layout spacing tokens - Screen and section spacing -->
+    <dimen name="ds_layout_screen_padding">16dp</dimen>
+    <dimen name="ds_layout_section_spacing">24dp</dimen>
+    <dimen name="ds_layout_card_spacing">12dp</dimen>
+    <dimen name="ds_layout_list_item_spacing">8dp</dimen>
+    <dimen name="ds_layout_divider_height">1dp</dimen>
+    
+    <!-- Elevation tokens - Shadow and depth -->
+    <dimen name="ds_elevation_none">0dp</dimen>
+    <dimen name="ds_elevation_low">2dp</dimen>
+    <dimen name="ds_elevation_medium">4dp</dimen>
+    <dimen name="ds_elevation_high">8dp</dimen>
+    <dimen name="ds_elevation_highest">16dp</dimen>
+    
+    <!-- Text spacing tokens - Typography line spacing -->
+    <dimen name="ds_text_line_spacing_small">2dp</dimen>
+    <dimen name="ds_text_line_spacing_medium">4dp</dimen>
+    <dimen name="ds_text_line_spacing_large">6dp</dimen>
+    
+    <!-- Border and stroke tokens -->
+    <dimen name="ds_border_width_thin">1dp</dimen>
+    <dimen name="ds_border_width_medium">2dp</dimen>
+    <dimen name="ds_border_width_thick">4dp</dimen>
+    
+    <!-- Animation duration tokens (in milliseconds) -->
+    <integer name="ds_animation_duration_fast">150</integer>
+    <integer name="ds_animation_duration_medium">300</integer>
+    <integer name="ds_animation_duration_slow">500</integer>
+</resources>

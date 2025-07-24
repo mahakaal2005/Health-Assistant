@@ -1,14 +1,14 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
-    <!-- Base application theme. -->
-    <style name="Base.Theme.Health_Assistant" parent="Theme.Material3.DayNight.NoActionBar">
+    <!-- Base application theme -->
+    <style name="AppTheme" parent="Theme.Material3.DayNight.NoActionBar">
         <!-- Customize your light theme here. -->
         <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
     </style>
 
-    <style name="Theme.Health_Assistant" parent="Base.Theme.Health_Assistant" />
+    <style name="Theme.Health_Assistant" parent="AppTheme" />
 
     <!-- Enhanced Full Screen Theme for MainActivity -->
-    <style name="Theme.Health_Assistant.FullScreen" parent="Base.Theme.Health_Assistant">
+    <style name="Theme.Health_Assistant.FullScreen" parent="AppTheme">
         <!-- Remove action bar and title -->
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
