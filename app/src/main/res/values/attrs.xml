@@ -37,4 +37,13 @@
         <item name="cardBackgroundColor">@color/ds_surface_primary</item>
         <item name="cardElevation">@dimen/ds_elevation_high</item>
     </style>
+    
+    <!-- HealthTextInputLayout attributes -->
+    <declare-styleable name="HealthTextInputLayout">
+        <attr name="healthInputStyle" format="enum">
+            <enum name="primary" value="0" />
+            <enum name="secondary" value="1" />
+            <enum name="search" value="2" />
+        </attr>
+    </declare-styleable>
 </resources>

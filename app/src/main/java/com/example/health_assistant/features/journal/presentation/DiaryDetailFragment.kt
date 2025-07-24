@@ -10,6 +10,8 @@ import com.example.health_assistant.R
 import com.example.health_assistant.databinding.FragmentDiaryDetailBinding
 import com.example.health_assistant.features.journal.JournalViewModel
 import com.example.health_assistant.features.journal.domain.JournalEntry
+import com.example.health_assistant.core.design.components.HealthFormValidation
+import com.example.health_assistant.core.design.components.HealthDateTimePicker
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -27,6 +29,9 @@ class DiaryDetailFragment : Fragment() {
 
     // Add ViewModel to handle database operations
     private val journalViewModel: JournalViewModel by viewModels()
+    
+    // Form validation utility
+    private lateinit var formValidation: HealthFormValidation
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -39,9 +44,11 @@ class DiaryDetailFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        formValidation = HealthFormValidation(requireContext())
         setupUI()
         setupToolbar()
         setupClickListeners()
+        setupDateTimePicker()
         loadDiaryData()
     }
 
@@ -67,6 +74,18 @@ class DiaryDetailFragment : Fragment() {
         // More options button click listener
         binding.moreOptionsButton.setOnClickListener {
             showMoreOptionsMenu()
+        }
+    }
+
+    private fun setupDateTimePicker() {
+        // Set up date/time picker with current date/time
+        binding.dateTimePicker.setToCurrentDateTime()
+        binding.dateTimePicker.setFragmentManager(parentFragmentManager)
+        
+        // Listen for date/time changes
+        binding.dateTimePicker.setOnDateTimeSelectedListener { date, timeString ->
+            // Update the original timestamp when user selects custom date/time
+            originalTimestamp = date.time
         }
     }
 
@@ -144,6 +163,9 @@ class DiaryDetailFragment : Fragment() {
                 binding.etDiaryContent.setText("")
                 originalTitle = ""
                 originalContent = ""
+                
+                // Set date/time picker to current time for new entries
+                binding.dateTimePicker.setToCurrentDateTime()
 
                 // Request focus for immediate typing
                 binding.etDiaryTitle.requestFocus()
@@ -153,6 +175,10 @@ class DiaryDetailFragment : Fragment() {
                 originalContent = content
                 binding.etDiaryTitle.setText(title)
                 binding.etDiaryContent.setText(content)
+                
+                // Set date/time picker to existing entry timestamp
+                binding.dateTimePicker.setSelectedDate(java.util.Date(originalTimestamp))
+                
                 setEditMode(false) // Start in view mode for existing entries
             }
         }
@@ -179,6 +205,9 @@ class DiaryDetailFragment : Fragment() {
                 // Show cursors
                 etDiaryTitle.isCursorVisible = true
                 etDiaryContent.isCursorVisible = true
+                
+                // Enable date/time picker
+                dateTimePicker.isEnabled = true
 
                 // Update keyboard behavior for edit mode
                 updateKeyboardBehaviorForEditMode(true)
@@ -205,6 +234,9 @@ class DiaryDetailFragment : Fragment() {
                 // Hide cursors
                 etDiaryTitle.isCursorVisible = false
                 etDiaryContent.isCursorVisible = false
+                
+                // Disable date/time picker in view mode
+                dateTimePicker.isEnabled = false
 
                 // Clear focus and hide keyboard
                 etDiaryTitle.clearFocus()
@@ -239,18 +271,21 @@ class DiaryDetailFragment : Fragment() {
     }
 
     private fun saveDiary() {
+        // Validate form using HealthFormValidation
+        val titleValidation = formValidation.validateRequired(binding.tilDiaryTitle, "Title is required")
+        val contentValidation = formValidation.validateRequired(binding.tilDiaryContent, "Content is required")
+        
+        val overallValidation = formValidation.validateAll(
+            { titleValidation },
+            { contentValidation }
+        )
+        
+        if (!overallValidation.isValid) {
+            return
+        }
+        
         val title = binding.etDiaryTitle.text.toString().trim()
         val content = binding.etDiaryContent.text.toString().trim()
-
-        if (title.isEmpty()) {
-            binding.etDiaryTitle.error = "Title is required"
-            return
-        }
-
-        if (content.isEmpty()) {
-            binding.etDiaryContent.error = "Content is required"
-            return
-        }
 
         // Combine title and content for diary storage
         val combinedContent = if (title.isNotEmpty()) {
@@ -260,18 +295,18 @@ class DiaryDetailFragment : Fragment() {
         }
 
         val entry = if (isCreateMode) {
-            // Create new entry
+            // Create new entry with selected date/time
             JournalEntry.Generic(
                 id = 0L, // Database will assign ID
-                timestamp = System.currentTimeMillis(),
+                timestamp = binding.dateTimePicker.getSelectedTimestamp(),
                 type = "diary",
                 content = combinedContent
             )
         } else {
-            // Update existing entry - preserve original timestamp
+            // Update existing entry with selected date/time
             JournalEntry.Generic(
                 id = diaryId,
-                timestamp = originalTimestamp,
+                timestamp = binding.dateTimePicker.getSelectedTimestamp(),
                 type = "diary",
                 content = combinedContent
             )

@@ -10,6 +10,8 @@ import com.example.health_assistant.R
 import com.example.health_assistant.databinding.FragmentNoteDetailBinding
 import com.example.health_assistant.features.journal.domain.JournalEntry
 import com.example.health_assistant.features.journal.JournalViewModel
+import com.example.health_assistant.core.design.components.HealthFormValidation
+import com.example.health_assistant.core.design.components.HealthDateTimePicker
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -26,6 +28,9 @@ class NoteDetailFragment : Fragment() {
 
     // Add ViewModel to handle database operations
     private val journalViewModel: JournalViewModel by viewModels()
+    
+    // Form validation utility
+    private lateinit var formValidation: HealthFormValidation
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -38,9 +43,11 @@ class NoteDetailFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        formValidation = HealthFormValidation(requireContext())
         setupUI()
         setupToolbar()
         setupClickListeners()
+        setupDateTimePicker()
         loadNoteData()
     }
 
@@ -66,6 +73,18 @@ class NoteDetailFragment : Fragment() {
         // More options button click listener
         binding.moreOptionsButton.setOnClickListener {
             showMoreOptionsMenu()
+        }
+    }
+
+    private fun setupDateTimePicker() {
+        // Set up date/time picker with current date/time
+        binding.dateTimePicker.setToCurrentDateTime()
+        binding.dateTimePicker.setFragmentManager(parentFragmentManager)
+        
+        // Listen for date/time changes
+        binding.dateTimePicker.setOnDateTimeSelectedListener { date, timeString ->
+            // Update the original timestamp when user selects custom date/time
+            originalTimestamp = date.time
         }
     }
 
@@ -140,6 +159,9 @@ class NoteDetailFragment : Fragment() {
                 binding.toolbar.title = "Create Note"
                 binding.etNoteContent.setText("") // Start with empty content
                 originalContent = ""
+                
+                // Set date/time picker to current time for new entries
+                binding.dateTimePicker.setToCurrentDateTime()
 
                 // Request focus for immediate typing
                 binding.etNoteContent.requestFocus()
@@ -147,6 +169,10 @@ class NoteDetailFragment : Fragment() {
                 // Setup for edit mode of existing note
                 originalContent = content
                 binding.etNoteContent.setText(content)
+                
+                // Set date/time picker to existing entry timestamp
+                binding.dateTimePicker.setSelectedDate(java.util.Date(originalTimestamp))
+                
                 setEditMode(false) // Start in view mode for existing notes
             }
         }
@@ -169,6 +195,9 @@ class NoteDetailFragment : Fragment() {
 
                 // Show cursor
                 etNoteContent.isCursorVisible = true
+                
+                // Enable date/time picker
+                dateTimePicker.isEnabled = true
 
                 // Update keyboard behavior for edit mode
                 updateKeyboardBehaviorForEditMode(true)
@@ -192,6 +221,9 @@ class NoteDetailFragment : Fragment() {
 
                 // Hide cursor
                 etNoteContent.isCursorVisible = false
+                
+                // Disable date/time picker in view mode
+                dateTimePicker.isEnabled = false
 
                 // Clear focus and hide keyboard
                 etNoteContent.clearFocus()
@@ -225,26 +257,28 @@ class NoteDetailFragment : Fragment() {
     }
 
     private fun saveNote() {
-        val content = binding.etNoteContent.text.toString().trim()
-
-        if (content.isEmpty()) {
-            binding.etNoteContent.error = "Note content is required"
+        // Validate form using HealthFormValidation
+        val contentValidation = formValidation.validateRequired(binding.tilNoteContent, "Note content is required")
+        
+        if (!contentValidation.isValid) {
             return
         }
+        
+        val content = binding.etNoteContent.text.toString().trim()
 
         val entry = if (isCreateMode) {
-            // Create new entry
+            // Create new entry with selected date/time
             JournalEntry.Generic(
                 id = 0L, // Database will assign ID
-                timestamp = System.currentTimeMillis(),
+                timestamp = binding.dateTimePicker.getSelectedTimestamp(),
                 type = "note",
                 content = content
             )
         } else {
-            // Update existing entry - preserve original timestamp
+            // Update existing entry with selected date/time
             JournalEntry.Generic(
                 id = noteId,
-                timestamp = originalTimestamp,
+                timestamp = binding.dateTimePicker.getSelectedTimestamp(),
                 type = "note",
                 content = content
             )

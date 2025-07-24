@@ -2,7 +2,7 @@
 
 Convert the feature design into a series of prompts for a code-generation LLM that will implement each step in a test-driven manner. Prioritize best practices, incremental progress, and early testing, ensuring no big jumps in complexity at any stage.
 
-- [ ] 1. Establish Core Design System Foundation
+- [x] 1. Establish Core Design System Foundation
   - Create comprehensive color system consolidating existing health-themed colors into semantic tokens
   - Establish typography scale using existing TextAppearance.Health styles with consistent hierarchy
   - Define spacing system with standardized dimensions for padding, margins, and component sizing
@@ -10,7 +10,7 @@ Convert the feature design into a series of prompts for a code-generation LLM th
   - Create design system documentation with usage guidelines for each token
   - _Requirements: FR1, FR2, FR3, FR4, FR6, FR7, FR8, NFR4, NFR5_
 
-- [ ] 2. Remove AI-Related Features and Components
+- [x] 2. Remove AI-Related Features and Components
   - Remove AI chatbot fragments, layouts, and navigation references from the codebase
   - Remove AI-related menu items, buttons, and navigation destinations
   - Clean up AI-related resources (drawables, strings, animations) from project
@@ -18,7 +18,7 @@ Convert the feature design into a series of prompts for a code-generation LLM th
   - Remove AI-related database entities and API integrations if any exist
   - _Requirements: FR5_
 
-- [ ] 3. Standardize Navigation and Bottom Navigation UI
+- [x] 3. Standardize Navigation and Bottom Navigation UI
   - Apply consistent styling to bottom navigation items with unified active/inactive states
   - Standardize toolbar appearances across all main fragments
   - Implement consistent navigation transitions and animations
@@ -26,7 +26,7 @@ Convert the feature design into a series of prompts for a code-generation LLM th
   - Ensure navigation accessibility with proper contrast ratios and touch targets
   - _Requirements: FR1, NFR3, NFR4_
 
-- [ ] 4. Implement Consistent Card System Across All Features
+- [x] 4. Implement Consistent Card System Across All Features
   - Create unified card component that replaces multiple existing card styles
   - Apply consistent card styling to prescription cards, health metric displays, and content cards
   - Implement standardized card elevation, corner radius, and spacing patterns
@@ -34,7 +34,7 @@ Convert the feature design into a series of prompts for a code-generation LLM th
   - Ensure card accessibility with proper focus states and screen reader support
   - _Requirements: FR2, FR4, FR7, NFR3, NFR5_
 
-- [ ] 5. Standardize Journal Fragment with Three Entry Types
+- [x] 5. Standardize Journal Fragment with Three Entry Types
   - Apply consistent card styling to all three journal entry types (Activity, Note, Diary)
   - Standardize form styling for Note and Diary entry creation/editing
   - Implement consistent date picker and time selection UI across entry types
