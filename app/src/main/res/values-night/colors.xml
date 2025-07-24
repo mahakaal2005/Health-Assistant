@@ -57,7 +57,8 @@
     <color name="ds_primary_variant">#0288D1</color>
     <color name="ds_secondary">#80CBC4</color>
     <color name="ds_secondary_variant">#4DB6AC</color>
-    <color name="ds_surface_primary">#1E1E1E</color>
+    <color name="ds_surface_primary">@color/cardBackground</color>
+    <color name="ds_surface_secondary">@color/card_background_alt</color>
     <color name="ds_surface_elevated">#2A2A2A</color>
     <color name="ds_surface_health">#1A2E1A</color>
     <color name="ds_background_primary">#121212</color>

@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- HealthCardComponent custom attributes -->
+    <declare-styleable name="HealthCardComponent">
+        <attr name="healthCardType" format="enum">
+            <enum name="primary" value="0" />
+            <enum name="secondary" value="1" />
+            <enum name="elevated" value="2" />
+        </attr>
+        <attr name="healthCardPadding" format="dimension" />
+    </declare-styleable>
+    
+    <!-- Focus border width for accessibility -->
+    <dimen name="ds_border_width_focus">2dp</dimen>
+    
+    <!-- HealthCardComponent styles -->
+    <style name="HealthCard" parent="Widget.MaterialComponents.CardView">
+        <item name="cardCornerRadius">@dimen/ds_component_card_radius</item>
+        <item name="cardElevation">@dimen/ds_elevation_low</item>
+        <item name="cardBackgroundColor">@color/ds_surface_primary</item>
+        <item name="android:focusable">true</item>
+        <item name="android:clickable">true</item>
+        <item name="android:minHeight">@dimen/ds_component_touch_target</item>
+    </style>
+    
+    <style name="HealthCard.Primary">
+        <item name="cardBackgroundColor">@color/ds_surface_primary</item>
+        <item name="cardElevation">@dimen/ds_elevation_low</item>
+    </style>
+    
+    <style name="HealthCard.Secondary">
+        <item name="cardBackgroundColor">@color/ds_surface_secondary</item>
+        <item name="cardElevation">@dimen/ds_elevation_medium</item>
+    </style>
+    
+    <style name="HealthCard.Elevated">
+        <item name="cardBackgroundColor">@color/ds_surface_primary</item>
+        <item name="cardElevation">@dimen/ds_elevation_high</item>
+    </style>
+</resources>

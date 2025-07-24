@@ -340,10 +340,11 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/my_progress_title">
 
-                <FrameLayout
+                <com.example.health_assistant.core.design.components.HealthCardComponent
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:background="@drawable/glassmorphism_card_background">
+                    app:healthCardType="primary"
+                    app:healthCardPadding="@dimen/ds_padding_xl">
 
                     <androidx.constraintlayout.widget.ConstraintLayout
                         android:id="@+id/steps_chart_container"
@@ -468,7 +469,7 @@
                         </LinearLayout>
 
                     </androidx.constraintlayout.widget.ConstraintLayout>
-                </FrameLayout>
+                </com.example.health_assistant.core.design.components.HealthCardComponent>
             </androidx.cardview.widget.CardView>
 
             <!-- Calories This Week Card -->
@@ -486,10 +487,11 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/steps_this_week_card">
 
-                <FrameLayout
+                <com.example.health_assistant.core.design.components.HealthCardComponent
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:background="@drawable/glassmorphism_card_background">
+                    app:healthCardType="primary"
+                    app:healthCardPadding="@dimen/ds_padding_xl">
 
                     <androidx.constraintlayout.widget.ConstraintLayout
                         android:id="@+id/calories_chart_container"
@@ -610,7 +612,7 @@
                         </LinearLayout>
 
                     </androidx.constraintlayout.widget.ConstraintLayout>
-                </FrameLayout>
+                </com.example.health_assistant.core.design.components.HealthCardComponent>
             </androidx.cardview.widget.CardView>
 
             <!-- Heart Points This Week Card -->
@@ -628,10 +630,11 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/calories_this_week_card">
 
-                <FrameLayout
+                <com.example.health_assistant.core.design.components.HealthCardComponent
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:background="@drawable/glassmorphism_card_background">
+                    app:healthCardType="primary"
+                    app:healthCardPadding="@dimen/ds_padding_xl">
 
                     <androidx.constraintlayout.widget.ConstraintLayout
                         android:id="@+id/heart_points_chart_container"
@@ -752,7 +755,7 @@
                         </LinearLayout>
 
                     </androidx.constraintlayout.widget.ConstraintLayout>
-                </FrameLayout>
+                </com.example.health_assistant.core.design.components.HealthCardComponent>
             </androidx.cardview.widget.CardView>
 
             <!-- Wellness Tips Section -->

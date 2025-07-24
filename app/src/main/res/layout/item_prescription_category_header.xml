@@ -1,13 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<com.example.health_assistant.core.design.components.HealthCardComponent xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    app:healthCardType="secondary"
+    app:healthCardPadding="@dimen/ds_padding_standard">
+
+<LinearLayout
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
     android:orientation="horizontal"
-    android:padding="16dp"
-    android:gravity="center_vertical"
-    android:background="?attr/colorSurfaceVariant">
+    android:gravity="center_vertical">
 
     <!-- Category Icon -->
     <ImageView
@@ -44,3 +48,5 @@
         tools:text="3" />
 
 </LinearLayout>
+
+</com.example.health_assistant.core.design.components.HealthCardComponent>

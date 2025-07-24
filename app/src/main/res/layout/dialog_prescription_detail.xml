@@ -86,12 +86,12 @@
                 android:orientation="vertical">
 
                 <!-- Prescription Image Card -->
-                <com.google.android.material.card.MaterialCardView
+                <com.example.health_assistant.core.design.components.HealthCardComponent
                     android:layout_width="match_parent"
                     android:layout_height="300dp"
                     android:layout_marginBottom="24dp"
-                    app:cardCornerRadius="16dp"
-                    app:cardElevation="8dp">
+                    app:healthCardType="elevated"
+                    app:healthCardPadding="@dimen/ds_padding_none">
 
                     <ImageView
                         android:id="@+id/prescriptionImageDetail"
@@ -101,7 +101,7 @@
                         android:background="@color/surfaceDark"
                         tools:src="@drawable/ic_prescription_placeholder" />
 
-                </com.google.android.material.card.MaterialCardView>
+                </com.example.health_assistant.core.design.components.HealthCardComponent>
 
                 <!-- Doctor Information Card -->
                 <com.google.android.material.card.MaterialCardView

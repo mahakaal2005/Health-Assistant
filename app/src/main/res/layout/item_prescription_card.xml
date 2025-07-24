@@ -1,13 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+<com.example.health_assistant.core.design.components.HealthCardComponent xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="200dp"
     android:layout_margin="4dp"
-    app:cardCornerRadius="12dp"
-    app:cardElevation="4dp"
-    app:strokeWidth="0dp">
+    app:healthCardType="primary"
+    app:healthCardPadding="@dimen/ds_padding_medium">
 
     <!-- Background prescription image -->
     <ImageView
@@ -28,7 +27,7 @@
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:padding="12dp">
+        android:padding="@dimen/ds_padding_medium">
 
         <!-- Category chip in top right corner -->
         <com.google.android.material.chip.Chip
@@ -89,4 +88,4 @@
 
     </RelativeLayout>
 
-</com.google.android.material.card.MaterialCardView>
+</com.example.health_assistant.core.design.components.HealthCardComponent>

@@ -231,4 +231,7 @@
     <color name="ds_interactive_ripple">@color/ripple_color</color>
     <color name="ds_interactive_outline">@color/outline_variant</color>
     <color name="ds_interactive_divider">@color/divider</color>
+    
+    <!-- HealthCardComponent surface colors -->
+    <color name="ds_surface_secondary">@color/card_background_alt</color>
 </resources>
