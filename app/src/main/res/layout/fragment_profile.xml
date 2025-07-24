@@ -23,32 +23,48 @@
             android:background="@android:color/transparent"
             android:paddingBottom="24dp">
 
-            <!-- Profile Header Section -->
+            <!-- Standardized Profile Header Section -->
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:id="@+id/profile_header_section"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:paddingTop="24dp"
-                android:paddingBottom="16dp"
-                android:background="@android:color/transparent"
+                style="@style/Widget.HealthAssistant.FragmentHeader"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent">
 
-                <!-- Welcome/Intro Text -->
+                <!-- Profile Title -->
+                <TextView
+                    android:id="@+id/profile_title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Profile"
+                    android:textAppearance="@style/TextAppearance.HealthAssistant.FragmentTitle"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <!-- Profile Subtitle -->
+                <TextView
+                    android:id="@+id/profile_subtitle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Manage your health profile"
+                    android:textAppearance="@style/TextAppearance.HealthAssistant.FragmentSubtitle"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/profile_title" />
+
+                <!-- Welcome/Intro Text (moved below header) -->
                 <TextView
                     android:id="@+id/profileIntroText"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Welcome Buddy!!"
-                    android:textSize="30sp"
-                    android:textColor="@color/textPrimary"
+                    android:textSize="20sp"
+                    android:textColor="@color/ds_text_primary"
                     android:textStyle="bold|italic"
                     android:fontFamily="serif"
                     android:alpha="0.95"
-                    android:layout_marginBottom="16dp"
-                    app:layout_constraintTop_toTopOf="parent"
+                    android:layout_marginTop="@dimen/ds_margin_standard"
                     app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/profile_subtitle"
                     app:layout_constraintEnd_toEndOf="parent"
                     android:elevation="2dp" />
 

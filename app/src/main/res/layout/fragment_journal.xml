@@ -18,26 +18,17 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
 
-        <!-- Header Section -->
+        <!-- Standardized Header Section -->
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/header_section"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:paddingStart="24dp"
-            android:paddingTop="12dp"
-            android:paddingEnd="24dp"
-            android:paddingBottom="12dp"
-            android:background="@android:color/transparent">
+            style="@style/Widget.HealthAssistant.FragmentHeader">
 
             <TextView
                 android:id="@+id/header_title"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:text="Journal"
-                android:textSize="32sp"
-                android:textStyle="bold"
-                android:textColor="@color/health_dark"
-                android:fontFamily="sans-serif-medium"
+                android:textAppearance="@style/TextAppearance.HealthAssistant.FragmentTitle"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
@@ -46,8 +37,8 @@
                 android:id="@+id/header_subtitle"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="2dp"
                 android:text="Track your health journey"
+                android:textAppearance="@style/TextAppearance.HealthAssistant.FragmentSubtitle"
                 android:textSize="16sp"
                 android:textColor="@color/text_secondary_dark"
                 android:fontFamily="sans-serif-medium"

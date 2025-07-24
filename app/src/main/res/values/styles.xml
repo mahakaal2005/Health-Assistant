@@ -201,4 +201,43 @@
         <item name="colorSurface">@android:color/white</item>
     </style>
 
+    <!-- Bottom Navigation Styles -->
+    <style name="Widget.HealthAssistant.BottomNavigationView" parent="Widget.Material3.BottomNavigationView">
+        <item name="android:background">@color/ds_surface_primary</item>
+        <item name="android:elevation">@dimen/ds_elevation_low</item>
+        <item name="android:minHeight">@dimen/ds_component_touch_target</item>
+        <item name="itemIconTint">@color/bottom_nav_item_selector</item>
+        <item name="itemTextColor">@color/bottom_nav_item_selector</item>
+        <item name="itemIconSize">@dimen/ds_component_icon_size</item>
+        <item name="itemPaddingTop">@dimen/ds_padding_small</item>
+        <item name="itemPaddingBottom">@dimen/ds_padding_small</item>
+        <item name="labelVisibilityMode">labeled</item>
+    </style>
+
+    <!-- Standardized Fragment Header Styles -->
+    <style name="Widget.HealthAssistant.FragmentHeader" parent="@android:style/Widget">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:background">@color/ds_surface_primary</item>
+        <item name="android:elevation">@dimen/ds_elevation_low</item>
+        <item name="android:paddingStart">@dimen/ds_padding_xl</item>
+        <item name="android:paddingTop">@dimen/ds_padding_medium</item>
+        <item name="android:paddingEnd">@dimen/ds_padding_xl</item>
+        <item name="android:paddingBottom">@dimen/ds_padding_medium</item>
+    </style>
+
+    <style name="TextAppearance.HealthAssistant.FragmentTitle" parent="TextAppearance.Health.Headline1">
+        <item name="android:textColor">@color/ds_text_primary</item>
+        <item name="android:textSize">32sp</item>
+        <item name="android:fontFamily">sans-serif-medium</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="TextAppearance.HealthAssistant.FragmentSubtitle" parent="TextAppearance.Health.Body1">
+        <item name="android:textColor">@color/ds_text_secondary</item>
+        <item name="android:textSize">16sp</item>
+        <item name="android:fontFamily">sans-serif-medium</item>
+        <item name="android:layout_marginTop">@dimen/ds_margin_xs</item>
+    </style>
+
 </resources>

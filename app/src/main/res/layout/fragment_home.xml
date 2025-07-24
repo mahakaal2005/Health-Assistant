@@ -26,16 +26,10 @@
             android:background="@android:color/transparent"
             android:paddingBottom="24dp">
 
-            <!-- Top Section with Personalized Greeting and Avatar -->
+            <!-- Standardized Top Section with Personalized Greeting and Avatar -->
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:id="@+id/top_section"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:paddingStart="24dp"
-                android:paddingTop="16dp"
-                android:paddingEnd="24dp"
-                android:paddingBottom="24dp"
-                android:background="@android:color/transparent"
+                style="@style/Widget.HealthAssistant.FragmentHeader"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent">
@@ -58,26 +52,18 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:text="Good morning, Alex"
-                        android:textSize="30sp"
-                        android:textColor="@color/text_primary_dark"
-                        android:fontFamily="sans-serif-black"
-                        android:textStyle="bold"
+                        android:textAppearance="@style/TextAppearance.HealthAssistant.FragmentTitle"
                         android:gravity="start"
                         android:maxLines="1"
-                        android:ellipsize="end"
-                        android:elevation="2dp" />
+                        android:ellipsize="end" />
 
                     <!-- Date Text -->
                     <TextView
                         android:id="@+id/date_text"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="6dp"
                         android:text="Saturday, July 12"
-                        android:textSize="18sp"
-                        android:textColor="@color/text_tertiary_dark"
-                        android:fontFamily="sans-serif-medium"
-                        android:textStyle="bold"
+                        android:textAppearance="@style/TextAppearance.HealthAssistant.FragmentSubtitle"
                         android:gravity="start"
                         android:elevation="1dp"/>
                 </LinearLayout>
