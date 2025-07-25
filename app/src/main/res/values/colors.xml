@@ -234,4 +234,13 @@
     
     <!-- HealthCardComponent surface colors -->
     <color name="ds_surface_secondary">@color/card_background_alt</color>
+    <color name="ds_outline">@color/outline_variant</color>
+    
+    <!-- Content Category Color Variants (HealthColors.Primary variants) -->
+    <color name="ds_primary_nutrition">@color/category_nutrition</color>
+    <color name="ds_primary_fitness">@color/category_fitness</color>
+    <color name="ds_primary_mental_health">@color/category_mental_health</color>
+    <color name="ds_primary_preventive_care">@color/category_preventive_care</color>
+    <color name="ds_primary_chronic_conditions">@color/category_chronic_conditions</color>
+    <color name="ds_primary_default">@color/category_default</color>
 </resources>

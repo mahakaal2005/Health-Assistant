@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    style="@style/Widget.HealthAssistant.Card.Primary"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="@dimen/ds_margin_small">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="@dimen/ds_padding_standard">
+
+        <!-- Content Type Icon -->
+        <ImageView
+            android:id="@+id/content_type_icon"
+            android:layout_width="@dimen/ds_component_icon_size"
+            android:layout_height="@dimen/ds_component_icon_size"
+            android:layout_marginEnd="@dimen/ds_margin_standard"
+            android:src="@drawable/ic_article"
+            app:tint="@color/ds_primary"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:src="@drawable/ic_article" />
+
+        <!-- Content Title -->
+        <TextView
+            android:id="@+id/search_result_title"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/ds_margin_standard"
+            android:textAppearance="@style/TextAppearance.HealthTypography.Body.Large"
+            android:maxLines="2"
+            android:ellipsize="end"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/content_type_icon"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="Understanding Heart Health: A Complete Guide" />
+
+        <!-- Content Summary -->
+        <TextView
+            android:id="@+id/search_result_summary"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/ds_margin_standard"
+            android:layout_marginTop="@dimen/ds_margin_small"
+            android:textAppearance="@style/TextAppearance.HealthTypography.Body.Medium"
+            android:maxLines="2"
+            android:ellipsize="end"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/content_type_icon"
+            app:layout_constraintTop_toBottomOf="@id/search_result_title"
+            tools:text="Learn about the fundamentals of cardiovascular health and how to maintain a healthy heart through lifestyle choices." />
+
+        <!-- Content Metadata -->
+        <LinearLayout
+            android:id="@+id/search_result_metadata"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/ds_margin_standard"
+            android:layout_marginTop="@dimen/ds_margin_small"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/content_type_icon"
+            app:layout_constraintTop_toBottomOf="@id/search_result_summary">
+
+            <TextView
+                android:id="@+id/search_result_author"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:textAppearance="@style/TextAppearance.HealthTypography.Label.Medium"
+                tools:text="Dr. Sarah Johnson" />
+
+            <TextView
+                android:id="@+id/search_result_date"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/ds_margin_medium"
+                android:textAppearance="@style/TextAppearance.HealthTypography.Caption"
+                tools:text="Jan 15, 2025" />
+
+            <TextView
+                android:id="@+id/search_result_duration"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/ds_margin_medium"
+                android:textAppearance="@style/TextAppearance.HealthTypography.Caption"
+                tools:text="5 min read" />
+
+        </LinearLayout>
+
+        <!-- Content Category -->
+        <com.google.android.material.chip.Chip
+            android:id="@+id/search_result_category"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/ds_margin_standard"
+            android:textAppearance="@style/TextAppearance.HealthTypography.Caption"
+            app:chipBackgroundColor="@color/colorChip"
+            app:chipCornerRadius="@dimen/ds_component_card_radius_small"
+            app:chipStrokeWidth="0dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/content_type_icon"
+            tools:text="Nutrition" />
+
+        <!-- Relevance Score -->
+        <LinearLayout
+            android:id="@+id/relevance_score_layout"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/ds_margin_standard"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/search_result_metadata">
+
+            <ImageView
+                android:layout_width="12dp"
+                android:layout_height="12dp"
+                android:src="@drawable/ic_verified"
+                android:tint="@color/ds_primary"
+                android:layout_marginEnd="4dp" />
+
+            <TextView
+                android:id="@+id/relevance_score"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="@style/TextAppearance.HealthTypography.Caption"
+                android:textColor="@color/ds_primary"
+                tools:text="95% match" />
+
+        </LinearLayout>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</com.google.android.material.card.MaterialCardView>

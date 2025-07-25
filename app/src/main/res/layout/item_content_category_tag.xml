@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.button.MaterialButton xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    style="@style/Widget.HealthAssistant.Button.Tertiary"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_margin="@dimen/ds_margin_xs"
+    android:minHeight="32dp"
+    android:paddingStart="@dimen/ds_padding_medium"
+    android:paddingTop="@dimen/ds_padding_small"
+    android:paddingEnd="@dimen/ds_padding_medium"
+    android:paddingBottom="@dimen/ds_padding_small"
+    android:textAppearance="@style/TextAppearance.HealthTypography.Label.Small"
+    android:textAllCaps="false"
+    app:cornerRadius="@dimen/ds_component_card_radius_small"
+    app:strokeWidth="@dimen/ds_border_width_thin"
+    tools:text="Heart Health" />

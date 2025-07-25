@@ -86,34 +86,27 @@
 
             </androidx.constraintlayout.widget.ConstraintLayout>
 
-            <!-- Health Summary Card with Glassmorphism Effect -->
-            <androidx.cardview.widget.CardView
+            <!-- Health Summary Card with HealthCardComponent -->
+            <com.example.health_assistant.core.design.components.HealthCardComponent
                 android:id="@+id/health_summary_card"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
-                android:layout_marginEnd="16dp"
+                android:layout_marginStart="@dimen/ds_margin_standard"
+                android:layout_marginEnd="@dimen/ds_margin_standard"
                 android:layout_marginTop="-16dp"
-                app:cardBackgroundColor="@color/surface_health"
-                app:cardCornerRadius="@dimen/corner_radius_large"
-                app:cardElevation="@dimen/card_elevation_small"
+                app:healthCardType="primary"
+                app:healthCardPadding="@dimen/ds_padding_xl"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/top_section">
 
-                <FrameLayout
+                <androidx.constraintlayout.widget.ConstraintLayout
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:background="@color/surface_health">
-
-                    <androidx.constraintlayout.widget.ConstraintLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:padding="24dp">
+                    android:layout_height="wrap_content">
 
                         <TextView
                             android:id="@+id/health_summary_title"
-                            style="@style/TextAppearance.HealthAssistant.SectionTitle"
+                            style="@style/TextAppearance.HealthTypography.Title.Large"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="Health Overview"
@@ -121,171 +114,162 @@
                             app:layout_constraintTop_toTopOf="parent" />
 
                         <!-- Health Metrics Section with Triple-Ring Progress View -->
-                        <com.example.health_assistant.widgets.TripleRingProgressView
-                            android:id="@+id/triple_ring_progress"
-                            android:layout_width="140dp"
-                            android:layout_height="140dp"
-                            android:layout_marginTop="16dp"
-                            app:layout_constraintBottom_toBottomOf="parent"
-                            app:layout_constraintStart_toStartOf="parent"
-                            app:layout_constraintTop_toBottomOf="@id/health_summary_title"
-                            app:layout_constraintVertical_bias="0.0" />
 
-                        <!-- Health Metrics Legend - Improved spacing and contrast -->
-                        <androidx.constraintlayout.widget.ConstraintLayout
-                            android:id="@+id/metrics_container"
+                    <!-- Health Metrics Legend - Improved spacing and contrast -->
+                    <com.example.health_assistant.widgets.TripleRingProgressView
+                        android:id="@+id/triple_ring_progress"
+                        android:layout_width="140dp"
+                        android:layout_height="140dp"
+                        android:layout_marginTop="@dimen/ds_margin_standard"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@id/health_summary_title"
+                        app:layout_constraintVertical_bias="0.228" />
+
+                    <androidx.constraintlayout.widget.ConstraintLayout
+                        android:id="@+id/metrics_container"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="@dimen/ds_margin_large"
+                        android:background="@drawable/clean_card_background"
+                        android:padding="@dimen/ds_padding_medium"
+                        app:layout_constraintBottom_toBottomOf="@id/triple_ring_progress"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintHorizontal_bias="0.0"
+                        app:layout_constraintStart_toEndOf="@id/triple_ring_progress"
+                        app:layout_constraintTop_toTopOf="@id/triple_ring_progress"
+                        app:layout_constraintVertical_bias="0.44">
+
+                        <!-- Steps Metric -->
+                        <ImageView
+                            android:id="@+id/steps_icon"
+                            android:layout_width="@dimen/ds_component_icon_size"
+                            android:layout_height="@dimen/ds_component_icon_size"
+                            android:contentDescription="Steps"
+                            android:src="@drawable/ic_steps"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toTopOf="parent"
+                            app:tint="@color/progress_orange" />
+
+                        <TextView
+                            android:id="@+id/steps_label"
+                            style="@style/TextAppearance.HealthTypography.Label.Medium"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="@dimen/ds_padding_small"
+                            android:text="Steps"
+                            app:layout_constraintBottom_toBottomOf="@id/steps_icon"
+                            app:layout_constraintStart_toEndOf="@id/steps_icon"
+                            app:layout_constraintTop_toTopOf="@id/steps_icon" />
+
+                        <TextView
+                            android:id="@+id/steps_value"
+                            style="@style/TextAppearance.HealthTypography.Body.Large"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
-                            android:layout_marginStart="20dp"
-                            android:background="@drawable/clean_card_background"
-                            android:padding="12dp"
-                            app:layout_constraintBottom_toBottomOf="@id/triple_ring_progress"
+                            android:layout_marginStart="@dimen/ds_margin_standard"
+                            android:layout_marginTop="@dimen/ds_spacing_quarter"
+                            android:text="0 / 9000 steps"
                             app:layout_constraintEnd_toEndOf="parent"
-                            app:layout_constraintStart_toEndOf="@id/triple_ring_progress"
-                            app:layout_constraintTop_toTopOf="@id/triple_ring_progress">
+                            app:layout_constraintStart_toStartOf="@id/steps_icon"
+                            app:layout_constraintTop_toBottomOf="@id/steps_icon" />
 
-                            <!-- Steps Metric -->
-                            <ImageView
-                                android:id="@+id/steps_icon"
-                                android:layout_width="24dp"
-                                android:layout_height="24dp"
-                                android:contentDescription="Steps"
-                                android:src="@drawable/ic_steps"
-                                app:layout_constraintStart_toStartOf="parent"
-                                app:layout_constraintTop_toTopOf="parent"
-                                app:tint="@color/progress_orange" />
+                        <!-- Calories Metric -->
+                        <ImageView
+                            android:id="@+id/calories_icon"
+                            android:layout_width="@dimen/ds_component_icon_size"
+                            android:layout_height="@dimen/ds_component_icon_size"
+                            android:layout_marginTop="@dimen/ds_margin_standard"
+                            android:contentDescription="Calories"
+                            android:src="@drawable/ic_calories"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toBottomOf="@id/steps_value"
+                            app:tint="@color/progress_green" />
 
-                            <TextView
-                                android:id="@+id/steps_label"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_marginStart="8dp"
-                                android:text="Steps"
-                                android:textSize="14sp"
-                                android:textStyle="bold"
-                                android:textColor="#1A1A1A"
-                                app:layout_constraintStart_toEndOf="@id/steps_icon"
-                                app:layout_constraintTop_toTopOf="@id/steps_icon"
-                                app:layout_constraintBottom_toBottomOf="@id/steps_icon" />
+                        <TextView
+                            android:id="@+id/calories_label"
+                            style="@style/TextAppearance.HealthTypography.Label.Medium"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="@dimen/ds_padding_small"
+                            android:text="Calories"
+                            app:layout_constraintBottom_toBottomOf="@id/calories_icon"
+                            app:layout_constraintStart_toEndOf="@id/calories_icon"
+                            app:layout_constraintTop_toTopOf="@id/calories_icon" />
 
-                            <TextView
-                                android:id="@+id/steps_value"
-                                android:layout_width="0dp"
-                                android:layout_height="wrap_content"
-                                android:text="0 / 9000 steps"
-                                android:textSize="13sp"
-                                android:layout_marginTop="2dp"
-                                android:layout_marginStart="16dp"
-                                app:layout_constraintStart_toStartOf="@id/steps_icon"
-                                app:layout_constraintTop_toBottomOf="@id/steps_icon"
-                                app:layout_constraintEnd_toEndOf="parent" />
+                        <TextView
+                            android:id="@+id/calories_value"
+                            style="@style/TextAppearance.HealthTypography.Body.Large"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="@dimen/ds_margin_standard"
+                            android:layout_marginTop="@dimen/ds_spacing_quarter"
+                            android:text="0 / 300 kcal"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintStart_toStartOf="@id/calories_icon"
+                            app:layout_constraintTop_toBottomOf="@id/calories_icon" />
 
-                            <!-- Calories Metric -->
-                            <ImageView
-                                android:id="@+id/calories_icon"
-                                android:layout_width="24dp"
-                                android:layout_height="24dp"
-                                android:layout_marginTop="16dp"
-                                android:contentDescription="Calories"
-                                android:src="@drawable/ic_calories"
-                                app:layout_constraintStart_toStartOf="parent"
-                                app:layout_constraintTop_toBottomOf="@id/steps_value"
-                                app:tint="@color/progress_green" />
+                        <!-- Heart Points Metric -->
+                        <ImageView
+                            android:id="@+id/heart_points_icon"
+                            android:layout_width="@dimen/ds_component_icon_size"
+                            android:layout_height="@dimen/ds_component_icon_size"
+                            android:layout_marginTop="@dimen/ds_margin_standard"
+                            android:contentDescription="Heart Points"
+                            android:src="@drawable/ic_workout"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toBottomOf="@id/calories_value"
+                            app:tint="@color/progress_blue" />
 
-                            <TextView
-                                android:id="@+id/calories_label"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_marginStart="8dp"
-                                android:text="Calories"
-                                android:textSize="14sp"
-                                android:textStyle="bold"
-                                app:layout_constraintStart_toEndOf="@id/calories_icon"
-                                app:layout_constraintTop_toTopOf="@id/calories_icon"
-                                app:layout_constraintBottom_toBottomOf="@id/calories_icon" />
+                        <TextView
+                            android:id="@+id/heart_points_label"
+                            style="@style/TextAppearance.HealthTypography.Label.Medium"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="@dimen/ds_padding_small"
+                            android:text="Heart Points"
+                            app:layout_constraintBottom_toBottomOf="@id/heart_points_icon"
+                            app:layout_constraintStart_toEndOf="@id/heart_points_icon"
+                            app:layout_constraintTop_toTopOf="@id/heart_points_icon" />
 
-                            <TextView
-                                android:id="@+id/calories_value"
-                                android:layout_width="0dp"
-                                android:layout_height="wrap_content"
-                                android:text="0 / 300 kcal"
-                                android:textSize="13sp"
-                                android:layout_marginTop="2dp"
-                                android:layout_marginStart="16dp"
-                                app:layout_constraintStart_toStartOf="@id/calories_icon"
-                                app:layout_constraintTop_toBottomOf="@id/calories_icon"
-                                app:layout_constraintEnd_toEndOf="parent" />
+                        <TextView
+                            android:id="@+id/heart_points_value"
+                            style="@style/TextAppearance.HealthTypography.Body.Large"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="@dimen/ds_margin_standard"
+                            android:layout_marginTop="@dimen/ds_spacing_quarter"
+                            android:text="0 / 50 points"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintStart_toStartOf="@id/heart_points_icon"
+                            app:layout_constraintTop_toBottomOf="@id/heart_points_icon" />
 
-                            <!-- Heart Points Metric -->
-                            <ImageView
-                                android:id="@+id/heart_points_icon"
-                                android:layout_width="24dp"
-                                android:layout_height="24dp"
-                                android:layout_marginTop="16dp"
-                                android:contentDescription="Heart Points"
-                                android:src="@drawable/ic_workout"
-                                app:layout_constraintStart_toStartOf="parent"
-                                app:layout_constraintTop_toBottomOf="@id/calories_value"
-                                app:tint="@color/progress_blue" />
-
-                            <TextView
-                                android:id="@+id/heart_points_label"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_marginStart="8dp"
-                                android:text="Heart Points"
-                                android:textSize="14sp"
-                                android:textStyle="bold"
-                                app:layout_constraintStart_toEndOf="@id/heart_points_icon"
-                                app:layout_constraintTop_toTopOf="@id/heart_points_icon"
-                                app:layout_constraintBottom_toBottomOf="@id/heart_points_icon" />
-
-                            <TextView
-                                android:id="@+id/heart_points_value"
-                                android:layout_width="0dp"
-                                android:layout_height="wrap_content"
-                                android:text="0 / 50 points"
-                                android:textSize="13sp"
-                                android:layout_marginTop="2dp"
-                                android:layout_marginStart="16dp"
-                                app:layout_constraintStart_toStartOf="@id/heart_points_icon"
-                                app:layout_constraintTop_toBottomOf="@id/heart_points_icon"
-                                app:layout_constraintEnd_toEndOf="parent" />
-
-                        </androidx.constraintlayout.widget.ConstraintLayout>
                     </androidx.constraintlayout.widget.ConstraintLayout>
-                </FrameLayout>
-            </androidx.cardview.widget.CardView>
+                </androidx.constraintlayout.widget.ConstraintLayout>
+            </com.example.health_assistant.core.design.components.HealthCardComponent>
 
             <!-- Wellness Tip Card -->
-            <androidx.cardview.widget.CardView
+            <com.example.health_assistant.core.design.components.HealthCardComponent
                 android:id="@+id/contextual_card"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
-                android:layout_marginEnd="16dp"
-                android:layout_marginTop="16dp"
-                app:cardBackgroundColor="@color/surface_elevated"
-                app:cardCornerRadius="@dimen/corner_radius_large"
-                app:cardElevation="@dimen/card_elevation_small"
+                android:layout_marginStart="@dimen/ds_margin_standard"
+                android:layout_marginEnd="@dimen/ds_margin_standard"
+                android:layout_marginTop="@dimen/ds_margin_standard"
+                app:healthCardType="secondary"
+                app:healthCardPadding="@dimen/ds_padding_xl"
                 android:foreground="?attr/selectableItemBackground"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/health_summary_card">
 
-                <FrameLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:background="@color/surface_elevated">
-
                     <androidx.constraintlayout.widget.ConstraintLayout
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:padding="24dp">
+                        android:layout_height="wrap_content">
 
                         <TextView
                             android:id="@+id/contextual_title"
-                            style="@style/TextAppearance.HealthAssistant.SectionTitle"
+                            style="@style/TextAppearance.HealthTypography.Title.Small"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="Wellness Tip"
@@ -295,14 +279,14 @@
                         <LinearLayout
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:layout_marginTop="16dp"
+                            android:layout_marginTop="@dimen/ds_margin_standard"
                             android:orientation="horizontal"
                             app:layout_constraintTop_toBottomOf="@id/contextual_title">
 
 
                             <TextView
                                 android:id="@+id/contextual_content"
-                                style="@style/TextAppearance.HealthAssistant.TipText"
+                                style="@style/TextAppearance.HealthTypography.Body.Medium"
                                 android:layout_width="0dp"
                                 android:layout_height="wrap_content"
                                 android:layout_weight="1"
@@ -310,56 +294,45 @@
                         </LinearLayout>
 
                     </androidx.constraintlayout.widget.ConstraintLayout>
-                </FrameLayout>
-            </androidx.cardview.widget.CardView>
+            </com.example.health_assistant.core.design.components.HealthCardComponent>
 
             <!-- My Progress Section -->
             <TextView
                 android:id="@+id/my_progress_title"
-                style="@style/TextAppearance.HealthAssistant.SectionTitle"
+                style="@style/TextAppearance.HealthTypography.Title.Large"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="24dp"
-                android:layout_marginTop="32dp"
+                android:layout_marginStart="@dimen/ds_padding_xl"
+                android:layout_marginTop="@dimen/ds_layout_section_spacing"
                 android:text="My Progress"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/contextual_card" />
 
             <!-- Steps This Week Card -->
-            <androidx.cardview.widget.CardView
+            <com.example.health_assistant.core.design.components.HealthCardComponent
                 android:id="@+id/steps_this_week_card"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
-                android:layout_marginTop="16dp"
-                android:layout_marginEnd="16dp"
-                app:cardBackgroundColor="@android:color/transparent"
-                app:cardCornerRadius="@dimen/corner_radius_large"
-                app:cardElevation="@dimen/card_elevation_small"
+                android:layout_marginStart="@dimen/ds_margin_standard"
+                android:layout_marginTop="@dimen/ds_margin_standard"
+                android:layout_marginEnd="@dimen/ds_margin_standard"
+                app:healthCardType="primary"
+                app:healthCardPadding="@dimen/ds_padding_xl"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/my_progress_title">
 
-                <com.example.health_assistant.core.design.components.HealthCardComponent
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    app:healthCardType="primary"
-                    app:healthCardPadding="@dimen/ds_padding_xl">
-
                     <androidx.constraintlayout.widget.ConstraintLayout
                         android:id="@+id/steps_chart_container"
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:padding="24dp">
+                        android:layout_height="wrap_content">
 
                         <TextView
                             android:id="@+id/steps_chart_title"
+                            style="@style/TextAppearance.HealthTypography.Title.Small"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="Steps This Week"
-                            android:textSize="18sp"
-                            android:textStyle="bold"
-                            android:textColor="@color/textPrimary"
                             app:layout_constraintStart_toStartOf="parent"
                             app:layout_constraintTop_toTopOf="parent" />
 
@@ -368,7 +341,7 @@
                             android:id="@+id/steps_summary_row"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:layout_marginTop="8dp"
+                            android:layout_marginTop="@dimen/ds_padding_small"
                             android:orientation="horizontal"
                             android:gravity="center_vertical"
                             app:layout_constraintStart_toStartOf="parent"
@@ -376,20 +349,17 @@
 
                             <TextView
                                 android:id="@+id/total_steps_label"
+                                style="@style/TextAppearance.HealthTypography.Label.Medium"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="Total: "
-                                android:textSize="14sp"
-                                android:textColor="@color/textSecondary" />
+                                android:text="Total: " />
 
                             <TextView
                                 android:id="@+id/total_steps_value"
+                                style="@style/TextAppearance.HealthTypography.Body.Large"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="42,350 steps"
-                                android:textSize="14sp"
-                                android:textStyle="bold"
-                                android:textColor="@color/textPrimary" />
+                                android:text="42,350 steps" />
 
                             <View
                                 android:layout_width="0dp"
@@ -398,20 +368,17 @@
 
                             <TextView
                                 android:id="@+id/daily_average_label"
+                                style="@style/TextAppearance.HealthTypography.Label.Medium"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="Avg: "
-                                android:textSize="14sp"
-                                android:textColor="@color/textSecondary" />
+                                android:text="Avg: " />
 
                             <TextView
                                 android:id="@+id/daily_average_value"
+                                style="@style/TextAppearance.HealthTypography.Body.Large"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="6,050/day"
-                                android:textSize="14sp"
-                                android:textStyle="bold"
-                                android:textColor="@color/textPrimary" />
+                                android:text="6,050/day" />
 
                         </LinearLayout>
 
@@ -420,8 +387,8 @@
                             android:id="@+id/steps_bar_chart"
                             android:layout_width="0dp"
                             android:layout_height="220dp"
-                            android:layout_marginTop="8dp"
-                            android:layout_marginBottom="8dp"
+                            android:layout_marginTop="@dimen/ds_padding_small"
+                            android:layout_marginBottom="@dimen/ds_padding_small"
                             app:layout_constraintTop_toBottomOf="@+id/steps_summary_row"
                             app:layout_constraintStart_toStartOf="parent"
                             app:layout_constraintEnd_toEndOf="parent"
@@ -433,80 +400,66 @@
                             android:id="@+id/weekly_goal_container"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:layout_marginTop="16dp"
+                            android:layout_marginTop="@dimen/ds_margin_standard"
                             android:orientation="vertical"
                             app:layout_constraintStart_toStartOf="parent"
                             app:layout_constraintTop_toBottomOf="@+id/steps_bar_chart">
 
                             <TextView
                                 android:id="@+id/weekly_goal_label"
+                                style="@style/TextAppearance.HealthTypography.Label.Medium"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="Weekly Goal Progress"
-                                android:textSize="14sp"
-                                android:textStyle="bold"
-                                android:textColor="@color/textPrimary" />
+                                android:text="Weekly Goal Progress" />
 
                             <com.google.android.material.progressindicator.LinearProgressIndicator
                                 android:id="@+id/weekly_goal_progress"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
-                                android:layout_marginTop="8dp"
+                                android:layout_marginTop="@dimen/ds_padding_small"
                                 android:progress="60"
-                                app:indicatorColor="@color/progress_green"
+                                app:indicatorColor="@color/progress_orange"
                                 app:trackColor="#30FFFFFF"
-                                app:trackCornerRadius="4dp" />
+                                app:trackCornerRadius="@dimen/ds_spacing_half" />
 
                             <TextView
                                 android:id="@+id/weekly_goal_text"
+                                style="@style/TextAppearance.HealthTypography.Caption"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:layout_marginTop="4dp"
-                                android:text="42,350 / 70,000 steps (60%)"
-                                android:textSize="12sp"
-                                android:textColor="@color/textSecondary" />
+                                android:layout_marginTop="@dimen/ds_spacing_half"
+                                android:text="42,350 / 70,000 steps (60%)" />
 
                         </LinearLayout>
 
                     </androidx.constraintlayout.widget.ConstraintLayout>
                 </com.example.health_assistant.core.design.components.HealthCardComponent>
-            </androidx.cardview.widget.CardView>
 
             <!-- Calories This Week Card -->
-            <androidx.cardview.widget.CardView
+            <com.example.health_assistant.core.design.components.HealthCardComponent
                 android:id="@+id/calories_this_week_card"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
-                android:layout_marginTop="16dp"
-                android:layout_marginEnd="16dp"
-                app:cardBackgroundColor="@android:color/transparent"
-                app:cardCornerRadius="@dimen/corner_radius_large"
-                app:cardElevation="@dimen/card_elevation_small"
+                android:layout_marginStart="@dimen/ds_margin_standard"
+                android:layout_marginTop="@dimen/ds_margin_standard"
+                android:layout_marginEnd="@dimen/ds_margin_standard"
+                app:healthCardType="primary"
+                app:healthCardPadding="@dimen/ds_padding_xl"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/steps_this_week_card">
 
-                <com.example.health_assistant.core.design.components.HealthCardComponent
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    app:healthCardType="primary"
-                    app:healthCardPadding="@dimen/ds_padding_xl">
-
                     <androidx.constraintlayout.widget.ConstraintLayout
                         android:id="@+id/calories_chart_container"
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:padding="24dp">
+                        android:layout_height="wrap_content">
 
                         <TextView
                             android:id="@+id/calories_chart_title"
+                            style="@style/TextAppearance.HealthTypography.Title.Small"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="Calories This Week"
-                            android:textSize="18sp"
-                            android:textStyle="bold"
-                            android:textColor="@color/textPrimary"
                             app:layout_constraintStart_toStartOf="parent"
                             app:layout_constraintTop_toTopOf="parent" />
 
@@ -514,7 +467,7 @@
                             android:id="@+id/calories_summary_row"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:layout_marginTop="8dp"
+                            android:layout_marginTop="@dimen/ds_padding_small"
                             android:orientation="horizontal"
                             android:gravity="center_vertical"
                             app:layout_constraintStart_toStartOf="parent"
@@ -522,20 +475,17 @@
 
                             <TextView
                                 android:id="@+id/total_calories_label"
+                                style="@style/TextAppearance.HealthTypography.Label.Medium"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="Total: "
-                                android:textSize="14sp"
-                                android:textColor="@color/textSecondary" />
+                                android:text="Total: " />
 
                             <TextView
                                 android:id="@+id/total_calories_value"
+                                style="@style/TextAppearance.HealthTypography.Body.Large"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="2,100 kcal"
-                                android:textSize="14sp"
-                                android:textStyle="bold"
-                                android:textColor="@color/textPrimary" />
+                                android:text="2,100 kcal" />
 
                             <View
                                 android:layout_width="0dp"
@@ -544,20 +494,17 @@
 
                             <TextView
                                 android:id="@+id/daily_calories_average_label"
+                                style="@style/TextAppearance.HealthTypography.Label.Medium"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="Avg: "
-                                android:textSize="14sp"
-                                android:textColor="@color/textSecondary" />
+                                android:text="Avg: " />
 
                             <TextView
                                 android:id="@+id/daily_calories_average_value"
+                                style="@style/TextAppearance.HealthTypography.Body.Large"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="300 kcal"
-                                android:textSize="14sp"
-                                android:textStyle="bold"
-                                android:textColor="@color/textPrimary" />
+                                android:text="300 kcal" />
                         </LinearLayout>
 
                         <!-- Calories Chart View -->
@@ -565,7 +512,7 @@
                             android:id="@+id/calories_chart"
                             android:layout_width="0dp"
                             android:layout_height="180dp"
-                            android:layout_marginTop="16dp"
+                            android:layout_marginTop="@dimen/ds_margin_standard"
                             android:background="@android:color/transparent"
                             app:layout_constraintStart_toStartOf="parent"
                             app:layout_constraintEnd_toEndOf="parent"
@@ -576,80 +523,66 @@
                             android:id="@+id/calories_weekly_goal_container"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:layout_marginTop="16dp"
+                            android:layout_marginTop="@dimen/ds_margin_standard"
                             android:orientation="vertical"
                             app:layout_constraintStart_toStartOf="parent"
                             app:layout_constraintTop_toBottomOf="@+id/calories_chart">
 
                             <TextView
                                 android:id="@+id/calories_weekly_goal_label"
+                                style="@style/TextAppearance.HealthTypography.Label.Medium"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="Weekly Goal Progress"
-                                android:textSize="14sp"
-                                android:textStyle="bold"
-                                android:textColor="@color/textPrimary" />
+                                android:text="Weekly Goal Progress" />
 
                             <com.google.android.material.progressindicator.LinearProgressIndicator
                                 android:id="@+id/calories_weekly_goal_progress"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
-                                android:layout_marginTop="8dp"
+                                android:layout_marginTop="@dimen/ds_padding_small"
                                 android:progress="70"
                                 app:indicatorColor="@color/progress_green"
                                 app:trackColor="#30FFFFFF"
-                                app:trackCornerRadius="4dp" />
+                                app:trackCornerRadius="@dimen/ds_spacing_half" />
 
                             <TextView
                                 android:id="@+id/calories_weekly_goal_text"
+                                style="@style/TextAppearance.HealthTypography.Caption"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:layout_marginTop="4dp"
-                                android:text="2,100 / 3,000 kcal (70%)"
-                                android:textSize="12sp"
-                                android:textColor="@color/textSecondary" />
+                                android:layout_marginTop="@dimen/ds_spacing_half"
+                                android:text="2,100 / 3,000 kcal (70%)" />
 
                         </LinearLayout>
 
                     </androidx.constraintlayout.widget.ConstraintLayout>
                 </com.example.health_assistant.core.design.components.HealthCardComponent>
-            </androidx.cardview.widget.CardView>
 
             <!-- Heart Points This Week Card -->
-            <androidx.cardview.widget.CardView
+            <com.example.health_assistant.core.design.components.HealthCardComponent
                 android:id="@+id/heart_points_this_week_card"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
-                android:layout_marginTop="16dp"
-                android:layout_marginEnd="16dp"
-                app:cardBackgroundColor="@android:color/transparent"
-                app:cardCornerRadius="@dimen/corner_radius_large"
-                app:cardElevation="@dimen/card_elevation_small"
+                android:layout_marginStart="@dimen/ds_margin_standard"
+                android:layout_marginTop="@dimen/ds_margin_standard"
+                android:layout_marginEnd="@dimen/ds_margin_standard"
+                app:healthCardType="primary"
+                app:healthCardPadding="@dimen/ds_padding_xl"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/calories_this_week_card">
 
-                <com.example.health_assistant.core.design.components.HealthCardComponent
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    app:healthCardType="primary"
-                    app:healthCardPadding="@dimen/ds_padding_xl">
-
                     <androidx.constraintlayout.widget.ConstraintLayout
                         android:id="@+id/heart_points_chart_container"
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:padding="24dp">
+                        android:layout_height="wrap_content">
 
                         <TextView
                             android:id="@+id/heart_points_chart_title"
+                            style="@style/TextAppearance.HealthTypography.Title.Small"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="Heart Points This Week"
-                            android:textSize="18sp"
-                            android:textStyle="bold"
-                            android:textColor="@color/textPrimary"
                             app:layout_constraintStart_toStartOf="parent"
                             app:layout_constraintTop_toTopOf="parent" />
 
@@ -657,7 +590,7 @@
                             android:id="@+id/heart_points_summary_row"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:layout_marginTop="8dp"
+                            android:layout_marginTop="@dimen/ds_padding_small"
                             android:orientation="horizontal"
                             android:gravity="center_vertical"
                             app:layout_constraintStart_toStartOf="parent"
@@ -665,20 +598,17 @@
 
                             <TextView
                                 android:id="@+id/total_heart_points_label"
+                                style="@style/TextAppearance.HealthTypography.Label.Medium"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="Total: "
-                                android:textSize="14sp"
-                                android:textColor="@color/textSecondary" />
+                                android:text="Total: " />
 
                             <TextView
                                 android:id="@+id/total_heart_points_value"
+                                style="@style/TextAppearance.HealthTypography.Body.Large"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="35 points"
-                                android:textSize="14sp"
-                                android:textStyle="bold"
-                                android:textColor="@color/textPrimary" />
+                                android:text="35 points" />
 
                             <View
                                 android:layout_width="0dp"
@@ -687,20 +617,17 @@
 
                             <TextView
                                 android:id="@+id/daily_heart_points_average_label"
+                                style="@style/TextAppearance.HealthTypography.Label.Medium"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="Avg: "
-                                android:textSize="14sp"
-                                android:textColor="@color/textSecondary" />
+                                android:text="Avg: " />
 
                             <TextView
                                 android:id="@+id/daily_heart_points_average_value"
+                                style="@style/TextAppearance.HealthTypography.Body.Large"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="5 points"
-                                android:textSize="14sp"
-                                android:textStyle="bold"
-                                android:textColor="@color/textPrimary" />
+                                android:text="5 points" />
                         </LinearLayout>
 
                         <!-- Heart Points Chart View -->
@@ -708,7 +635,7 @@
                             android:id="@+id/heart_points_chart"
                             android:layout_width="0dp"
                             android:layout_height="180dp"
-                            android:layout_marginTop="16dp"
+                            android:layout_marginTop="@dimen/ds_margin_standard"
                             android:background="@android:color/transparent"
                             app:layout_constraintStart_toStartOf="parent"
                             app:layout_constraintEnd_toEndOf="parent"
@@ -719,53 +646,49 @@
                             android:id="@+id/heart_points_weekly_goal_container"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:layout_marginTop="16dp"
+                            android:layout_marginTop="@dimen/ds_margin_standard"
                             android:orientation="vertical"
                             app:layout_constraintStart_toStartOf="parent"
                             app:layout_constraintTop_toBottomOf="@+id/heart_points_chart">
 
                             <TextView
                                 android:id="@+id/heart_points_weekly_goal_label"
+                                style="@style/TextAppearance.HealthTypography.Label.Medium"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="Weekly Goal Progress"
-                                android:textSize="14sp"
-                                android:textStyle="bold"
-                                android:textColor="@color/textPrimary" />
+                                android:text="Weekly Goal Progress" />
 
                             <com.google.android.material.progressindicator.LinearProgressIndicator
                                 android:id="@+id/heart_points_weekly_goal_progress"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
-                                android:layout_marginTop="8dp"
+                                android:layout_marginTop="@dimen/ds_padding_small"
                                 android:progress="70"
                                 app:indicatorColor="@color/progress_blue"
                                 app:trackColor="#30FFFFFF"
-                                app:trackCornerRadius="4dp" />
+                                app:trackCornerRadius="@dimen/ds_spacing_half" />
 
                             <TextView
                                 android:id="@+id/heart_points_weekly_goal_text"
+                                style="@style/TextAppearance.HealthTypography.Caption"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:layout_marginTop="4dp"
-                                android:text="245 / 350 points (70%)"
-                                android:textSize="12sp"
-                                android:textColor="@color/textSecondary" />
+                                android:layout_marginTop="@dimen/ds_spacing_half"
+                                android:text="245 / 350 points (70%)" />
 
                         </LinearLayout>
 
                     </androidx.constraintlayout.widget.ConstraintLayout>
                 </com.example.health_assistant.core.design.components.HealthCardComponent>
-            </androidx.cardview.widget.CardView>
 
             <!-- Wellness Tips Section -->
             <TextView
                 android:id="@+id/insights_title"
-                style="@style/TextAppearance.HealthAssistant.SectionTitle"
+                style="@style/TextAppearance.HealthTypography.Title.Large"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="24dp"
-                android:layout_marginTop="32dp"
+                android:layout_marginStart="@dimen/ds_padding_xl"
+                android:layout_marginTop="@dimen/ds_layout_section_spacing"
                 android:text="Your Insights"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/heart_points_this_week_card" />
@@ -775,12 +698,12 @@
                 android:id="@+id/insights_recycler"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
+                android:layout_marginTop="@dimen/ds_margin_standard"
                 android:clipToPadding="false"
                 android:orientation="horizontal"
-                android:paddingStart="16dp"
-                android:paddingEnd="16dp"
-                android:paddingBottom="8dp"
+                android:paddingStart="@dimen/ds_margin_standard"
+                android:paddingEnd="@dimen/ds_margin_standard"
+                android:paddingBottom="@dimen/ds_padding_small"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/insights_title" />

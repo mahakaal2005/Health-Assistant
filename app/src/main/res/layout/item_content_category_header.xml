@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:gravity="center_vertical"
+    android:padding="@dimen/ds_padding_standard"
+    android:background="@color/ds_surface_secondary">
+
+    <!-- Category Color Indicator -->
+    <View
+        android:id="@+id/category_color_indicator"
+        android:layout_width="4dp"
+        android:layout_height="24dp"
+        android:layout_marginEnd="@dimen/ds_margin_standard"
+        android:background="@color/ds_primary"
+        tools:background="@color/category_nutrition" />
+
+    <!-- Category Icon -->
+    <ImageView
+        android:id="@+id/category_icon"
+        android:layout_width="@dimen/ds_component_icon_size"
+        android:layout_height="@dimen/ds_component_icon_size"
+        android:layout_marginEnd="@dimen/ds_margin_standard"
+        android:src="@drawable/ic_heart"
+        app:tint="@color/ds_primary"
+        tools:src="@drawable/ic_heart"
+        tools:tint="@color/category_nutrition" />
+
+    <!-- Category Title -->
+    <TextView
+        android:id="@+id/category_title"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:textAppearance="@style/TextAppearance.HealthTypography.Title.Medium"
+        tools:text="Nutrition &amp; Diet" />
+
+    <!-- Content Count -->
+    <TextView
+        android:id="@+id/content_count"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/ds_margin_standard"
+        android:textAppearance="@style/TextAppearance.HealthTypography.Caption"
+        android:background="@drawable/chip_background"
+        android:paddingStart="@dimen/ds_padding_small"
+        android:paddingTop="@dimen/ds_padding_xs"
+        android:paddingEnd="@dimen/ds_padding_small"
+        android:paddingBottom="@dimen/ds_padding_xs"
+        tools:text="24" />
+
+</LinearLayout>

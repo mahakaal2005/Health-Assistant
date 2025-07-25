@@ -75,4 +75,9 @@
     <color name="ds_interactive_ripple">#40FFFFFF</color>
     <color name="ds_interactive_outline">#555555</color>
     <color name="ds_interactive_divider">#2A2A2A</color>
+
+    <!-- HealthColors.Progress tokens for dark theme -->
+    <color name="progress_orange">#FFB74D</color>
+    <color name="progress_green">#81C784</color>
+    <color name="progress_blue">#64B5F6</color>
 </resources>
