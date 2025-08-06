@@ -419,6 +419,19 @@ class HomeFragment : Fragment() {
     }
 
     /**
+     * Navigate to health chatbot
+     */
+    private fun navigateToHealthChat() {
+        try {
+            Log.d("HomeFragment", "Navigating to health chatbot")
+            findNavController().navigate(R.id.action_homeFragment_to_chatFragment)
+        } catch (e: Exception) {
+            Log.e("HomeFragment", "Error navigating to health chatbot", e)
+            Toast.makeText(context, "Unable to open chat. Please try again.", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    /**
      * Fallback method to update greeting when profile is not available
      */
     private fun updateGreetingWithFallback() {
@@ -534,6 +547,13 @@ class HomeFragment : Fragment() {
         // Add click interaction
         binding.contextualCard.setOnClickListener {
             Toast.makeText(context, "More wellness tips coming soon!", Toast.LENGTH_SHORT).show()
+        }
+        
+        // Setup chat FAB click listener
+        binding.chatFab.setOnClickListener {
+            Log.d("HomeFragment", "Chat FAB clicked - navigating to health chatbot")
+            animatePressEffect(binding.chatFab)
+            navigateToHealthChat()
         }
     }
 

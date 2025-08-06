@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+    
+    <!-- User message bubble - primary color background -->
+    <solid android:color="@color/colorPrimary" />
+    
+    <!-- Rounded corners with asymmetric design for chat bubble effect -->
+    <corners
+        android:topLeftRadius="16dp"
+        android:topRightRadius="16dp"
+        android:bottomLeftRadius="16dp"
+        android:bottomRightRadius="4dp" />
+    
+    <!-- Subtle elevation shadow -->
+    <stroke
+        android:width="0dp"
+        android:color="@android:color/transparent" />
+        
+</shape>

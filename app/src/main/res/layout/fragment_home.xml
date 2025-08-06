@@ -9,6 +9,20 @@
 
     <!-- Clean white background - no decorative elements needed -->
 
+    <!-- Health Assistant Chat FAB -->
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/chat_fab"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:layout_margin="16dp"
+        android:contentDescription="Open Health Assistant Chat"
+        android:src="@drawable/ic_ai_chatbot"
+        app:backgroundTint="@color/colorPrimary"
+        app:tint="@color/white"
+        app:elevation="6dp"
+        app:pressedTranslationZ="12dp" />
+
     <!-- Main Scrollable Content -->
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"

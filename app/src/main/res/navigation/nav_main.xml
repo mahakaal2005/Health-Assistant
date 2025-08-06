@@ -49,6 +49,14 @@
         app:popEnterAnim="@anim/slide_in_left"
         app:popExitAnim="@anim/slide_out_right" />
 
+    <action
+        android:id="@+id/action_global_to_chatFragment"
+        app:destination="@id/chatFragment"
+        app:enterAnim="@anim/slide_in_right"
+        app:exitAnim="@anim/slide_out_left"
+        app:popEnterAnim="@anim/slide_in_left"
+        app:popExitAnim="@anim/slide_out_right" />
+
     <!-- HOME FRAGMENT - Central Hub -->
     <fragment
         android:id="@+id/homeFragment"
@@ -56,6 +64,14 @@
         android:label="Home"
         tools:layout="@layout/fragment_home">
 
+        <!-- Navigation to health chatbot -->
+        <action
+            android:id="@+id/action_homeFragment_to_chatFragment"
+            app:destination="@id/chatFragment"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right" />
 
     </fragment>
 
@@ -175,6 +191,19 @@
 
     <!-- SECONDARY SCREENS -->
     <!-- These maintain normal back navigation to their parent fragments -->
+
+    <!-- HEALTH CHATBOT FRAGMENT -->
+    <fragment
+        android:id="@+id/chatFragment"
+        android:name="com.example.health_assistant.features.chatbot.ChatFragment"
+        android:label="Health Assistant"
+        tools:layout="@layout/fragment_chat">
+        
+        <!-- Deep link for direct chat access -->
+        <deepLink
+            app:uri="healthassistant://chat"
+            app:action="android.intent.action.VIEW" />
+    </fragment>
 
     <fragment
         android:id="@+id/prescriptionsFragment"

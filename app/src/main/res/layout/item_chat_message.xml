@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:paddingVertical="4dp">
+
+    <!-- User message bubble (right side) -->
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/user_message_container"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="64dp"
+        android:layout_marginEnd="16dp"
+        android:background="@drawable/chat_bubble_user"
+        android:padding="12dp"
+        android:visibility="gone"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:visibility="visible">
+
+        <TextView
+            android:id="@+id/user_message_text"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColor="@color/white"
+            android:textSize="16sp"
+            app:layout_constraintBottom_toTopOf="@+id/user_message_time"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="What are some good exercises for beginners?" />
+
+        <TextView
+            android:id="@+id/user_message_time"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:textColor="@color/white"
+            android:textSize="12sp"
+            android:alpha="0.8"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/user_message_text"
+            tools:text="10:30 AM" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <!-- Bot message bubble (left side) -->
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/bot_message_container"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="64dp"
+        android:background="@drawable/chat_bubble_bot"
+        android:padding="12dp"
+        android:visibility="gone"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:visibility="visible">
+
+        <!-- Bot avatar -->
+        <ImageView
+            android:id="@+id/bot_avatar"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_marginEnd="8dp"
+            android:src="@drawable/ic_ai_chatbot"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:tint="@color/colorPrimary" />
+
+        <TextView
+            android:id="@+id/bot_message_text"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:textColor="@color/text_primary_dark"
+            android:textSize="16sp"
+            android:lineSpacingExtra="2dp"
+            app:layout_constraintBottom_toTopOf="@+id/bot_message_time"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/bot_avatar"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="Great question! For beginners, I recommend starting with these exercises:\n\n1. Walking - Start with 15-20 minutes daily\n2. Bodyweight squats - 2 sets of 10\n3. Push-ups (modified if needed) - 2 sets of 5-10\n4. Planks - Hold for 20-30 seconds\n\nThis information is for educational purposes only. Please consult with a healthcare provider for medical advice." />
+
+        <TextView
+            android:id="@+id/bot_message_time"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:layout_marginStart="8dp"
+            android:textColor="@color/text_tertiary_dark"
+            android:textSize="12sp"
+            app:layout_constraintStart_toEndOf="@+id/bot_avatar"
+            app:layout_constraintTop_toBottomOf="@+id/bot_message_text"
+            tools:text="10:31 AM" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>
