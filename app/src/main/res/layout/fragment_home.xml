@@ -9,19 +9,22 @@
 
     <!-- Clean white background - no decorative elements needed -->
 
-    <!-- Health Assistant Chat FAB -->
+    <!-- Enhanced Health Assistant Chat FAB with Modern Styling -->
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/chat_fab"
+        style="@style/Widget.HealthAssistant.FloatingActionButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"
-        android:layout_margin="16dp"
+        android:layout_margin="@dimen/ds_spacing_s"
         android:contentDescription="Open Health Assistant Chat"
         android:src="@drawable/ic_ai_chatbot"
-        app:backgroundTint="@color/colorPrimary"
+        app:backgroundTint="@color/ds_primary_500"
         app:tint="@color/white"
-        app:elevation="6dp"
-        app:pressedTranslationZ="12dp" />
+        app:elevation="@dimen/ds_elevation_floating"
+        app:pressedTranslationZ="@dimen/ds_elevation_modal"
+        app:borderWidth="0dp"
+        app:rippleColor="@color/white" />
 
     <!-- Main Scrollable Content -->
     <androidx.core.widget.NestedScrollView
@@ -100,16 +103,17 @@
 
             </androidx.constraintlayout.widget.ConstraintLayout>
 
-            <!-- Health Summary Card with HealthCardComponent -->
+            <!-- Modern Health Summary Card with Enhanced Styling -->
             <com.example.health_assistant.core.design.components.HealthCardComponent
                 android:id="@+id/health_summary_card"
+                style="@style/Widget.HealthAssistant.Card.HealthMetrics"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="@dimen/ds_margin_standard"
-                android:layout_marginEnd="@dimen/ds_margin_standard"
-                android:layout_marginTop="-16dp"
+                android:layout_marginStart="@dimen/ds_spacing_s"
+                android:layout_marginEnd="@dimen/ds_spacing_s"
+                android:layout_marginTop="@dimen/ds_spacing_xs"
                 app:healthCardType="primary"
-                app:healthCardPadding="@dimen/ds_padding_xl"
+                app:healthCardPadding="@dimen/ds_card_padding_spacious"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/top_section">
@@ -124,54 +128,54 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="Health Overview"
+                            android:textColor="@color/ds_text_primary"
                             app:layout_constraintStart_toStartOf="parent"
                             app:layout_constraintTop_toTopOf="parent" />
 
-                        <!-- Health Metrics Section with Triple-Ring Progress View -->
-
-                    <!-- Health Metrics Legend - Improved spacing and contrast -->
+                        <!-- Enhanced Health Metrics Section with Modern Layout -->
+                    <!-- Health Metrics Triple-Ring Progress View with improved sizing -->
                     <com.example.health_assistant.widgets.TripleRingProgressView
                         android:id="@+id/triple_ring_progress"
-                        android:layout_width="140dp"
-                        android:layout_height="140dp"
-                        android:layout_marginTop="@dimen/ds_margin_standard"
+                        android:layout_width="@dimen/ds_health_ring_size"
+                        android:layout_height="@dimen/ds_health_ring_size"
+                        android:layout_marginTop="@dimen/ds_spacing_l"
                         app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toBottomOf="@id/health_summary_title"
-                        app:layout_constraintVertical_bias="0.228" />
+                        app:layout_constraintVertical_bias="0.0" />
 
                     <androidx.constraintlayout.widget.ConstraintLayout
                         android:id="@+id/metrics_container"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:layout_marginStart="@dimen/ds_margin_large"
-                        android:background="@drawable/clean_card_background"
-                        android:padding="@dimen/ds_padding_medium"
+                        android:layout_marginStart="@dimen/ds_spacing_l"
+                        android:background="@drawable/modern_card_background"
+                        android:padding="@dimen/ds_spacing_s"
                         app:layout_constraintBottom_toBottomOf="@id/triple_ring_progress"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintHorizontal_bias="0.0"
                         app:layout_constraintStart_toEndOf="@id/triple_ring_progress"
-                        app:layout_constraintTop_toTopOf="@id/triple_ring_progress"
-                        app:layout_constraintVertical_bias="0.44">
+                        app:layout_constraintTop_toTopOf="@id/triple_ring_progress">
 
-                        <!-- Steps Metric -->
+                        <!-- Enhanced Steps Metric with modern styling -->
                         <ImageView
                             android:id="@+id/steps_icon"
-                            android:layout_width="@dimen/ds_component_icon_size"
-                            android:layout_height="@dimen/ds_component_icon_size"
+                            android:layout_width="@dimen/ds_icon_medium"
+                            android:layout_height="@dimen/ds_icon_medium"
                             android:contentDescription="Steps"
                             android:src="@drawable/ic_steps"
                             app:layout_constraintStart_toStartOf="parent"
                             app:layout_constraintTop_toTopOf="parent"
-                            app:tint="@color/progress_orange" />
+                            app:tint="@color/ds_chart_primary" />
 
                         <TextView
                             android:id="@+id/steps_label"
                             style="@style/TextAppearance.HealthTypography.Label.Medium"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginStart="@dimen/ds_padding_small"
+                            android:layout_marginStart="@dimen/ds_spacing_xs"
                             android:text="Steps"
+                            android:textColor="@color/ds_text_secondary"
                             app:layout_constraintBottom_toBottomOf="@id/steps_icon"
                             app:layout_constraintStart_toEndOf="@id/steps_icon"
                             app:layout_constraintTop_toTopOf="@id/steps_icon" />
@@ -181,19 +185,20 @@
                             style="@style/TextAppearance.HealthTypography.Body.Large"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
-                            android:layout_marginStart="@dimen/ds_margin_standard"
-                            android:layout_marginTop="@dimen/ds_spacing_quarter"
+                            android:layout_marginTop="@dimen/ds_spacing_xs"
                             android:text="0 / 9000 steps"
+                            android:textColor="@color/ds_text_primary"
+                            android:textStyle="bold"
                             app:layout_constraintEnd_toEndOf="parent"
                             app:layout_constraintStart_toStartOf="@id/steps_icon"
                             app:layout_constraintTop_toBottomOf="@id/steps_icon" />
 
-                        <!-- Calories Metric -->
+                        <!-- Enhanced Calories Metric -->
                         <ImageView
                             android:id="@+id/calories_icon"
-                            android:layout_width="@dimen/ds_component_icon_size"
-                            android:layout_height="@dimen/ds_component_icon_size"
-                            android:layout_marginTop="@dimen/ds_margin_standard"
+                            android:layout_width="@dimen/ds_icon_medium"
+                            android:layout_height="@dimen/ds_icon_medium"
+                            android:layout_marginTop="@dimen/ds_health_metric_spacing"
                             android:contentDescription="Calories"
                             android:src="@drawable/ic_calories"
                             app:layout_constraintStart_toStartOf="parent"
@@ -262,17 +267,18 @@
                 </androidx.constraintlayout.widget.ConstraintLayout>
             </com.example.health_assistant.core.design.components.HealthCardComponent>
 
-            <!-- Wellness Tip Card -->
+            <!-- Enhanced Modern Wellness Tip Card -->
             <com.example.health_assistant.core.design.components.HealthCardComponent
                 android:id="@+id/contextual_card"
+                style="@style/Widget.HealthAssistant.Card.Secondary"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="@dimen/ds_margin_standard"
-                android:layout_marginEnd="@dimen/ds_margin_standard"
-                android:layout_marginTop="@dimen/ds_margin_standard"
+                android:layout_marginStart="@dimen/ds_spacing_s"
+                android:layout_marginEnd="@dimen/ds_spacing_s"
+                android:layout_marginTop="@dimen/ds_spacing_l"
                 app:healthCardType="secondary"
-                app:healthCardPadding="@dimen/ds_padding_xl"
-                android:foreground="?attr/selectableItemBackground"
+                app:healthCardPadding="@dimen/ds_card_padding_comfortable"
+                android:foreground="@drawable/modern_ripple_background"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/health_summary_card">
@@ -281,57 +287,68 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content">
 
+                        <ImageView
+                            android:id="@+id/tip_icon"
+                            android:layout_width="@dimen/ds_icon_medium"
+                            android:layout_height="@dimen/ds_icon_medium"
+                            android:src="@drawable/ic_lightbulb"
+                            android:contentDescription="Wellness tip"
+                            app:tint="@color/ds_primary_500"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toTopOf="parent" />
+
                         <TextView
                             android:id="@+id/contextual_title"
                             style="@style/TextAppearance.HealthTypography.Title.Small"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
+                            android:layout_marginStart="@dimen/ds_spacing_xs"
                             android:text="Wellness Tip"
-                            app:layout_constraintStart_toStartOf="parent"
-                            app:layout_constraintTop_toTopOf="parent" />
+                            android:textColor="@color/ds_text_primary"
+                            app:layout_constraintBottom_toBottomOf="@id/tip_icon"
+                            app:layout_constraintStart_toEndOf="@id/tip_icon"
+                            app:layout_constraintTop_toTopOf="@id/tip_icon" />
 
-                        <LinearLayout
-                            android:layout_width="match_parent"
+                        <TextView
+                            android:id="@+id/contextual_content"
+                            style="@style/TextAppearance.HealthTypography.Body.Medium"
+                            android:layout_width="0dp"
                             android:layout_height="wrap_content"
-                            android:layout_marginTop="@dimen/ds_margin_standard"
-                            android:orientation="horizontal"
-                            app:layout_constraintTop_toBottomOf="@id/contextual_title">
-
-
-                            <TextView
-                                android:id="@+id/contextual_content"
-                                style="@style/TextAppearance.HealthTypography.Body.Medium"
-                                android:layout_width="0dp"
-                                android:layout_height="wrap_content"
-                                android:layout_weight="1"
-                                android:text="Stay hydrated! Aim for 8 glasses of water today." />
-                        </LinearLayout>
+                            android:layout_marginTop="@dimen/ds_spacing_s"
+                            android:text="Stay hydrated! Aim for 8 glasses of water today."
+                            android:textColor="@color/ds_text_secondary"
+                            android:lineSpacingExtra="@dimen/ds_text_line_spacing_medium"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintStart_toStartOf="@id/tip_icon"
+                            app:layout_constraintTop_toBottomOf="@id/tip_icon" />
 
                     </androidx.constraintlayout.widget.ConstraintLayout>
             </com.example.health_assistant.core.design.components.HealthCardComponent>
 
-            <!-- My Progress Section -->
+            <!-- Enhanced My Progress Section with Modern Typography -->
             <TextView
                 android:id="@+id/my_progress_title"
                 style="@style/TextAppearance.HealthTypography.Title.Large"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="@dimen/ds_padding_xl"
-                android:layout_marginTop="@dimen/ds_layout_section_spacing"
+                android:layout_marginStart="@dimen/ds_spacing_s"
+                android:layout_marginTop="@dimen/ds_spacing_xxxl"
                 android:text="My Progress"
+                android:textColor="@color/ds_text_primary"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/contextual_card" />
 
-            <!-- Steps This Week Card -->
+            <!-- Modern Enhanced Steps This Week Card -->
             <com.example.health_assistant.core.design.components.HealthCardComponent
                 android:id="@+id/steps_this_week_card"
+                style="@style/Widget.HealthAssistant.Card.Primary"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="@dimen/ds_margin_standard"
-                android:layout_marginTop="@dimen/ds_margin_standard"
-                android:layout_marginEnd="@dimen/ds_margin_standard"
+                android:layout_marginStart="@dimen/ds_spacing_s"
+                android:layout_marginTop="@dimen/ds_spacing_l"
+                android:layout_marginEnd="@dimen/ds_spacing_s"
                 app:healthCardType="primary"
-                app:healthCardPadding="@dimen/ds_padding_xl"
+                app:healthCardPadding="@dimen/ds_card_padding_comfortable"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/my_progress_title">
@@ -341,25 +358,40 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content">
 
+                        <ImageView
+                            android:id="@+id/steps_chart_icon"
+                            android:layout_width="@dimen/ds_icon_medium"
+                            android:layout_height="@dimen/ds_icon_medium"
+                            android:src="@drawable/ic_steps"
+                            android:contentDescription="Steps chart"
+                            app:tint="@color/ds_chart_primary"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toTopOf="parent" />
+
                         <TextView
                             android:id="@+id/steps_chart_title"
                             style="@style/TextAppearance.HealthTypography.Title.Small"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
+                            android:layout_marginStart="@dimen/ds_spacing_xs"
                             android:text="Steps This Week"
-                            app:layout_constraintStart_toStartOf="parent"
-                            app:layout_constraintTop_toTopOf="parent" />
+                            android:textColor="@color/ds_text_primary"
+                            app:layout_constraintBottom_toBottomOf="@id/steps_chart_icon"
+                            app:layout_constraintStart_toEndOf="@id/steps_chart_icon"
+                            app:layout_constraintTop_toTopOf="@id/steps_chart_icon" />
 
-                        <!-- Steps Summary Row -->
+                        <!-- Enhanced Steps Summary Row with better spacing -->
                         <LinearLayout
                             android:id="@+id/steps_summary_row"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:layout_marginTop="@dimen/ds_padding_small"
+                            android:layout_marginTop="@dimen/ds_spacing_l"
                             android:orientation="horizontal"
                             android:gravity="center_vertical"
+                            android:background="@drawable/modern_card_background"
+                            android:padding="@dimen/ds_spacing_xs"
                             app:layout_constraintStart_toStartOf="parent"
-                            app:layout_constraintTop_toBottomOf="@+id/steps_chart_title">
+                            app:layout_constraintTop_toBottomOf="@+id/steps_chart_icon">
 
                             <TextView
                                 android:id="@+id/total_steps_label"

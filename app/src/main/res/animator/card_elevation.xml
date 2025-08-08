@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    
+    <!-- Pressed state -->
+    <item android:state_pressed="true">
+        <set>
+            <objectAnimator
+                android:duration="@integer/ds_animation_duration_fast"
+                android:property="translationZ"
+                android:valueTo="@dimen/ds_elevation_floating"
+                android:valueType="floatType" />
+            <objectAnimator
+                android:duration="@integer/ds_animation_duration_fast"
+                android:property="elevation"
+                android:valueTo="@dimen/ds_elevation_floating"
+                android:valueType="floatType" />
+        </set>
+    </item>
+    
+    <!-- Hovered state -->
+    <item android:state_hovered="true">
+        <set>
+            <objectAnimator
+                android:duration="@integer/ds_animation_duration_medium"
+                android:property="translationZ"
+                android:valueTo="@dimen/ds_elevation_medium"
+                android:valueType="floatType" />
+            <objectAnimator
+                android:duration="@integer/ds_animation_duration_medium"
+                android:property="elevation"
+                android:valueTo="@dimen/ds_elevation_medium"
+                android:valueType="floatType" />
+        </set>
+    </item>
+    
+    <!-- Default state -->
+    <item>
+        <set>
+            <objectAnimator
+                android:duration="@integer/ds_animation_duration_medium"
+                android:property="translationZ"
+                android:valueTo="@dimen/ds_elevation_card"
+                android:valueType="floatType" />
+            <objectAnimator
+                android:duration="@integer/ds_animation_duration_medium"
+                android:property="elevation"
+                android:valueTo="@dimen/ds_elevation_card"
+                android:valueType="floatType" />
+        </set>
+    </item>
+    
+</selector>

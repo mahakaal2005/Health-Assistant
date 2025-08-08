@@ -67,83 +67,142 @@
         <item name="android:windowExitAnimation">@android:anim/fade_out</item>
     </style>
 
-    <!-- Widget Styles -->
-    <!-- Primary Button Style -->
+    <!-- Modern Enhanced Button Styles -->
+    <!-- Primary Button Style - Enhanced with modern interactions -->
     <style name="Widget.HealthAssistant.Button.Primary" parent="Widget.Material3.Button">
-        <!-- Use health green background -->
-        <item name="backgroundTint">@color/health_primary</item>
-        <!-- Padding: 12dp top/bottom, 24dp left/right -->
-        <item name="android:paddingTop">12dp</item>
-        <item name="android:paddingBottom">12dp</item>
-        <item name="android:paddingLeft">24dp</item>
-        <item name="android:paddingRight">24dp</item>
-        <!-- Elevation: 4dp -->
-        <item name="android:elevation">4dp</item>
-        <!-- StateListAnimator -->
-        <item name="android:stateListAnimator">@xml/button_state_list_animator</item>
-        <!-- Minimum height: 56dp -->
-        <item name="android:minHeight">56dp</item>
-        <!-- Drawable padding: 10dp -->
-        <item name="android:drawablePadding">10dp</item>
-        <!-- Text size: 16sp -->
-        <item name="android:textSize">16sp</item>
-        <!-- Font: sans-serif-medium, bold, not all caps -->
+        <!-- Modern gradient background -->
+        <item name="backgroundTint">@color/ds_primary_500</item>
+        <!-- Enhanced padding for better touch target -->
+        <item name="android:paddingTop">@dimen/ds_spacing_s</item>
+        <item name="android:paddingBottom">@dimen/ds_spacing_s</item>
+        <item name="android:paddingLeft">@dimen/ds_spacing_xl</item>
+        <item name="android:paddingRight">@dimen/ds_spacing_xl</item>
+        <!-- Modern elevation -->
+        <item name="android:elevation">@dimen/ds_elevation_floating</item>
+        <!-- Enhanced state animations -->
+        <item name="android:stateListAnimator">@animator/button_elevation</item>
+        <!-- Comfortable minimum height -->
+        <item name="android:minHeight">@dimen/ds_touch_target_comfortable</item>
+        <!-- Icon spacing -->
+        <item name="android:drawablePadding">@dimen/ds_spacing_xs</item>
+        <!-- Modern typography -->
+        <item name="android:textSize">@dimen/ds_text_size_body_large</item>
         <item name="android:fontFamily">sans-serif-medium</item>
         <item name="android:textStyle">bold</item>
         <item name="android:textAllCaps">false</item>
-        <!-- Text color: #FFFFFF (white) -->
-        <item name="android:textColor">#FFFFFF</item>
-        <!-- Letter spacing: 0.02 -->
-        <item name="android:letterSpacing">0.02</item>
+        <item name="android:textColor">@color/white</item>
+        <item name="android:letterSpacing">0.01</item>
+        <!-- Modern corner radius -->
+        <item name="cornerRadius">@dimen/ds_radius_l</item>
+        <!-- Ripple effect -->
+        <item name="rippleColor">@color/white</item>
     </style>
 
-    <!-- Secondary Button Style -->
+    <!-- Secondary Button Style - Enhanced outlined button -->
     <style name="Widget.HealthAssistant.Button.Secondary" parent="Widget.Material3.Button.OutlinedButton">
-        <!-- Use health green outline -->
-        <item name="strokeColor">@color/health_primary</item>
-        <item name="strokeWidth">2dp</item>
-        <!-- Padding: 12dp top/bottom, 24dp left/right -->
-        <item name="android:paddingTop">12dp</item>
-        <item name="android:paddingBottom">12dp</item>
-        <item name="android:paddingLeft">24dp</item>
-        <item name="android:paddingRight">24dp</item>
-        <!-- Minimum height: 56dp -->
-        <item name="android:minHeight">56dp</item>
-        <!-- Drawable padding: 10dp -->
-        <item name="android:drawablePadding">10dp</item>
-        <!-- Text size: 16sp -->
-        <item name="android:textSize">16sp</item>
-        <!-- Font: sans-serif-medium, bold, not all caps -->
+        <!-- Enhanced stroke -->
+        <item name="strokeColor">@color/ds_primary_500</item>
+        <item name="strokeWidth">@dimen/ds_border_width_medium</item>
+        <!-- Enhanced padding -->
+        <item name="android:paddingTop">@dimen/ds_spacing_s</item>
+        <item name="android:paddingBottom">@dimen/ds_spacing_s</item>
+        <item name="android:paddingLeft">@dimen/ds_spacing_xl</item>
+        <item name="android:paddingRight">@dimen/ds_spacing_xl</item>
+        <!-- Comfortable minimum height -->
+        <item name="android:minHeight">@dimen/ds_touch_target_comfortable</item>
+        <!-- Icon spacing -->
+        <item name="android:drawablePadding">@dimen/ds_spacing_xs</item>
+        <!-- Modern typography -->
+        <item name="android:textSize">@dimen/ds_text_size_body_large</item>
         <item name="android:fontFamily">sans-serif-medium</item>
         <item name="android:textStyle">bold</item>
         <item name="android:textAllCaps">false</item>
-        <!-- Text color: health green -->
-        <item name="android:textColor">@color/health_primary</item>
-        <!-- Letter spacing: 0.02 -->
-        <item name="android:letterSpacing">0.02</item>
+        <item name="android:textColor">@color/ds_primary_500</item>
+        <item name="android:letterSpacing">0.01</item>
+        <!-- Modern corner radius -->
+        <item name="cornerRadius">@dimen/ds_radius_l</item>
+        <!-- Background tint -->
+        <item name="backgroundTint">@color/ds_surface_primary</item>
+        <!-- Ripple effect -->
+        <item name="rippleColor">@color/ds_primary_100</item>
     </style>
 
-    <!-- Tertiary Button Style -->
+    <!-- Tertiary Button Style - Enhanced text button -->
     <style name="Widget.HealthAssistant.Button.Tertiary" parent="Widget.Material3.Button.TextButton">
-        <!-- Padding: 12dp top/bottom, 24dp left/right -->
-        <item name="android:paddingTop">12dp</item>
-        <item name="android:paddingBottom">12dp</item>
-        <item name="android:paddingLeft">24dp</item>
-        <item name="android:paddingRight">24dp</item>
-        <!-- Minimum height: 56dp -->
-        <item name="android:minHeight">56dp</item>
-        <!-- Drawable padding: 10dp -->
-        <item name="android:drawablePadding">10dp</item>
-        <!-- Text size: 16sp -->
-        <item name="android:textSize">16sp</item>
-        <!-- Font: sans-serif-medium, bold, not all caps -->
+        <!-- Enhanced padding -->
+        <item name="android:paddingTop">@dimen/ds_spacing_s</item>
+        <item name="android:paddingBottom">@dimen/ds_spacing_s</item>
+        <item name="android:paddingLeft">@dimen/ds_spacing_l</item>
+        <item name="android:paddingRight">@dimen/ds_spacing_l</item>
+        <!-- Comfortable minimum height -->
+        <item name="android:minHeight">@dimen/ds_touch_target_comfortable</item>
+        <!-- Icon spacing -->
+        <item name="android:drawablePadding">@dimen/ds_spacing_xs</item>
+        <!-- Modern typography -->
+        <item name="android:textSize">@dimen/ds_text_size_body_large</item>
         <item name="android:fontFamily">sans-serif-medium</item>
         <item name="android:textStyle">bold</item>
         <item name="android:textAllCaps">false</item>
-        <!-- Text color: health green -->
-        <item name="android:textColor">@color/health_primary</item>
-        <!-- Letter spacing: 0.02 -->
-        <item name="android:letterSpacing">0.02</item>
+        <item name="android:textColor">@color/ds_primary_500</item>
+        <item name="android:letterSpacing">0.01</item>
+        <!-- Modern corner radius -->
+        <item name="cornerRadius">@dimen/ds_radius_l</item>
+        <!-- Ripple effect -->
+        <item name="rippleColor">@color/ds_primary_100</item>
+    </style>
+
+    <!-- Floating Action Button Enhancement -->
+    <style name="Widget.HealthAssistant.FloatingActionButton" parent="Widget.Material3.FloatingActionButton.Primary">
+        <item name="backgroundTint">@color/ds_primary_500</item>
+        <item name="tint">@color/white</item>
+        <item name="android:elevation">@dimen/ds_elevation_floating</item>
+        <item name="pressedTranslationZ">@dimen/ds_elevation_modal</item>
+        <item name="rippleColor">@color/white</item>
+        <item name="borderWidth">0dp</item>
+    </style>
+
+    <!-- Modern Chip Styles -->
+    <style name="Widget.HealthAssistant.Chip" parent="Widget.Material3.Chip.Assist">
+        <item name="chipBackgroundColor">@color/ds_surface_2</item>
+        <item name="chipStrokeColor">@color/ds_neutral_300</item>
+        <item name="chipStrokeWidth">@dimen/ds_border_width_thin</item>
+        <item name="chipCornerRadius">@dimen/ds_radius_pill</item>
+        <item name="android:textColor">@color/ds_text_primary</item>
+        <item name="android:textSize">@dimen/ds_text_size_body_small</item>
+        <item name="chipMinHeight">@dimen/ds_touch_target_minimum</item>
+        <item name="chipStartPadding">@dimen/ds_spacing_s</item>
+        <item name="chipEndPadding">@dimen/ds_spacing_s</item>
+        <item name="textStartPadding">@dimen/ds_spacing_xs</item>
+        <item name="textEndPadding">@dimen/ds_spacing_xs</item>
+        <item name="rippleColor">@color/ds_primary_100</item>
+    </style>
+
+    <!-- Chip Selected State -->
+    <style name="Widget.HealthAssistant.Chip.Selected" parent="Widget.HealthAssistant.Chip">
+        <item name="chipBackgroundColor">@color/ds_primary_100</item>
+        <item name="chipStrokeColor">@color/ds_primary_500</item>
+        <item name="android:textColor">@color/ds_primary_700</item>
+        <item name="chipStrokeWidth">@dimen/ds_border_width_medium</item>
+    </style>
+
+    <!-- Modern Progress Bar Styles -->
+    <style name="Widget.HealthAssistant.ProgressBar.Horizontal" parent="Widget.Material3.LinearProgressIndicator">
+        <item name="android:progressDrawable">@drawable/modern_progress_bar</item>
+        <item name="android:minHeight">@dimen/ds_progress_height</item>
+        <item name="android:maxHeight">@dimen/ds_progress_height</item>
+        <item name="trackColor">@color/ds_neutral_200</item>
+        <item name="indicatorColor">@color/ds_primary_500</item>
+        <item name="trackCornerRadius">@dimen/ds_progress_radius</item>
+        <item name="indicatorCornerRadius">@dimen/ds_progress_radius</item>
+    </style>
+
+    <!-- Circular Progress Bar -->
+    <style name="Widget.HealthAssistant.ProgressBar.Circular" parent="Widget.Material3.CircularProgressIndicator">
+        <item name="indicatorColor">@color/ds_primary_500</item>
+        <item name="trackColor">@color/ds_neutral_200</item>
+        <item name="indicatorSize">@dimen/ds_icon_xlarge</item>
+        <item name="trackThickness">4dp</item>
+        <item name="indicatorInset">0dp</item>
     </style>
 
     <style name="Widget.HealthAssistant.TextInputLayout" parent="Widget.Material3.TextInputLayout.OutlinedBox">
@@ -261,17 +320,22 @@
         <item name="colorSurface">@android:color/white</item>
     </style>
 
-    <!-- Bottom Navigation Styles -->
+    <!-- Modern Enhanced Bottom Navigation Styles -->
     <style name="Widget.HealthAssistant.BottomNavigationView" parent="Widget.Material3.BottomNavigationView">
-        <item name="android:background">@color/ds_surface_primary</item>
-        <item name="android:elevation">@dimen/ds_elevation_low</item>
-        <item name="android:minHeight">@dimen/ds_component_touch_target</item>
+        <item name="android:background">@drawable/bottom_nav_background</item>
+        <item name="android:elevation">@dimen/ds_elevation_navigation</item>
+        <item name="android:minHeight">@dimen/ds_touch_target_comfortable</item>
         <item name="itemIconTint">@color/bottom_nav_item_selector</item>
         <item name="itemTextColor">@color/bottom_nav_item_selector</item>
-        <item name="itemIconSize">@dimen/ds_component_icon_size</item>
-        <item name="itemPaddingTop">@dimen/ds_padding_small</item>
-        <item name="itemPaddingBottom">@dimen/ds_padding_small</item>
+        <item name="itemIconSize">@dimen/ds_icon_large</item>
+        <item name="itemPaddingTop">@dimen/ds_spacing_xs</item>
+        <item name="itemPaddingBottom">@dimen/ds_spacing_xs</item>
         <item name="labelVisibilityMode">labeled</item>
+        <item name="itemTextAppearanceActive">@style/TextAppearance.HealthTypography.Label.Small</item>
+        <item name="itemTextAppearanceInactive">@style/TextAppearance.HealthTypography.Label.Small</item>
+        <item name="itemRippleColor">@color/ds_primary_100</item>
+        <item name="android:paddingTop">@dimen/ds_spacing_xs</item>
+        <item name="android:paddingBottom">@dimen/ds_spacing_xs</item>
     </style>
 
     <!-- Standardized Fragment Header Styles -->
@@ -301,41 +365,52 @@
     </style>
 
     <!-- HealthCardComponent Design System Tokens -->
-    <!-- Primary Card Component - Main content display -->
+    <!-- Modern Primary Card Component - Enhanced with better shadows and spacing -->
     <style name="Widget.HealthAssistant.Card.Primary" parent="Widget.Material3.CardView.Elevated">
         <item name="cardBackgroundColor">@color/ds_surface_primary</item>
-        <item name="cardCornerRadius">@dimen/ds_component_card_radius</item>
-        <item name="cardElevation">@dimen/ds_elevation_low</item>
-        <item name="android:layout_margin">@dimen/ds_margin_small</item>
-        <item name="contentPadding">@dimen/ds_padding_standard</item>
+        <item name="cardCornerRadius">@dimen/ds_card_radius_modern</item>
+        <item name="cardElevation">@dimen/ds_elevation_card</item>
+        <item name="android:layout_margin">@dimen/ds_spacing_xs</item>
+        <item name="contentPadding">@dimen/ds_card_padding_comfortable</item>
         <item name="android:clickable">true</item>
         <item name="android:focusable">true</item>
-        <item name="android:foreground">?android:attr/selectableItemBackground</item>
+        <item name="android:foreground">@drawable/modern_ripple_background</item>
+        <item name="android:stateListAnimator">@animator/card_elevation</item>
     </style>
 
-    <!-- Secondary Card Component - Contextual information -->
+    <!-- Modern Secondary Card Component - Outlined style with hover effects -->
     <style name="Widget.HealthAssistant.Card.Secondary" parent="Widget.Material3.CardView.Outlined">
-        <item name="cardBackgroundColor">@color/ds_surface_secondary</item>
-        <item name="cardCornerRadius">@dimen/ds_component_card_radius</item>
-        <item name="strokeColor">@color/ds_outline</item>
+        <item name="cardBackgroundColor">@color/ds_surface_1</item>
+        <item name="cardCornerRadius">@dimen/ds_card_radius_modern</item>
+        <item name="strokeColor">@color/ds_neutral_300</item>
         <item name="strokeWidth">@dimen/ds_border_width_thin</item>
-        <item name="android:layout_margin">@dimen/ds_margin_small</item>
-        <item name="contentPadding">@dimen/ds_padding_standard</item>
+        <item name="android:layout_margin">@dimen/ds_spacing_xs</item>
+        <item name="contentPadding">@dimen/ds_card_padding_comfortable</item>
         <item name="android:clickable">true</item>
         <item name="android:focusable">true</item>
-        <item name="android:foreground">?android:attr/selectableItemBackground</item>
+        <item name="android:foreground">@drawable/modern_ripple_background</item>
     </style>
 
-    <!-- Elevated Card Component - High emphasis content -->
+    <!-- Health Metrics Card - Special styling for health data display -->
+    <style name="Widget.HealthAssistant.Card.HealthMetrics" parent="Widget.HealthAssistant.Card.Primary">
+        <item name="cardBackgroundColor">@color/ds_surface_primary</item>
+        <item name="cardCornerRadius">@dimen/ds_card_radius_large</item>
+        <item name="cardElevation">@dimen/ds_elevation_floating</item>
+        <item name="contentPadding">@dimen/ds_card_padding_spacious</item>
+        <item name="android:minHeight">@dimen/ds_health_card_height</item>
+    </style>
+
+    <!-- Elevated Card Component - High emphasis content with modern elevation -->
     <style name="Widget.HealthAssistant.Card.Elevated" parent="Widget.Material3.CardView.Elevated">
         <item name="cardBackgroundColor">@color/ds_surface_primary</item>
-        <item name="cardCornerRadius">@dimen/ds_component_card_radius</item>
-        <item name="cardElevation">@dimen/ds_elevation_medium</item>
-        <item name="android:layout_margin">@dimen/ds_margin_small</item>
-        <item name="contentPadding">@dimen/ds_padding_standard</item>
+        <item name="cardCornerRadius">@dimen/ds_card_radius_modern</item>
+        <item name="cardElevation">@dimen/ds_elevation_floating</item>
+        <item name="android:layout_margin">@dimen/ds_spacing_xs</item>
+        <item name="contentPadding">@dimen/ds_card_padding_comfortable</item>
         <item name="android:clickable">true</item>
         <item name="android:focusable">true</item>
-        <item name="android:foreground">?android:attr/selectableItemBackground</item>
+        <item name="android:foreground">@drawable/modern_ripple_background</item>
+        <item name="android:stateListAnimator">@animator/card_elevation</item>
     </style>
 
     <!-- HealthTypography Design System Tokens -->

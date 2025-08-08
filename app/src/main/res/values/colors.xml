@@ -243,4 +243,81 @@
     <color name="ds_primary_preventive_care">@color/category_preventive_care</color>
     <color name="ds_primary_chronic_conditions">@color/category_chronic_conditions</color>
     <color name="ds_primary_default">@color/category_default</color>
+    
+    <!-- Modern UI Enhancement - Extended Color System -->
+    <!-- Brand color variants for modern UI -->
+    <color name="ds_primary_50">#E8F5E8</color>
+    <color name="ds_primary_100">#C8E6C9</color>
+    <color name="ds_primary_200">#A5D6A7</color>
+    <color name="ds_primary_300">#81C784</color>
+    <color name="ds_primary_400">#66BB6A</color>
+    <color name="ds_primary_500">@color/health_primary</color>
+    <color name="ds_primary_600">#43A047</color>
+    <color name="ds_primary_700">#388E3C</color>
+    <color name="ds_primary_800">#2E7D32</color>
+    <color name="ds_primary_900">#1B5E20</color>
+    
+    <!-- Surface color scale for modern layering -->
+    <color name="ds_surface_0">@color/background_primary</color>
+    <color name="ds_surface_1">#FAFAFA</color>
+    <color name="ds_surface_2">#F5F5F5</color>
+    <color name="ds_surface_3">#F0F0F0</color>
+    <color name="ds_surface_4">#EEEEEE</color>
+    <color name="ds_surface_5">#E8E8E8</color>
+    
+    <!-- Modern neutral scale -->
+    <color name="ds_neutral_50">#FAFAFA</color>
+    <color name="ds_neutral_100">#F5F5F5</color>
+    <color name="ds_neutral_200">#EEEEEE</color>
+    <color name="ds_neutral_300">#E0E0E0</color>
+    <color name="ds_neutral_400">#BDBDBD</color>
+    <color name="ds_neutral_500">#9E9E9E</color>
+    <color name="ds_neutral_600">#757575</color>
+    <color name="ds_neutral_700">#616161</color>
+    <color name="ds_neutral_800">#424242</color>
+    <color name="ds_neutral_900">#212121</color>
+    
+    <!-- Interactive state colors -->
+    <color name="ds_state_hover">#F5F5F5</color>
+    <color name="ds_state_pressed">#EEEEEE</color>
+    <color name="ds_state_focused">#E3F2FD</color>
+    <color name="ds_state_selected">#E8F5E8</color>
+    <color name="ds_state_disabled">#F5F5F5</color>
+    
+    <!-- Enhanced semantic colors -->
+    <color name="ds_success_50">#E8F5E8</color>
+    <color name="ds_success_500">@color/success</color>
+    <color name="ds_success_700">#2E7D32</color>
+    
+    <color name="ds_warning_50">#FFF8E1</color>
+    <color name="ds_warning_500">@color/warning</color>
+    <color name="ds_warning_700">#F57C00</color>
+    
+    <color name="ds_error_50">#FFEBEE</color>
+    <color name="ds_error_500">@color/error</color>
+    <color name="ds_error_700">#D32F2F</color>
+    
+    <!-- Health-specific colors for metrics -->
+    <color name="ds_health_excellent">#4CAF50</color>
+    <color name="ds_health_good">#8BC34A</color>
+    <color name="ds_health_fair">#FFC107</color>
+    <color name="ds_health_poor">#FF9800</color>
+    <color name="ds_health_critical">#F44336</color>
+    
+    <!-- Modern gradients (for drawable references) -->
+    <color name="ds_gradient_start">@color/ds_primary_400</color>
+    <color name="ds_gradient_middle">@color/ds_primary_500</color>
+    <color name="ds_gradient_end">@color/ds_primary_600</color>
+    
+    <!-- Enhanced accessibility colors -->
+    <color name="ds_high_contrast_text">#000000</color>
+    <color name="ds_high_contrast_background">#FFFFFF</color>
+    <color name="ds_focus_ring">#2196F3</color>
+    
+    <!-- Data visualization colors -->
+    <color name="ds_chart_primary">#4CAF50</color>
+    <color name="ds_chart_secondary">#81C784</color>
+    <color name="ds_chart_tertiary">#A5D6A7</color>
+    <color name="ds_chart_grid">#E0E0E0</color>
+    <color name="ds_chart_axis">#9E9E9E</color>
 </resources>

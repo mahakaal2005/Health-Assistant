@@ -80,4 +80,76 @@
     <color name="progress_orange">#FFB74D</color>
     <color name="progress_green">#81C784</color>
     <color name="progress_blue">#64B5F6</color>
+
+    <!-- Modern Dark Theme Enhancements -->
+    <!-- Extended surface color scale for layering -->
+    <color name="ds_surface_0">@color/colorBackground</color>
+    <color name="ds_surface_1">#1E1E1E</color>
+    <color name="ds_surface_2">#232323</color>
+    <color name="ds_surface_3">#252525</color>
+    <color name="ds_surface_4">#272727</color>
+    <color name="ds_surface_5">#2C2C2C</color>
+    
+    <!-- Enhanced primary color scale for dark theme -->
+    <color name="ds_primary_50">#1A2E1A</color>
+    <color name="ds_primary_100">#2E5D2E</color>
+    <color name="ds_primary_200">#4CAF50</color>
+    <color name="ds_primary_300">#66BB6A</color>
+    <color name="ds_primary_400">#81C784</color>
+    <color name="ds_primary_500">#4FC3F7</color>
+    <color name="ds_primary_600">#42A5F5</color>
+    <color name="ds_primary_700">#2196F3</color>
+    <color name="ds_primary_800">#1976D2</color>
+    <color name="ds_primary_900">#0D47A1</color>
+    
+    <!-- Modern neutral scale for dark theme -->
+    <color name="ds_neutral_50">#3C3C3C</color>
+    <color name="ds_neutral_100">#424242</color>
+    <color name="ds_neutral_200">#484848</color>
+    <color name="ds_neutral_300">#525252</color>
+    <color name="ds_neutral_400">#6B6B6B</color>
+    <color name="ds_neutral_500">#8F8F8F</color>
+    <color name="ds_neutral_600">#B0B0B0</color>
+    <color name="ds_neutral_700">#CCCCCC</color>
+    <color name="ds_neutral_800">#E0E0E0</color>
+    <color name="ds_neutral_900">#F5F5F5</color>
+    
+    <!-- Interactive state colors for dark theme -->
+    <color name="ds_state_hover">#2C2C2C</color>
+    <color name="ds_state_pressed">#3C3C3C</color>
+    <color name="ds_state_focused">#1E3A8A</color>
+    <color name="ds_state_selected">#2E5D2E</color>
+    <color name="ds_state_disabled">#2A2A2A</color>
+    
+    <!-- Enhanced semantic colors for dark theme -->
+    <color name="ds_success_50">#1B5E20</color>
+    <color name="ds_success_500">#4CAF50</color>
+    <color name="ds_success_700">#81C784</color>
+    
+    <color name="ds_warning_50">#E65100</color>
+    <color name="ds_warning_500">#FF9800</color>
+    <color name="ds_warning_700">#FFB74D</color>
+    
+    <color name="ds_error_50">#D32F2F</color>
+    <color name="ds_error_500">#CF6679</color>
+    <color name="ds_error_700">#E57373</color>
+    
+    <!-- Health-specific colors adjusted for dark theme -->
+    <color name="ds_health_excellent">#66BB6A</color>
+    <color name="ds_health_good">#81C784</color>
+    <color name="ds_health_fair">#FFD54F</color>
+    <color name="ds_health_poor">#FFB74D</color>
+    <color name="ds_health_critical">#E57373</color>
+    
+    <!-- Chart colors optimized for dark theme -->
+    <color name="ds_chart_primary">#4CAF50</color>
+    <color name="ds_chart_secondary">#81C784</color>
+    <color name="ds_chart_tertiary">#A5D6A7</color>
+    <color name="ds_chart_grid">#424242</color>
+    <color name="ds_chart_axis">#9E9E9E</color>
+    
+    <!-- Focus and accessibility colors -->
+    <color name="ds_focus_ring">#42A5F5</color>
+    <color name="ds_high_contrast_text">#FFFFFF</color>
+    <color name="ds_high_contrast_background">#000000</color>
 </resources>
