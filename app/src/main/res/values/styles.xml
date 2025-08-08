@@ -487,4 +487,81 @@
         <item name="android:fontFamily">sans-serif</item>
     </style>
 
+    <!-- Enhanced Input Field Styles -->
+    <style name="Widget.HealthAssistant.TextInputLayout.Modern" parent="Widget.HealthAssistant.TextInputLayout">
+        <item name="boxBackgroundColor">@color/ds_surface_1</item>
+        <item name="boxStrokeColor">@color/ds_primary_500</item>
+        <item name="boxStrokeWidth">@dimen/ds_border_width_thin</item>
+        <item name="boxStrokeWidthFocused">@dimen/ds_border_width_medium</item>
+        <item name="hintTextColor">@color/ds_text_secondary</item>
+        <item name="android:textColorHint">@color/ds_text_tertiary</item>
+        <item name="errorTextColor">@color/ds_error_500</item>
+        <item name="errorIconTint">@color/ds_error_500</item>
+        <item name="helperTextTextAppearance">@style/TextAppearance.HealthTypography.Caption</item>
+        <item name="errorTextAppearance">@style/TextAppearance.HealthTypography.Caption</item>
+        <item name="boxCornerRadiusTopStart">@dimen/ds_radius_l</item>
+        <item name="boxCornerRadiusTopEnd">@dimen/ds_radius_l</item>
+        <item name="boxCornerRadiusBottomStart">@dimen/ds_radius_l</item>
+        <item name="boxCornerRadiusBottomEnd">@dimen/ds_radius_l</item>
+        <item name="android:layout_marginBottom">@dimen/ds_spacing_s</item>
+    </style>
+
+    <!-- Modern Search Input Style -->
+    <style name="Widget.HealthAssistant.SearchView" parent="Widget.Material3.SearchView">
+        <item name="android:background">@drawable/modern_card_background</item>
+        <item name="android:elevation">@dimen/ds_elevation_card</item>
+        <item name="android:layout_margin">@dimen/ds_spacing_s</item>
+        <item name="queryHint">Search health content...</item>
+        <item name="android:textColor">@color/ds_text_primary</item>
+        <item name="android:textColorHint">@color/ds_text_tertiary</item>
+        <item name="iconifiedByDefault">false</item>
+    </style>
+
+    <!-- Modern Tab Layout Style -->
+    <style name="Widget.HealthAssistant.TabLayout" parent="Widget.Material3.TabLayout">
+        <item name="tabBackground">@drawable/modern_ripple_background</item>
+        <item name="tabTextColor">@color/ds_text_secondary</item>
+        <item name="tabSelectedTextColor">@color/ds_primary_500</item>
+        <item name="tabIndicatorColor">@color/ds_primary_500</item>
+        <item name="tabIndicatorHeight">3dp</item>
+        <item name="tabIndicatorAnimationMode">elastic</item>
+        <item name="tabRippleColor">@color/ds_primary_100</item>
+        <item name="tabUnboundedRipple">true</item>
+        <item name="android:elevation">@dimen/ds_elevation_card</item>
+        <item name="android:background">@color/ds_surface_primary</item>
+    </style>
+
+    <!-- Enhanced Dialog Styles -->
+    <style name="Widget.HealthAssistant.Dialog" parent="ThemeOverlay.Material3.Dialog">
+        <item name="dialogCornerRadius">@dimen/ds_card_radius_large</item>
+        <item name="android:windowBackground">@drawable/modern_card_background</item>
+        <item name="backgroundTint">@color/ds_surface_primary</item>
+        <item name="android:elevation">@dimen/ds_elevation_modal</item>
+    </style>
+
+    <!-- Modern Snackbar Style -->
+    <style name="Widget.HealthAssistant.Snackbar" parent="Widget.Material3.Snackbar">
+        <item name="backgroundTint">@color/ds_surface_3</item>
+        <item name="android:textColor">@color/ds_text_primary</item>
+        <item name="actionTextColor">@color/ds_primary_500</item>
+        <item name="android:elevation">@dimen/ds_elevation_floating</item>
+        <item name="shapeAppearance">@style/ShapeAppearance.HealthAssistant.SmallComponent</item>
+    </style>
+
+    <!-- Shape Appearance Styles -->
+    <style name="ShapeAppearance.HealthAssistant.SmallComponent" parent="ShapeAppearance.Material3.SmallComponent">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">@dimen/ds_radius_m</item>
+    </style>
+
+    <style name="ShapeAppearance.HealthAssistant.MediumComponent" parent="ShapeAppearance.Material3.MediumComponent">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">@dimen/ds_radius_l</item>
+    </style>
+
+    <style name="ShapeAppearance.HealthAssistant.LargeComponent" parent="ShapeAppearance.Material3.LargeComponent">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">@dimen/ds_card_radius_large</item>
+    </style>
+
 </resources>

@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/modern_card_background"
+    android:padding="@dimen/ds_card_padding_comfortable">
+
+    <!-- Modern Skeleton Loading Animation -->
+    <com.google.android.material.progressindicator.CircularProgressIndicator
+        android:id="@+id/loading_indicator"
+        style="@style/Widget.HealthAssistant.ProgressBar.Circular"
+        android:layout_width="@dimen/ds_icon_xlarge"
+        android:layout_height="@dimen/ds_icon_xlarge"
+        android:indeterminate="true"
+        app:indicatorColor="@color/ds_primary_500"
+        app:trackColor="@color/ds_neutral_200"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/loading_text"
+        style="@style/TextAppearance.HealthTypography.Body.Medium"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/ds_spacing_s"
+        android:text="Loading..."
+        android:textColor="@color/ds_text_secondary"
+        android:alpha="0.8"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/loading_indicator" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

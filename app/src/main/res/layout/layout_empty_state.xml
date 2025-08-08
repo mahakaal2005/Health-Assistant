@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/modern_card_background"
+    android:padding="@dimen/ds_card_padding_spacious">
+
+    <!-- Modern Empty State Design -->
+    <ImageView
+        android:id="@+id/empty_state_icon"
+        android:layout_width="@dimen/ds_icon_xlarge"
+        android:layout_height="@dimen/ds_icon_xlarge"
+        android:src="@drawable/ic_empty_state"
+        android:contentDescription="No content available"
+        app:tint="@color/ds_neutral_400"
+        android:alpha="0.6"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/empty_state_title"
+        style="@style/TextAppearance.HealthTypography.Title.Medium"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/ds_spacing_l"
+        android:text="No content yet"
+        android:textColor="@color/ds_text_primary"
+        android:textAlignment="center"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/empty_state_icon" />
+
+    <TextView
+        android:id="@+id/empty_state_message"
+        style="@style/TextAppearance.HealthTypography.Body.Medium"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/ds_spacing_xs"
+        android:layout_marginStart="@dimen/ds_spacing_l"
+        android:layout_marginEnd="@dimen/ds_spacing_l"
+        android:text="Check back later for new content, or try refreshing the page."
+        android:textColor="@color/ds_text_secondary"
+        android:textAlignment="center"
+        android:lineSpacingExtra="@dimen/ds_text_line_spacing_medium"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/empty_state_title" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/empty_state_action"
+        style="@style/Widget.HealthAssistant.Button.Secondary"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/ds_spacing_l"
+        android:text="Retry"
+        android:visibility="gone"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/empty_state_message" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

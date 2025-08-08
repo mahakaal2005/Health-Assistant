@@ -8,30 +8,47 @@
     android:background="@color/background_primary"
     tools:context=".features.discover.DiscoverFragment">
 
-    <!-- Standardized Header Section -->
+    <!-- Modernized Header Section with Enhanced Styling -->
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/header_section"
-        style="@style/Widget.HealthAssistant.FragmentHeader">
+        style="@style/Widget.HealthAssistant.FragmentHeader"
+        android:background="@color/ds_surface_primary"
+        android:elevation="@dimen/ds_elevation_surface">
 
-        <!-- Discover Title -->
+        <!-- Enhanced Discover Title with Icon -->
+        <ImageView
+            android:id="@+id/discover_icon"
+            android:layout_width="@dimen/ds_icon_large"
+            android:layout_height="@dimen/ds_icon_large"
+            android:src="@drawable/ic_discover"
+            android:contentDescription="Discover"
+            app:tint="@color/ds_primary_500"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
         <TextView
             android:id="@+id/discover_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/ds_spacing_xs"
             android:text="Discover"
             android:textAppearance="@style/TextAppearance.HealthAssistant.FragmentTitle"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            android:textColor="@color/ds_text_primary"
+            app:layout_constraintBottom_toBottomOf="@id/discover_icon"
+            app:layout_constraintStart_toEndOf="@id/discover_icon"
+            app:layout_constraintTop_toTopOf="@id/discover_icon" />
 
-        <!-- Subtitle -->
+        <!-- Enhanced Subtitle -->
         <TextView
             android:id="@+id/discover_subtitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Health content for you"
+            android:layout_marginTop="@dimen/ds_spacing_xs"
+            android:text="Health content personalized for you"
             android:textAppearance="@style/TextAppearance.HealthAssistant.FragmentSubtitle"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/discover_title" />
+            android:textColor="@color/ds_text_secondary"
+            app:layout_constraintStart_toStartOf="@id/discover_icon"
+            app:layout_constraintTop_toBottomOf="@id/discover_icon" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

@@ -11,23 +11,27 @@
         style="@style/TextAppearance.HealthTypography.Title.Large"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="64dp"
+        android:layout_marginTop="@dimen/ds_spacing_xxxl"
         android:text="@string/login_title"
-        android:textColor="@android:color/white"
+        android:textColor="@color/white"
+        android:textSize="@dimen/ds_text_size_display"
+        android:fontFamily="sans-serif-medium"
+        android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/login_card"
+        style="@style/Widget.HealthAssistant.Card.Elevated"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginStart="24dp"
-        android:layout_marginTop="32dp"
-        android:layout_marginEnd="24dp"
-        app:cardBackgroundColor="#22FFFFFF"
-        app:cardCornerRadius="16dp"
-        app:cardElevation="0dp"
+        android:layout_marginStart="@dimen/ds_spacing_l"
+        android:layout_marginTop="@dimen/ds_spacing_xxxl"
+        android:layout_marginEnd="@dimen/ds_spacing_l"
+        app:cardBackgroundColor="@color/white"
+        app:cardCornerRadius="@dimen/ds_card_radius_large"
+        app:cardElevation="@dimen/ds_elevation_modal"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/login_title">
@@ -35,7 +39,7 @@
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:padding="@dimen/ds_padding_xl">
+            android:padding="@dimen/ds_card_padding_spacious">
 
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/email_layout"
@@ -43,9 +47,9 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="@string/email"
-                app:boxBackgroundColor="#33FFFFFF"
-                app:boxStrokeColor="@android:color/white"
-                app:hintTextColor="@android:color/white"
+                app:boxBackgroundColor="@color/ds_surface_1"
+                app:boxStrokeColor="@color/ds_primary_500"
+                app:hintTextColor="@color/ds_text_secondary"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent">
