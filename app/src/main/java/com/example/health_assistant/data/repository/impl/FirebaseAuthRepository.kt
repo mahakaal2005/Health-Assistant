@@ -43,8 +43,7 @@ class FirebaseAuthRepository @Inject constructor(
                 maxRetries = 3,
                 shouldRetry = { exception ->
                     // Retry on network issues but not on auth-specific errors
-                    RetryUtil.isRetryableException(exception) &&
-                    !exception.message?.contains("auth", ignoreCase = true).orElse(false)
+                    RetryUtil.isRetryableException(exception)
                 }
             ) {
                 val authResult = firebaseAuth.createUserWithEmailAndPassword(email, password).await()
@@ -58,8 +57,7 @@ class FirebaseAuthRepository @Inject constructor(
                 maxRetries = 3,
                 shouldRetry = { exception ->
                     // Retry on network issues but not on auth-specific errors
-                    RetryUtil.isRetryableException(exception) &&
-                    !exception.message?.contains("auth", ignoreCase = true).orElse(false)
+                    RetryUtil.isRetryableException(exception)
                 }
             ) {
                 val authResult = firebaseAuth.signInWithEmailAndPassword(email, password).await()
