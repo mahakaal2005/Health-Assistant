@@ -92,53 +92,57 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/ds_margin_standard"
+                android:layout_marginTop="@dimen/ds_margin_standard"
                 android:layout_marginEnd="@dimen/ds_margin_standard"
-                android:layout_marginTop="-16dp"
-                app:healthCardType="primary"
                 app:healthCardPadding="@dimen/ds_padding_xl"
+                app:healthCardType="primary"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/top_section">
 
                 <androidx.constraintlayout.widget.ConstraintLayout
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
+                    android:layout_height="wrap_content"
+                    android:clipToPadding="false">
 
-                        <TextView
-                            android:id="@+id/health_summary_title"
-                            style="@style/TextAppearance.HealthTypography.Title.Large"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="Health Overview"
-                            app:layout_constraintStart_toStartOf="parent"
-                            app:layout_constraintTop_toTopOf="parent" />
-
-                        <!-- Health Metrics Section with Triple-Ring Progress View -->
+                    <!-- Health Metrics Section with Triple-Ring Progress View -->
 
                     <!-- Health Metrics Legend - Improved spacing and contrast -->
+                    <TextView
+                        android:id="@+id/health_summary_title"
+                        style="@style/TextAppearance.HealthTypography.Title.Large"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:layout_marginEnd="@dimen/ds_margin_standard"
+                        android:ellipsize="end"
+                        android:maxLines="1"
+                        android:text="Health Overview"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent" />
+
                     <com.example.health_assistant.widgets.TripleRingProgressView
                         android:id="@+id/triple_ring_progress"
                         android:layout_width="140dp"
                         android:layout_height="140dp"
                         android:layout_marginTop="@dimen/ds_margin_standard"
-                        app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toBottomOf="@id/health_summary_title"
-                        app:layout_constraintVertical_bias="0.228" />
+                        app:layout_constraintBottom_toBottomOf="@id/metrics_container" />
 
                     <androidx.constraintlayout.widget.ConstraintLayout
                         android:id="@+id/metrics_container"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="@dimen/ds_margin_large"
+                        android:layout_marginTop="@dimen/ds_margin_standard"
                         android:background="@drawable/clean_card_background"
                         android:padding="@dimen/ds_padding_medium"
-                        app:layout_constraintBottom_toBottomOf="@id/triple_ring_progress"
                         app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintHorizontal_bias="0.0"
                         app:layout_constraintStart_toEndOf="@id/triple_ring_progress"
-                        app:layout_constraintTop_toTopOf="@id/triple_ring_progress"
-                        app:layout_constraintVertical_bias="0.44">
+                        app:layout_constraintTop_toBottomOf="@id/health_summary_title"
+                        app:layout_constraintBottom_toBottomOf="parent">
 
                         <!-- Steps Metric -->
                         <ImageView
@@ -240,6 +244,7 @@
                             android:layout_marginStart="@dimen/ds_margin_standard"
                             android:layout_marginTop="@dimen/ds_spacing_quarter"
                             android:text="0 / 50 points"
+                            app:layout_constraintBottom_toBottomOf="parent"
                             app:layout_constraintEnd_toEndOf="parent"
                             app:layout_constraintStart_toStartOf="@id/heart_points_icon"
                             app:layout_constraintTop_toBottomOf="@id/heart_points_icon" />

@@ -44,6 +44,7 @@ android {
             isDebuggable = false
             isJniDebuggable = false
             isPseudoLocalesEnabled = false
+            signingConfig = signingConfigs.getByName("debug")
         }
 
         debug {
@@ -63,10 +64,11 @@ android {
     kotlinOptions {
         jvmTarget = "11"
 
-        // CRITICAL: Android 15 Kotlin compatibility
+        // CRITICAL: Android 15 Kotlin compatibility + version tolerance
         freeCompilerArgs += listOf(
             "-opt-in=kotlin.RequiresOptIn",
-            "-opt-in=kotlinx.coroutines.ExperimentalCoroutinesApi"
+            "-opt-in=kotlinx.coroutines.ExperimentalCoroutinesApi",
+            "-Xskip-metadata-version-check"
         )
     }
 
@@ -107,6 +109,12 @@ android {
             isUniversalApk = true  // Generate universal APK for compatibility
         }
     }
+    dependenciesInfo {
+        includeInApk = true
+        includeInBundle = true
+    }
+    // buildToolsVersion removed - AGP 8.13.0 uses default build tools 35.0.0
+    ndkVersion = "26.3.11579264"
 
     // CRITICAL: Force 16 KB page size alignment for all native libraries
     androidComponents {
