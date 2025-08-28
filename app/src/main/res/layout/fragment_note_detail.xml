@@ -4,42 +4,9 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@android:color/transparent"
+    android:background="@color/background_primary"
     tools:context=".features.journal.presentation.NoteDetailFragment">
 
-    <!-- Dynamic Gradient Background with Decorative Elements -->
-    <FrameLayout
-        android:id="@+id/dynamic_background"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
-
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:background="@drawable/premium_gradient_background" />
-
-        <!-- Decorative Shape 1 - Top Right -->
-        <View
-            android:id="@+id/decorative_shape_1"
-            android:layout_width="300dp"
-            android:layout_height="300dp"
-            android:layout_gravity="top|end"
-            android:layout_marginTop="-100dp"
-            android:layout_marginEnd="-100dp"
-            android:alpha="0.3"
-            android:background="@drawable/decorative_circle_shape" />
-
-        <!-- Decorative Shape 2 - Bottom Left -->
-        <View
-            android:id="@+id/decorative_shape_2"
-            android:layout_width="250dp"
-            android:layout_height="250dp"
-            android:layout_gravity="bottom|start"
-            android:layout_marginBottom="-100dp"
-            android:layout_marginStart="-100dp"
-            android:alpha="0.2"
-            android:background="@drawable/decorative_circle_shape" />
-    </FrameLayout>
 
     <!-- AppBar Layout -->
     <com.google.android.material.appbar.AppBarLayout
@@ -92,7 +59,7 @@
             android:orientation="vertical"
             android:padding="16dp">
 
-            <!-- Date and Time Selection Section -->
+            <!-- Title Section -->
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -112,26 +79,40 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Date &amp; Time"
+                        android:text="Title"
                         android:textColor="@android:color/black"
                         android:textSize="14sp"
                         android:textStyle="bold"
                         android:layout_marginBottom="8dp" />
 
-                    <com.example.health_assistant.core.design.components.HealthDateTimePicker
-                        android:id="@+id/dateTimePicker"
+                    <com.example.health_assistant.core.design.components.HealthTextInputLayout
+                        android:id="@+id/tilNoteTitle"
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content" />
+                        android:layout_height="wrap_content"
+                        android:hint="Enter note title..."
+                        app:healthInputStyle="primary">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/etNoteTitle"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:textSize="18sp"
+                            android:textStyle="bold"
+                            android:maxLines="2"
+                            android:inputType="textCapSentences|textMultiLine" />
+
+                    </com.example.health_assistant.core.design.components.HealthTextInputLayout>
 
                 </LinearLayout>
 
             </com.google.android.material.card.MaterialCardView>
 
-            <!-- Note Content Section -->
+            <!-- Content Section -->
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:minHeight="500dp"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:minHeight="400dp"
                 app:cardCornerRadius="12dp"
                 app:cardElevation="2dp"
                 app:cardBackgroundColor="@android:color/white"
@@ -147,7 +128,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Note"
+                        android:text="Content"
                         android:textColor="@android:color/black"
                         android:textSize="14sp"
                         android:textStyle="bold"
@@ -169,7 +150,7 @@
                             android:inputType="textCapSentences|textMultiLine"
                             android:scrollbars="vertical"
                             android:lineSpacingExtra="4dp"
-                            android:minHeight="400dp" />
+                            android:minHeight="200dp" />
 
                     </com.example.health_assistant.core.design.components.HealthTextInputLayout>
 

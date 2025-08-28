@@ -108,8 +108,24 @@ class ActivityDetailFragment : Fragment() {
             val dateFormatter = DateTimeFormatter.ofPattern("EEEE, MMMM d, yyyy")
             dateHeaderText.text = activityCard.date.format(dateFormatter)
 
-            // Update center summary
-            centerSummaryText.text = "Today's\nActivity"
+            // Check if goals are completed
+            val stepsGoal = 9000
+            val caloriesGoal = 300
+            val heartPointsGoal = 50
+
+            val stepsCompleted = activityCard.stepCount >= stepsGoal
+            val caloriesCompleted = activityCard.caloriesBurned >= caloriesGoal
+            val heartPointsCompleted = activityCard.heartPoints >= heartPointsGoal
+
+            val allGoalsCompleted = stepsCompleted && caloriesCompleted && heartPointsCompleted
+            val partialGoalsCompleted = stepsCompleted || caloriesCompleted || heartPointsCompleted
+
+            // Update center summary with dynamic message based on completion
+            centerSummaryText.text = when {
+                allGoalsCompleted -> "Great Job!\nAll Goals\nCompleted! 🎉"
+                partialGoalsCompleted -> "Keep Going!\nYou're On\nTrack! 💪"
+                else -> "Let's Start!\nYour Daily\nGoals Await! 🚀"
+            }
 
             // Update metric values
             stepsValueText.text = activityCard.stepCount.toString()
@@ -118,15 +134,16 @@ class ActivityDetailFragment : Fragment() {
 
             // Debug: Log the actual values
             android.util.Log.d("ActivityDetail", "Steps: ${activityCard.stepCount}, Calories: ${activityCard.caloriesBurned}, Heart Points: ${activityCard.heartPoints}")
+            android.util.Log.d("ActivityDetail", "Goals completed - Steps: $stepsCompleted, Calories: $caloriesCompleted, Heart Points: $heartPointsCompleted")
 
             // Post the progress update to ensure the view is laid out first
             tripleRingProgress.post {
                 // Update the triple ring progress widget with current and target values
-                tripleRingProgress.setStepsProgress(activityCard.stepCount, 9000)
-                tripleRingProgress.setCaloriesProgress(activityCard.caloriesBurned, 300)
-                tripleRingProgress.setHeartPointsProgress(activityCard.heartPoints, 50)
+                tripleRingProgress.setStepsProgress(activityCard.stepCount, stepsGoal)
+                tripleRingProgress.setCaloriesProgress(activityCard.caloriesBurned, caloriesGoal)
+                tripleRingProgress.setHeartPointsProgress(activityCard.heartPoints, heartPointsGoal)
 
-                android.util.Log.d("ActivityDetail", "Progress updated for Steps: ${activityCard.stepCount}/9000, Calories: ${activityCard.caloriesBurned}/300, Heart Points: ${activityCard.heartPoints}/50")
+                android.util.Log.d("ActivityDetail", "Progress updated for Steps: ${activityCard.stepCount}/$stepsGoal, Calories: ${activityCard.caloriesBurned}/$caloriesGoal, Heart Points: ${activityCard.heartPoints}/$heartPointsGoal")
             }
         }
     }

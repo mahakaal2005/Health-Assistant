@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/homeFragment"
+        android:icon="@drawable/ic_home_selector"
+        android:title="Home" />
+    
+    <item
+        android:id="@+id/discoverFragment"
+        android:icon="@drawable/ic_browse_selector"
+        android:title="Discover" />
+    
+    <item
+        android:id="@+id/journalFragment"
+        android:icon="@drawable/ic_diary_selector"
+        android:title="Journal" />
+    
+    <item
+        android:id="@+id/profileFragment"
+        android:icon="@drawable/ic_profile_selector"
+        android:title="Profile" />
+</menu>

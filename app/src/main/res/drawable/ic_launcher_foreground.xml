@@ -4,20 +4,18 @@
     android:viewportWidth="108"
     android:viewportHeight="108">
     
-    <!-- Placeholder for your PNG icon - centered and properly sized -->
-    <!-- The safe zone for adaptive icons is 66dp diameter circle centered at (54,54) -->
-    <!-- This ensures your icon won't be cut off by different launcher shapes -->
+    <!-- Simple, clean health-themed icon -->
+    <!-- Use Android Studio's Image Asset tool with your icon.png for best results -->
     
     <group android:translateX="54" android:translateY="54">
-        <!-- Safe zone circle - 33dp radius (66dp diameter) -->
-        <!-- Your PNG should fit within this area to avoid cutting -->
-        <path android:fillColor="#E0E0E0"
-              android:pathData="M0,0m-33,0a33,33 0,1 1,66 0a33,33 0,1 1,-66 0"/>
+        <!-- Main circle background -->
+        <path android:fillColor="#2196F3"
+              android:pathData="M0,0m-30,0a30,30 0,1 1,60 0a30,30 0,1 1,-60 0"/>
         
-        <!-- Placeholder text indicating PNG placement -->
-        <path android:fillColor="#757575"
-              android:pathData="M-20,-5 L20,-5 L20,5 L-20,5 Z"/>
-        <path android:fillColor="#757575"
-              android:pathData="M-5,-20 L5,-20 L5,20 L-5,20 Z"/>
+        <!-- Health cross symbol -->
+        <path android:fillColor="#FFFFFF"
+              android:pathData="M-12,-4 L12,-4 L12,4 L-12,4 Z"/>
+        <path android:fillColor="#FFFFFF"
+              android:pathData="M-4,-12 L4,-12 L4,12 L-4,12 Z"/>
     </group>
 </vector>

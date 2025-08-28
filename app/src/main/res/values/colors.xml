@@ -37,6 +37,14 @@
     <color name="colorError">#F44336</color>
     <color name="colorOnError">@color/white</color>
 
+    <!-- Health System Colors for Components -->
+    <color name="health_primary">@color/colorPrimary</color>
+    <color name="health_secondary">@color/colorSecondary</color>
+    <color name="health_accent">#81C784</color>
+    <color name="health_dark">#2E7D32</color>
+    <color name="health_light">#C8E6C9</color>
+    <color name="text_secondary">@color/text_tertiary_dark</color>
+
     <!-- Updated Text Colors for Clean UI -->
     <color name="textPrimary">@color/text_primary_dark</color>
     <color name="textSecondary">@color/text_tertiary_dark</color>
@@ -55,161 +63,78 @@
     <color name="card_background_alt">#F8F9FA</color>
     <color name="divider">#E0E0E0</color>
 
-    <!-- Health-themed accent colors -->
-    <color name="health_primary">#4CAF50</color> <!-- Main health green -->
-    <color name="health_light">#C8E6C9</color> <!-- Very light green for backgrounds -->
-    <color name="health_accent">#81C784</color> <!-- Accent green for highlights -->
-    <color name="health_dark">#2E7D32</color> <!-- Dark green for emphasis -->
-
     <!-- Semantic Colors -->
     <color name="success">#4CAF50</color>
     <color name="warning">#FF9800</color>
     <color name="error">#F44336</color>
 
-    <!-- Primary color alias for consistency -->
-    <color name="primary_color">@color/colorPrimary</color>
-
-    <!-- FAB Colors for Expanding Menu -->
-    <color name="fab_background_gradient">@color/health_primary</color>
-    <color name="fab_note_color">@color/health_accent</color>
-    <color name="fab_diary_color">@color/health_dark</color>
-
-    <!-- Additional colors for the expanding FAB menu -->
-    <color name="fab_overlay_color">#80000000</color>
-    <color name="fab_label_background">#FFFFFF</color>
-    <color name="fab_label_text">#424242</color>
-
-    <!-- Additional needed colors -->
-    <color name="accent_color">@color/colorSecondary</color>
-    <color name="surface_color">@color/colorSurface</color>
-
-    <!-- Health Status Colors -->
-    <color name="healthExcellent">#43A047</color>
-    <color name="healthGood">#1E88E5</color>
-    <color name="healthWarning">#FFA000</color>
-    <color name="healthPoor">#E53935</color>
-
     <!-- Activity Colors -->
     <color name="stepBlue">#039BE5</color>
     <color name="heartRateRed">#E53935</color>
 
-    <!-- Glass/Material Effects -->
-    <color name="glassShadow">#1A000000</color>
-    <color name="glassOverlay">#0A000000</color>
-
     <!-- Ripple Colors -->
-    <color name="rippleColorLight">#20FFFFFF</color>
     <color name="ripple_color">#20000000</color>
+    <color name="rippleColorLight">#20FFFFFF</color>
 
-    <!-- Shadow & Elevation Colors -->
-    <color name="shadow_light">#1A000000</color>
-    <color name="elevation_overlay">#0A000000</color>
+    <!-- Additional Aliases -->
+    <color name="primary_color">@color/colorPrimary</color>
+    <color name="accent_color">@color/colorSecondary</color>
+    <color name="surface_color">@color/colorSurface</color>
+    <color name="text_primary">@color/textPrimary</color>
+    <color name="primary">@color/colorPrimary</color>
+    <color name="error_color">@color/colorError</color>
 
-    <!-- Navigation Colors -->
-    <color name="bottom_nav_item_color">@color/colorPrimary</color>
-    <color name="bottom_nav_item_color_inactive">#9E9E9E</color>
-
-    <!-- Journal Fragment Specific Colors -->
-    <color name="card_background_translucent">#40FFFFFF</color>
-
-    <!-- Chip Background Selector Colors -->
-    <color name="chip_background_selected">#80FFFFFF</color>
-    <color name="chip_background_unselected">#20FFFFFF</color>
-
-    <!-- Text Input Colors -->
-    <color name="text_input_background">#F5F5F5</color>
-    <color name="text_input_box_stroke">@color/colorPrimary</color>
-    <color name="text_input_box_stroke_default">#E0E0E0</color>
-
-
-    <!-- Dashboard Colors -->
+    <!-- Missing Color Resources -->
     <color name="dashboard_background">#F5F5F5</color>
+    <color name="ds_outline">#E0E0E0</color>
 
     <!-- Feature Accent Colors -->
-    <color name="ar_guide_accent">#FF5722</color>
-    <color name="chatbot_accent">#9C27B0</color>
-    <color name="community_accent">#4CAF50</color>
-    <color name="emergency_accent">#F44336</color>
     <color name="health_check_accent">#2196F3</color>
     <color name="help_feedback_accent">#FF9800</color>
     <color name="prescription_upload_accent">#00BCD4</color>
     <color name="settings_accent">#607D8B</color>
     <color name="weekly_report_accent">#8BC34A</color>
 
-    <!-- Additional Theme Colors -->
-    <color name="primary_teal">#009688</color>
-    <color name="colorPrimaryGradientStart">#1976D2</color>
-    <color name="colorPrimaryGradientEnd">#0D47A1</color>
-
-    <!-- Glass Effect Colors -->
-    <color name="glassBg">#40FFFFFF</color>
-    <color name="glassHighlight">#60FFFFFF</color>
-
-    <!-- Progress Colors -->
-    <color name="progress_orange">#FF9800</color>
-    <color name="progress_green">#4CAF50</color>
-    <color name="progress_blue">#2196F3</color>
-
-    <!-- Additional Ripple Colors -->
-    <color name="rippleColorDark">#40000000</color>
-
-    <!-- Missing Color Resources -->
-    <!-- Chip Colors -->
+    <!-- Additional Missing Colors -->
     <color name="colorChip">#E1F5FE</color>
+    <color name="primary_teal">#009688</color>
 
-    <!-- Progress Colors for Activity Summary -->
-    <color name="colorProgressBackground">#E0E0E0</color>
-    <color name="colorProgressSteps">@color/stepBlue</color>
-    <color name="colorProgressCalories">#FF5722</color>
-    <color name="colorProgressActive">@color/success</color>
+    <!-- Missing Chip Colors -->
+    <color name="chip_background_selected">@color/health_primary</color>
+    <color name="chip_background_unselected">#E0E0E0</color>
 
-    <!-- Card Colors -->
-    <color name="colorCard">@color/cardBackground</color>
-    <color name="colorChipSelected">#1976D2</color>
-
-    <!-- Error Color for TextInputLayout -->
-    <color name="error_color">@color/colorError</color>
-
-    <!-- Note: background_primary and surface_primary already defined above -->
-
-    <!-- Search Highlighting Colors -->
-    <color name="search_highlight_background">#FFEB3B</color>
-    <color name="search_highlight_text">#1976D2</color>
-
-    <!-- Category Colors -->
-    <color name="category_nutrition">#4CAF50</color>
-    <color name="category_fitness">#FF5722</color>
-    <color name="category_mental_health">#9C27B0</color>
-    <color name="category_preventive_care">#2196F3</color>
-    <color name="category_chronic_conditions">#FF9800</color>
-    <color name="category_default">#757575</color>
-
-    <!-- Credibility Colors -->
-    <color name="credibility_high">#4CAF50</color>
-    <color name="credibility_medium">#FF9800</color>
-    <color name="credibility_low">#FFC107</color>
-    <color name="credibility_unverified">#9E9E9E</color>
-
-    <!-- Warning Colors for Article Reader -->
-    <color name="warning_background">#FFF3E0</color>
-    <color name="warning_border">#FFB74D</color>
-    <color name="warning_text">#E65100</color>
-
-    <!-- Missing Color Resources for Offline Status Indicator -->
-    <color name="primary_blue">@color/colorPrimary</color>
-    <color name="success_green">@color/success</color>
-    <color name="warning_orange">@color/warning</color>
-    <color name="error_red">@color/error</color>
-    <color name="text_primary">@color/textPrimary</color>
-    <color name="text_secondary">@color/textSecondary</color>
-    <color name="primary">@color/colorPrimary</color>
-    <color name="surface_variant">#F5F5F5</color>
+    <!-- Missing Outline Colors -->
     <color name="outline_variant">#E0E0E0</color>
-    <color name="primary_container">#E3F2FD</color>
+
+    <!-- Missing Container Colors -->
+    <color name="surface_variant">#F5F5F5</color>
+    <color name="primary_container">#E8F5E8</color>
     <color name="secondary_container">#E0F2F1</color>
 
+    <!-- Missing Gradient Colors -->
+    <color name="colorPrimaryGradientStart">#4CAF50</color>
+    <color name="colorPrimaryGradientEnd">#2E7D32</color>
+
+    <!-- Missing FAB Colors -->
+    <color name="fab_background_gradient">@color/health_primary</color>
+    <color name="fab_overlay_color">#80000000</color>
+
+    <!-- Missing Feature Accent Colors -->
+    <color name="ar_guide_accent">#FF5722</color>
+    <color name="chatbot_accent">#9C27B0</color>
+    <color name="community_accent">#4CAF50</color>
+    <color name="emergency_accent">#F44336</color>
+
+    <!-- Text Input Colors -->
+    <color name="text_input_background">#F5F5F5</color>
+    <color name="text_input_box_stroke">@color/colorPrimary</color>
+    <color name="text_input_box_stroke_default">#E0E0E0</color>
+
+    <!-- Navigation Colors -->
+    <color name="bottom_nav_item_color">@color/colorPrimary</color>
+    <color name="bottom_nav_item_color_inactive">#9E9E9E</color>
+
     <!-- Design System Semantic Tokens -->
-    <!-- These tokens provide semantic meaning to colors for consistent usage -->
     <color name="ds_primary">@color/health_primary</color>
     <color name="ds_primary_variant">@color/colorPrimaryVariant</color>
     <color name="ds_secondary">@color/health_accent</color>
@@ -231,16 +156,23 @@
     <color name="ds_interactive_ripple">@color/ripple_color</color>
     <color name="ds_interactive_outline">@color/outline_variant</color>
     <color name="ds_interactive_divider">@color/divider</color>
-    
-    <!-- HealthCardComponent surface colors -->
     <color name="ds_surface_secondary">@color/card_background_alt</color>
-    <color name="ds_outline">@color/outline_variant</color>
-    
-    <!-- Content Category Color Variants (HealthColors.Primary variants) -->
-    <color name="ds_primary_nutrition">@color/category_nutrition</color>
-    <color name="ds_primary_fitness">@color/category_fitness</color>
-    <color name="ds_primary_mental_health">@color/category_mental_health</color>
-    <color name="ds_primary_preventive_care">@color/category_preventive_care</color>
-    <color name="ds_primary_chronic_conditions">@color/category_chronic_conditions</color>
-    <color name="ds_primary_default">@color/category_default</color>
+
+    <!-- Missing Card Colors -->
+    <color name="card_background_translucent">#40FFFFFF</color>
+
+    <!-- Missing Health Status Colors -->
+    <color name="healthExcellent">#43A047</color>
+    <color name="healthGood">#1E88E5</color>
+    <color name="healthWarning">#FFA000</color>
+    <color name="healthPoor">#E53935</color>
+
+    <!-- Missing Chip Selected Color -->
+    <color name="colorChipSelected">@color/health_primary</color>
+
+    <!-- Missing Progress Ring Colors -->
+    <color name="progress_orange">#FF9800</color>
+    <color name="progress_green">#4CAF50</color>
+    <color name="progress_blue">#2196F3</color>
+
 </resources>

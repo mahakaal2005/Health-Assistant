@@ -1,182 +1,142 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/background_primary"
+    android:padding="@dimen/ds_margin_standard"
     tools:context=".features.profile.ProfileFragment">
 
-    <!-- Main Scrollable Content -->
-    <androidx.core.widget.NestedScrollView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:fillViewport="true"
-        android:overScrollMode="never"
-        android:clipToPadding="false"
-        android:scrollbars="none"
-        android:background="@android:color/transparent">
+    <!-- Profile Title -->
+    <TextView
+        android:id="@+id/profile_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Profile"
+        android:textAppearance="@style/TextAppearance.HealthAssistant.FragmentTitle"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
-        <androidx.constraintlayout.widget.ConstraintLayout
+    <!-- Profile Subtitle -->
+    <TextView
+        android:id="@+id/profile_subtitle"
+        style="@style/TextAppearance.HealthTypography.Label.Medium"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Manage your health profile"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/profile_title" />
+
+    <!-- Welcome/Intro Text -->
+    <TextView
+        android:id="@+id/profileIntroText"
+        style="@style/TextAppearance.HealthTypography.Body.Large"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/ds_margin_standard"
+        android:text="@string/profile_greeting"
+        android:gravity="center"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/profile_subtitle" />
+
+    <!-- Avatar with Edit Option -->
+    <FrameLayout
+        android:id="@+id/avatar_container"
+        android:layout_width="120dp"
+        android:layout_height="120dp"
+        android:layout_marginTop="@dimen/ds_margin_standard"
+        android:elevation="4dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/profileIntroText">
+
+        <de.hdodenhof.circleimageview.CircleImageView
+            android:id="@+id/profile_avatar"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@android:color/transparent"
-            android:paddingBottom="24dp">
+            android:layout_height="match_parent"
+            android:clickable="true"
+            android:contentDescription="View profile photo in full screen"
+            android:focusable="true"
+            android:foreground="?android:attr/selectableItemBackgroundBorderless"
+            android:src="@android:drawable/ic_menu_myplaces"
+            app:civ_border_color="@color/health_primary"
+            app:civ_border_width="3dp" />
 
-            <!-- Standardized Profile Header Section -->
-            <androidx.constraintlayout.widget.ConstraintLayout
-                android:id="@+id/profile_header_section"
-                style="@style/Widget.HealthAssistant.FragmentHeader"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent">
+    </FrameLayout>
 
-                <!-- Profile Title -->
-                <TextView
-                    android:id="@+id/profile_title"
-                    style="@style/TextAppearance.HealthTypography.Title.Medium"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Profile"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
+    <!-- User Name -->
+    <TextView
+        android:id="@+id/user_full_name"
+        style="@style/TextAppearance.HealthTypography.Body.Large"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/ds_margin_medium"
+        android:elevation="2dp"
+        android:text="Alex Johnson"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/avatar_container" />
 
-                <!-- Profile Subtitle -->
-                <TextView
-                    android:id="@+id/profile_subtitle"
-                    style="@style/TextAppearance.HealthTypography.Label.Medium"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Manage your health profile"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@id/profile_title" />
+    <!-- Bio Text -->
+    <TextView
+        android:id="@+id/user_bio"
+        style="@style/TextAppearance.HealthTypography.Label.Medium"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/ds_margin_xxl"
+        android:layout_marginTop="@dimen/ds_margin_medium"
+        android:layout_marginEnd="@dimen/ds_margin_xxl"
+        android:alpha="0.9"
+        android:gravity="center"
+        android:minHeight="40dp"
+        android:text="@string/profile_bio_placeholder"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/user_full_name" />
 
-                <!-- Welcome/Intro Text (moved below header) -->
-                <TextView
-                    android:id="@+id/profileIntroText"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Welcome Buddy!!"
-                    android:textSize="20sp"
-                    android:textColor="@color/ds_text_primary"
-                    android:textStyle="bold|italic"
-                    android:fontFamily="serif"
-                    android:alpha="0.95"
-                    android:layout_marginTop="@dimen/ds_margin_standard"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@id/profile_subtitle"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    android:elevation="2dp" />
+    <!-- Edit Profile Button -->
+    <Button
+        android:id="@+id/edit_profile_button"
+        style="@style/Widget.HealthAssistant.Button.Primary"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/ds_margin_standard"
+        android:text="Edit Profile"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/user_bio" />
 
-                <!-- Avatar with Edit Option -->
-                <FrameLayout
-                    android:id="@+id/avatar_container"
-                    android:layout_width="120dp"
-                    android:layout_height="120dp"
-                    android:elevation="4dp"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/profileIntroText"
-                    android:layout_marginTop="8dp">
+    <!-- Prescriptions Button -->
+    <Button
+        android:id="@+id/prescriptions_button"
+        style="@style/Widget.HealthAssistant.Button.Primary"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/ds_margin_xxl"
+        android:drawableStart="@android:drawable/ic_menu_agenda"
+        android:drawableTint="#FFFFFF"
+        android:text="Prescriptions"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/edit_profile_button" />
 
-                    <de.hdodenhof.circleimageview.CircleImageView
-                        android:id="@+id/profile_avatar"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:clickable="true"
-                        android:contentDescription="View profile photo in full screen"
-                        android:focusable="true"
-                        android:foreground="?android:attr/selectableItemBackgroundBorderless"
-                        android:src="@android:drawable/ic_menu_myplaces"
-                        app:civ_border_color="@color/health_primary"
-                        app:civ_border_width="3dp" />
+    <!-- Logout Button -->
+    <Button
+        android:id="@+id/logoutButton"
+        style="@style/Widget.HealthAssistant.Button.Primary"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/ds_margin_xxl"
+        android:layout_marginBottom="@dimen/ds_margin_xl"
+        android:drawableStart="@android:drawable/ic_lock_power_off"
+        android:drawableTint="#FFFFFF"
+        android:text="Logout"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/prescriptions_button"
+        app:layout_constraintBottom_toBottomOf="parent" />
 
-                </FrameLayout>
-
-                <!-- User Name -->
-                <TextView
-                    android:id="@+id/user_full_name"
-                    style="@style/TextAppearance.HealthTypography.Body.Large"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="@dimen/ds_margin_medium"
-                    android:text="Alex Johnson"
-                    android:textStyle="bold"
-                    android:elevation="2dp"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/avatar_container" />
-
-                <!-- Bio Text - Now editable in EditProfileFragment -->
-                <TextView
-                    android:id="@+id/user_bio"
-                    style="@style/TextAppearance.HealthTypography.Label.Medium"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="@dimen/ds_margin_xxl"
-                    android:layout_marginTop="@dimen/ds_margin_medium"
-                    android:layout_marginEnd="@dimen/ds_margin_xxl"
-                    android:gravity="center"
-                    android:text="Add your bio in Edit Profile"
-                    android:alpha="0.9"
-                    android:minHeight="40dp"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/user_full_name" />
-
-                <!-- Edit Profile Button -->
-                <Button
-                    android:id="@+id/edit_profile_button"
-                    style="@style/Widget.HealthAssistant.Button.Primary"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="@dimen/ds_margin_standard"
-                    android:text="Edit Profile"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/user_bio" />
-            </androidx.constraintlayout.widget.ConstraintLayout>
-
-
-
-
-
-
-
-            <!-- Prescriptions Button -->
-            <Button
-                android:id="@+id/prescriptions_button"
-                style="@style/Widget.HealthAssistant.Button.Primary"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="@dimen/ds_margin_standard"
-                android:layout_marginTop="@dimen/ds_margin_xxl"
-                android:layout_marginEnd="@dimen/ds_margin_standard"
-                android:drawableStart="@android:drawable/ic_menu_agenda"
-                android:drawableTint="#FFFFFF"
-                android:text="Prescriptions"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/profile_header_section" />
-
-            <!-- Logout Button -->
-            <Button
-                android:id="@+id/logoutButton"
-                style="@style/Widget.HealthAssistant.Button.Primary"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="@dimen/ds_margin_standard"
-                android:layout_marginTop="@dimen/ds_margin_xxl"
-                android:layout_marginEnd="@dimen/ds_margin_standard"
-                android:layout_marginBottom="@dimen/ds_margin_xl"
-                android:drawableStart="@android:drawable/ic_lock_power_off"
-                android:drawableTint="#FFFFFF"
-                android:text="Logout"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/prescriptions_button"
-                app:layout_constraintBottom_toBottomOf="parent" />
-
-        </androidx.constraintlayout.widget.ConstraintLayout>
-    </androidx.core.widget.NestedScrollView>
-</androidx.coordinatorlayout.widget.CoordinatorLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

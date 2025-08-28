@@ -1,0 +1,176 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="8dp"
+    app:cardCornerRadius="12dp"
+    app:cardElevation="4dp"
+    app:cardUseCompatPadding="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <!-- Header with icon, title and date -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginBottom="12dp">
+
+            <ImageView
+                android:id="@+id/activityIcon"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:layout_marginEnd="12dp"
+                android:contentDescription="Activity icon"
+                tools:src="@drawable/ic_workout" />
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/activityTitle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:textColor="?android:attr/textColorPrimary"
+                    tools:text="Running" />
+
+                <TextView
+                    android:id="@+id/activityDate"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="12sp"
+                    android:textColor="?android:attr/textColorSecondary"
+                    tools:text="Jul 4, 2025" />
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+        <!-- Progress indicators row -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center"
+            android:layout_marginBottom="12dp">
+
+            <!-- Steps Progress -->
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:gravity="center">
+
+                <com.google.android.material.progressindicator.CircularProgressIndicator
+                    android:id="@+id/stepsProgress"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:layout_marginBottom="4dp"
+                    app:indicatorSize="48dp"
+                    app:trackThickness="4dp"
+                    app:indicatorColor="?attr/colorPrimary"
+                    app:trackColor="?attr/colorSurfaceVariant"
+                    tools:progress="75" />
+
+                <TextView
+                    android:id="@+id/stepsCount"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="12sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/textPrimary"
+                    tools:text="7,500 steps" />
+
+            </LinearLayout>
+
+            <!-- Calories Progress -->
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:gravity="center">
+
+                <com.google.android.material.progressindicator.CircularProgressIndicator
+                    android:id="@+id/caloriesProgress"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:layout_marginBottom="4dp"
+                    app:indicatorSize="48dp"
+                    app:trackThickness="4dp"
+                    app:indicatorColor="?attr/colorSecondary"
+                    app:trackColor="?attr/colorSurfaceVariant"
+                    tools:progress="60" />
+
+                <TextView
+                    android:id="@+id/caloriesCount"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="12sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/textPrimary"
+                    tools:text="250 cal" />
+
+            </LinearLayout>
+
+            <!-- Active Minutes Progress -->
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:gravity="center">
+
+                <com.google.android.material.progressindicator.CircularProgressIndicator
+                    android:id="@+id/activeMinutesProgress"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:layout_marginBottom="4dp"
+                    app:indicatorSize="48dp"
+                    app:trackThickness="4dp"
+                    app:indicatorColor="?attr/colorTertiary"
+                    app:trackColor="?attr/colorSurfaceVariant"
+                    tools:progress="80" />
+
+                <TextView
+                    android:id="@+id/activeMinutesCount"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="12sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/textPrimary"
+                    tools:text="45 min" />
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+        <!-- Activity summary -->
+        <TextView
+            android:id="@+id/activitySummary"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="14sp"
+            android:textColor="@color/textSecondary"
+            android:gravity="center"
+            android:padding="8dp"
+            android:background="?attr/colorSurfaceVariant"
+            android:layout_marginTop="4dp"
+            tools:text="Great workout session with good intensity!" />
+
+    </LinearLayout>
+
+</androidx.cardview.widget.CardView>

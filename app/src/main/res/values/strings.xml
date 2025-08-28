@@ -258,4 +258,13 @@
     <string name="report_desc_copyright">The content appears to violate copyright or intellectual property rights</string>
     <string name="report_desc_broken">Links, videos, or images in the content are not working properly</string>
     <string name="report_desc_other">Other issues not covered by the above categories</string>
+    
+    <!-- Professional Health Messages -->
+    <string name="profile_greeting">How are you feeling today?</string>
+    <string name="profile_bio_placeholder">Share your health journey</string>
+    <string name="home_greeting">Today\'s Health Overview</string>
+    <string name="journal_prompt">Track your wellness journey</string>
+    <string name="health_check_in">Check in with your health</string>
+    <string name="wellness_tracking">Monitor your wellness</string>
+
 </resources>

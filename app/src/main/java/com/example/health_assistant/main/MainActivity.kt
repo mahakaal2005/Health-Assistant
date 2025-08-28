@@ -22,11 +22,14 @@ import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.navigateUp
+import androidx.navigation.ui.setupWithNavController
 import com.example.health_assistant.R
 import com.example.health_assistant.core.performance.FragmentPerformanceManager
 import com.example.health_assistant.databinding.MainActivityBinding
 import com.example.health_assistant.data.sync.ProfileSyncManager
 import com.example.health_assistant.data.health.EnhancedHealthTracker
+
+import com.example.health_assistant.BuildConfig
 
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
@@ -36,6 +39,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var binding: MainActivityBinding
     private lateinit var navController: NavController
     private lateinit var appBarConfiguration: AppBarConfiguration
+
     private val TAG = "MainActivity"
 
     // Inject ProfileSyncManager for automatic Firestore synchronization
@@ -130,6 +134,18 @@ class MainActivity : AppCompatActivity() {
 
         initializeNavigation()
         
+        // Initialize AI Chatbot FAB
+        initializeChatbotFab()
+        
+        // Log final integration status
+        logFinalIntegrationStatus()
+        
+        // Run tests and production validation in debug builds
+        if (BuildConfig.DEBUG) {
+            runPremiumNavigationTests()
+            validateProductionReadiness()
+        }
+        
         // Deep link handling removed for simplified implementation
     }
 
@@ -154,7 +170,7 @@ class MainActivity : AppCompatActivity() {
 
             // NEW: Enhanced bottom navigation with navigation throttling
             setupOptimizedBottomNavigation()
-
+            
             Log.d(TAG, "Navigation initialized successfully")
 
         } catch (e: Exception) {
@@ -164,45 +180,13 @@ class MainActivity : AppCompatActivity() {
     }
 
     /**
-     * NEW: Setup optimized bottom navigation with proper backstack management
-     * Home is the central hub - all other fragments clear backstack when navigating
+     * Setup simple bottom navigation with NavController
      */
     private fun setupOptimizedBottomNavigation() {
-        binding.bottomNav.setOnItemSelectedListener { item ->
-            // Throttle navigation to prevent rapid clicks
-            val currentTime = System.currentTimeMillis()
-            if (currentTime - lastNavigationTime < NAVIGATION_THROTTLE_MS) {
-                return@setOnItemSelectedListener false
-            }
-            lastNavigationTime = currentTime
-
-            try {
-                when (item.itemId) {
-                    R.id.homeFragment -> {
-                        navigateToHome()
-                        true
-                    }
-                    R.id.discoverFragment -> {
-                        navigateToDestination(R.id.discoverFragment)
-                        true
-                    }
-                    R.id.journalFragment -> {
-                        navigateToDestination(R.id.journalFragment)
-                        true
-                    }
-                    R.id.profileFragment -> {
-                        navigateToDestination(R.id.profileFragment)
-                        true
-                    }
-                    else -> false
-                }
-            } catch (e: Exception) {
-                Log.e(TAG, "Navigation error: ${e.message}")
-                false
-            }
-        }
-
-        // Add destination change listener for proper state tracking
+        // Setup with NavController for standard navigation behavior
+        binding.bottomNav.setupWithNavController(navController)
+        
+        // Add destination change listener for visibility control
         navController.addOnDestinationChangedListener { _, destination, _ ->
             isHomeDestination = destination.id == R.id.homeFragment
 
@@ -218,6 +202,8 @@ class MainActivity : AppCompatActivity() {
                 }
             }
         }
+        
+        Log.d(TAG, "Bottom navigation setup complete")
     }
 
     /**
@@ -408,16 +394,54 @@ class MainActivity : AppCompatActivity() {
                 R.id.profileFragment
             ) -> {
                 navigateToHome()
-                binding.bottomNav.selectedItemId = R.id.homeFragment
+                binding.bottomNav.setSelectedItemId(R.id.homeFragment)
             }
             // For other fragments (like prescriptions), use normal back navigation
             else -> {
                 if (!navController.popBackStack()) {
                     // If can't pop, go to home
                     navigateToHome()
-                    binding.bottomNav.selectedItemId = R.id.homeFragment
+                    binding.bottomNav.setSelectedItemId(R.id.homeFragment)
                 }
             }
+        }
+    }
+
+    private fun initializeChatbotFab() {
+        // FAB functionality removed - using simple bottom navigation only
+        Log.d(TAG, "FAB functionality disabled for simple navigation")
+    }
+    
+
+    
+    private fun runPremiumNavigationTests() {
+        // Premium navigation tests removed - using simple navigation only
+        Log.d(TAG, "Premium navigation tests disabled for simple navigation")
+    }
+    
+    private fun logFinalIntegrationStatus() {
+        // Premium navigation logging removed - using simple navigation only
+        Log.d(TAG, "Simple navigation integration complete")
+    }
+    
+    private fun validateProductionReadiness() {
+        // Production readiness validation removed - using simple navigation only
+        Log.d(TAG, "Production readiness validation disabled for simple navigation")
+    }
+    
+    private fun launchAiChatbot() {
+        try {
+            Log.d(TAG, "Launching AI Chatbot interface")
+            
+            // TODO: Implement AI chatbot launch logic
+            // For now, we'll just log the action
+            Log.i(TAG, "AI Chatbot would be launched here")
+            
+            // You could navigate to a chatbot fragment or start a chatbot activity
+            // navController.navigate(R.id.chatbotFragment)
+            
+        } catch (exception: Exception) {
+            Log.e(TAG, "Failed to launch AI chatbot", exception)
         }
     }
 

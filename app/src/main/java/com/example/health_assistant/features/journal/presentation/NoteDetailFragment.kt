@@ -5,32 +5,14 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.viewModels
-import com.example.health_assistant.R
+import androidx.navigation.fragment.findNavController
 import com.example.health_assistant.databinding.FragmentNoteDetailBinding
-import com.example.health_assistant.features.journal.domain.JournalEntry
-import com.example.health_assistant.features.journal.JournalViewModel
-import com.example.health_assistant.core.design.components.HealthFormValidation
-import com.example.health_assistant.core.design.components.HealthDateTimePicker
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
 class NoteDetailFragment : Fragment() {
     private var _binding: FragmentNoteDetailBinding? = null
     private val binding get() = _binding!!
-
-    // Edit mode state
-    private var isEditMode = false
-    private var isCreateMode = false // Add creation mode flag
-    private var noteId: Long = 0L
-    private var originalTimestamp: Long = 0L // Add original timestamp
-    private var originalContent: String = ""
-
-    // Add ViewModel to handle database operations
-    private val journalViewModel: JournalViewModel by viewModels()
-    
-    // Form validation utility
-    private lateinit var formValidation: HealthFormValidation
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -43,297 +25,99 @@ class NoteDetailFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        formValidation = HealthFormValidation(requireContext())
-        setupUI()
         setupToolbar()
-        setupClickListeners()
-        setupDateTimePicker()
-        loadNoteData()
-    }
-
-    private fun setupUI() {
-        // Initially set to read-only mode
-        setEditMode(false)
+        setupUI()
     }
 
     private fun setupToolbar() {
-        // Setup the toolbar with fixed title
-        binding.toolbar.title = "Note"
-        binding.toolbar.setNavigationOnClickListener {
-            if (isEditMode) {
-                // If in edit mode, show confirmation dialog
-                showDiscardChangesDialog()
-            } else {
-                requireActivity().onBackPressed()
+        with(binding) {
+            // Setup toolbar navigation
+            toolbar.setNavigationOnClickListener {
+                findNavController().navigateUp()
+            }
+
+            // Setup toolbar title
+            toolbar.title = "Note"
+
+            // Setup more options button
+            moreOptionsButton.setOnClickListener {
+                // TODO: Implement options menu (save, delete, share, etc.)
+                showOptionsMenu()
             }
         }
     }
 
-    private fun setupClickListeners() {
-        // More options button click listener
-        binding.moreOptionsButton.setOnClickListener {
-            showMoreOptionsMenu()
+    private fun setupUI() {
+        with(binding) {
+            // Focus on title input when fragment loads
+            etNoteTitle.requestFocus()
+
+            // Setup input validation
+            setupInputValidation()
         }
     }
 
-    private fun setupDateTimePicker() {
-        // Set up date/time picker with current date/time
-        binding.dateTimePicker.setToCurrentDateTime()
-        binding.dateTimePicker.setFragmentManager(parentFragmentManager)
-        
-        // Listen for date/time changes
-        binding.dateTimePicker.setOnDateTimeSelectedListener { date, timeString ->
-            // Update the original timestamp when user selects custom date/time
-            originalTimestamp = date.time
+    private fun setupInputValidation() {
+        with(binding) {
+            // Track if user has interacted with fields
+            var titleTouched = false
+            var contentTouched = false
+            
+            etNoteTitle.setOnFocusChangeListener { _, hasFocus ->
+                if (hasFocus) {
+                    titleTouched = true
+                } else if (titleTouched) {
+                    validateTitle()
+                }
+            }
+
+            etNoteContent.setOnFocusChangeListener { _, hasFocus ->
+                if (hasFocus) {
+                    contentTouched = true
+                } else if (contentTouched) {
+                    validateContent()
+                }
+            }
         }
     }
 
-    private fun showMoreOptionsMenu() {
-        // Create popup menu
-        val popupMenu = androidx.appcompat.widget.PopupMenu(
-            requireContext(),
-            binding.moreOptionsButton
-        )
-
-        // Add menu items based on current mode - text only
-        if (isEditMode) {
-            popupMenu.menu.add(0, 1, 0, "Save")
-            popupMenu.menu.add(0, 2, 0, "Cancel")
+    private fun validateTitle(): Boolean {
+        val title = binding.etNoteTitle.text?.toString()?.trim()
+        return if (title.isNullOrEmpty()) {
+            binding.tilNoteTitle.error = "Please enter a title"
+            false
         } else {
-            popupMenu.menu.add(0, 3, 0, "Edit")
-        }
-
-        // Always show delete option
-        popupMenu.menu.add(0, 4, 0, "Delete")
-
-        // Set menu item click listener
-        popupMenu.setOnMenuItemClickListener { menuItem ->
-            when (menuItem.itemId) {
-                1 -> { // Save
-                    saveNote()
-                    true
-                }
-                2 -> { // Cancel
-                    showDiscardChangesDialog()
-                    true
-                }
-                3 -> { // Edit
-                    setEditMode(true)
-                    true
-                }
-                4 -> { // Delete
-                    deleteNote()
-                    true
-                }
-                else -> false
-            }
-        }
-
-        popupMenu.show()
-    }
-
-    private fun showDiscardChangesDialog() {
-        androidx.appcompat.app.AlertDialog.Builder(requireContext())
-            .setTitle("Discard Changes")
-            .setMessage("Are you sure you want to discard your changes?")
-            .setPositiveButton("Discard") { _, _ ->
-                // Reload original data and exit edit mode
-                loadNoteData()
-                setEditMode(false)
-            }
-            .setNegativeButton("Cancel", null)
-            .show()
-    }
-
-    private fun loadNoteData() {
-        // Get data from arguments
-        arguments?.let { bundle ->
-            isCreateMode = bundle.getBoolean("isCreateMode", false)
-            val content = bundle.getString("noteContent", "")
-            noteId = bundle.getLong("noteId", 0L)
-            originalTimestamp = bundle.getLong("noteTimestamp", System.currentTimeMillis())
-
-            if (isCreateMode) {
-                // Setup for creation mode
-                setEditMode(true)
-                binding.toolbar.title = "Create Note"
-                binding.etNoteContent.setText("") // Start with empty content
-                originalContent = ""
-                
-                // Set date/time picker to current time for new entries
-                binding.dateTimePicker.setToCurrentDateTime()
-
-                // Request focus for immediate typing
-                binding.etNoteContent.requestFocus()
-            } else {
-                // Setup for edit mode of existing note
-                originalContent = content
-                binding.etNoteContent.setText(content)
-                
-                // Set date/time picker to existing entry timestamp
-                binding.dateTimePicker.setSelectedDate(java.util.Date(originalTimestamp))
-                
-                setEditMode(false) // Start in view mode for existing notes
-            }
+            binding.tilNoteTitle.error = null
+            true
         }
     }
 
-    private fun setEditMode(editMode: Boolean) {
-        isEditMode = editMode
-
-        binding.apply {
-            if (editMode) {
-                // Switch to edit mode
-                toolbar.title = "Edit Note"
-
-                // Enable EditText field for editing
-                etNoteContent.isEnabled = true
-
-                // Ensure it is focusable and clickable
-                etNoteContent.isFocusable = true
-                etNoteContent.isFocusableInTouchMode = true
-
-                // Show cursor
-                etNoteContent.isCursorVisible = true
-                
-                // Enable date/time picker
-                dateTimePicker.isEnabled = true
-
-                // Update keyboard behavior for edit mode
-                updateKeyboardBehaviorForEditMode(true)
-
-                // Request focus on content field
-                etNoteContent.requestFocus()
-                etNoteContent.post {
-                    val imm = requireContext().getSystemService(android.content.Context.INPUT_METHOD_SERVICE) as android.view.inputmethod.InputMethodManager
-                    imm.showSoftInput(etNoteContent, android.view.inputmethod.InputMethodManager.SHOW_IMPLICIT)
-                }
-
-            } else {
-                // Switch to view mode
-                toolbar.title = "Note"
-
-                // Disable EditText field for read-only mode
-                etNoteContent.isEnabled = false
-
-                // Make it non-focusable
-                etNoteContent.isFocusable = false
-
-                // Hide cursor
-                etNoteContent.isCursorVisible = false
-                
-                // Disable date/time picker in view mode
-                dateTimePicker.isEnabled = false
-
-                // Clear focus and hide keyboard
-                etNoteContent.clearFocus()
-
-                // Update keyboard behavior for view mode
-                updateKeyboardBehaviorForEditMode(false)
-
-                val imm = requireContext().getSystemService(android.content.Context.INPUT_METHOD_SERVICE) as android.view.inputmethod.InputMethodManager
-                imm.hideSoftInputFromWindow(root.windowToken, 0)
-            }
+    private fun validateContent(): Boolean {
+        val content = binding.etNoteContent.text?.toString()?.trim()
+        return if (content.isNullOrEmpty()) {
+            binding.tilNoteContent.error = "Please enter some content"
+            false
+        } else {
+            binding.tilNoteContent.error = null
+            true
         }
     }
 
-    private fun updateKeyboardBehaviorForEditMode(isEditMode: Boolean) {
-        // Following the prescription pattern for keyboard behavior
-        activity?.window?.apply {
-            if (isEditMode) {
-                // Enhanced keyboard behavior for edit mode
-                setSoftInputMode(
-                    android.view.WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE or
-                            android.view.WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE
-                )
-            } else {
-                // Standard behavior for view mode
-                setSoftInputMode(
-                    android.view.WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN or
-                            android.view.WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN
-                )
-            }
-        }
+    private fun showOptionsMenu() {
+        // TODO: Implement PopupMenu with options like Save, Delete, Share
+        // For now, just save the note
+        saveNote()
     }
 
     private fun saveNote() {
-        // Validate form using HealthFormValidation
-        val contentValidation = formValidation.validateRequired(binding.tilNoteContent, "Note content is required")
-        
-        if (!contentValidation.isValid) {
-            return
+        if (validateTitle() && validateContent()) {
+            val title = binding.etNoteTitle.text?.toString()?.trim()
+            val content = binding.etNoteContent.text?.toString()?.trim()
+
+            // TODO: Implement actual save logic here
+            // For now, just navigate back
+            findNavController().navigateUp()
         }
-        
-        val content = binding.etNoteContent.text.toString().trim()
-
-        val entry = if (isCreateMode) {
-            // Create new entry with selected date/time
-            JournalEntry.Generic(
-                id = 0L, // Database will assign ID
-                timestamp = binding.dateTimePicker.getSelectedTimestamp(),
-                type = "note",
-                content = content
-            )
-        } else {
-            // Update existing entry with selected date/time
-            JournalEntry.Generic(
-                id = noteId,
-                timestamp = binding.dateTimePicker.getSelectedTimestamp(),
-                type = "note",
-                content = content
-            )
-        }
-
-        // Save the entry via ViewModel
-        if (isCreateMode) {
-            journalViewModel.addEntry(entry)
-        } else {
-            journalViewModel.updateEntry(entry)
-        }
-
-        // Update state and UI
-        originalContent = content
-
-        if (isCreateMode) {
-            // For creation, navigate back to journal
-            requireActivity().setResult(android.app.Activity.RESULT_OK)
-            requireActivity().onBackPressed()
-        } else {
-            // For editing, exit edit mode
-            setEditMode(false)
-        }
-
-        // Show success message
-        val message = if (isCreateMode) "Note created successfully" else "Note saved successfully"
-        com.google.android.material.snackbar.Snackbar.make(
-            binding.root,
-            message,
-            com.google.android.material.snackbar.Snackbar.LENGTH_SHORT
-        ).show()
-    }
-
-    private fun deleteNote() {
-        // Show confirmation dialog
-        androidx.appcompat.app.AlertDialog.Builder(requireContext())
-            .setTitle("Delete Note")
-            .setMessage("Are you sure you want to delete this note?")
-            .setPositiveButton("Delete") { _, _ ->
-                // Create journal entry for deletion - USE ORIGINAL TIMESTAMP
-                val entryToDelete = JournalEntry.Generic(
-                    id = noteId,
-                    timestamp = originalTimestamp, // Use original timestamp
-                    type = "note",
-                    content = originalContent
-                )
-
-                // Delete from database via ViewModel
-                journalViewModel.deleteEntry(entryToDelete)
-
-                // Navigate back
-                requireActivity().onBackPressed()
-            }
-            .setNegativeButton("Cancel", null)
-            .show()
     }
 
     override fun onDestroyView() {

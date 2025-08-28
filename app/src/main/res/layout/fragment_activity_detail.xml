@@ -4,68 +4,44 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@android:color/transparent"
+    android:background="@android:color/white"
     tools:context=".features.journal.presentation.ActivityDetailFragment">
 
-    <!-- Dynamic Gradient Background with Decorative Elements -->
-    <FrameLayout
-        android:id="@+id/dynamic_background"
+    <!-- Subtle greenish accent header bar -->
+    <View
+        android:id="@+id/header_accent"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
-
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:background="@drawable/premium_gradient_background" />
-
-        <!-- Decorative Shape 1 - Top Right -->
-        <View
-            android:id="@+id/decorative_shape_1"
-            android:layout_width="300dp"
-            android:layout_height="300dp"
-            android:layout_gravity="top|end"
-            android:layout_marginTop="-100dp"
-            android:layout_marginEnd="-100dp"
-            android:alpha="0.3"
-            android:background="@drawable/decorative_circle_shape" />
-
-        <!-- Decorative Shape 2 - Bottom Left -->
-        <View
-            android:id="@+id/decorative_shape_2"
-            android:layout_width="250dp"
-            android:layout_height="250dp"
-            android:layout_gravity="bottom|start"
-            android:layout_marginBottom="-100dp"
-            android:layout_marginStart="-100dp"
-            android:alpha="0.2"
-            android:background="@drawable/decorative_circle_shape" />
-    </FrameLayout>
+        android:layout_height="4dp"
+        android:background="#E8F5E8"
+        app:layout_anchor="@+id/scrollView"
+        app:layout_anchorGravity="top" />
 
     <!-- Main Scrollable Content -->
     <androidx.core.widget.NestedScrollView
+        android:id="@+id/scrollView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:fillViewport="true"
         android:overScrollMode="never"
         android:clipToPadding="false"
         android:scrollbars="none"
-        android:background="@android:color/transparent"
+        android:background="@android:color/white"
         android:paddingTop="0dp">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@android:color/transparent"
+            android:background="@android:color/white"
             android:padding="24dp">
 
-            <!-- Date Header -->
+            <!-- Date Header with dynamic date -->
             <TextView
                 android:id="@+id/dateHeaderText"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:gravity="center"
-                android:text="Today's Activity"
-                android:textColor="@color/black"
+                android:text="Loading date..."
+                android:textColor="#2E7D32"
                 android:textSize="28sp"
                 android:textStyle="bold"
                 android:fontFamily="sans-serif-black"
@@ -75,66 +51,59 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 
-            <!-- Triple Ring Container using existing widget with card background -->
+            <!-- Triple Ring Container with subtle green background -->
             <androidx.cardview.widget.CardView
                 android:id="@+id/ringCardContainer"
                 android:layout_width="320dp"
                 android:layout_height="320dp"
                 android:layout_marginTop="32dp"
-                app:cardBackgroundColor="@android:color/transparent"
+                app:cardBackgroundColor="#F8FDF8"
                 app:cardCornerRadius="24dp"
                 app:cardElevation="8dp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/dateHeaderText">
 
-                <FrameLayout
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:id="@+id/ringContainer"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:background="@drawable/glassmorphism_card_background">
+                    android:padding="24dp">
 
-                    <androidx.constraintlayout.widget.ConstraintLayout
-                        android:id="@+id/ringContainer"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:padding="24dp">
+                    <!-- Use existing TripleRingProgressView widget -->
+                    <com.example.health_assistant.widgets.TripleRingProgressView
+                        android:id="@+id/tripleRingProgress"
+                        android:layout_width="250dp"
+                        android:layout_height="250dp"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent" />
 
-                        <!-- Use existing TripleRingProgressView widget -->
-                        <com.example.health_assistant.widgets.TripleRingProgressView
-                            android:id="@+id/tripleRingProgress"
-                            android:layout_width="250dp"
-                            android:layout_height="250dp"
-                            app:layout_constraintBottom_toBottomOf="parent"
-                            app:layout_constraintEnd_toEndOf="parent"
-                            app:layout_constraintStart_toStartOf="parent"
-                            app:layout_constraintTop_toTopOf="parent" />
+                    <!-- Center Summary -->
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:orientation="vertical"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent">
 
-                        <!-- Center Summary -->
-                        <LinearLayout
+                        <TextView
+                            android:id="@+id/centerSummaryText"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:gravity="center"
-                            android:orientation="vertical"
-                            app:layout_constraintBottom_toBottomOf="parent"
-                            app:layout_constraintEnd_toEndOf="parent"
-                            app:layout_constraintStart_toStartOf="parent"
-                            app:layout_constraintTop_toTopOf="parent">
+                            android:text="Health\nOverview"
+                            android:textColor="#2E7D32"
+                            android:textSize="16sp"
+                            android:textStyle="bold" />
 
-                            <TextView
-                                android:id="@+id/centerSummaryText"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:gravity="center"
-                                android:text="Health\nOverview"
-                                android:textColor="@color/textPrimary"
-                                android:textSize="16sp"
-                                android:textStyle="bold" />
+                    </LinearLayout>
 
-                        </LinearLayout>
-
-                    </androidx.constraintlayout.widget.ConstraintLayout>
-
-                </FrameLayout>
+                </androidx.constraintlayout.widget.ConstraintLayout>
 
             </androidx.cardview.widget.CardView>
 
@@ -149,14 +118,15 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/ringCardContainer">
 
-                <!-- Steps Card -->
+                <!-- Steps Card with subtle green accent -->
                 <com.google.android.material.card.MaterialCardView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="16dp"
+                    app:cardBackgroundColor="@android:color/white"
                     app:cardCornerRadius="12dp"
                     app:cardElevation="2dp"
-                    app:strokeColor="#E0E0E0"
+                    app:strokeColor="#E8F5E8"
                     app:strokeWidth="1dp">
 
                     <LinearLayout
@@ -210,14 +180,15 @@
 
                 </com.google.android.material.card.MaterialCardView>
 
-                <!-- Calories Card -->
+                <!-- Calories Card with subtle green accent -->
                 <com.google.android.material.card.MaterialCardView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="16dp"
+                    app:cardBackgroundColor="@android:color/white"
                     app:cardCornerRadius="12dp"
                     app:cardElevation="2dp"
-                    app:strokeColor="#E0E0E0"
+                    app:strokeColor="#E8F5E8"
                     app:strokeWidth="1dp">
 
                     <LinearLayout
@@ -271,14 +242,15 @@
 
                 </com.google.android.material.card.MaterialCardView>
 
-                <!-- Heart Points Card -->
+                <!-- Heart Points Card with subtle green accent -->
                 <com.google.android.material.card.MaterialCardView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="16dp"
+                    app:cardBackgroundColor="@android:color/white"
                     app:cardCornerRadius="12dp"
                     app:cardElevation="2dp"
-                    app:strokeColor="#E0E0E0"
+                    app:strokeColor="#E8F5E8"
                     app:strokeWidth="1dp">
 
                     <LinearLayout
